@@ -29,6 +29,7 @@
 #define RST_RESULT_RESULT_H_
 
 #include <cassert>
+#include <utility>
 
 namespace rst {
 
@@ -37,22 +38,116 @@ namespace result {
 template <class T, class E>
 class Result {
  public:
-  Result() = delete;
-  Result(const Result& result);
-  Result& operator=(const Result& result);
-  ~Result();
   
-  Result(const T& ok);
-  Result(const E& err, const int);
-  Result& operator=(const T& ok);
+  Result() = delete;
+  
+  Result(const Result& result) : is_valid_(result.is_valid_) {
+    if (is_valid_) {
+      new (&ok_) T(result.ok_);
+    } else {
+      new (&err_) E(result.err_);
+    }
+  }
 
-  operator bool() const;
+  Result(Result&& result) : is_valid_(result.is_valid_) {
+    if (is_valid_) {
+      new (&ok_) T(std::move(result.ok_));
+    } else {
+      new (&err_) E(std::move(result.err_));
+    }
+  }
+  
+  Result& operator=(const Result& result) {
+    if (*this != result) {
+      Destruct();
 
-  T& operator*();
-  const T& operator*() const;
+      is_valid_ = result.is_valid_;
+      if (is_valid_) {
+        new (&ok_) T(result.ok_);
+      } else {
+        new (&err_) E(result.err_);
+      }
+    }
+    
+    return *this;
+  }
 
-  E& Err();
-  const E& Err() const;
+  Result& operator=(Result&& result) {
+    if (*this != result) {
+      Destruct();
+
+      is_valid_ = result.is_valid_;
+      if (is_valid_) {
+        new (&ok_) T(std::move(result.ok_));
+      } else {
+        new (&err_) E(std::move(result.err_));
+      }
+    }
+    
+    return *this;
+  }
+  
+  ~Result() {
+    Destruct();
+  }
+  
+  Result(const T& ok) : ok_(ok), is_valid_(true) {}
+  Result(T&& ok) : ok_(std::move(ok)), is_valid_(true) {}
+  
+  Result(const E& err, const int) : err_(err), is_valid_(false) {}
+  Result(E&& err, const int) : err_(std::move(err)), is_valid_(false) {}
+  
+  Result& operator=(const T& ok) {
+    Destruct();
+
+    new (&ok_) T(ok);
+    is_valid_ = true;
+
+    return *this;
+  }
+
+  Result& operator=(T&& ok) {
+    Destruct();
+
+    new (&ok_) T(std::move(ok));
+    is_valid_ = true;
+
+    return *this;
+  }
+
+  operator bool() const noexcept {
+    return is_valid_;
+  }
+
+  T& operator*() noexcept {
+    assert(is_valid_);
+    return ok_;
+  }
+  
+  const T& operator*() const noexcept {
+    assert(is_valid_);
+    return ok_;
+  }
+
+  T* operator->() noexcept {
+    assert(is_valid_);
+    return &ok_;
+  }
+  
+  const T* operator->() const noexcept {
+    assert(is_valid_);
+    return &ok_;
+  }
+
+  E& Err() noexcept {
+    assert(!is_valid_);
+    return err_;
+  }
+  
+  const E& Err() const noexcept {
+    assert(!is_valid_);
+    return err_;
+  }
 
  private:
   union {
@@ -62,96 +157,95 @@ class Result {
 
   bool is_valid_;
   
-  void Destruct();
+  void Destruct() {
+    if (is_valid_) {
+      ok_.~T();
+    } else {
+      err_.~E();
+    }
+  }
 };
 
-template <class T, class E>
-Result<T, E>::Result(const T& ok) : is_valid_(true) {
-  new (&ok_) T(ok);
-}
-
-template <class T, class E>
-Result<T, E>::~Result() {
-  Destruct();
-}
-
-template <class T, class E>
-Result<T, E>::Result(const E& err, const int) : is_valid_(false) {
-  new (&err_) E(err);
-}
-
-template <class T, class E>
-Result<T, E>::Result(const Result& result) : is_valid_(result.is_valid_) {
-  if (is_valid_) {
-    new (&ok_) T(result.ok_);
-  } else {
-    new (&err_) E(result.err_);
-  }
-}
-
-template <class T, class E>
-void Result<T, E>::Destruct() {
-  if (is_valid_) {
-    ok_.~T();
-  } else {
-    err_.~E();
-  }
-}
-
-template <class T, class E>
-Result<T, E>& Result<T, E>::operator=(const T& ok) {
-  Destruct();
-
-  new (&ok_) T(ok);
-  is_valid_ = true;
+template <class E>
+class Result<void, E> {
+ public:
   
-  return *this;
-}
-
-template <class T, class E>
-Result<T, E>& Result<T, E>::operator=(const Result& result) {
-  if (*this != result) {
-    Destruct();
-
-    is_valid_ = result.is_valid_;
-    if (is_valid_) {
-      new (&ok_) T(result.ok_);
-    } else {
+  Result() = delete;
+  
+  Result(const Result& result) : is_valid_(result.is_valid_) {
+    if (!is_valid_) {
       new (&err_) E(result.err_);
     }
   }
 
-  return *this;
-}
+  Result(Result&& result) : is_valid_(result.is_valid_) {
+    if (!is_valid_) {
+      new (&err_) E(std::move(result.err_));
+    }
+  }
+  
+  Result& operator=(const Result& result) {
+    if (*this != result) {
+      Destruct();
 
-template <class T, class E>
-Result<T, E>::operator bool() const {
-  return is_valid_;
-}
+      is_valid_ = result.is_valid_;
+      if (!is_valid_) {
+        new (&err_) E(result.err_);
+      }
+    }
+    
+    return *this;
+  }
 
-template <class T, class E>
-T& Result<T, E>::operator*() {
-  assert(is_valid_);
-  return ok_;
-}
+  Result& operator=(Result&& result) {
+    if (*this != result) {
+      Destruct();
 
-template <class T, class E>
-const T& Result<T, E>::operator*() const {
-  assert(is_valid_);
-  return ok_;
-}
+      is_valid_ = result.is_valid_;
+      if (!is_valid_) {
+        new (&err_) E(std::move(result.err_));
+      }
+    }
+    
+    return *this;
+  }
+  
+  ~Result() {
+    Destruct();
+  }
+  
+  Result(const int) : is_valid_(true) {}
+  
+  Result(const E& err, const int) : err_(err), is_valid_(false) {}
+  Result(E&& err, const int) : err_(std::move(err)), is_valid_(false) {}
+  
+  operator bool() const noexcept {
+    return is_valid_;
+  }
 
-template <class T, class E>
-E& Result<T, E>::Err() {
-  assert(!is_valid_);
-  return err_;
-}
+  E& Err() noexcept {
+    assert(!is_valid_);
+    return err_;
+  }
+  
+  const E& Err() const noexcept {
+    assert(!is_valid_);
+    return err_;
+  }
 
-template <class T, class E>
-const E& Result<T, E>::Err() const {
-  assert(!is_valid_);
-  return err_;
-}
+ private:
+  union {
+    E err_;
+  };
+
+  bool is_valid_;
+  
+  void Destruct() {
+    if (!is_valid_) {
+      err_.~E();
+    }
+  }
+};
 
 template <class T, class E>
 Result<T, E> Err(const E& err) {

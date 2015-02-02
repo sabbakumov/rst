@@ -44,125 +44,129 @@ const NoneType None;
 template <class T>
 class Option {
  public:
-  Option(const T& value);
-  Option(const Option& option);
-  Option(const NoneType&);
-  Option();
+  
+  Option(const T& value) : data_(value), is_valid_(true) {}
+  Option(T&& value) : data_(std::move(value)), is_valid_(true) {}
 
-  ~Option();
+  Option(const Option& option) : is_valid_(option.is_valid_) {
+    if (is_valid_) {
+      Construct(option.data_);
+    }
+  }
 
-  Option& operator=(const T& value);
-  Option& operator=(const Option& option);
-  Option& operator=(const NoneType&);
+  Option(Option&& option) : is_valid_(option.is_valid_) {
+    if (is_valid_) {
+      Construct(std::move(option.data_));
+    }
+  }
+  
+  Option(const NoneType&) : is_valid_(false) {}
+  
+  Option() : is_valid_(false) {}
 
-  operator bool() const;
+  ~Option() {
+    Destruct();
+  }
 
-  T& operator*();
-  const T& operator*() const;
+  Option& operator=(const T& value) {
+    Destruct();
+    Construct(value);
+    is_valid_ = true;
+
+    return *this;
+  }
+
+  Option& operator=(T&& value) {
+    Destruct();
+    Construct(std::move(value));
+    is_valid_ = true;
+
+    return *this;
+  }
+  
+  Option& operator=(const Option& option) {
+    if (*this != option) {
+      Destruct();
+
+      if (option.is_valid_) {
+        Construct(option.data_);
+        is_valid_ = true;
+      } else {
+        is_valid_ = false;
+      }
+    }
+
+    return *this;
+  }
+
+  Option& operator=(Option&& option) {
+    if (*this != option) {
+      Destruct();
+
+      if (option.is_valid_) {
+        Construct(std::move(option.data_));
+        is_valid_ = true;
+      } else {
+        is_valid_ = false;
+      }
+    }
+
+    return *this;
+  }
+  
+  Option& operator=(const NoneType&) {
+    Destruct();
+    is_valid_ = false;
+
+    return *this;
+  }
+
+  operator bool() const noexcept {
+    return is_valid_;
+  }
+
+  T& operator*() noexcept {
+    assert(is_valid_);
+    return data_;
+  }
+  
+  const T& operator*() const noexcept {
+    assert(is_valid_);
+    return data_;
+  }
+
+  T* operator->() noexcept {
+    assert(is_valid_);
+    return &data_;
+  }
+
+  const T* operator->() const noexcept {
+    assert(is_valid_);
+    return &data_;
+  }
 
  private:
+  
   union {
     T data_;
   };
   
   bool is_valid_;
 
-  void Construct(const T& value);
-  void Destruct();
-};
-
-template <class T>
-Option<T>::Option(const T& value) {
-  Construct(value);
-  is_valid_ = true;
-}
-
-template <class T>
-Option<T>::Option(const NoneType&) {
-  is_valid_ = false;
-}
-
-template <class T>
-Option<T>::Option() {
-  is_valid_ = false;
-}
-
-template <class T>
-Option<T>::Option(const Option& option) {
-  if (option.is_valid_) {
-    Construct(option.data_);
-    is_valid_ = true;
-  } else {
-    is_valid_ = false;
+  void Construct(const T& value) {
+    new (&data_) T(value);
   }
-}
 
-template <class T>
-Option<T>::~Option() {
-  Destruct();
-}
-
-template <class T>
-Option<T>& Option<T>::operator=(const T& value) {
-  Destruct();
-  Construct(value);
-  is_valid_ = true;
-
-  return *this;
-}
-
-template <class T>
-Option<T>& Option<T>::operator=(const NoneType&) {
-  Destruct();
-  is_valid_ = false;
-
-  return *this;
-}
-
-template <class T>
-Option<T>& Option<T>::operator=(const Option& option) {
-  if (*this != option) {
-    Destruct();
-
-    if (option.is_valid_) {
-      Construct(option.data_);
-      is_valid_ = true;
-    } else {
-      is_valid_ = false;
+  void Construct(T&& value) {
+    new (&data_) T(std::move(value));
+  }
+  
+  void Destruct() {
+    if (is_valid_) {
+      data_.~T();
     }
   }
-
-  return *this;
-}
-
-template <class T>
-Option<T>::operator bool() const {
-  return is_valid_;
-}
-
-template <class T>
-T& Option<T>::operator*() {
-  assert(is_valid_);
-  return data_;
-}
-
-template <class T>
-const T& Option<T>::operator*() const {
-  assert(is_valid_);
-  return data_;
-}
-
-template <class T>
-void Option<T>::Construct(const T& value) {
-  new (&data_) T(value);
-}
-
-template <class T>
-void Option<T>::Destruct() {
-  if (is_valid_) {
-    data_.~T();
-  }
-}
+};
 
 template <class T>
 bool operator<(const Option<T>& a, const Option<T>& b) {

@@ -51,6 +51,11 @@ class DtorHelper {
 
 int DtorHelper::counter_ = 0;
 
+class ArrowHelper {
+ public:
+  void foo() {}
+};
+
 
 template <class T>
 Option<T> ReturnOption(const T& val) {
@@ -372,6 +377,12 @@ TEST(Option, UseSTL) {
 
   ASSERT_EQ(1000, **it);
   ++it;
+}
+
+TEST(Option, OperatorArrow) {
+  Option<ArrowHelper> o = ArrowHelper();
+
+  o->foo();
 }
 
 int main(int argc, char** argv) {

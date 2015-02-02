@@ -28,6 +28,6 @@
 #ifndef RST_RESULT_H_
 #define RST_RESULT_H_
 
-#include "rst/result/Result.h"
+#include "rst/Result/Result.h"
 
 #endif  // RST_RESULT_H_

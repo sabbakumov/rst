@@ -28,6 +28,6 @@
 #ifndef RST_OPTION_H_
 #define RST_OPTION_H_
 
-#include "rst/option/Option.h"
+#include "rst/Option/Option.h"
 
 #endif  // RST_OPTION_H_

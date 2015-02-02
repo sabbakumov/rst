@@ -50,6 +50,11 @@ class DtorHelper {
 
 int DtorHelper::counter_ = 0;
 
+class ArrowHelper {
+ public:
+  void foo() {}
+};
+
 
 TEST(Result, ValueCtor) {
   {
@@ -68,6 +73,9 @@ TEST(Result, ValueCtor) {
     Result<bool, int> ob = true;
     ASSERT_TRUE(ob == true);
     ASSERT_EQ(true, *ob);
+
+    Result<void, int> ov = 0;
+    ASSERT_TRUE(ov == true);
   }
 
   {
@@ -82,6 +90,9 @@ TEST(Result, ValueCtor) {
 
     Result<bool, int> ob(-1, 0);
     ASSERT_TRUE(ob == false);
+
+    Result<void, int> ov(-1, 0);
+    ASSERT_TRUE(ov == false);
   }
 }
 
@@ -106,6 +117,10 @@ TEST(Result, CopyCtor) {
     Result<bool, int> ob2(ob);
     ASSERT_TRUE(ob2 == true);
     ASSERT_EQ(true, *ob2);
+
+    Result<void, int> ov = 0;
+    Result<void, int> ov2(ov);
+    ASSERT_TRUE(ov2 == true);
   }
 
   {
@@ -124,6 +139,10 @@ TEST(Result, CopyCtor) {
     Result<bool, int> ob(-1, 0);
     Result<bool, int> ob2(ob);
     ASSERT_TRUE(ob2 == false);
+
+    Result<void, int> ov(-1, 0);
+    Result<void, int> ov2(ov);
+    ASSERT_TRUE(ov2 == false);
   }
 }
 
@@ -146,6 +165,9 @@ TEST(Result, Dtor) {
     
     Result<int, DtorHelper> o2(DtorHelper(), 0);
     ASSERT_EQ(2, DtorHelper::counter());
+
+    Result<void, DtorHelper> o3(DtorHelper(), 0);
+    ASSERT_EQ(3, DtorHelper::counter());
   }
   
   ASSERT_EQ(0, DtorHelper::counter());
@@ -212,6 +234,11 @@ TEST(Result, CopyOperatorEquals) {
     ob2 = ob;
     ASSERT_TRUE(ob2 == true);
     ASSERT_EQ(true, *ob2);
+
+    Result<void, int> ov = 0;
+    Result<void, int> ov2(-1, 0);
+    ov2 = ov;
+    ASSERT_TRUE(ov2 == true);
   }
 
   {
@@ -234,6 +261,11 @@ TEST(Result, CopyOperatorEquals) {
     Result<bool, int> ob2(-1, 0);
     ob2 = ob;
     ASSERT_TRUE(ob2 == false);
+
+    Result<void, int> ov(-1, 0);
+    Result<void, int> ov2(-1, 0);
+    ov2 = ov;
+    ASSERT_TRUE(ov2 == false);
   }
 }
 
@@ -250,6 +282,9 @@ TEST(Result, OperatorBool) {
 
     Result<bool, int> ob = true;
     ASSERT_TRUE(ob == true);
+
+    Result<void, int> ov = 0;
+    ASSERT_TRUE(ov == true);
   }
 
   {
@@ -264,6 +299,9 @@ TEST(Result, OperatorBool) {
 
     const Result<bool, int> ob(-1, 0);
     ASSERT_TRUE(ob == false);
+
+    const Result<void, int> ov(-1, 0);
+    ASSERT_TRUE(ov == false);
   }
 }
 
@@ -386,6 +424,20 @@ TEST(Result, Err) {
   a.Err() = 10;
   ASSERT_TRUE(a == false);
   ASSERT_EQ(10, a.Err());
+
+  Result<void, int> b = Err<void, int>(-1);
+  ASSERT_TRUE(b == false);
+  ASSERT_EQ(-1, b.Err());
+
+  b.Err() = 10;
+  ASSERT_TRUE(b == false);
+  ASSERT_EQ(10, b.Err());
+}
+
+TEST(Result, OperatorArrow) {
+  Result<ArrowHelper, int> r = ArrowHelper();
+
+  r->foo();
 }
 
 int main(int argc, char** argv) {
