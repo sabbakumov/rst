@@ -85,7 +85,7 @@ class Option {
   }
   
   Option& operator=(const Option& option) {
-    if (*this != option) {
+    if (this != &option) {
       Destruct();
 
       if (option.is_valid_) {
@@ -100,7 +100,7 @@ class Option {
   }
 
   Option& operator=(Option&& option) {
-    if (*this != option) {
+    if (this != &option) {
       Destruct();
 
       if (option.is_valid_) {

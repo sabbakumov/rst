@@ -267,6 +267,29 @@ TEST(Result, CopyOperatorEquals) {
     ov2 = ov;
     ASSERT_TRUE(ov2 == false);
   }
+
+  {
+    Result<int, int> oi = 8;
+    ASSERT_TRUE(oi == true);
+    ASSERT_EQ(8, *oi);
+    
+    Result<int, int> oi2 = 168;
+    ASSERT_TRUE(oi2 == true);
+    ASSERT_EQ(168, *oi2);
+
+    oi = std::move(oi2);
+    ASSERT_TRUE(oi == true);
+    ASSERT_EQ(168, *oi);
+
+    std::string test = "Test string! Test!";
+    Result<std::string, int> os = test;
+    ASSERT_TRUE(os == true);
+    ASSERT_EQ("Test string! Test!", *os);
+
+    Result<std::string, int> os2 = std::move(os);
+    ASSERT_TRUE(os2 == true);
+    ASSERT_EQ("Test string! Test!", *os2);
+  }
 }
 
 TEST(Result, OperatorBool) {

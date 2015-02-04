@@ -29,6 +29,7 @@
 #define RST_RESULT_RESULT_H_
 
 #include <cassert>
+#include <new>
 #include <utility>
 
 namespace rst {
@@ -58,7 +59,7 @@ class Result {
   }
   
   Result& operator=(const Result& result) {
-    if (*this != result) {
+    if (this != &result) {
       Destruct();
 
       is_valid_ = result.is_valid_;
@@ -73,7 +74,7 @@ class Result {
   }
 
   Result& operator=(Result&& result) {
-    if (*this != result) {
+    if (this != &result) {
       Destruct();
 
       is_valid_ = result.is_valid_;
@@ -185,7 +186,7 @@ class Result<void, E> {
   }
   
   Result& operator=(const Result& result) {
-    if (*this != result) {
+    if (this != &result) {
       Destruct();
 
       is_valid_ = result.is_valid_;
@@ -198,7 +199,7 @@ class Result<void, E> {
   }
 
   Result& operator=(Result&& result) {
-    if (*this != result) {
+    if (this != &result) {
       Destruct();
 
       is_valid_ = result.is_valid_;
