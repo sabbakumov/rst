@@ -1,0 +1,15 @@
+This is a RST C++11 library.
+
+It is licensed under the Simplified BSD Licence.
+
+Now the library contains the following components:
+
+1. Option
+  A lightweight analogy of Boost.optional and Option enum in Rust.
+  It is used to support one more optional value for every existing type.
+
+2. Result
+  An analogy of Result enum in Rust. Also it is similar to Go's
+  (value, error) return semantics.
+  It is used as a return value of any method or function.
+  The component can be helpful to support error handling without C++ exceptions.
