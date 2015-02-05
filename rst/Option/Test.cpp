@@ -25,13 +25,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "rst/Option.h"
+
 #include <cassert>
 #include <complex>
 #include <list>
 #include <set>
 #include <vector>
 
-#include "Option.h"
 #include "gtest/gtest.h"
 
 using rst::option::None;

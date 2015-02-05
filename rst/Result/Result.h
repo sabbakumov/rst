@@ -58,6 +58,17 @@ class Result {
     }
   }
   
+  // Allows implicit conversion from T.
+  Result(const T& ok) : is_valid_(true), ok_(ok) {}
+  Result(T&& ok) : is_valid_(true), ok_(std::move(ok)) {}
+  
+  Result(const E& err, const int) : is_valid_(false), err_(err) {}
+  Result(E&& err, const int) : is_valid_(false), err_(std::move(err)) {}
+
+  ~Result() {
+    Destruct();
+  }
+  
   Result& operator=(const Result& result) {
     if (this != &result) {
       Destruct();
@@ -87,16 +98,6 @@ class Result {
     
     return *this;
   }
-  
-  ~Result() {
-    Destruct();
-  }
-  
-  Result(const T& ok) : ok_(ok), is_valid_(true) {}
-  Result(T&& ok) : ok_(std::move(ok)), is_valid_(true) {}
-  
-  Result(const E& err, const int) : err_(err), is_valid_(false) {}
-  Result(E&& err, const int) : err_(std::move(err)), is_valid_(false) {}
   
   Result& operator=(const T& ok) {
     Destruct();
@@ -151,13 +152,7 @@ class Result {
   }
 
  private:
-  union {
-    T ok_;
-    E err_;
-  };
 
-  bool is_valid_;
-  
   void Destruct() {
     if (is_valid_) {
       ok_.~T();
@@ -165,6 +160,14 @@ class Result {
       err_.~E();
     }
   }
+  
+  
+  bool is_valid_;
+  
+  union {
+    T ok_;
+    E err_;
+  };
 };
 
 template <class E>
@@ -183,6 +186,15 @@ class Result<void, E> {
     if (!is_valid_) {
       new (&err_) E(std::move(result.err_));
     }
+  }
+
+  Result(const int) : is_valid_(true) {}
+  
+  Result(const E& err, const int) : is_valid_(false), err_(err) {}
+  Result(E&& err, const int) : is_valid_(false), err_(std::move(err)) {}
+
+  ~Result() {
+    Destruct();
   }
   
   Result& operator=(const Result& result) {
@@ -211,15 +223,6 @@ class Result<void, E> {
     return *this;
   }
   
-  ~Result() {
-    Destruct();
-  }
-  
-  Result(const int) : is_valid_(true) {}
-  
-  Result(const E& err, const int) : err_(err), is_valid_(false) {}
-  Result(E&& err, const int) : err_(std::move(err)), is_valid_(false) {}
-  
   operator bool() const noexcept {
     return is_valid_;
   }
@@ -235,23 +238,24 @@ class Result<void, E> {
   }
 
  private:
-  union {
-    E err_;
-  };
-
-  bool is_valid_;
   
   void Destruct() {
     if (!is_valid_) {
       err_.~E();
     }
   }
+  bool is_valid_;
+  
+  union {
+    E err_;
+  };
 };
 
 template <class T, class E>
 Result<T, E> Err(const E& err) {
   return Result<T, E>(err, 0);
 }
+
 
 template <class T, class E>
 bool operator<(const Result<T, E>& a, const Result<T, E>& b) {

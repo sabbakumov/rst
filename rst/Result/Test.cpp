@@ -25,12 +25,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "rst/Result.h"
+
 #include <complex>
 #include <list>
 #include <set>
 #include <vector>
 
-#include "Result.h"
 #include "gtest/gtest.h"
 
 using rst::result::Err;

@@ -45,8 +45,9 @@ template <class T>
 class Option {
  public:
   
-  Option(const T& value) : data_(value), is_valid_(true) {}
-  Option(T&& value) : data_(std::move(value)), is_valid_(true) {}
+  // Allows implicit conversion from T.
+  Option(const T& value) : is_valid_(true), data_(value) {}
+  Option(T&& value) : is_valid_(true), data_(std::move(value)) {}
 
   Option(const Option& option) : is_valid_(option.is_valid_) {
     if (is_valid_) {
@@ -60,6 +61,7 @@ class Option {
     }
   }
   
+  // Allows implicit conversion from NoneType.
   Option(const NoneType&) : is_valid_(false) {}
   
   Option() : is_valid_(false) {}
@@ -147,12 +149,6 @@ class Option {
 
  private:
   
-  union {
-    T data_;
-  };
-  
-  bool is_valid_;
-
   void Construct(const T& value) {
     new (&data_) T(value);
   }
@@ -166,6 +162,13 @@ class Option {
       data_.~T();
     }
   }
+  
+  
+  bool is_valid_;
+  
+  union {
+    T data_;
+  };
 };
 
 template <class T>
