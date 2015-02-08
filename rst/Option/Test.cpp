@@ -35,8 +35,8 @@
 
 #include "gtest/gtest.h"
 
-using rst::option::None;
-using rst::option::Option;
+using rst::None;
+using rst::Option;
 
 class DtorHelper {
  public:
@@ -54,7 +54,7 @@ int DtorHelper::counter_ = 0;
 
 class ArrowHelper {
  public:
-  void foo() {}
+  void foo() const {}
 };
 
 
@@ -384,6 +384,10 @@ TEST(Option, OperatorArrow) {
   Option<ArrowHelper> o = ArrowHelper();
 
   o->foo();
+
+  const Option<ArrowHelper> o2 = ArrowHelper();
+
+  o2->foo();
 }
 
 int main(int argc, char** argv) {

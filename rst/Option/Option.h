@@ -33,8 +33,6 @@
 
 namespace rst {
 
-namespace option {
-
 class NoneType {
  public:
   NoneType() {}
@@ -62,39 +60,50 @@ class Option {
   }
   
   // Allows implicit conversion from NoneType.
-  Option(const NoneType&) : is_valid_(false) {}
+  Option(const NoneType&) noexcept : is_valid_(false) {}
   
-  Option() : is_valid_(false) {}
+  Option() noexcept : is_valid_(false) {}
 
   ~Option() {
-    Destruct();
+    if (is_valid_) Destruct();
   }
 
   Option& operator=(const T& value) {
-    Destruct();
-    Construct(value);
-    is_valid_ = true;
+    if (is_valid_) {
+      data_ = value;
+    } else {
+      Construct(value);
+      is_valid_ = true;
+    }
 
     return *this;
   }
 
   Option& operator=(T&& value) {
-    Destruct();
-    Construct(std::move(value));
-    is_valid_ = true;
+    if (is_valid_) {
+      data_ = std::move(value);
+    } else {
+      Construct(std::move(value));
+      is_valid_ = true;
+    }
 
     return *this;
   }
   
   Option& operator=(const Option& option) {
     if (this != &option) {
-      Destruct();
-
       if (option.is_valid_) {
-        Construct(option.data_);
-        is_valid_ = true;
+        if (is_valid_) {
+          data_ = option.data_;
+        } else {
+          Construct(option.data_);
+          is_valid_ = true;
+        }
       } else {
-        is_valid_ = false;
+        if (is_valid_) {
+          Destruct();
+          is_valid_ = false;
+        }
       }
     }
 
@@ -103,13 +112,18 @@ class Option {
 
   Option& operator=(Option&& option) {
     if (this != &option) {
-      Destruct();
-
       if (option.is_valid_) {
-        Construct(std::move(option.data_));
-        is_valid_ = true;
+        if (is_valid_) {
+          data_ = std::move(option.data_);
+        } else {
+          Construct(std::move(option.data_));
+          is_valid_ = true;
+        }
       } else {
-        is_valid_ = false;
+        if (is_valid_) {
+          Destruct();
+          is_valid_ = false;
+        }
       }
     }
 
@@ -117,7 +131,7 @@ class Option {
   }
   
   Option& operator=(const NoneType&) {
-    Destruct();
+    if (is_valid_) Destruct();
     is_valid_ = false;
 
     return *this;
@@ -158,9 +172,7 @@ class Option {
   }
   
   void Destruct() {
-    if (is_valid_) {
-      data_.~T();
-    }
+    data_.~T();
   }
   
   
@@ -175,8 +187,6 @@ template <class T>
 bool operator<(const Option<T>& a, const Option<T>& b) {
   return *a < *b;
 }
-
-}  // namespace option 
 
 }  // namespace rst
 
