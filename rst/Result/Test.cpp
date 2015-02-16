@@ -390,46 +390,61 @@ TEST(Result, OperatorBool) {
 TEST(Result, OperatorStar) {
   {
     Result<int, int> oi = 0;
+    ASSERT_TRUE(oi == true);
     ASSERT_EQ(0, *oi);
     *oi = 1;
+    ASSERT_TRUE(oi == true);
     ASSERT_EQ(1, *oi);
 
     Result<std::complex<double>, int> ocmplx = std::complex<double>(0.0, 0.0);
+    ASSERT_TRUE(ocmplx == true);
     ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
     *ocmplx = std::complex<double>(1.0, 1.0);
+    ASSERT_TRUE(ocmplx == true);
     ASSERT_EQ(std::complex<double>(1.0, 1.0), *ocmplx);
 
     Result<char, int> oc = '\0';
+    ASSERT_TRUE(oc == true);
     ASSERT_EQ('\0', *oc);
     *oc = 'a';
+    ASSERT_TRUE(oc == true);
     ASSERT_EQ('a', *oc);
 
     Result<bool, int> ob = true;
+    ASSERT_TRUE(ob == true);
     ASSERT_EQ(true, *ob);
     *ob = false;
+    ASSERT_TRUE(ob == true);
     ASSERT_EQ(false, *ob);
 
     Result<int*, int> op = new int(10);
+    ASSERT_TRUE(op == true);
     ASSERT_EQ(10, *op);
     op = new int(20);
+    ASSERT_TRUE(op == true);
     ASSERT_EQ(20, *op);
   }
 
   {
     const Result<int, int> oi = 0;
+    ASSERT_TRUE(oi == true);
     ASSERT_EQ(0, *oi);
 
     const Result<std::complex<double>, int> ocmplx =
         std::complex<double>(0.0, 0.0);
+    ASSERT_TRUE(ocmplx == true);
     ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
 
     const Result<char, int> oc = '\0';
+    ASSERT_TRUE(oc == true);
     ASSERT_EQ('\0', *oc);
 
     const Result<bool, int> ob = true;
+    ASSERT_TRUE(ob == true);
     ASSERT_EQ(true, *ob);
 
     const Result<int*, int> op = Result<int*, int>(new int(10));
+    ASSERT_TRUE(op == true);
     ASSERT_EQ(10, *op);
   }
 }
@@ -438,15 +453,20 @@ TEST(Result, OperatorL) {
   Result<int, int> a = 0;
   Result<int, int> b = 1;
 
+  ASSERT_TRUE(a == true);
+  ASSERT_TRUE(b == true);
   ASSERT_LT(*a, *b);
 
   a = -1;
+  ASSERT_TRUE(a == true);
   ASSERT_LT(*a, *b);
 
   a = 1;
+  ASSERT_TRUE(a == true);
   ASSERT_FALSE(*a < *b);
 
   a = 20;
+  ASSERT_TRUE(a == true);
   ASSERT_FALSE(*a < *b);
 }
 
@@ -534,32 +554,39 @@ TEST(Result, Err) {
 
 TEST(Result, OperatorArrow) {
   Result<ArrowHelper, int> r = ArrowHelper();
+  ASSERT_TRUE(r == true);
   r->foo();
 
   const Result<ArrowHelper, int> r2 = ArrowHelper();
+  ASSERT_TRUE(r2 == true);
   r2->foo();
 
   Result<ArrowHelper*, int> p = new ArrowHelper();
+  ASSERT_TRUE(p == true);
   p->foo();
 
   const Result<ArrowHelper*, int> p2 =
       Result<ArrowHelper*, int>(new ArrowHelper());
+  ASSERT_TRUE(p2 == true);
   p2->foo();
 }
 
 TEST(Result, Get) {
   int* raw = new int(10);
   Result<int*, int> p = raw;
+  ASSERT_TRUE(p == true);
   ASSERT_EQ(raw, p.get());
 
   raw = new int(20);
   const Result<int*, int> p2 = Result<int*, int>(raw);
+  ASSERT_TRUE(p2 == true);
   ASSERT_EQ(raw, p2.get());
 }
 
 TEST(Result, Release) {
   int* raw = new int(10);
   Result<int*, int> p = raw;
+  ASSERT_TRUE(p == true);
   ASSERT_EQ(raw, p.release());
 
   delete raw;
@@ -568,6 +595,7 @@ TEST(Result, Release) {
 TEST(Result, Reset) {
   int* raw = new int(10);
   Result<int*, int> p = new int(20);
+  ASSERT_TRUE(p == true);
   p.reset(raw);
   ASSERT_EQ(raw, p.get());
 

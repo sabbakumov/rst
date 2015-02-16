@@ -42,27 +42,25 @@ const NoneType None;
 template <class T>
 class Option {
  public:
-  
   // Allows implicit conversion from T.
-  Option(const T& value) : is_valid_(true), data_(value) {}
-  Option(T&& value) : is_valid_(true), data_(std::move(value)) {}
+  Option(const T& value) : is_valid_(true), was_checked_(false), data_(value) {}
+  Option(T&& value)
+      : is_valid_(true), was_checked_(false), data_(std::move(value)) {}
 
-  Option(const Option& option) : is_valid_(option.is_valid_) {
-    if (is_valid_) {
-      Construct(option.data_);
-    }
+  Option(const Option& option)
+      : is_valid_(option.is_valid_), was_checked_(option.was_checked_) {
+    if (is_valid_) Construct(option.data_);
   }
 
-  Option(Option&& option) : is_valid_(option.is_valid_) {
-    if (is_valid_) {
-      Construct(std::move(option.data_));
-    }
+  Option(Option&& option)
+      : is_valid_(option.is_valid_), was_checked_(option.was_checked_) {
+    if (is_valid_) Construct(std::move(option.data_));
   }
   
   // Allows implicit conversion from NoneType.
-  Option(const NoneType&) noexcept : is_valid_(false) {}
+  Option(const NoneType&) noexcept : is_valid_(false), was_checked_(false) {}
   
-  Option() noexcept : is_valid_(false) {}
+  Option() noexcept : is_valid_(false), was_checked_(false) {}
 
   ~Option() {
     if (is_valid_) Destruct();
@@ -75,6 +73,7 @@ class Option {
       Construct(value);
       is_valid_ = true;
     }
+    was_checked_ = false;
 
     return *this;
   }
@@ -86,6 +85,7 @@ class Option {
       Construct(std::move(value));
       is_valid_ = true;
     }
+    was_checked_ = false;
 
     return *this;
   }
@@ -105,6 +105,7 @@ class Option {
           is_valid_ = false;
         }
       }
+      was_checked_ = option.was_checked_;
     }
 
     return *this;
@@ -125,6 +126,7 @@ class Option {
           is_valid_ = false;
         }
       }
+      was_checked_ = option.was_checked_;
     }
 
     return *this;
@@ -133,36 +135,41 @@ class Option {
   Option& operator=(const NoneType&) {
     if (is_valid_) Destruct();
     is_valid_ = false;
+    was_checked_ = false;
 
     return *this;
   }
 
   operator bool() const noexcept {
+    was_checked_ = true;
     return is_valid_;
   }
 
   T& operator*() noexcept {
+    assert(was_checked_);
     assert(is_valid_);
     return data_;
   }
   
   const T& operator*() const noexcept {
+    assert(was_checked_);
     assert(is_valid_);
     return data_;
   }
 
   T* operator->() noexcept {
+    assert(was_checked_);
     assert(is_valid_);
     return &data_;
   }
 
   const T* operator->() const noexcept {
+    assert(was_checked_);
     assert(is_valid_);
     return &data_;
   }
 
  private:
-  
   void Construct(const T& value) {
     new (&data_) T(value);
   }
@@ -178,6 +185,9 @@ class Option {
   
   bool is_valid_;
   
+  // Allows const objects to modify the 'checked' flag.
+  mutable bool was_checked_;
+  
   union {
     T data_;
   };
@@ -185,6 +195,7 @@ class Option {
 
 template <class T>
 bool operator<(const Option<T>& a, const Option<T>& b) {
+  if (a && b) {}
   return *a < *b;
 }
 

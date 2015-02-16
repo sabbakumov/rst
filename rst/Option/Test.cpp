@@ -261,37 +261,49 @@ TEST(Option, OperatorBool) {
 TEST(Option, OperatorStar) {
   {
     Option<int> oi = 0;
+    ASSERT_TRUE(oi == true);
     ASSERT_EQ(0, *oi);
     *oi = 1;
+    ASSERT_TRUE(oi == true);
     ASSERT_EQ(1, *oi);
 
     Option<std::complex<double>> ocmplx = std::complex<double>(0.0, 0.0);
+    ASSERT_TRUE(ocmplx == true);
     ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
     *ocmplx = std::complex<double>(1.0, 1.0);
+    ASSERT_TRUE(ocmplx == true);
     ASSERT_EQ(std::complex<double>(1.0, 1.0), *ocmplx);
 
     Option<char> oc = '\0';
+    ASSERT_TRUE(oc == true);
     ASSERT_EQ('\0', *oc);
     *oc = 'a';
+    ASSERT_TRUE(oc == true);
     ASSERT_EQ('a', *oc);
 
     Option<bool> ob = true;
+    ASSERT_TRUE(ob == true);
     ASSERT_EQ(true, *ob);
     *ob = false;
+    ASSERT_TRUE(ob == true);
     ASSERT_EQ(false, *ob);
   }
 
   {
     const Option<int> oi = 0;
+    ASSERT_TRUE(oi == true);
     ASSERT_EQ(0, *oi);
 
     const Option<std::complex<double>> ocmplx = std::complex<double>(0.0, 0.0);
+    ASSERT_TRUE(ocmplx == true);
     ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
 
     const Option<char> oc = '\0';
+    ASSERT_TRUE(oc == true);
     ASSERT_EQ('\0', *oc);
 
     const Option<bool> ob = true;
+    ASSERT_TRUE(ob == true);
     ASSERT_EQ(true, *ob);
   }
 }
@@ -311,15 +323,20 @@ TEST(Option, OperatorL) {
   Option<int> a = 0;
   Option<int> b = 1;
 
+  ASSERT_TRUE(a == true);
+  ASSERT_TRUE(b == true);
   ASSERT_LT(*a, *b);
 
   a = -1;
+  ASSERT_TRUE(a == true);
   ASSERT_LT(*a, *b);
 
   a = 1;
+  ASSERT_TRUE(a == true);
   ASSERT_FALSE(*a < *b);
 
   a = 20;
+  ASSERT_TRUE(a == true);
   ASSERT_FALSE(*a < *b);
 }
 
@@ -383,10 +400,12 @@ TEST(Option, UseSTL) {
 TEST(Option, OperatorArrow) {
   Option<ArrowHelper> o = ArrowHelper();
 
+  ASSERT_TRUE(o == true);
   o->foo();
 
   const Option<ArrowHelper> o2 = ArrowHelper();
 
+  ASSERT_TRUE(o2 == true);
   o2->foo();
 }
 
