@@ -13,3 +13,6 @@ Now the library contains the following components:
   (value, error) return semantics.
   It is used as a return value of any method or function.
   The component can be helpful to support error handling without C++ exceptions.
+
+3. Logger
+  A fast flexible thread-safe Logger component for C++11.
