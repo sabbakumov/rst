@@ -8,6 +8,7 @@ Now the library contains the following components:
   A lightweight analogy of Boost.optional and Option enum in Rust.
   It is used to support one more optional value for every existing type.
   It uses pointer-like semantics by overloading operator* and operator->.
+  The object of the class asserts if it has been checked.
 
 2. Result
   An analogy of Result enum in Rust. Also it is similar to Go's
@@ -21,6 +22,7 @@ Now the library contains the following components:
      automatically deletes the pointer. It uses unique_ptr<ValueType>
      internally;
     * Result<void, ErrorType> - doesn't have '*' and '->' operator overloads.
+  The object of the class asserts if it has been checked.
 
 3. Logger
   A fast flexible thread-safe Logger component for C++11.
