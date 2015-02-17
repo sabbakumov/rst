@@ -7,12 +7,20 @@ Now the library contains the following components:
 1. Option
   A lightweight analogy of Boost.optional and Option enum in Rust.
   It is used to support one more optional value for every existing type.
+  It uses pointer-like semantics by overloading operator* and operator->.
 
 2. Result
   An analogy of Result enum in Rust. Also it is similar to Go's
   (value, error) return semantics.
   It is used as a return value of any method or function.
   The component can be helpful to support error handling without C++ exceptions.
+  It uses pointer-like semantics by overloading operator* and operator->.
+  A Result template class supports:
+    * Result<ValueType, ErrorType>;
+    * Result<ValueType*, ErrorType> - a unique_ptr-like object that
+     automatically deletes the pointer. It uses unique_ptr<ValueType>
+     internally;
+    * Result<void, ErrorType> - doesn't have '*' and '->' operator overloads.
 
 3. Logger
   A fast flexible thread-safe Logger component for C++11.
