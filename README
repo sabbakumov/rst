@@ -22,7 +22,8 @@ Now the library contains the following components:
      automatically deletes the pointer. It uses unique_ptr<ValueType>
      internally;
     * Result<void, ErrorType> - doesn't have '*' and '->' operator overloads.
-  The object of the class asserts if it has been checked.
+  The object of the class asserts if it has been checked. So, it's impossible
+ now to ignore an error.
 
 3. Logger
   A fast flexible thread-safe Logger component for C++11.

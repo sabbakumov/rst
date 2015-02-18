@@ -108,30 +108,30 @@ TEST(Result, ValueCtor) {
   }
 }
 
-TEST(Result, CopyCtor) {
+TEST(Result, MoveCtor) {
   {
     Result<int, int> oi = 0;
-    Result<int, int> oi2(oi);
+    Result<int, int> oi2(std::move(oi));
     ASSERT_TRUE(oi2 == true);
     ASSERT_EQ(0, *oi2);
 
     Result<std::complex<double>, int> ocmplx = std::complex<double>(0.0, 0.0);
-    Result<std::complex<double>, int> ocmplx2(ocmplx);
+    Result<std::complex<double>, int> ocmplx2(std::move(ocmplx));
     ASSERT_TRUE(ocmplx2 == true);
     ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx2);
 
     Result<char, int> oc = '\0';
-    Result<char, int> oc2(oc);
+    Result<char, int> oc2(std::move(oc));
     ASSERT_TRUE(oc2 == true);
     ASSERT_EQ('\0', *oc2);
 
     Result<bool, int> ob = true;
-    Result<bool, int> ob2(ob);
+    Result<bool, int> ob2(std::move(ob));
     ASSERT_TRUE(ob2 == true);
     ASSERT_EQ(true, *ob2);
 
     Result<void, int> ov = 0;
-    Result<void, int> ov2(ov);
+    Result<void, int> ov2(std::move(ov));
     ASSERT_TRUE(ov2 == true);
 
     Result<int*, int> op = new int(10);
@@ -142,24 +142,24 @@ TEST(Result, CopyCtor) {
 
   {
     Result<int, int> oi = Err<int, int>(-1);
-    Result<int, int> oi2(oi);
+    Result<int, int> oi2(std::move(oi));
     ASSERT_TRUE(oi2 == false);
 
     Result<std::complex<double>, int> ocmplx =
         Err<std::complex<double>, int>(-1);
-    Result<std::complex<double>, int> ocmplx2(ocmplx);
+    Result<std::complex<double>, int> ocmplx2(std::move(ocmplx));
     ASSERT_TRUE(ocmplx2 == false);
 
     Result<char, int> oc = Err<char, int>(-1);
-    Result<char, int> oc2(oc);
+    Result<char, int> oc2(std::move(oc));
     ASSERT_TRUE(oc2 == false);
 
     Result<bool, int> ob = Err<bool, int>(-1);
-    Result<bool, int> ob2(ob);
+    Result<bool, int> ob2(std::move(ob));
     ASSERT_TRUE(ob2 == false);
 
     Result<void, int> ov = Err<void, int>(-1);
-    Result<void, int> ov2(ov);
+    Result<void, int> ov2(std::move(ov));
     ASSERT_TRUE(ov2 == false);
 
     Result<int*, int> op = Err<int*, int>(-1);
@@ -173,12 +173,15 @@ TEST(Result, Dtor) {
 
   {
     Result<DtorHelper, int> o = DtorHelper();
+    o.Ignore();
     ASSERT_EQ(1, DtorHelper::counter());
     
     Result<DtorHelper, int> o2 = DtorHelper();
+    o2.Ignore();
     ASSERT_EQ(2, DtorHelper::counter());
 
     Result<DtorHelper*, int> o3 = new DtorHelper;
+    o3.Ignore();
     ASSERT_EQ(3, DtorHelper::counter());
   }
   
@@ -186,15 +189,19 @@ TEST(Result, Dtor) {
 
   {
     Result<int, DtorHelper> o = Err<int, DtorHelper>(DtorHelper());
+    o.Ignore();
     ASSERT_EQ(1, DtorHelper::counter());
     
     Result<int, DtorHelper> o2 = Err<int, DtorHelper>(DtorHelper());
+    o2.Ignore();
     ASSERT_EQ(2, DtorHelper::counter());
 
     Result<void, DtorHelper> o3 = Err<void, DtorHelper>(DtorHelper());
+    o3.Ignore();
     ASSERT_EQ(3, DtorHelper::counter());
 
     Result<int*, DtorHelper> o4 = Err<int*, DtorHelper>(DtorHelper());
+    o4.Ignore();
     ASSERT_EQ(4, DtorHelper::counter());
   }
   
@@ -206,15 +213,21 @@ TEST(Result, OperatorEquals) {
 
   {
     Result<DtorHelper, int> o = DtorHelper();
+    o.Ignore();
     o = DtorHelper();
+    o.Ignore();
     ASSERT_EQ(1, DtorHelper::counter());
     
     Result<DtorHelper, int> o2 = DtorHelper();
+    o2.Ignore();
     o2 = DtorHelper();
+    o2.Ignore();
     ASSERT_EQ(2, DtorHelper::counter());
 
     Result<DtorHelper*, int> op = Err<DtorHelper*, int>(-1);
+    op.Ignore();
     op = new DtorHelper();
+    op.Ignore();
     ASSERT_EQ(3, DtorHelper::counter());
   }
   
@@ -223,11 +236,15 @@ TEST(Result, OperatorEquals) {
   {
     Result<int, DtorHelper> o = Err<int, DtorHelper>(DtorHelper());
     ASSERT_EQ(1, DtorHelper::counter());
+    o.Ignore();
     o = 0;
+    o.Ignore();
     ASSERT_EQ(0, DtorHelper::counter());
     
     Result<DtorHelper, int> o2 = Err<DtorHelper, int>(-1);
+    o2.Ignore();
     o2 = DtorHelper();
+    o2.Ignore();
     ASSERT_EQ(1, DtorHelper::counter());
   }
   
@@ -237,12 +254,16 @@ TEST(Result, OperatorEquals) {
 TEST(Result, CopyOperatorEquals) {
   {
     Result<int, int> oi = 0;
+    oi.Ignore();
     oi = oi;
+    oi.Ignore();
     ASSERT_TRUE(oi == true);
     ASSERT_EQ(0, *oi);
 
     Result<int*, int> op = new int(10);
+    op.Ignore();
     op = std::move(op);
+    op.Ignore();
     ASSERT_TRUE(op == true);
     ASSERT_EQ(10, *op);
   }
@@ -250,37 +271,55 @@ TEST(Result, CopyOperatorEquals) {
   {
     Result<int, int> oi = 0;
     Result<int, int> oi2 = Err<int, int>(-1);
+    oi2.Ignore();
     oi2 = oi;
+    oi.Ignore();
+    oi2.Ignore();
     ASSERT_TRUE(oi2 == true);
     ASSERT_EQ(0, *oi2);
 
     Result<std::complex<double>, int> ocmplx = std::complex<double>(0.0, 0.0);
     Result<std::complex<double>, int> ocmplx2 =
         Err<std::complex<double>, int>(-1);
+    ocmplx2.Ignore();
     ocmplx2 = ocmplx;
+    ocmplx.Ignore();
+    ocmplx2.Ignore();
     ASSERT_TRUE(ocmplx2 == true);
     ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx2);
 
     Result<char, int> oc = '\0';
     Result<char, int> oc2 = Err<char, int>(-1);
+    oc2.Ignore();
     oc2 = oc;
+    oc.Ignore();
+    oc2.Ignore();
     ASSERT_TRUE(oc2 == true);
     ASSERT_EQ('\0', *oc2);
 
     Result<bool, int> ob = true;
     Result<bool, int> ob2 = Err<bool, int>(-1);
+    ob2.Ignore();
     ob2 = ob;
+    ob.Ignore();
+    ob2.Ignore();
     ASSERT_TRUE(ob2 == true);
     ASSERT_EQ(true, *ob2);
 
     Result<void, int> ov = 0;
     Result<void, int> ov2 = Err<void, int>(-1);
+    ov2.Ignore();
     ov2 = ov;
+    ov.Ignore();
+    ov2.Ignore();
     ASSERT_TRUE(ov2 == true);
 
     Result<int*, int> op = new int(10);
     Result<int*, int> op2 = Err<int*, int>(-1);
+    op2.Ignore();
     op2 = std::move(op);
+    op.Ignore();
+    op2.Ignore();
     ASSERT_TRUE(op2 == true);
     ASSERT_EQ(10, *op2);
   }
@@ -288,7 +327,10 @@ TEST(Result, CopyOperatorEquals) {
   {
     Result<int, int> oi = Err<int, int>(-1);
     Result<int, int> oi2 = Err<int, int>(-1);
+    oi2.Ignore();
     oi2 = oi;
+    oi.Ignore();
+    oi2.Ignore();
     ASSERT_TRUE(oi2 == false);
 
     Result<std::complex<double>, int> ocmplx =
@@ -296,27 +338,42 @@ TEST(Result, CopyOperatorEquals) {
     Result<std::complex<double>, int> ocmplx2 =
         Err<std::complex<double>, int>(-1);
       
+    ocmplx2.Ignore();
     ocmplx2 = ocmplx;
+    ocmplx.Ignore();
+    ocmplx2.Ignore();
     ASSERT_TRUE(ocmplx2 == false);
 
     Result<char, int> oc = Err<char, int>(-1);
     Result<char, int> oc2 = Err<char, int>(-1);
+    oc2.Ignore();
     oc2 = oc;
+    oc.Ignore();
+    oc2.Ignore();
     ASSERT_TRUE(oc2 == false);
 
     Result<bool, int> ob = Err<bool, int>(-1);
     Result<bool, int> ob2 = Err<bool, int>(-1);
+    ob2.Ignore();
     ob2 = ob;
+    ob.Ignore();
+    ob2.Ignore();
     ASSERT_TRUE(ob2 == false);
 
     Result<void, int> ov = Err<void, int>(-1);
     Result<void, int> ov2 = Err<void, int>(-1);
+    ov2.Ignore();
     ov2 = ov;
+    ov.Ignore();
+    ov2.Ignore();
     ASSERT_TRUE(ov2 == false);
 
     Result<int*, int> op = Err<int*, int>(-1);
     Result<int*, int> op2 = Err<int*, int>(-1);
+    op2.Ignore();
     op2 = std::move(op);
+    op.Ignore();
+    op2.Ignore();
     ASSERT_TRUE(op2 == false);
   }
 
@@ -426,20 +483,20 @@ TEST(Result, OperatorStar) {
   }
 
   {
-    const Result<int, int> oi = 0;
+    const Result<int, int> oi = Result<int, int>(0);
     ASSERT_TRUE(oi == true);
     ASSERT_EQ(0, *oi);
 
     const Result<std::complex<double>, int> ocmplx =
-        std::complex<double>(0.0, 0.0);
+        Result<std::complex<double>, int>(std::complex<double>(0.0, 0.0));
     ASSERT_TRUE(ocmplx == true);
     ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
 
-    const Result<char, int> oc = '\0';
+    const Result<char, int> oc = Result<char, int>('\0');
     ASSERT_TRUE(oc == true);
     ASSERT_EQ('\0', *oc);
 
-    const Result<bool, int> ob = true;
+    const Result<bool, int> ob = Result<bool, int>(true);
     ASSERT_TRUE(ob == true);
     ASSERT_EQ(true, *ob);
 
@@ -557,7 +614,7 @@ TEST(Result, OperatorArrow) {
   ASSERT_TRUE(r == true);
   r->foo();
 
-  const Result<ArrowHelper, int> r2 = ArrowHelper();
+  const Result<ArrowHelper, int> r2 = Result<ArrowHelper, int>(ArrowHelper());
   ASSERT_TRUE(r2 == true);
   r2->foo();
 
@@ -601,6 +658,10 @@ TEST(Result, Reset) {
 
   p.reset();
   ASSERT_TRUE(p.get() == nullptr);
+}
+
+Result<int, int> f() {
+  return 0;
 }
 
 int main(int argc, char** argv) {
