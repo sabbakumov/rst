@@ -43,18 +43,18 @@ template <class T>
 class Option {
  public:
   // Allows implicit conversion from T.
-  Option(const T& value) : is_valid_(true), was_checked_(false), data_(value) {}
-  Option(T&& value)
-      : is_valid_(true), was_checked_(false), data_(std::move(value)) {}
+  Option(const T& rhs) : is_valid_(true), was_checked_(false), data_(rhs) {}
+  Option(T&& rhs)
+      : is_valid_(true), was_checked_(false), data_(std::move(rhs)) {}
 
-  Option(const Option& option)
-      : is_valid_(option.is_valid_), was_checked_(option.was_checked_) {
-    if (is_valid_) Construct(option.data_);
+  Option(const Option& rhs)
+      : is_valid_(rhs.is_valid_), was_checked_(rhs.was_checked_) {
+    if (is_valid_) Construct(rhs.data_);
   }
 
-  Option(Option&& option)
-      : is_valid_(option.is_valid_), was_checked_(option.was_checked_) {
-    if (is_valid_) Construct(std::move(option.data_));
+  Option(Option&& rhs)
+      : is_valid_(rhs.is_valid_), was_checked_(rhs.was_checked_) {
+    if (is_valid_) Construct(std::move(rhs.data_));
   }
   
   // Allows implicit conversion from NoneType.
@@ -66,11 +66,11 @@ class Option {
     if (is_valid_) Destruct();
   }
 
-  Option& operator=(const T& value) {
+  Option& operator=(const T& rhs) {
     if (is_valid_) {
-      data_ = value;
+      data_ = rhs;
     } else {
-      Construct(value);
+      Construct(rhs);
       is_valid_ = true;
     }
     was_checked_ = false;
@@ -78,11 +78,11 @@ class Option {
     return *this;
   }
 
-  Option& operator=(T&& value) {
+  Option& operator=(T&& rhs) {
     if (is_valid_) {
-      data_ = std::move(value);
+      data_ = std::move(rhs);
     } else {
-      Construct(std::move(value));
+      Construct(std::move(rhs));
       is_valid_ = true;
     }
     was_checked_ = false;
@@ -90,13 +90,13 @@ class Option {
     return *this;
   }
   
-  Option& operator=(const Option& option) {
-    if (this != &option) {
-      if (option.is_valid_) {
+  Option& operator=(const Option& rhs) {
+    if (this != &rhs) {
+      if (rhs.is_valid_) {
         if (is_valid_) {
-          data_ = option.data_;
+          data_ = rhs.data_;
         } else {
-          Construct(option.data_);
+          Construct(rhs.data_);
           is_valid_ = true;
         }
       } else {
@@ -105,19 +105,19 @@ class Option {
           is_valid_ = false;
         }
       }
-      was_checked_ = option.was_checked_;
+      was_checked_ = rhs.was_checked_;
     }
 
     return *this;
   }
 
-  Option& operator=(Option&& option) {
-    if (this != &option) {
-      if (option.is_valid_) {
+  Option& operator=(Option&& rhs) {
+    if (this != &rhs) {
+      if (rhs.is_valid_) {
         if (is_valid_) {
-          data_ = std::move(option.data_);
+          data_ = std::move(rhs.data_);
         } else {
-          Construct(std::move(option.data_));
+          Construct(std::move(rhs.data_));
           is_valid_ = true;
         }
       } else {
@@ -126,7 +126,7 @@ class Option {
           is_valid_ = false;
         }
       }
-      was_checked_ = option.was_checked_;
+      was_checked_ = rhs.was_checked_;
     }
 
     return *this;
@@ -169,13 +169,15 @@ class Option {
     return &data_;
   }
 
+  void Ignore() const { was_checked_ = true; }
+
  private:
-  void Construct(const T& value) {
-    new (&data_) T(value);
+  void Construct(const T& rhs) {
+    new (&data_) T(rhs);
   }
 
-  void Construct(T&& value) {
-    new (&data_) T(std::move(value));
+  void Construct(T&& rhs) {
+    new (&data_) T(std::move(rhs));
   }
   
   void Destruct() {
@@ -194,9 +196,10 @@ class Option {
 };
 
 template <class T>
-bool operator<(const Option<T>& a, const Option<T>& b) {
-  if (a && b) {}
-  return *a < *b;
+bool operator<(const Option<T>& lhs, const Option<T>& rhs) {
+  lhs.Ignore();
+  rhs.Ignore();
+  return *lhs < *rhs;
 }
 
 }  // namespace rst

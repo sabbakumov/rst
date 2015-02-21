@@ -40,26 +40,26 @@ class Result {
  public:
   Result() : is_valid_(false), was_checked_(false), err_(E()) {}
   
-  Result(const Result& result) = delete;
+  Result(const Result&) = delete;
 
-  Result(Result&& result)
-      : is_valid_(result.is_valid_), was_checked_(false) {
-    result.was_checked_ = true;
+  Result(Result&& rhs)
+      : is_valid_(rhs.is_valid_), was_checked_(false) {
+    rhs.was_checked_ = true;
     if (is_valid_) {
-      new (&ok_) T(std::move(result.ok_));
+      new (&ok_) T(std::move(rhs.ok_));
     } else {
-      new (&err_) E(std::move(result.err_));
+      new (&err_) E(std::move(rhs.err_));
     }
   }
   
   // Allows implicit conversion from T.
-  Result(const T& ok) : is_valid_(true), was_checked_(false), ok_(ok) {}
-  Result(T&& ok) : is_valid_(true), was_checked_(false), ok_(std::move(ok)) {}
+  Result(const T& rhs) : is_valid_(true), was_checked_(false), ok_(rhs) {}
+  Result(T&& rhs) : is_valid_(true), was_checked_(false), ok_(std::move(rhs)) {}
   
-  Result(const E& err, const int)
-      : is_valid_(false), was_checked_(false), err_(err) {}
-  Result(E&& err, const int)
-      : is_valid_(false), was_checked_(false), err_(std::move(err)) {}
+  Result(const E& rhs, const int)
+      : is_valid_(false), was_checked_(false), err_(rhs) {}
+  Result(E&& rhs, const int)
+      : is_valid_(false), was_checked_(false), err_(std::move(rhs)) {}
 
   ~Result() {
     assert(was_checked_);
@@ -70,24 +70,24 @@ class Result {
     }
   }
   
-  Result& operator=(const Result& result) {
+  Result& operator=(const Result& rhs) {
     assert(was_checked_);
-    if (this != &result) {
-      if (result.is_valid_) {
+    if (this != &rhs) {
+      if (rhs.is_valid_) {
         if (!is_valid_) {
           err_.~E();
-          new (&ok_) T(result.ok_);
+          new (&ok_) T(rhs.ok_);
           is_valid_ = true;
         } else {
-          ok_ = result.ok_;
+          ok_ = rhs.ok_;
         }
       } else {
         if (is_valid_) {
           ok_.~T();
-          new (&err_) E(result.err_);
+          new (&err_) E(rhs.err_);
           is_valid_ = false;
         } else {
-          err_ = result.err_;
+          err_ = rhs.err_;
         }
       }
       was_checked_ = false;
@@ -96,40 +96,40 @@ class Result {
     return *this;
   }
 
-  Result& operator=(Result&& result) {
+  Result& operator=(Result&& rhs) {
     assert(was_checked_);
-    if (this != &result) {
-      if (result.is_valid_) {
+    if (this != &rhs) {
+      if (rhs.is_valid_) {
         if (!is_valid_) {
           err_.~E();
-          new (&ok_) T(std::move(result.ok_));
+          new (&ok_) T(std::move(rhs.ok_));
           is_valid_ = true;
         } else {
-          ok_ = std::move(result.ok_);
+          ok_ = std::move(rhs.ok_);
         }
       } else {
         if (is_valid_) {
           ok_.~T();
-          new (&err_) E(std::move(result.err_));
+          new (&err_) E(std::move(rhs.err_));
           is_valid_ = false;
         } else {
-          err_ = std::move(result.err_);
+          err_ = std::move(rhs.err_);
         }
       }
       was_checked_ = false;
-      result.was_checked_ = true;
+      rhs.was_checked_ = true;
     }
     
     return *this;
   }
   
-  Result& operator=(const T& ok) {
+  Result& operator=(const T& rhs) {
     assert(was_checked_);
     if (is_valid_) {
-      ok_ = ok;
+      ok_ = rhs;
     } else {
       err_.~E();
-      new (&ok_) T(ok);
+      new (&ok_) T(rhs);
       is_valid_ = true;
     }
     was_checked_ = false;
@@ -137,13 +137,13 @@ class Result {
     return *this;
   }
 
-  Result& operator=(T&& ok) {
+  Result& operator=(T&& rhs) {
     assert(was_checked_);
     if (is_valid_) {
-      ok_ = std::move(ok);
+      ok_ = std::move(rhs);
     } else {
       err_.~E();
-      new (&ok_) T(std::move(ok));
+      new (&ok_) T(std::move(rhs));
       is_valid_ = true;
     }
     was_checked_ = false;
@@ -212,42 +212,42 @@ class Result<void, E> {
  public:
   Result() : is_valid_(false), was_checked_(false), err_(E()) {}
   
-  Result(const Result& result) = delete;
+  Result(const Result&) = delete;
 
-  Result(Result&& result)
-      : is_valid_(result.is_valid_), was_checked_(false) {
-    result.was_checked_ = true;
+  Result(Result&& rhs)
+      : is_valid_(rhs.is_valid_), was_checked_(false) {
+    rhs.was_checked_ = true;
     if (!is_valid_) {
-      new (&err_) E(std::move(result.err_));
+      new (&err_) E(std::move(rhs.err_));
     }
   }
 
   Result(const int) noexcept : is_valid_(true), was_checked_(false) {}
   
-  Result(const E& err, const int)
-      : is_valid_(false), was_checked_(false), err_(err) {}
-  Result(E&& err, const int)
-      : is_valid_(false), was_checked_(false), err_(std::move(err)) {}
+  Result(const E& rhs, const int)
+      : is_valid_(false), was_checked_(false), err_(rhs) {}
+  Result(E&& rhs, const int)
+      : is_valid_(false), was_checked_(false), err_(std::move(rhs)) {}
 
   ~Result() {
     assert(was_checked_);
     if (!is_valid_) err_.~E();
   }
   
-  Result& operator=(const Result& result) {
+  Result& operator=(const Result& rhs) {
     assert(was_checked_);
-    if (this != &result) {
-      if (result.is_valid_) {
+    if (this != &rhs) {
+      if (rhs.is_valid_) {
         if (!is_valid_) {
           err_.~E();
           is_valid_ = true;
         }
       } else {
         if (is_valid_) {
-          new (&err_) E(result.err_);
+          new (&err_) E(rhs.err_);
           is_valid_ = false;
         } else {
-          err_ = result.err_;
+          err_ = rhs.err_;
         }
       }
       was_checked_ = false;
@@ -256,24 +256,24 @@ class Result<void, E> {
     return *this;
   }
 
-  Result& operator=(Result&& result) {
+  Result& operator=(Result&& rhs) {
     assert(was_checked_);
-    if (this != &result) {
-      if (result.is_valid_) {
+    if (this != &rhs) {
+      if (rhs.is_valid_) {
         if (!is_valid_) {
           err_.~E();
           is_valid_ = true;
         }
       } else {
         if (is_valid_) {
-          new (&err_) E(std::move(result.err_));
+          new (&err_) E(std::move(rhs.err_));
           is_valid_ = false;
         } else {
-          err_ = std::move(result.err_);
+          err_ = std::move(rhs.err_);
         }
       }
       was_checked_ = false;
-      result.was_checked_ = true;
+      rhs.was_checked_ = true;
     }
     
     return *this;
@@ -316,23 +316,23 @@ class Result<T*, E> {
   Result() : is_valid_(false), was_checked_(false), err_(E()) {}
   Result(const Result&) = delete;
 
-  Result(Result&& result)
-      : is_valid_(result.is_valid_), was_checked_(false) {
-    result.was_checked_ = true;
+  Result(Result&& rhs)
+      : is_valid_(rhs.is_valid_), was_checked_(false) {
+    rhs.was_checked_ = true;
     if (is_valid_) {
-      new (&ok_) std::unique_ptr<T>(std::move(result.ok_));
+      new (&ok_) std::unique_ptr<T>(std::move(rhs.ok_));
     } else {
-      new (&err_) E(std::move(result.err_));
+      new (&err_) E(std::move(rhs.err_));
     }
   }
   
   // Allows implicit conversion from T*.
-  Result(T* ok) noexcept : is_valid_(true), was_checked_(false), ok_(ok) {}
+  Result(T* rhs) noexcept : is_valid_(true), was_checked_(false), ok_(rhs) {}
   
-  Result(const E& err, const int)
-      : is_valid_(false), was_checked_(false), err_(err) {}
-  Result(E&& err, const int)
-      : is_valid_(false), was_checked_(false), err_(std::move(err)) {}
+  Result(const E& rhs, const int)
+      : is_valid_(false), was_checked_(false), err_(rhs) {}
+  Result(E&& rhs, const int)
+      : is_valid_(false), was_checked_(false), err_(std::move(rhs)) {}
 
   ~Result() {
     assert(was_checked_);
@@ -346,29 +346,29 @@ class Result<T*, E> {
   
   Result& operator=(const Result&) = delete;
 
-  Result& operator=(Result&& result) {
+  Result& operator=(Result&& rhs) {
     assert(was_checked_);
-    if (this != &result) {
-      if (result.is_valid_) {
+    if (this != &rhs) {
+      if (rhs.is_valid_) {
         if (!is_valid_) {
           err_.~E();
-          new (&ok_) std::unique_ptr<T>(std::move(result.ok_));
+          new (&ok_) std::unique_ptr<T>(std::move(rhs.ok_));
           is_valid_ = true;
         } else {
-          ok_ = std::move(result.ok_);
+          ok_ = std::move(rhs.ok_);
         }
       } else {
         if (is_valid_) {
           using std::unique_ptr;
           ok_.unique_ptr<T, std::default_delete<T>>::~unique_ptr();
-          new (&err_) E(std::move(result.err_));
+          new (&err_) E(std::move(rhs.err_));
           is_valid_ = false;
         } else {
-          err_ = std::move(result.err_);
+          err_ = std::move(rhs.err_);
         }
       }
       was_checked_ = false;
-      result.was_checked_ = true;
+      rhs.was_checked_ = true;
     }
     
     return *this;
@@ -461,10 +461,10 @@ Result<T, E> Err(E&& err) {
 }
 
 template <class T, class E>
-bool operator<(const Result<T, E>& a, const Result<T, E>& b) {
-  a.Ignore();
-  b.Ignore();
-  return *a < *b;
+bool operator<(const Result<T, E>& lhs, const Result<T, E>& rhs) {
+  lhs.Ignore();
+  rhs.Ignore();
+  return *lhs < *rhs;
 }
 
 }  // namespace rst
