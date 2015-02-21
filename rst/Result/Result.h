@@ -38,7 +38,7 @@ namespace rst {
 template <class T, class E>
 class Result {
  public:
-  Result() = delete;
+  Result() : is_valid_(false), was_checked_(false), err_(E()) {}
   
   Result(const Result& result) = delete;
 
@@ -210,7 +210,7 @@ class Result {
 template <class E>
 class Result<void, E> {
  public:
-  Result() = delete;
+  Result() : is_valid_(false), was_checked_(false), err_(E()) {}
   
   Result(const Result& result) = delete;
 
@@ -313,7 +313,7 @@ class Result<void, E> {
 template <class T, class E>
 class Result<T*, E> {
  public:
-  Result() = delete;
+  Result() : is_valid_(false), was_checked_(false), err_(E()) {}
   Result(const Result&) = delete;
 
   Result(Result&& result)

@@ -57,6 +57,17 @@ class ArrowHelper {
 };
 
 
+TEST(Result, DefaultCtor) {
+  Result<int, int> oi;
+  ASSERT_TRUE(oi == false);
+
+  Result<void, int> ov;
+  ASSERT_TRUE(ov == false);
+
+  Result<int*, int> op;
+  ASSERT_TRUE(op == false);
+}
+
 TEST(Result, ValueCtor) {
   {
     Result<int, int> oi = 0;
