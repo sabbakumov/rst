@@ -27,3 +27,7 @@ Now the library contains the following components:
 
 3. Logger
   A fast flexible thread-safe Logger component for C++11.
+
+4. Status
+  A Google-like Status class for error handling with small improvements. It's
+  impossible now to ignore an error.
