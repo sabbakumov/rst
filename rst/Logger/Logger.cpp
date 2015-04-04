@@ -42,7 +42,7 @@ void Logger::Log(const Level level, const char* file, const int line,
   va_list args;
   va_start(args, format);
   
-  mutex_.Lock();
+  LockGuard<Mutex> lock(&mutex_);
   
   fprintf(log_file_, "%s:%d: ", file, line);
   switch (level) {
@@ -73,8 +73,6 @@ void Logger::Log(const Level level, const char* file, const int line,
   }
   vfprintf(log_file_, format, args);
   fflush(log_file_);
-  
-  mutex_.Unlock();
   
   va_end(args);
 }
