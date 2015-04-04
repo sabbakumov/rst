@@ -66,6 +66,12 @@ class LockGuard {
   }
 
  private:
+  LockGuard(const LockGuard&) = delete;
+  LockGuard(LockGuard&&) = delete;
+
+  LockGuard& operator=(const LockGuard&) = delete;
+  LockGuard& operator=(LockGuard&&) = delete;
+  
   T* lockable_;
 };
 
