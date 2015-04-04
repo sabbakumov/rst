@@ -34,3 +34,6 @@ Now the library contains the following components:
 
 5. Mutex
   A wrapper for a standard mutex class.
+
+6. Sockets
+  A library for networking via sockets API (UNIX version only)
