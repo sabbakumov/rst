@@ -54,6 +54,21 @@ class Mutex {
   std::mutex mutex_;
 };
 
+template <class T>
+class LockGuard {
+ public:
+  explicit LockGuard(T* lockable) : lockable_(lockable) {
+    lockable_->Lock();
+  }
+
+  ~LockGuard() {
+    lockable_->Unlock();
+  }
+
+ private:
+  T* lockable_;
+};
+
 }  // namespace rst
 
 #endif  // RST_MUTEX_MUTEX_H_
