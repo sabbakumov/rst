@@ -32,6 +32,8 @@
 
 namespace rst {
 
+Logger::Logger() {}
+
 void Logger::Log(const Level level, const char* file, const int line,
                  const char* /*function*/, const char* format, ...) {
   assert(was_opened_);
@@ -40,7 +42,7 @@ void Logger::Log(const Level level, const char* file, const int line,
   va_list args;
   va_start(args, format);
   
-  std::lock_guard<std::mutex> lock(mutex_);
+  mutex_.Lock();
   
   fprintf(log_file_, "%s:%d: ", file, line);
   switch (level) {
@@ -72,6 +74,8 @@ void Logger::Log(const Level level, const char* file, const int line,
   vfprintf(log_file_, format, args);
   fflush(log_file_);
   
+  mutex_.Unlock();
+  
   va_end(args);
 }
 
@@ -81,10 +85,10 @@ Logger& Logger::Instance() {
   return logger;
 }
 
-bool Logger::Open(const char* log_file) {
+bool Logger::OpenFile(const char* filename) {
   if (was_opened_) return false;
 
-  log_file_ = fopen(log_file, "w");
+  log_file_ = fopen(filename, "w");
   
   if (!log_file_) return false;
 
@@ -92,7 +96,7 @@ bool Logger::Open(const char* log_file) {
   return true;
 }
 
-bool Logger::Open(FILE* file) {
+bool Logger::OpenFilePtr(FILE* file) {
   if (was_opened_) return false;
   if (!file) return false;
 
@@ -102,8 +106,12 @@ bool Logger::Open(FILE* file) {
   return true;
 }
 
-Logger::~Logger() {
+void Logger::Close() {
   if (log_file_) fclose(log_file_);
+}
+
+Logger::~Logger() {
+  Close();
 }
 
 }  // namespace rst

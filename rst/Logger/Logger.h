@@ -29,7 +29,8 @@
 #define RST_LOGGER_LOGGER_H_
 
 #include <cstdio>
-#include <mutex>
+
+#include "rst/Mutex/Mutex.h"
 
 #define LOG_DEBUG(...) \
 Logger::Instance().Log(Logger::Level::kDebug, __FILE__, __LINE__, \
@@ -70,13 +71,16 @@ class Logger {
   void Log(const Level level, const char* file, const int line,
            const char* function, const char* format, ...);
 
-  bool Open(const char* log_file);
-  bool Open(FILE* file);
+  bool OpenFile(const char* filename);
+  bool OpenFilePtr(FILE* file);
+
+  void Close();
 
   void SetMinLevel(const Level min_level) { min_level_ = min_level; }
  
  private:
-  Logger() = default;
+  Logger();
+  
   Logger(const Logger&) = delete;
   Logger(Logger&&) = delete;
   
@@ -88,7 +92,7 @@ class Logger {
   bool was_opened_ = false;
   Level min_level_ = Level::kAll;
   FILE* log_file_ = nullptr;
-  std::mutex mutex_;
+  Mutex mutex_;
 };
 
 }  // namespace rst
