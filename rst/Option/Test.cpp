@@ -242,20 +242,6 @@ TEST(Option, OperatorBool) {
     Option<bool> ob = true;
     ASSERT_TRUE(ob == true);
   }
-
-  {
-    const Option<int> oi;
-    ASSERT_TRUE(oi == false);
-
-    const Option<std::complex<double>> ocmplx;
-    ASSERT_TRUE(ocmplx == false);
-
-    const Option<char> oc;
-    ASSERT_TRUE(oc == false);
-
-    const Option<bool> ob;
-    ASSERT_TRUE(ob == false);
-  }
 }
 
 TEST(Option, OperatorStar) {
@@ -288,24 +274,6 @@ TEST(Option, OperatorStar) {
     ASSERT_TRUE(ob == true);
     ASSERT_EQ(false, *ob);
   }
-
-  {
-    const Option<int> oi = 0;
-    ASSERT_TRUE(oi == true);
-    ASSERT_EQ(0, *oi);
-
-    const Option<std::complex<double>> ocmplx = std::complex<double>(0.0, 0.0);
-    ASSERT_TRUE(ocmplx == true);
-    ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
-
-    const Option<char> oc = '\0';
-    ASSERT_TRUE(oc == true);
-    ASSERT_EQ('\0', *oc);
-
-    const Option<bool> ob = true;
-    ASSERT_TRUE(ob == true);
-    ASSERT_EQ(true, *ob);
-  }
 }
 
 TEST(Option, ReturnByValue) {
@@ -319,94 +287,11 @@ TEST(Option, ReturnByValue) {
   ASSERT_EQ(std::complex<double>(1.0, 1.0), *ocmplx);
 }
 
-TEST(Option, OperatorL) {
-  Option<int> a = 0;
-  Option<int> b = 1;
-
-  ASSERT_TRUE(a == true);
-  ASSERT_TRUE(b == true);
-  ASSERT_LT(*a, *b);
-
-  a = -1;
-  ASSERT_TRUE(a == true);
-  ASSERT_LT(*a, *b);
-
-  a = 1;
-  ASSERT_TRUE(a == true);
-  ASSERT_FALSE(*a < *b);
-
-  a = 20;
-  ASSERT_TRUE(a == true);
-  ASSERT_FALSE(*a < *b);
-}
-
-
-TEST(Option, UseSTL) {
-  size_t i = 0;
-  const int int_arr[] = {1000, 0, 10, -37, 40};
-  
-  std::vector<Option<int>> vec;
-  for (const auto& e : int_arr) {
-    vec.push_back(e);
-  }
-
-  i = 0;
-  for (const auto& e : vec) {
-    ASSERT_TRUE(e == true);
-    ASSERT_EQ(int_arr[i], *e);
-    i++;
-  }
-
-
-  std::list<Option<int>> lst;
-  for (const auto& e : int_arr) {
-    lst.push_back(e);
-  }
-
-  i = 0;
-  for (const auto& e : lst) {
-    ASSERT_TRUE(e == true);
-    ASSERT_EQ(int_arr[i], *e);
-    i++;
-  }
-
-  std::set<Option<int>> st;
-  for (const auto& e : int_arr) {
-    st.insert(e);
-  }
-
-  for (const auto& e: st) {
-    ASSERT_TRUE(e == true);
-  }
-
-  auto it = st.begin();
-  
-  ASSERT_EQ(-37, **it);
-  ++it;
-
-  ASSERT_EQ(0, **it);
-  ++it;
-
-  ASSERT_EQ(10, **it);
-  ++it;
-
-  ASSERT_EQ(40, **it);
-  ++it;
-
-  ASSERT_EQ(1000, **it);
-  ++it;
-}
-
 TEST(Option, OperatorArrow) {
   Option<ArrowHelper> o = ArrowHelper();
 
   ASSERT_TRUE(o == true);
   o->foo();
-
-  const Option<ArrowHelper> o2 = ArrowHelper();
-
-  ASSERT_TRUE(o2 == true);
-  o2->foo();
 }
 
 int main(int argc, char** argv) {

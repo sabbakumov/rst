@@ -44,6 +44,7 @@ class Option {
  public:
   // Allows implicit conversion from T.
   Option(const T& rhs) : is_valid_(true), was_checked_(false), data_(rhs) {}
+  // Allows implicit conversion from T.
   Option(T&& rhs)
       : is_valid_(true), was_checked_(false), data_(std::move(rhs)) {}
 
@@ -140,36 +141,24 @@ class Option {
     return *this;
   }
 
-  operator bool() const noexcept {
-    was_checked_ = true;
-    return is_valid_;
-  }
-
   T& operator*() noexcept {
     assert(was_checked_);
     assert(is_valid_);
     return data_;
   }
   
-  const T& operator*() const noexcept {
-    assert(was_checked_);
-    assert(is_valid_);
-    return data_;
-  }
-
   T* operator->() noexcept {
     assert(was_checked_);
     assert(is_valid_);
     return &data_;
   }
 
-  const T* operator->() const noexcept {
-    assert(was_checked_);
-    assert(is_valid_);
-    return &data_;
+  operator bool() noexcept {
+    was_checked_ = true;
+    return is_valid_;
   }
 
-  void Ignore() const { was_checked_ = true; }
+  void Ignore() { was_checked_ = true; }
 
  private:
   void Construct(const T& rhs) {
@@ -187,20 +176,12 @@ class Option {
   
   bool is_valid_;
   
-  // Allows const objects to modify the 'checked' flag.
-  mutable bool was_checked_;
+  bool was_checked_;
   
   union {
     T data_;
   };
 };
-
-template <class T>
-bool operator<(const Option<T>& lhs, const Option<T>& rhs) {
-  lhs.Ignore();
-  rhs.Ignore();
-  return *lhs < *rhs;
-}
 
 }  // namespace rst
 
