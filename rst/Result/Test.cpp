@@ -63,9 +63,6 @@ TEST(Result, DefaultCtor) {
 
   Result<void, int> ov;
   ASSERT_TRUE(ov == false);
-
-  Result<int*, int> op;
-  ASSERT_TRUE(op == false);
 }
 
 TEST(Result, ValueCtor) {
@@ -88,14 +85,6 @@ TEST(Result, ValueCtor) {
 
     Result<void, int> ov = 0;
     ASSERT_TRUE(ov == true);
-
-    Result<int*, int> op = new int(10);
-    ASSERT_TRUE(op == true);
-    ASSERT_EQ(10, *op);
-
-    Result<int*, int> op2 = nullptr;
-    ASSERT_TRUE(op2 == true);
-    ASSERT_TRUE(!op2.get());
   }
 
   {
@@ -113,9 +102,6 @@ TEST(Result, ValueCtor) {
 
     Result<void, int> ov(-1, 0);
     ASSERT_TRUE(ov == false);
-
-    Result<int*, int> op(-1, 0);
-    ASSERT_TRUE(op == false);
   }
 }
 
@@ -144,11 +130,6 @@ TEST(Result, MoveCtor) {
     Result<void, int> ov = 0;
     Result<void, int> ov2(std::move(ov));
     ASSERT_TRUE(ov2 == true);
-
-    Result<int*, int> op = new int(10);
-    Result<int*, int> op2(std::move(op));
-    ASSERT_TRUE(op2 == true);
-    ASSERT_EQ(10, *op2);
   }
 
   {
@@ -172,10 +153,6 @@ TEST(Result, MoveCtor) {
     Result<void, int> ov = Err<void, int>(-1);
     Result<void, int> ov2(std::move(ov));
     ASSERT_TRUE(ov2 == false);
-
-    Result<int*, int> op = Err<int*, int>(-1);
-    Result<int*, int> op2(std::move(op));
-    ASSERT_TRUE(op2 == false);
   }
 }
 
@@ -190,10 +167,6 @@ TEST(Result, Dtor) {
     Result<DtorHelper, int> o2 = DtorHelper();
     o2.Ignore();
     ASSERT_EQ(2, DtorHelper::counter());
-
-    Result<DtorHelper*, int> o3 = new DtorHelper;
-    o3.Ignore();
-    ASSERT_EQ(3, DtorHelper::counter());
   }
   
   ASSERT_EQ(0, DtorHelper::counter());
@@ -210,10 +183,6 @@ TEST(Result, Dtor) {
     Result<void, DtorHelper> o3 = Err<void, DtorHelper>(DtorHelper());
     o3.Ignore();
     ASSERT_EQ(3, DtorHelper::counter());
-
-    Result<int*, DtorHelper> o4 = Err<int*, DtorHelper>(DtorHelper());
-    o4.Ignore();
-    ASSERT_EQ(4, DtorHelper::counter());
   }
   
   ASSERT_EQ(0, DtorHelper::counter());
@@ -234,12 +203,6 @@ TEST(Result, OperatorEquals) {
     o2 = DtorHelper();
     o2.Ignore();
     ASSERT_EQ(2, DtorHelper::counter());
-
-    Result<DtorHelper*, int> op = Err<DtorHelper*, int>(-1);
-    op.Ignore();
-    op = new DtorHelper();
-    op.Ignore();
-    ASSERT_EQ(3, DtorHelper::counter());
   }
   
   ASSERT_EQ(0, DtorHelper::counter());
@@ -263,131 +226,6 @@ TEST(Result, OperatorEquals) {
 }
 
 TEST(Result, CopyOperatorEquals) {
-  {
-    Result<int, int> oi = 0;
-    oi.Ignore();
-    oi = oi;
-    oi.Ignore();
-    ASSERT_TRUE(oi == true);
-    ASSERT_EQ(0, *oi);
-
-    Result<int*, int> op = new int(10);
-    op.Ignore();
-    op = std::move(op);
-    op.Ignore();
-    ASSERT_TRUE(op == true);
-    ASSERT_EQ(10, *op);
-  }
-  
-  {
-    Result<int, int> oi = 0;
-    Result<int, int> oi2 = Err<int, int>(-1);
-    oi2.Ignore();
-    oi2 = oi;
-    oi.Ignore();
-    oi2.Ignore();
-    ASSERT_TRUE(oi2 == true);
-    ASSERT_EQ(0, *oi2);
-
-    Result<std::complex<double>, int> ocmplx = std::complex<double>(0.0, 0.0);
-    Result<std::complex<double>, int> ocmplx2 =
-        Err<std::complex<double>, int>(-1);
-    ocmplx2.Ignore();
-    ocmplx2 = ocmplx;
-    ocmplx.Ignore();
-    ocmplx2.Ignore();
-    ASSERT_TRUE(ocmplx2 == true);
-    ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx2);
-
-    Result<char, int> oc = '\0';
-    Result<char, int> oc2 = Err<char, int>(-1);
-    oc2.Ignore();
-    oc2 = oc;
-    oc.Ignore();
-    oc2.Ignore();
-    ASSERT_TRUE(oc2 == true);
-    ASSERT_EQ('\0', *oc2);
-
-    Result<bool, int> ob = true;
-    Result<bool, int> ob2 = Err<bool, int>(-1);
-    ob2.Ignore();
-    ob2 = ob;
-    ob.Ignore();
-    ob2.Ignore();
-    ASSERT_TRUE(ob2 == true);
-    ASSERT_EQ(true, *ob2);
-
-    Result<void, int> ov = 0;
-    Result<void, int> ov2 = Err<void, int>(-1);
-    ov2.Ignore();
-    ov2 = ov;
-    ov.Ignore();
-    ov2.Ignore();
-    ASSERT_TRUE(ov2 == true);
-
-    Result<int*, int> op = new int(10);
-    Result<int*, int> op2 = Err<int*, int>(-1);
-    op2.Ignore();
-    op2 = std::move(op);
-    op.Ignore();
-    op2.Ignore();
-    ASSERT_TRUE(op2 == true);
-    ASSERT_EQ(10, *op2);
-  }
-
-  {
-    Result<int, int> oi = Err<int, int>(-1);
-    Result<int, int> oi2 = Err<int, int>(-1);
-    oi2.Ignore();
-    oi2 = oi;
-    oi.Ignore();
-    oi2.Ignore();
-    ASSERT_TRUE(oi2 == false);
-
-    Result<std::complex<double>, int> ocmplx =
-        Err<std::complex<double>, int>(-1);
-    Result<std::complex<double>, int> ocmplx2 =
-        Err<std::complex<double>, int>(-1);
-      
-    ocmplx2.Ignore();
-    ocmplx2 = ocmplx;
-    ocmplx.Ignore();
-    ocmplx2.Ignore();
-    ASSERT_TRUE(ocmplx2 == false);
-
-    Result<char, int> oc = Err<char, int>(-1);
-    Result<char, int> oc2 = Err<char, int>(-1);
-    oc2.Ignore();
-    oc2 = oc;
-    oc.Ignore();
-    oc2.Ignore();
-    ASSERT_TRUE(oc2 == false);
-
-    Result<bool, int> ob = Err<bool, int>(-1);
-    Result<bool, int> ob2 = Err<bool, int>(-1);
-    ob2.Ignore();
-    ob2 = ob;
-    ob.Ignore();
-    ob2.Ignore();
-    ASSERT_TRUE(ob2 == false);
-
-    Result<void, int> ov = Err<void, int>(-1);
-    Result<void, int> ov2 = Err<void, int>(-1);
-    ov2.Ignore();
-    ov2 = ov;
-    ov.Ignore();
-    ov2.Ignore();
-    ASSERT_TRUE(ov2 == false);
-
-    Result<int*, int> op = Err<int*, int>(-1);
-    Result<int*, int> op2 = Err<int*, int>(-1);
-    op2.Ignore();
-    op2 = std::move(op);
-    op.Ignore();
-    op2.Ignore();
-    ASSERT_TRUE(op2 == false);
-  }
-
   {
     Result<int, int> oi = 8;
     ASSERT_TRUE(oi == true);
@@ -428,30 +266,6 @@ TEST(Result, OperatorBool) {
 
     Result<void, int> ov = 0;
     ASSERT_TRUE(ov == true);
-
-    Result<int*, int> op = new int(10);
-    ASSERT_TRUE(op == true);
-  }
-
-  {
-    const Result<int, int> oi = Err<int, int>(-1);
-    ASSERT_TRUE(oi == false);
-
-    const Result<std::complex<double>, int> ocmplx =
-        Err<std::complex<double>, int>(-1);
-    ASSERT_TRUE(ocmplx == false);
-
-    const Result<char, int> oc = Err<char, int>(-1);
-    ASSERT_TRUE(oc == false);
-
-    const Result<bool, int> ob = Err<bool, int>(-1);
-    ASSERT_TRUE(ob == false);
-
-    const Result<void, int> ov = Err<void, int>(-1);
-    ASSERT_TRUE(ov == false);
-
-    Result<int*, int> op = Err<int*, int>(-1);
-    ASSERT_TRUE(op == false);
   }
 }
 
@@ -484,114 +298,7 @@ TEST(Result, OperatorStar) {
     *ob = false;
     ASSERT_TRUE(ob == true);
     ASSERT_EQ(false, *ob);
-
-    Result<int*, int> op = new int(10);
-    ASSERT_TRUE(op == true);
-    ASSERT_EQ(10, *op);
-    op = new int(20);
-    ASSERT_TRUE(op == true);
-    ASSERT_EQ(20, *op);
   }
-
-  {
-    const Result<int, int> oi = Result<int, int>(0);
-    ASSERT_TRUE(oi == true);
-    ASSERT_EQ(0, *oi);
-
-    const Result<std::complex<double>, int> ocmplx =
-        Result<std::complex<double>, int>(std::complex<double>(0.0, 0.0));
-    ASSERT_TRUE(ocmplx == true);
-    ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
-
-    const Result<char, int> oc = Result<char, int>('\0');
-    ASSERT_TRUE(oc == true);
-    ASSERT_EQ('\0', *oc);
-
-    const Result<bool, int> ob = Result<bool, int>(true);
-    ASSERT_TRUE(ob == true);
-    ASSERT_EQ(true, *ob);
-
-    const Result<int*, int> op = Result<int*, int>(new int(10));
-    ASSERT_TRUE(op == true);
-    ASSERT_EQ(10, *op);
-  }
-}
-
-TEST(Result, OperatorL) {
-  Result<int, int> a = 0;
-  Result<int, int> b = 1;
-
-  ASSERT_TRUE(a == true);
-  ASSERT_TRUE(b == true);
-  ASSERT_LT(*a, *b);
-
-  a = -1;
-  ASSERT_TRUE(a == true);
-  ASSERT_LT(*a, *b);
-
-  a = 1;
-  ASSERT_TRUE(a == true);
-  ASSERT_FALSE(*a < *b);
-
-  a = 20;
-  ASSERT_TRUE(a == true);
-  ASSERT_FALSE(*a < *b);
-}
-
-TEST(Result, UseSTL) {
-  size_t i = 0;
-  const int int_arr[] = {1000, 0, 10, -37, 40};
-  
-  std::vector<Result<int, int>> vec;
-  for (const auto& e : int_arr) {
-    vec.push_back(e);
-  }
-
-  i = 0;
-  for (const auto& e : vec) {
-    ASSERT_TRUE(e == true);
-    ASSERT_EQ(int_arr[i], *e);
-    i++;
-  }
-
-
-  std::list<Result<int, int>> lst;
-  for (const auto& e : int_arr) {
-    lst.push_back(e);
-  }
-
-  i = 0;
-  for (const auto& e : lst) {
-    ASSERT_TRUE(e == true);
-    ASSERT_EQ(int_arr[i], *e);
-    i++;
-  }
-
-  std::set<Result<int, int>> st;
-  for (const auto& e : int_arr) {
-    st.insert(e);
-  }
-
-  for (const auto& e: st) {
-    ASSERT_TRUE(e == true);
-  }
-
-  auto it = st.begin();
-  
-  ASSERT_EQ(-37, **it);
-  ++it;
-
-  ASSERT_EQ(0, **it);
-  ++it;
-
-  ASSERT_EQ(10, **it);
-  ++it;
-
-  ASSERT_EQ(40, **it);
-  ++it;
-
-  ASSERT_EQ(1000, **it);
-  ++it;
 }
 
 TEST(Result, Err) {
@@ -610,65 +317,12 @@ TEST(Result, Err) {
   b.Err() = 10;
   ASSERT_TRUE(b == false);
   ASSERT_EQ(10, b.Err());
-
-  Result<int*, int> p = Err<int*, int>(-1);
-  ASSERT_TRUE(p == false);
-  ASSERT_EQ(-1, p.Err());
-
-  p.Err() = 10;
-  ASSERT_TRUE(p == false);
-  ASSERT_EQ(10, p.Err());
 }
 
 TEST(Result, OperatorArrow) {
   Result<ArrowHelper, int> r = ArrowHelper();
   ASSERT_TRUE(r == true);
   r->foo();
-
-  const Result<ArrowHelper, int> r2 = Result<ArrowHelper, int>(ArrowHelper());
-  ASSERT_TRUE(r2 == true);
-  r2->foo();
-
-  Result<ArrowHelper*, int> p = new ArrowHelper();
-  ASSERT_TRUE(p == true);
-  p->foo();
-
-  const Result<ArrowHelper*, int> p2 =
-      Result<ArrowHelper*, int>(new ArrowHelper());
-  ASSERT_TRUE(p2 == true);
-  p2->foo();
-}
-
-TEST(Result, Get) {
-  int* raw = new int(10);
-  Result<int*, int> p = raw;
-  ASSERT_TRUE(p == true);
-  ASSERT_EQ(raw, p.get());
-
-  raw = new int(20);
-  const Result<int*, int> p2 = Result<int*, int>(raw);
-  ASSERT_TRUE(p2 == true);
-  ASSERT_EQ(raw, p2.get());
-}
-
-TEST(Result, Release) {
-  int* raw = new int(10);
-  Result<int*, int> p = raw;
-  ASSERT_TRUE(p == true);
-  ASSERT_EQ(raw, p.release());
-
-  delete raw;
-}
-
-TEST(Result, Reset) {
-  int* raw = new int(10);
-  Result<int*, int> p = new int(20);
-  ASSERT_TRUE(p == true);
-  p.reset(raw);
-  ASSERT_EQ(raw, p.get());
-
-  p.reset();
-  ASSERT_TRUE(p.get() == nullptr);
 }
 
 Result<int, int> f() {

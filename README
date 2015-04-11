@@ -18,9 +18,6 @@ Now the library contains the following components:
   It uses pointer-like semantics by overloading operator* and operator->.
   A Result template class supports:
     * Result<ValueType, ErrorType>;
-    * Result<ValueType*, ErrorType> - a unique_ptr-like object that
-     automatically deletes the pointer. It uses unique_ptr<ValueType>
-     internally;
     * Result<void, ErrorType> - doesn't have '*' and '->' operator overloads.
   The object of the class asserts if it has been checked. So, it's impossible
  now to ignore an error.
