@@ -29,8 +29,7 @@
 #define RST_LOGGER_LOGGER_H_
 
 #include <cstdio>
-
-#include "rst/Mutex/Mutex.h"
+#include <mutex>
 
 #define LOG_DEBUG(...) \
 Logger::Instance().Log(Logger::Level::kDebug, __FILE__, __LINE__, \
@@ -92,7 +91,7 @@ class Logger {
   bool was_opened_ = false;
   Level min_level_ = Level::kAll;
   FILE* log_file_ = nullptr;
-  Mutex mutex_;
+  std::mutex mutex_;
 };
 
 }  // namespace rst

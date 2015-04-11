@@ -42,7 +42,7 @@ void Logger::Log(const Level level, const char* file, const int line,
   va_list args;
   va_start(args, format);
   
-  LockGuard<Mutex> lock(&mutex_);
+  std::lock_guard<std::mutex> lock(mutex_);
   
   fprintf(log_file_, "%s:%d: ", file, line);
   switch (level) {

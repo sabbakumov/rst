@@ -32,8 +32,5 @@ Now the library contains the following components:
   A Google-like Status class for error handling with small improvements. It's
   impossible now to ignore an error.
 
-5. Mutex
-  A wrapper for a standard mutex class.
-
-6. Sockets
+5. Sockets
   A library for networking via sockets API (UNIX version only)
