@@ -28,6 +28,3 @@ Now the library contains the following components:
 4. Status
   A Google-like Status class for error handling with small improvements. It's
   impossible now to ignore an error.
-
-5. Sockets
-  A library for networking via sockets API (UNIX version only)
