@@ -65,7 +65,7 @@ class Status {
 
   ~Status();
 
-  bool ok() const {
+  bool ok() {
     was_checked_ = true;
     return code_ == Code::kOk;
   }
@@ -76,13 +76,13 @@ class Status {
 
   std::string ToString() const;
 
-  void Ignore() const { was_checked_ = true; }
+  void Ignore() { was_checked_ = true; }
 
  private:
   Status(const Status&) = delete;
   Status& operator=(const Status&) = delete;
 
-  mutable bool was_checked_;
+  bool was_checked_;
   Code code_;
   std::string message_;
 };
