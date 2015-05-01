@@ -27,14 +27,12 @@
 
 #include "rst/Status/Status.h"
 
-#include <cassert>
-
 namespace rst {
 
-Status::Status() : was_checked_(false), code_(Code::kOk) {}
+Status::Status() : was_checked_(false), code_(0) {}
 
-Status::Status(const Code code, const std::string& message)
-    : was_checked_(false), code_(code), message_(message) {}
+Status::Status(const int code, std::string message)
+    : was_checked_(false), code_(code), message_(std::move(message)) {}
 
 Status::Status(Status&& rhs) {
   was_checked_ = false;
@@ -60,44 +58,6 @@ Status& Status::operator=(Status&& rhs) {
 
 Status::~Status() {
   assert(was_checked_);
-}
-
-#define CASE(code) case Code::code: return #code
-static std::string CodeToString(const Code code) {
-  switch (code) {
-    CASE(kOk);
-    CASE(kCanceled);
-    CASE(kInvalidArgument);
-    CASE(kDeadlineExceeded);
-    CASE(kNotFound);
-    CASE(kAlreadyExists);
-    CASE(kPermissionDenied);
-    CASE(kResourceExhausted);
-    CASE(kFailedPrecondition);
-    CASE(kAborted);
-    CASE(kOutOfRange);
-    CASE(kUnimplemented);
-    CASE(kInternal);
-    CASE(kUnavailable);
-    CASE(kDataLoss);
-    default: {
-      std::string result = "Error #";
-      result.append(std::to_string(static_cast<int>(code)));
-      
-      return result;
-    }
-  }
-}
-#undef CASE
-
-std::string Status::ToString() const {
-  std::string result = CodeToString(code_);
-  if (!message_.empty()) {
-    result.append(": ");
-    result.append(message_);
-  }
-
-  return result;
 }
 
 }  // namespace rst

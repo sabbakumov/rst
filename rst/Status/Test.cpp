@@ -29,51 +29,82 @@
 
 #include "gtest/gtest.h"
 
-using rst::Code;
 using rst::Status;
+using rst::StatusErr;
+using rst::StatusErrWithCode;
+using rst::StatusOk;
 
 TEST(Status, EmptyConstructor) {
   Status status;
   ASSERT_TRUE(status.ok());
-
-  ASSERT_EQ(Code::kOk, status.error_code());
-  ASSERT_EQ("", status.error_message());
 }
 
 TEST(Status, Constructor) {
-  Status status(Code::kCanceled, "Message");
+  Status status(-1, "Message");
+  ASSERT_EQ(-1, status.code());
   ASSERT_FALSE(status.ok());
 
-  ASSERT_EQ(Code::kCanceled, status.error_code());
-  ASSERT_EQ("Message", status.error_message());
+  Status ok = StatusOk();
+  ASSERT_EQ(0, ok.code());
+  ASSERT_TRUE(ok.ok());
+
+  Status err = StatusErr("Message");
+  ASSERT_EQ(-1, err.code());
+  ASSERT_FALSE(err.ok());
+
+  Status err2 = StatusErrWithCode(-2, "Message");
+  ASSERT_EQ(-2, err2.code());
+  ASSERT_FALSE(err2.ok());
 }
 
 TEST(Status, MoveConstructor) {
-  Status status(Code::kCanceled, "Message");
+  Status status(-1, "Message");
   Status status2(std::move(status));
+  ASSERT_EQ(-1, status2.code());
   ASSERT_FALSE(status2.ok());
-  
-  ASSERT_EQ(Code::kCanceled, status2.error_code());
-  ASSERT_EQ("Message", status2.error_message());
 }
 
 TEST(Status, MoveAssignment) {
-  Status status(Code::kCanceled, "Message");
+  Status status(-1, "Message");
   Status status2;
   status2.Ignore();
   Status& ref = status2 = std::move(status);
+  ASSERT_EQ(-1, status2.code());
   ASSERT_FALSE(status2.ok());
   ASSERT_EQ(&ref, &status2);
-  
-  ASSERT_EQ(Code::kCanceled, status2.error_code());
-  ASSERT_EQ("Message", status2.error_message());
 }
 
 TEST(Status, ToString) {
-  Status status(Code::kCanceled, "Message");
+  Status status(-1, "Message");
   status.Ignore();
 
-  ASSERT_EQ("kCanceled: Message", status.ToString());
+  ASSERT_EQ("Message", status.ToString());
+}
+
+TEST(Status, OperatorEquals) {
+  Status status;
+  status.Ignore();
+
+  Status status2;
+  status2.Ignore();
+
+  ASSERT_TRUE(status == status2);
+
+  status = StatusErrWithCode(-1, "Status 1");
+  status.Ignore();
+
+  status2 = StatusErrWithCode(-1, "Status 2");
+  status2.Ignore();
+
+  ASSERT_TRUE(status == status2);
+
+  status = StatusErrWithCode(-2, "Status 1");
+  status.Ignore();
+
+  status2 = StatusErrWithCode(-1, "Status 1");
+  status2.Ignore();
+
+  ASSERT_FALSE(status == status2);
 }
 
 int main(int argc, char** argv) {

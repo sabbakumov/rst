@@ -30,51 +30,32 @@
 
 #include <cassert>
 #include <string>
+#include <utility>
 
 namespace rst {
-
-enum class Code {
-  kOk = 0,
-  kCanceled,
-  kUnknown,
-  kInvalidArgument,
-  kDeadlineExceeded,
-  kNotFound,
-  kAlreadyExists,
-  kPermissionDenied,
-  kResourceExhausted,
-  kFailedPrecondition,
-  kAborted,
-  kOutOfRange,
-  kUnimplemented,
-  kInternal,
-  kUnavailable,
-  kDataLoss,
-};
-
 
 class Status {
  public:
   Status();
 
-  Status(const Code code, const std::string& message);
+  Status(const int code, std::string message);
 
   Status(Status&& rhs);
 
   Status& operator=(Status&& rhs);
+  bool operator==(const Status& rhs) const {
+    return code_ == rhs.code_;
+  }
 
   ~Status();
 
   bool ok() {
     was_checked_ = true;
-    return code_ == Code::kOk;
+    return code_ == 0;
   }
 
-  const std::string& error_message() const { return message_; }
-
-  Code error_code() const { return code_; }
-
-  std::string ToString() const;
+  const std::string& ToString() const { return message_; }
+  int code() const { return code_; }
 
   void Ignore() { was_checked_ = true; }
 
@@ -83,58 +64,18 @@ class Status {
   Status& operator=(const Status&) = delete;
 
   bool was_checked_;
-  Code code_;
+  int code_;
   std::string message_;
 };
 
 inline Status StatusOk() { return Status(); }
 
-inline Status StatusAborted(const std::string& message) {
-  return Status(Code::kAborted, message);
+inline Status StatusErr(std::string message) {
+  return Status(-1, std::move(message));
 }
 
-inline Status StatusCanceled(const std::string& message) {
-  return Status(Code::kCanceled, message);
-}
-
-inline Status StatusDataLoss(const std::string& message) {
-  return Status(Code::kDataLoss, message);
-}
-
-inline Status StatusDeadlineExceeded(const std::string& message) {
-  return Status(Code::kDeadlineExceeded, message);
-}
-
-inline Status StatusInternalError(const std::string& message) {
-  return Status(Code::kInternal, message);
-}
-
-inline Status StatusInvalidArgument(const std::string& message) {
-  return Status(Code::kInvalidArgument, message);
-}
-
-inline Status StatusOutOfRange(const std::string& message) {
-  return Status(Code::kOutOfRange, message);
-}
-
-inline Status StatusPermissionDenied(const std::string& message) {
-  return Status(Code::kPermissionDenied, message);
-}
-
-inline Status StatusUnimplemented(const std::string& message) {
-  return Status(Code::kUnimplemented, message);
-}
-
-inline Status StatusUnknown(const std::string& message) {
-  return Status(Code::kUnknown, message);
-}
-
-inline Status StatusResourceExhausted(const std::string& message) {
-  return Status(Code::kResourceExhausted, message);
-}
-
-inline Status StatusFailedPrecondition(const std::string& message) {
-  return Status(Code::kFailedPrecondition, message);
+inline Status StatusErrWithCode(const int code, std::string message) {
+  return Status(code, std::move(message));
 }
 
 }  // namespace rst
