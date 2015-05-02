@@ -325,9 +325,12 @@ TEST(Result, OperatorArrow) {
   r->foo();
 }
 
-Result<int, int> f() {
-  return 0;
+TEST(Result, Nothing) {
+  Result<int, int> r;
+
+  Result<void, int> r2;
 }
+
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

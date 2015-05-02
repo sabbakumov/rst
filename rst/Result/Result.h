@@ -38,7 +38,7 @@ namespace rst {
 template <class T, class E>
 class Result {
  public:
-  Result() : is_valid_(false), was_checked_(false), err_(E()) {}
+  Result() : is_valid_(false), was_checked_(true), err_(E()) {}
   
   Result(Result&& rhs)
       : is_valid_(rhs.is_valid_), was_checked_(false) {
@@ -167,7 +167,7 @@ class Result {
 template <class E>
 class Result<void, E> {
  public:
-  Result() : is_valid_(false), was_checked_(false), err_(E()) {}
+  Result() : is_valid_(false), was_checked_(true), err_(E()) {}
   
   Result(Result&& rhs)
       : is_valid_(rhs.is_valid_), was_checked_(false) {
