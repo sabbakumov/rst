@@ -29,7 +29,7 @@
 
 namespace rst {
 
-Status::Status() : was_checked_(false), code_(0) {}
+Status::Status() : was_checked_(true), code_(0) {}
 
 Status::Status(const int code, std::string message)
     : was_checked_(false), code_(code), message_(std::move(message)) {}

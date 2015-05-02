@@ -67,7 +67,6 @@ TEST(Status, MoveConstructor) {
 TEST(Status, MoveAssignment) {
   Status status(-1, "Message");
   Status status2;
-  status2.Ignore();
   Status& ref = status2 = std::move(status);
   ASSERT_EQ(-1, status2.code());
   ASSERT_FALSE(status2.ok());
@@ -83,10 +82,7 @@ TEST(Status, ToString) {
 
 TEST(Status, OperatorEquals) {
   Status status;
-  status.Ignore();
-
   Status status2;
-  status2.Ignore();
 
   ASSERT_TRUE(status == status2);
 
@@ -105,6 +101,10 @@ TEST(Status, OperatorEquals) {
   status2.Ignore();
 
   ASSERT_FALSE(status == status2);
+}
+
+TEST(Status, Nothing) {
+  Status status;
 }
 
 int main(int argc, char** argv) {
