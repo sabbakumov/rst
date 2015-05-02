@@ -28,3 +28,14 @@ Now the library contains the following components:
 4. Status
   A Google-like Status class for error handling with small improvements. It's
   impossible now to ignore an error.
+
+5. Cpp14
+  A set of C++14 features unavaliable for C++11 compilers.
+
+6. Util
+  A set of utility classes.
+
+7. SQL
+  A Go-like SQL API.
+  Now it has the next drivers:
+    * MySQL
