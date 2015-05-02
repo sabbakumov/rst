@@ -49,12 +49,12 @@ class Option {
       : is_valid_(true), was_checked_(false), data_(std::move(rhs)) {}
 
   Option(const Option& rhs)
-      : is_valid_(rhs.is_valid_), was_checked_(rhs.was_checked_) {
+      : is_valid_(rhs.is_valid_), was_checked_(false) {
     if (is_valid_) Construct(rhs.data_);
   }
 
   Option(Option&& rhs)
-      : is_valid_(rhs.is_valid_), was_checked_(rhs.was_checked_) {
+      : is_valid_(rhs.is_valid_), was_checked_(false) {
     if (is_valid_) Construct(std::move(rhs.data_));
   }
   
@@ -106,7 +106,7 @@ class Option {
           is_valid_ = false;
         }
       }
-      was_checked_ = rhs.was_checked_;
+      was_checked_ = false;
     }
 
     return *this;
@@ -127,7 +127,7 @@ class Option {
           is_valid_ = false;
         }
       }
-      was_checked_ = rhs.was_checked_;
+      was_checked_ = false;
     }
 
     return *this;
@@ -157,8 +157,6 @@ class Option {
     was_checked_ = true;
     return is_valid_;
   }
-
-  void Ignore() { was_checked_ = true; }
 
  private:
   void Construct(const T& rhs) {
