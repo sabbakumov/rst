@@ -13,7 +13,6 @@ Status DB::Open(
   driver_ = it->second.get();
 
   Status status;
-  status.Ignore();
   conn_ = driver_->Open(data_source_name, &status);
   return status;
 }

@@ -27,7 +27,6 @@ class DB {
   template <class... Args>
   Status Exec(const std::string& query, const Args&... args) {
     Status status;
-    status.Ignore();
     auto stmt = conn_->Prepare(query, &status);
     if (!status.ok()) return status;
 
@@ -41,7 +40,6 @@ class DB {
   std::unique_ptr<Rows> Query(
       const std::string& query, Status* status, const Args&... args) {
     Status my_status;
-    my_status.Ignore();
     auto stmt = conn_->Prepare(query, &my_status);
     if (!my_status.ok()) {
       *status = std::move(my_status);

@@ -4,12 +4,10 @@ namespace rst {
 
 Rows::Rows(std::unique_ptr<driver::Rows> rows) :
     rows_(std::move(rows)) {
-  status_.Ignore();
 }
 
 bool Rows::Next() {
   Status status;
-  status.Ignore();
   bool has_next = rows_->Next(&status);
   if (!status.ok()) {
     status_.Ignore();

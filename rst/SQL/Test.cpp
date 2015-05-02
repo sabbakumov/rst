@@ -13,7 +13,6 @@ int main() {
   DB db;
   
   Status status;
-  status.Ignore();
   
   auto mysql_driver = make_unique<mysql_rst_driver::Driver>();
   status = mysql_driver->Init();

@@ -36,8 +36,6 @@ class Rows {
 
   Status Get(const int index, Int64* x) {
     Status status;
-    status.Ignore();
-    
     int64_t value = rows_->GetInt64(index, &status);
     if (!status.ok()) return status;
 
@@ -47,16 +45,12 @@ class Rows {
 
   Status Get(const int index, std::string* x) {
     Status status;
-    status.Ignore();
-    
     *x = rows_->GetString(index, &status);
     return status;
   }
 
   Status Get(const int index, double* x) {
     Status status;
-    status.Ignore();
-    
     *x = rows_->GetDouble(index, &status);
     return status;
   }
