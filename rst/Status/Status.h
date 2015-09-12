@@ -38,7 +38,7 @@ class Status {
  public:
   Status();
 
-  Status(const int code, std::string message);
+  Status(int code, std::string message);
 
   Status(Status&& rhs);
 
@@ -74,7 +74,7 @@ inline Status StatusErr(std::string message) {
   return Status(-1, std::move(message));
 }
 
-inline Status StatusErrWithCode(const int code, std::string message) {
+inline Status StatusErrWithCode(int code, std::string message) {
   return Status(code, std::move(message));
 }
 
