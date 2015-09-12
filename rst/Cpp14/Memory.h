@@ -32,10 +32,36 @@
 
 namespace rst {
 
-template <class T, class... Args>
-std::unique_ptr<T> make_unique(Args&&... args) {
-  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+template <class Tp>
+struct unique_if {
+  typedef std::unique_ptr<Tp> unique_single;
+};
+
+template <class Tp>
+struct unique_if<Tp[]> {
+  typedef std::unique_ptr<Tp[]> unique_array_unknown_bound;
+};
+
+template<class Tp, size_t Np>
+struct unique_if<Tp[Np]> {
+  typedef void unique_array_known_bound;
+};
+
+template<class Tp, class... Args>
+inline typename unique_if<Tp>::unique_single make_unique(Args&&... args) {
+  return std::unique_ptr<Tp>(new Tp(std::forward<Args>(args)...));
 }
+
+template<class Tp>
+inline typename unique_if<Tp>::unique_array_unknown_bound make_unique(
+    size_t n) {
+  typedef typename std::remove_extent<Tp>::type Up;
+  return std::unique_ptr<Tp>(new Up[n]());
+}
+
+template<class Tp, class... Args>
+typename unique_if<Tp>::unique_array_known_bound make_unique(
+    Args&&...) = delete;
 
 }  // namespace rst
 
