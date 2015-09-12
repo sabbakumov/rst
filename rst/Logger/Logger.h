@@ -67,15 +67,15 @@ class Logger {
 
   static Logger& Instance();
   
-  void Log(const Level level, const char* file, const int line,
-           const char* function, const char* format, ...);
+  void Log(Level level, const char* file, int line, const char* function,
+           const char* format, ...);
 
   bool OpenFile(const char* filename);
   bool OpenFilePtr(FILE* file);
 
   void Close();
 
-  void SetMinLevel(const Level min_level) { min_level_ = min_level; }
+  void SetMinLevel(Level min_level) { min_level_ = min_level; }
  
  private:
   Logger();

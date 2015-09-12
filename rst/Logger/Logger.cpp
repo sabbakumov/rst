@@ -30,11 +30,14 @@
 #include <cassert>
 #include <cstdarg>
 
+using std::mutex;
+using std::unique_lock;
+
 namespace rst {
 
 Logger::Logger() {}
 
-void Logger::Log(const Level level, const char* file, const int line,
+void Logger::Log(Level level, const char* file, int line,
                  const char* /*function*/, const char* format, ...) {
   assert(was_opened_);
   if (static_cast<int>(level) < static_cast<int>(min_level_)) return;
@@ -42,28 +45,26 @@ void Logger::Log(const Level level, const char* file, const int line,
   va_list args;
   va_start(args, format);
   
-  std::lock_guard<std::mutex> lock(mutex_);
-  
-  fprintf(log_file_, "%s:%d: ", file, line);
+  const char* level_str = nullptr;
   switch (level) {
     case Level::kDebug: {
-      fprintf(log_file_, "DEBUG: ");
+      level_str = "DEBUG: ";
       break;
     }
     case Level::kInfo: {
-      fprintf(log_file_, "INFO: ");
+      level_str = "INFO: ";
       break;
     }
     case Level::kWarning: {
-      fprintf(log_file_, "WARN: ");
+      level_str = "WARN: ";
       break;
     }
     case Level::kError: {
-      fprintf(log_file_, "ERROR: ");
+      level_str = "ERROR: ";
       break;
     }
     case Level::kFatal: {
-      fprintf(log_file_, "FATAL: ");
+      level_str = "FATAL: ";
       break;
     }
     default: {
@@ -71,8 +72,14 @@ void Logger::Log(const Level level, const char* file, const int line,
       break;
     }
   }
+  
+  unique_lock<mutex> lock(mutex_);
+  
+  fprintf(log_file_, "%s:%d: %s: ", file, line, level_str);
   vfprintf(log_file_, format, args);
   fflush(log_file_);
+
+  lock.unlock();
   
   va_end(args);
 }
