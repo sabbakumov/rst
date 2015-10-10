@@ -103,9 +103,7 @@ TEST(Status, OperatorEquals) {
   ASSERT_FALSE(status == status2);
 }
 
-TEST(Status, Nothing) {
-  Status status;
-}
+TEST(Status, Nothing) { Status status; }
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

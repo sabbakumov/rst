@@ -44,7 +44,7 @@ void Logger::Log(Level level, const char* file, int line,
 
   va_list args;
   va_start(args, format);
-  
+
   const char* level_str = nullptr;
   switch (level) {
     case Level::kDebug: {
@@ -72,21 +72,21 @@ void Logger::Log(Level level, const char* file, int line,
       break;
     }
   }
-  
+
   unique_lock<mutex> lock(mutex_);
-  
+
   fprintf(log_file_, "%s:%d: %s: ", file, line, level_str);
   vfprintf(log_file_, format, args);
   fflush(log_file_);
 
   lock.unlock();
-  
+
   va_end(args);
 }
 
 Logger& Logger::Instance() {
   static Logger logger;
-  
+
   return logger;
 }
 
@@ -94,7 +94,7 @@ bool Logger::OpenFile(const char* filename) {
   if (was_opened_) return false;
 
   log_file_ = fopen(filename, "w");
-  
+
   if (!log_file_) return false;
 
   was_opened_ = true;
@@ -115,8 +115,6 @@ void Logger::Close() {
   if (log_file_) fclose(log_file_);
 }
 
-Logger::~Logger() {
-  Close();
-}
+Logger::~Logger() { Close(); }
 
 }  // namespace rst

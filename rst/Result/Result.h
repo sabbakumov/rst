@@ -39,9 +39,8 @@ template <class T, class E>
 class Result {
  public:
   Result() : is_valid_(false), was_checked_(true), err_(E()) {}
-  
-  Result(Result&& rhs)
-      : is_valid_(rhs.is_valid_), was_checked_(false) {
+
+  Result(Result&& rhs) : is_valid_(rhs.is_valid_), was_checked_(false) {
     rhs.was_checked_ = true;
     if (is_valid_) {
       new (&ok_) T(std::move(rhs.ok_));
@@ -49,12 +48,12 @@ class Result {
       new (&err_) E(std::move(rhs.err_));
     }
   }
-  
+
   // Allows implicit conversion from T.
   Result(const T& rhs) : is_valid_(true), was_checked_(false), ok_(rhs) {}
   // Allows implicit conversion from T.
   Result(T&& rhs) : is_valid_(true), was_checked_(false), ok_(std::move(rhs)) {}
-  
+
   Result(const E& rhs, const int)
       : is_valid_(false), was_checked_(false), err_(rhs) {}
   Result(E&& rhs, const int)
@@ -68,7 +67,7 @@ class Result {
       err_.~E();
     }
   }
-  
+
   Result& operator=(Result&& rhs) {
     assert(was_checked_);
     if (this != &rhs) {
@@ -92,10 +91,10 @@ class Result {
       was_checked_ = false;
       rhs.was_checked_ = true;
     }
-    
+
     return *this;
   }
-  
+
   Result& operator=(const T& rhs) {
     assert(was_checked_);
     if (is_valid_) {
@@ -140,13 +139,13 @@ class Result {
     assert(is_valid_);
     return &ok_;
   }
-  
+
   E& Err() noexcept {
     assert(was_checked_);
     assert(!is_valid_);
     return err_;
   }
-  
+
   void Ignore() { was_checked_ = true; }
 
  private:
@@ -154,23 +153,21 @@ class Result {
   Result& operator=(const Result& rhs) = delete;
 
   bool is_valid_;
-  
+
   bool was_checked_;
-  
+
   union {
     T ok_;
     E err_;
   };
 };
 
-
 template <class E>
 class Result<void, E> {
  public:
   Result() : is_valid_(false), was_checked_(true), err_(E()) {}
-  
-  Result(Result&& rhs)
-      : is_valid_(rhs.is_valid_), was_checked_(false) {
+
+  Result(Result&& rhs) : is_valid_(rhs.is_valid_), was_checked_(false) {
     rhs.was_checked_ = true;
     if (!is_valid_) {
       new (&err_) E(std::move(rhs.err_));
@@ -178,7 +175,7 @@ class Result<void, E> {
   }
 
   Result(const int) noexcept : is_valid_(true), was_checked_(false) {}
-  
+
   Result(const E& rhs, const int)
       : is_valid_(false), was_checked_(false), err_(rhs) {}
   Result(E&& rhs, const int)
@@ -188,7 +185,7 @@ class Result<void, E> {
     assert(was_checked_);
     if (!is_valid_) err_.~E();
   }
-  
+
   Result& operator=(Result&& rhs) {
     assert(was_checked_);
     if (this != &rhs) {
@@ -208,10 +205,10 @@ class Result<void, E> {
       was_checked_ = false;
       rhs.was_checked_ = true;
     }
-    
+
     return *this;
   }
-  
+
   operator bool() noexcept {
     was_checked_ = true;
     return is_valid_;
@@ -230,9 +227,9 @@ class Result<void, E> {
   Result& operator=(const Result& rhs) = delete;
 
   bool is_valid_;
-  
+
   bool was_checked_;
-  
+
   union {
     E err_;
   };

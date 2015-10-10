@@ -44,7 +44,7 @@ class DtorHelper {
   ~DtorHelper() { counter_--; }
 
   static int counter() { return counter_; }
-  
+
  private:
   static int counter_;
 };
@@ -55,7 +55,6 @@ class ArrowHelper {
  public:
   void foo() const {}
 };
-
 
 TEST(Result, DefaultCtor) {
   Result<int, int> oi;
@@ -163,19 +162,19 @@ TEST(Result, Dtor) {
     Result<DtorHelper, int> o = DtorHelper();
     o.Ignore();
     ASSERT_EQ(1, DtorHelper::counter());
-    
+
     Result<DtorHelper, int> o2 = DtorHelper();
     o2.Ignore();
     ASSERT_EQ(2, DtorHelper::counter());
   }
-  
+
   ASSERT_EQ(0, DtorHelper::counter());
 
   {
     Result<int, DtorHelper> o = Err<int, DtorHelper>(DtorHelper());
     o.Ignore();
     ASSERT_EQ(1, DtorHelper::counter());
-    
+
     Result<int, DtorHelper> o2 = Err<int, DtorHelper>(DtorHelper());
     o2.Ignore();
     ASSERT_EQ(2, DtorHelper::counter());
@@ -184,7 +183,7 @@ TEST(Result, Dtor) {
     o3.Ignore();
     ASSERT_EQ(3, DtorHelper::counter());
   }
-  
+
   ASSERT_EQ(0, DtorHelper::counter());
 }
 
@@ -197,14 +196,14 @@ TEST(Result, OperatorEquals) {
     o = DtorHelper();
     o.Ignore();
     ASSERT_EQ(1, DtorHelper::counter());
-    
+
     Result<DtorHelper, int> o2 = DtorHelper();
     o2.Ignore();
     o2 = DtorHelper();
     o2.Ignore();
     ASSERT_EQ(2, DtorHelper::counter());
   }
-  
+
   ASSERT_EQ(0, DtorHelper::counter());
 
   {
@@ -214,14 +213,14 @@ TEST(Result, OperatorEquals) {
     o = 0;
     o.Ignore();
     ASSERT_EQ(0, DtorHelper::counter());
-    
+
     Result<DtorHelper, int> o2 = Err<DtorHelper, int>(-1);
     o2.Ignore();
     o2 = DtorHelper();
     o2.Ignore();
     ASSERT_EQ(1, DtorHelper::counter());
   }
-  
+
   ASSERT_EQ(0, DtorHelper::counter());
 }
 
@@ -230,7 +229,7 @@ TEST(Result, CopyOperatorEquals) {
     Result<int, int> oi = 8;
     ASSERT_TRUE(oi == true);
     ASSERT_EQ(8, *oi);
-    
+
     Result<int, int> oi2 = 168;
     ASSERT_TRUE(oi2 == true);
     ASSERT_EQ(168, *oi2);
@@ -330,7 +329,6 @@ TEST(Result, Nothing) {
 
   Result<void, int> r2;
 }
-
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

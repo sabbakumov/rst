@@ -31,25 +31,25 @@
 #include <cstdio>
 #include <mutex>
 
-#define LOG_DEBUG(...) \
-Logger::Instance().Log(Logger::Level::kDebug, __FILE__, __LINE__, \
-                       __FUNCTION__, __VA_ARGS__)
+#define LOG_DEBUG(...)                                              \
+  Logger::Instance().Log(Logger::Level::kDebug, __FILE__, __LINE__, \
+                         __FUNCTION__, __VA_ARGS__)
 
-#define LOG_INFO(...) \
-Logger::Instance().Log(Logger::Level::kInfo, __FILE__, __LINE__, \
-                       __FUNCTION__, __VA_ARGS__)
+#define LOG_INFO(...)                                              \
+  Logger::Instance().Log(Logger::Level::kInfo, __FILE__, __LINE__, \
+                         __FUNCTION__, __VA_ARGS__)
 
-#define LOG_WARN(...) \
-Logger::Instance().Log(Logger::Level::kWarning, __FILE__, __LINE__, \
-                       __FUNCTION__, __VA_ARGS__)
+#define LOG_WARN(...)                                                 \
+  Logger::Instance().Log(Logger::Level::kWarning, __FILE__, __LINE__, \
+                         __FUNCTION__, __VA_ARGS__)
 
-#define LOG_ERROR(...) \
-Logger::Instance().Log(Logger::Level::kError, __FILE__, __LINE__, \
-                       __FUNCTION__, __VA_ARGS__)
+#define LOG_ERROR(...)                                              \
+  Logger::Instance().Log(Logger::Level::kError, __FILE__, __LINE__, \
+                         __FUNCTION__, __VA_ARGS__)
 
-#define LOG_FATAL(...) \
-Logger::Instance().Log(Logger::Level::kFatal, __FILE__, __LINE__, \
-                       __FUNCTION__, __VA_ARGS__)
+#define LOG_FATAL(...)                                              \
+  Logger::Instance().Log(Logger::Level::kFatal, __FILE__, __LINE__, \
+                         __FUNCTION__, __VA_ARGS__)
 
 namespace rst {
 
@@ -66,7 +66,7 @@ class Logger {
   };
 
   static Logger& Instance();
-  
+
   void Log(Level level, const char* file, int line, const char* function,
            const char* format, ...);
 
@@ -76,15 +76,15 @@ class Logger {
   void Close();
 
   void SetMinLevel(Level min_level) { min_level_ = min_level; }
- 
+
  private:
   Logger();
-  
+
   Logger(const Logger&) = delete;
   Logger(Logger&&) = delete;
-  
+
   ~Logger();
-  
+
   Logger& operator=(const Logger&) = delete;
   Logger& operator=(Logger&&) = delete;
 

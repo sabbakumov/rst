@@ -43,9 +43,7 @@ class Status {
   Status(Status&& rhs);
 
   Status& operator=(Status&& rhs);
-  bool operator==(const Status& rhs) const {
-    return code_ == rhs.code_;
-  }
+  bool operator==(const Status& rhs) const { return code_ == rhs.code_; }
 
   ~Status();
 

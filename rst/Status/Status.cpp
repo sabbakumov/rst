@@ -44,7 +44,7 @@ Status::Status(Status&& rhs) {
 
 Status& Status::operator=(Status&& rhs) {
   assert(was_checked_);
-  
+
   if (this != &rhs) {
     was_checked_ = false;
     code_ = rhs.code_;
@@ -52,13 +52,11 @@ Status& Status::operator=(Status&& rhs) {
 
     rhs.was_checked_ = true;
   }
-  
+
   return *this;
 }
 
-Status::~Status() {
-  assert(was_checked_);
-}
+Status::~Status() { assert(was_checked_); }
 
 }  // namespace rst
 
