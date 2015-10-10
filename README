@@ -4,13 +4,7 @@ It is licensed under the Simplified BSD License.
 
 Now the library contains the following components:
 
-1. Option
-  A lightweight analogy of Boost.optional and Option enum in Rust.
-  It is used to support one more optional value for every existing type.
-  It uses pointer-like semantics by overloading operator* and operator->.
-  The object of the class asserts if it has been checked.
-
-2. Result
+* Result
   An analogy of Result enum in Rust. Also it is similar to Go's
   (value, error) return semantics.
   It is used as a return value of any method or function.
@@ -22,20 +16,12 @@ Now the library contains the following components:
   The object of the class asserts if it has been checked. So, it's impossible
  now to ignore an error.
 
-3. Logger
+* Logger
   A fast flexible thread-safe Logger component for C++11.
 
-4. Status
+* Status
   A Google-like Status class for error handling with small improvements. It's
   impossible now to ignore an error.
 
-5. Cpp14
+* Cpp14
   A set of C++14 features unavaliable for C++11 compilers.
-
-6. Util
-  A set of utility classes.
-
-7. SQL
-  A Go-like SQL API.
-  Now it has the next drivers:
-    * MySQL
