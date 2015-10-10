@@ -34,17 +34,17 @@ namespace rst {
 
 template <class Tp>
 struct unique_if {
-  typedef std::unique_ptr<Tp> unique_single;
+  using unique_single = std::unique_ptr<Tp>;
 };
 
 template <class Tp>
 struct unique_if<Tp[]> {
-  typedef std::unique_ptr<Tp[]> unique_array_unknown_bound;
+  using unique_array_unknown_bound = std::unique_ptr<Tp[]>;
 };
 
 template <class Tp, size_t Np>
 struct unique_if<Tp[Np]> {
-  typedef void unique_array_known_bound;
+  using unique_array_known_bound = void;
 };
 
 template <class Tp, class... Args>
@@ -55,7 +55,7 @@ inline typename unique_if<Tp>::unique_single make_unique(Args&&... args) {
 template <class Tp>
 inline typename unique_if<Tp>::unique_array_unknown_bound make_unique(
     size_t n) {
-  typedef typename std::remove_extent<Tp>::type Up;
+  using Up = typename std::remove_extent<Tp>::type;
   return std::unique_ptr<Tp>(new Up[n]());
 }
 
