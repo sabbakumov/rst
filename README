@@ -25,3 +25,6 @@ Now the library contains the following components:
 
 * Cpp14
   A set of C++14 features unavaliable for C++11 compilers.
+
+* Format
+  A Python-like string format library
