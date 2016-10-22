@@ -229,7 +229,7 @@ inline bool HandleCharacter(char c, const char*& s) {
 inline void FormatImpl(Writer& writer, const char* s) {
   assert(s);
   for (char c; (c = *s) != '\0'; s++) {
-    if (HandleCharacter(c, s) == false) {
+    if (!HandleCharacter(c, s)) {
       throw FormatError("Argument index out of range");
     }
     writer.Write(c);
@@ -246,7 +246,7 @@ inline void FormatImpl(Writer& writer, const char* s, const T& value,
     throw FormatError("Extra arguments");
   }
   for (; (c = *s) != '\0'; s++) {
-    if (HandleCharacter(c, s) == false) {
+    if (!HandleCharacter(c, s)) {
       writer.Write(value);
       s += 2;
       FormatImpl(writer, s, std::forward<Args>(args)...);
