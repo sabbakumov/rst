@@ -73,32 +73,32 @@ class Writer {
   }
 
   void Write(int val) {
-    std::array<char, 4 * sizeof(decltype(val))> buffer;
+    std::array<char, 4 * sizeof val> buffer;
     FormatAndWrite(buffer.data(), buffer.size(), "%d", val);
   }
 
   void Write(unsigned int val) {
-    std::array<char, 4 * sizeof(decltype(val))> buffer;
+    std::array<char, 4 * sizeof val> buffer;
     FormatAndWrite(buffer.data(), buffer.size(), "%u", val);
   }
 
   void Write(long val) {
-    std::array<char, 4 * sizeof(decltype(val))> buffer;
+    std::array<char, 4 * sizeof val> buffer;
     FormatAndWrite(buffer.data(), buffer.size(), "%ld", val);
   }
 
   void Write(unsigned long val) {
-    std::array<char, 4 * sizeof(decltype(val))> buffer;
+    std::array<char, 4 * sizeof val> buffer;
     FormatAndWrite(buffer.data(), buffer.size(), "%lu", val);
   }
 
   void Write(long long val) {
-    std::array<char, 4 * sizeof(decltype(val))> buffer;
+    std::array<char, 4 * sizeof val> buffer;
     FormatAndWrite(buffer.data(), buffer.size(), "%lld", val);
   }
 
   void Write(unsigned long long val) {
-    std::array<char, 4 * sizeof(decltype(val))> buffer;
+    std::array<char, 4 * sizeof val> buffer;
     FormatAndWrite(buffer.data(), buffer.size(), "%llu", val);
   }
 
@@ -192,36 +192,45 @@ class Writer {
   std::string dynamic_buffer_;
 };
 
+// Handles character c in the string s. Returns false if there's {} in s
+inline bool HandleCharacter(char c, const char*& s) {
+  assert(s);
+  switch (c) {
+    case '{': {
+      const char s_1 = *(s + 1);
+      switch (s_1) {
+        case '{': {
+          s++;
+          break;
+        }
+        case '}': {
+          return false;
+        }
+        default: { throw FormatError("Invalid format string"); }
+      }
+      break;
+    }
+    case '}': {
+      const char s_1 = *(s + 1);
+      switch (s_1) {
+        case '}': {
+          s++;
+          break;
+        }
+        default: { throw FormatError("Unmatched '}' in format string"); }
+      }
+      break;
+    }
+  }
+  return true;
+}
+
 // Writes s to the writer. "{{" -> "{", "}}" -> "}"
-inline void format_impl(Writer& writer, const char* s) {
+inline void FormatImpl(Writer& writer, const char* s) {
   assert(s);
   for (char c; (c = *s) != '\0'; s++) {
-    switch (c) {
-      case '{': {
-        const char s_1 = *(s + 1);
-        switch (s_1) {
-          case '{': {
-            s++;
-            break;
-          }
-          case '}': {
-            throw FormatError("Argument index out of range");
-          }
-          default: { throw FormatError("Invalid format string"); }
-        }
-        break;
-      }
-      case '}': {
-        const char s_1 = *(s + 1);
-        switch (s_1) {
-          case '}': {
-            s++;
-            break;
-          }
-          default: { throw FormatError("Unmatched '}' in format string"); }
-        }
-        break;
-      }
+    if (HandleCharacter(c, s) == false) {
+      throw FormatError("Argument index out of range");
     }
     writer.Write(c);
   }
@@ -229,43 +238,19 @@ inline void format_impl(Writer& writer, const char* s) {
 
 // Writes s to the writer. "{{" -> "{", "}}" -> "}"
 template <class T, class... Args>
-inline void format_impl(Writer& writer, const char* s, const T& value,
-                        Args&&... args) {
+inline void FormatImpl(Writer& writer, const char* s, const T& value,
+                       Args&&... args) {
   assert(s);
   char c = *s;
   if (c == '\0') {
     throw FormatError("Extra arguments");
   }
   for (; (c = *s) != '\0'; s++) {
-    switch (c) {
-      case '{': {
-        const char s_1 = *(s + 1);
-        switch (s_1) {
-          case '{': {
-            s++;
-            break;
-          }
-          case '}': {
-            writer.Write(value);
-            s += 2;
-            format_impl(writer, s, std::forward<Args>(args)...);
-            return;
-          }
-          default: { throw FormatError("Invalid format string"); }
-        }
-        break;
-      }
-      case '}': {
-        const char s_1 = *(s + 1);
-        switch (s_1) {
-          case '}': {
-            s++;
-            break;
-          }
-          default: { throw FormatError("Unmatched '}' in format string"); }
-        }
-        break;
-      }
+    if (HandleCharacter(c, s) == false) {
+      writer.Write(value);
+      s += 2;
+      FormatImpl(writer, s, std::forward<Args>(args)...);
+      return;
     }
     writer.Write(c);
   }
@@ -273,11 +258,11 @@ inline void format_impl(Writer& writer, const char* s, const T& value,
 
 }  // namespace internal
 
-// A wrapper around format_impl recursive functions
+// A wrapper around FormatImpl recursive functions
 template <class... Args>
 inline std::string format(const char* s, Args&&... args) {
   internal::Writer writer;
-  format_impl(writer, s, std::forward<Args>(args)...);
+  FormatImpl(writer, s, std::forward<Args>(args)...);
   return writer.MoveString();
 }
 
