@@ -28,219 +28,30 @@
 #ifndef RST_FORMAT_FORMAT_H_
 #define RST_FORMAT_FORMAT_H_
 
-#include <array>
-#include <cassert>
-#include <cstring>
-#include <limits>
-#include <stdexcept>
 #include <string>
+#include <utility>
 
-namespace Format {
+#include "rst/Format/FormatError.h"
+#include "rst/Format/Writer.h"
 
-// Exception thrown by the library
-class FormatError : public std::runtime_error {
- public:
-  explicit FormatError(const std::string& message)
-      : std::runtime_error(message) {}
-  explicit FormatError(const char* message) : std::runtime_error(message) {}
-};
+namespace rst {
 
 namespace internal {
 
-// Class for writing values. Has static stack and dynamic buffer. By default
-// uses static buffer
-class Writer {
- public:
-  // The size of the stack buffer
-  static constexpr size_t kStaticBufferSize = 1024;
-
-  Writer() {
-    assert(static_buffer_.size() >= 2);
-    static_buffer_[0] = '\0';
-  }
-
-  // Writes val like std::snprintf
-  template <class T>
-  void FormatAndWrite(char* str, size_t size, const char* format, T val) {
-    assert(str);
-    assert(format);
-
-    const int bytes_written = std::snprintf(str, size, format, val);
-    if (bytes_written < 0) {
-      throw FormatError("snprintf() failed");
-    }
-    Write(str, static_cast<size_t>(bytes_written) + 1);
-  }
-
-  void Write(int val) {
-    std::array<char, 4 * sizeof val> buffer;
-    FormatAndWrite(buffer.data(), buffer.size(), "%d", val);
-  }
-
-  void Write(unsigned int val) {
-    std::array<char, 4 * sizeof val> buffer;
-    FormatAndWrite(buffer.data(), buffer.size(), "%u", val);
-  }
-
-  void Write(long val) {
-    std::array<char, 4 * sizeof val> buffer;
-    FormatAndWrite(buffer.data(), buffer.size(), "%ld", val);
-  }
-
-  void Write(unsigned long val) {
-    std::array<char, 4 * sizeof val> buffer;
-    FormatAndWrite(buffer.data(), buffer.size(), "%lu", val);
-  }
-
-  void Write(long long val) {
-    std::array<char, 4 * sizeof val> buffer;
-    FormatAndWrite(buffer.data(), buffer.size(), "%lld", val);
-  }
-
-  void Write(unsigned long long val) {
-    std::array<char, 4 * sizeof val> buffer;
-    FormatAndWrite(buffer.data(), buffer.size(), "%llu", val);
-  }
-
-  void Write(float val) {
-    std::array<char, std::numeric_limits<decltype(val)>::max_exponent10 + 20>
-        buffer;
-    FormatAndWrite(buffer.data(), buffer.size(), "%f", val);
-  }
-
-  void Write(double val) {
-    std::array<char, std::numeric_limits<decltype(val)>::max_exponent10 + 20>
-        buffer;
-    FormatAndWrite(buffer.data(), buffer.size(), "%f", val);
-  }
-
-  void Write(long double val) {
-    std::array<char, std::numeric_limits<decltype(val)>::max_exponent10 + 20>
-        buffer;
-    FormatAndWrite(buffer.data(), buffer.size(), "%Lf", val);
-  }
-
-  void Write(const std::string& val) {
-    const size_t len = val.size() + 1;
-    Write(val.c_str(), len);
-  }
-
-  void Write(const char* val) {
-    assert(val);
-
-    const size_t len = std::strlen(val) + 1;
-    Write(val, len);
-  }
-
-  void Write(const char val) {
-    const char arr[] = {val, '\0'};
-    constexpr size_t len = sizeof arr;
-    Write(arr, len);
-  }
-
-  // Writes range [val; val + len] to the static buffer by default. When the
-  // buffer on the stack gets full or the range is too long for the static
-  // buffer, allocates a dynamic buffer, copies existing content to the dynamic
-  // buffer and writes current and all next ranges to the dynamic buffer
-  void Write(const char* val, size_t len) {
-    assert(val);
-
-    if (is_static_buffer_) {
-      if (len <= static_buffer_.size() - size_) {
-        std::memcpy(static_buffer_.data() + size_, val, len);
-        size_ += len - 1;
-      } else {
-        dynamic_buffer_.reserve(size_ + len);
-        dynamic_buffer_.assign(static_buffer_.data(), size_);
-        dynamic_buffer_.append(val, len - 1);
-        is_static_buffer_ = false;
-      }
-    } else {
-      dynamic_buffer_.append(val, len - 1);
-    }
-  }
-
-  // Returns a string of either static or dynamic buffer. If it's dynamic buffer
-  // performs a move operation, so it's no longer valid to write to the Writer
-  std::string MoveString() {
-    if (is_static_buffer_) {
-      return std::string(static_buffer_.data(), size_);
-    }
-    return std::move(dynamic_buffer_);
-  }
-
-  // Returns a string of either static or dynamic buffer. It's valid to write to
-  // the Writer more data.
-  std::string CopyString() const {
-    if (is_static_buffer_) {
-      return std::string(static_buffer_.data(), size_);
-    }
-    return dynamic_buffer_;
-  }
-
- private:
-  // Whether we use static of dynamic buffer
-  bool is_static_buffer_ = true;
-
-  // The current size of the static_buffer_
-  size_t size_ = 0;
-  // Buffer on the stack to prevent dynamic allocation
-  std::array<char, kStaticBufferSize> static_buffer_;
-
-  // Dynamic buffer in case of the static buffer gets full or the input is too
-  // long for the static buffer
-  std::string dynamic_buffer_;
-};
-
 // Handles character c in the string s. Returns false if there's {} in s
-inline bool HandleCharacter(char c, const char*& s) {
-  assert(s);
-  switch (c) {
-    case '{': {
-      const char s_1 = *(s + 1);
-      switch (s_1) {
-        case '{': {
-          s++;
-          break;
-        }
-        case '}': {
-          return false;
-        }
-        default: { throw FormatError("Invalid format string"); }
-      }
-      break;
-    }
-    case '}': {
-      const char s_1 = *(s + 1);
-      switch (s_1) {
-        case '}': {
-          s++;
-          break;
-        }
-        default: { throw FormatError("Unmatched '}' in format string"); }
-      }
-      break;
-    }
-  }
-  return true;
-}
+bool HandleCharacter(char c, const char*& s);
 
 // Writes s to the writer. "{{" -> "{", "}}" -> "}"
-inline void FormatImpl(Writer& writer, const char* s) {
-  assert(s);
-  for (char c; (c = *s) != '\0'; s++) {
-    if (!HandleCharacter(c, s)) {
-      throw FormatError("Argument index out of range");
-    }
-    writer.Write(c);
-  }
-}
+void Format(Writer& writer, const char* s);
 
 // Writes s to the writer. "{{" -> "{", "}}" -> "}"
 template <class T, class... Args>
-inline void FormatImpl(Writer& writer, const char* s, const T& value,
-                       Args&&... args) {
-  assert(s);
+inline void Format(Writer& writer, const char* s, const T& value,
+                   Args&&... args) {
+  if (s == nullptr) {
+    throw FormatError("s is null");
+  }
+
   char c = *s;
   if (c == '\0') {
     throw FormatError("Extra arguments");
@@ -249,7 +60,7 @@ inline void FormatImpl(Writer& writer, const char* s, const T& value,
     if (!HandleCharacter(c, s)) {
       writer.Write(value);
       s += 2;
-      FormatImpl(writer, s, std::forward<Args>(args)...);
+      Format(writer, s, std::forward<Args>(args)...);
       return;
     }
     writer.Write(c);
@@ -258,25 +69,27 @@ inline void FormatImpl(Writer& writer, const char* s, const T& value,
 
 }  // namespace internal
 
-// A wrapper around FormatImpl recursive functions
+// A wrapper around Format recursive functions
 template <class... Args>
 inline std::string format(const char* s, Args&&... args) {
   internal::Writer writer;
-  FormatImpl(writer, s, std::forward<Args>(args)...);
+  Format(writer, s, std::forward<Args>(args)...);
   return writer.MoveString();
 }
 
 namespace internal {
 
 // Used in user defined literals
-struct Format {
-  const char* str;
-
+class Formatter {
+ public:
+  explicit Formatter(const char* str) : str_(str) {}
   template <class... Args>
-  auto operator()(Args&&... args) const
-      -> decltype(format(str, std::forward<Args>(args)...)) {
-    return format(str, std::forward<Args>(args)...);
+  std::string operator()(Args&&... args) const {
+    return format(str_, std::forward<Args>(args)...);
   }
+
+ private:
+  const char* str_ = nullptr;
 };
 
 }  // namespace internal
@@ -284,12 +97,12 @@ struct Format {
 namespace literals {
 
 // User defined literals
-inline internal::Format operator"" _format(const char* s, size_t) {
-  return {s};
+inline internal::Formatter operator"" _format(const char* s, size_t) {
+  return internal::Formatter(s);
 }
 
 }  // namespace literals
 
-}  // namespace Format
+}  // namespace rst
 
 #endif  // RST_FORMAT_FORMAT_H_

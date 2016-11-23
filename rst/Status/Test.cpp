@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Sergey Abbakumov
+// Copyright (c) 2016, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -36,55 +36,55 @@ using rst::StatusOk;
 
 TEST(Status, EmptyConstructor) {
   Status status;
-  ASSERT_TRUE(status.ok());
+  EXPECT_TRUE(status.ok());
 }
 
 TEST(Status, Constructor) {
   Status status(-1, "Message");
-  ASSERT_EQ(-1, status.code());
-  ASSERT_FALSE(status.ok());
+  EXPECT_EQ(-1, status.error_code());
+  EXPECT_FALSE(status.ok());
 
   Status ok = StatusOk();
-  ASSERT_EQ(0, ok.code());
-  ASSERT_TRUE(ok.ok());
+  EXPECT_EQ(0, ok.error_code());
+  EXPECT_TRUE(ok.ok());
 
   Status err = StatusErr("Message");
-  ASSERT_EQ(-1, err.code());
-  ASSERT_FALSE(err.ok());
+  EXPECT_EQ(-1, err.error_code());
+  EXPECT_FALSE(err.ok());
 
   Status err2 = StatusErrWithCode(-2, "Message");
-  ASSERT_EQ(-2, err2.code());
-  ASSERT_FALSE(err2.ok());
+  EXPECT_EQ(-2, err2.error_code());
+  EXPECT_FALSE(err2.ok());
 }
 
 TEST(Status, MoveConstructor) {
   Status status(-1, "Message");
   Status status2(std::move(status));
-  ASSERT_EQ(-1, status2.code());
-  ASSERT_FALSE(status2.ok());
+  EXPECT_EQ(-1, status2.error_code());
+  EXPECT_FALSE(status2.ok());
 }
 
 TEST(Status, MoveAssignment) {
   Status status(-1, "Message");
   Status status2;
   Status& ref = status2 = std::move(status);
-  ASSERT_EQ(-1, status2.code());
-  ASSERT_FALSE(status2.ok());
-  ASSERT_EQ(&ref, &status2);
+  EXPECT_EQ(-1, status2.error_code());
+  EXPECT_FALSE(status2.ok());
+  EXPECT_EQ(&ref, &status2);
 }
 
-TEST(Status, ToString) {
+TEST(Status, ErrorMessage) {
   Status status(-1, "Message");
   status.Ignore();
 
-  ASSERT_EQ("Message", status.ToString());
+  EXPECT_EQ("Message", status.error_message());
 }
 
 TEST(Status, OperatorEquals) {
   Status status;
   Status status2;
 
-  ASSERT_TRUE(status == status2);
+  EXPECT_TRUE(status == status2);
 
   status = StatusErrWithCode(-1, "Status 1");
   status.Ignore();
@@ -92,7 +92,7 @@ TEST(Status, OperatorEquals) {
   status2 = StatusErrWithCode(-1, "Status 2");
   status2.Ignore();
 
-  ASSERT_TRUE(status == status2);
+  EXPECT_TRUE(status == status2);
 
   status = StatusErrWithCode(-2, "Status 1");
   status.Ignore();
@@ -100,7 +100,7 @@ TEST(Status, OperatorEquals) {
   status2 = StatusErrWithCode(-1, "Status 1");
   status2.Ignore();
 
-  ASSERT_FALSE(status == status2);
+  EXPECT_FALSE(status == status2);
 }
 
 TEST(Status, Nothing) { Status status; }

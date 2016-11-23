@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Sergey Abbakumov
+// Copyright (c) 2016, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,52 +28,90 @@
 #ifndef RST_STATUS_STATUS_H_
 #define RST_STATUS_STATUS_H_
 
-#include <cassert>
+#include <memory>
 #include <string>
 #include <utility>
 
 namespace rst {
 
+// Information about the error
+struct ErrorInfo {
+  // Error code
+  int error_code = 0;
+  // Error message
+  std::string error_message;
+};
+
+// A Google-like Status class for error handling
 class Status {
  public:
+  // Sets the object checked by default and to be OK
   Status();
 
-  Status(int code, std::string message);
+  // Sets the object not checked by default and to be error object with error
+  // code. If the error_code is 0, aborts
+  Status(int error_code, std::string error_message);
 
+  // Sets the object not checked by default and moves rhs content
   Status(Status&& rhs);
 
+  // Sets the object not checked by default and moves rhs content. If the
+  // object has not been checked, aborts
   Status& operator=(Status&& rhs);
-  bool operator==(const Status& rhs) const { return code_ == rhs.code_; }
-
-  ~Status();
-
-  bool ok() {
-    was_checked_ = true;
-    return code_ == 0;
+  bool operator==(const Status& rhs) const {
+    return (error_info_ == rhs.error_info_) ||
+           (error_code() == rhs.error_code() &&
+            error_message() == error_message());
   }
 
-  const std::string& ToString() const { return message_; }
-  int code() const { return code_; }
+  // If the object has not been checked, aborts
+  ~Status();
 
+  // Sets the object to be checked and returns whether the object is OK object
+  bool ok() {
+    was_checked_ = true;
+    return error_info_ == nullptr;
+  }
+
+  const std::string& error_message() const {
+    if (error_info_ == nullptr) {
+      return empty_string_;
+    }
+    return error_info_->error_message;
+  }
+
+  int error_code() const {
+    if (error_info_ == nullptr) {
+      return 0;
+    }
+    return error_info_->error_code;
+  }
+
+  // Sets the object to be checked
   void Ignore() { was_checked_ = true; }
 
  private:
   Status(const Status&) = delete;
   Status& operator=(const Status&) = delete;
 
+  // Whether the object was checked
   bool was_checked_;
-  int code_;
-  std::string message_;
+
+  // Information about the error. nullptr if the object is OK
+  std::unique_ptr<ErrorInfo> error_info_;
+
+  // The empty string in case of calling error_message() on OK object
+  static const std::string empty_string_;
 };
 
 inline Status StatusOk() { return Status(); }
 
-inline Status StatusErr(std::string message) {
-  return Status(-1, std::move(message));
+inline Status StatusErr(std::string error_message) {
+  return Status(-1, std::move(error_message));
 }
 
-inline Status StatusErrWithCode(int code, std::string message) {
-  return Status(code, std::move(message));
+inline Status StatusErrWithCode(int error_code, std::string error_message) {
+  return Status(error_code, std::move(error_message));
 }
 
 }  // namespace rst

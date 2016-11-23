@@ -25,44 +25,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_CPP14_MEMORY_H_
-#define RST_CPP14_MEMORY_H_
-
-#include <memory>
+#include "rst/Logger/ISink.h"
 
 namespace rst {
 
-// Clang-based make_unique implementation
-
-template <class T>
-struct unique_if {
-  using unique_single = std::unique_ptr<T>;
-};
-
-template <class T>
-struct unique_if<T[]> {
-  using unique_array_unknown_bound = std::unique_ptr<T[]>;
-};
-
-template <class T, size_t N>
-struct unique_if<T[N]> {
-  using unique_array_known_bound = void;
-};
-
-template <class T, class... Args>
-inline typename unique_if<T>::unique_single make_unique(Args&&... args) {
-  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
-template <class T>
-inline typename unique_if<T>::unique_array_unknown_bound make_unique(size_t n) {
-  using U = typename std::remove_extent<T>::type;
-  return std::unique_ptr<T>(new U[n]());
-}
-
-template <class T, class... Args>
-typename unique_if<T>::unique_array_known_bound make_unique(Args&&...) = delete;
+ISink::~ISink() {}
 
 }  // namespace rst
-
-#endif  // RST_CPP14_MEMORY_H_

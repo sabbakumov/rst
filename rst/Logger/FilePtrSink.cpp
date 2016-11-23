@@ -25,67 +25,71 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Logger/Logger.h"
-
-#include <cstdarg>
+#include "rst/Logger/FilePtrSink.h"
 
 #include "rst/Logger/LogError.h"
 
-using std::unique_ptr;
+using std::FILE;
+using std::mutex;
+using std::string;
+using std::unique_lock;
 
 namespace rst {
 
-Logger::Logger(unique_ptr<ISink> sink) : sink_(std::move(sink)) {
-  if (sink_ == nullptr) {
-    throw LogError("sink is nullptr");
+FilePtrSink::FilePtrSink(FILE* file, string prologue_format, bool should_close)
+    : prologue_format_(std::move(prologue_format)) {
+  if (file == nullptr) {
+    throw LogError("file is nullptr");
+  }
+
+  if (should_close) {
+    log_file_.reset(file);
+    file_ = log_file_.get();
+  } else {
+    non_closing_log_file_.reset(file);
+    file_ = non_closing_log_file_.get();
   }
 }
 
-void Logger::Log(Level level, const char* filename, int line,
-                 const char* format, ...) {
+void FilePtrSink::Log(const char* filename, int line,
+                      const char* severity_level, const char* format,
+                      va_list args) {
   if (filename == nullptr) {
     throw LogError("filename is nullptr");
+  }
+
+  if (severity_level == nullptr) {
+    throw LogError("severity_level is nullptr");
   }
 
   if (format == nullptr) {
     throw LogError("format is nullptr");
   }
 
-  if (static_cast<int>(level) < static_cast<int>(level_)) {
-    return;
+  unique_lock<mutex> lock(mutex_);
+
+  int val = std::fprintf(file_, prologue_format_.c_str(), filename, line,
+                         severity_level);
+  if (val < 0) {
+    throw LogError("Error writing to log");
   }
 
-  va_list plain_args;
-  unique_ptr<va_list, void (*)(va_list*)> args{
-      &plain_args, [](va_list* list) { va_end(*list); }};
-  va_start(*args, format);
-
-  const char* level_str = nullptr;
-  switch (level) {
-    case Level::kDebug: {
-      level_str = "DEBUG";
-      break;
-    }
-    case Level::kInfo: {
-      level_str = "INFO";
-      break;
-    }
-    case Level::kWarning: {
-      level_str = "WARNING";
-      break;
-    }
-    case Level::kError: {
-      level_str = "ERROR";
-      break;
-    }
-    case Level::kFatal: {
-      level_str = "FATAL";
-      break;
-    }
-    default: { throw LogError("Unexpected level"); }
+  val = std::vfprintf(file_, format, args);
+  if (val < 0) {
+    throw LogError("Error writing to log");
   }
 
-  sink_->Log(filename, line, level_str, format, *args);
+  val = std::fprintf(file_, "\n");
+  if (val < 0) {
+    throw LogError("Error writing to log");
+  }
+
+  val = std::fflush(file_);
+  if (val != 0) {
+    throw LogError("Error flushing to log");
+  }
+
+  lock.unlock();
 }
 
 }  // namespace rst

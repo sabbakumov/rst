@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Sergey Abbakumov
+// Copyright (c) 2016, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,9 +28,6 @@
 #include "rst/Result/Result.h"
 
 #include <complex>
-#include <list>
-#include <set>
-#include <vector>
 
 #include "gtest/gtest.h"
 
@@ -58,49 +55,49 @@ class ArrowHelper {
 
 TEST(Result, DefaultCtor) {
   Result<int, int> oi;
-  ASSERT_TRUE(oi == false);
+  EXPECT_TRUE(oi == false);
 
   Result<void, int> ov;
-  ASSERT_TRUE(ov == false);
+  EXPECT_TRUE(ov == false);
 }
 
 TEST(Result, ValueCtor) {
   {
     Result<int, int> oi = 0;
     ASSERT_TRUE(oi == true);
-    ASSERT_EQ(0, *oi);
+    EXPECT_EQ(0, *oi);
 
     Result<std::complex<double>, int> ocmplx = std::complex<double>(0.0, 0.0);
     ASSERT_TRUE(ocmplx == true);
-    ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
+    EXPECT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
 
     Result<char, int> oc = '\0';
     ASSERT_TRUE(oc == true);
-    ASSERT_EQ('\0', *oc);
+    EXPECT_EQ('\0', *oc);
 
     Result<bool, int> ob = true;
     ASSERT_TRUE(ob == true);
-    ASSERT_EQ(true, *ob);
+    EXPECT_EQ(true, *ob);
 
     Result<void, int> ov = 0;
-    ASSERT_TRUE(ov == true);
+    EXPECT_TRUE(ov == true);
   }
 
   {
     Result<int, int> oi(-1, 0);
-    ASSERT_TRUE(oi == false);
+    EXPECT_TRUE(oi == false);
 
     Result<std::complex<double>, int> ocmplx(-1, 0);
-    ASSERT_TRUE(ocmplx == false);
+    EXPECT_TRUE(ocmplx == false);
 
     Result<char, int> oc(-1, 0);
-    ASSERT_TRUE(oc == false);
+    EXPECT_TRUE(oc == false);
 
     Result<bool, int> ob(-1, 0);
-    ASSERT_TRUE(ob == false);
+    EXPECT_TRUE(ob == false);
 
     Result<void, int> ov(-1, 0);
-    ASSERT_TRUE(ov == false);
+    EXPECT_TRUE(ov == false);
   }
 }
 
@@ -109,162 +106,162 @@ TEST(Result, MoveCtor) {
     Result<int, int> oi = 0;
     Result<int, int> oi2(std::move(oi));
     ASSERT_TRUE(oi2 == true);
-    ASSERT_EQ(0, *oi2);
+    EXPECT_EQ(0, *oi2);
 
     Result<std::complex<double>, int> ocmplx = std::complex<double>(0.0, 0.0);
     Result<std::complex<double>, int> ocmplx2(std::move(ocmplx));
     ASSERT_TRUE(ocmplx2 == true);
-    ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx2);
+    EXPECT_EQ(std::complex<double>(0.0, 0.0), *ocmplx2);
 
     Result<char, int> oc = '\0';
     Result<char, int> oc2(std::move(oc));
     ASSERT_TRUE(oc2 == true);
-    ASSERT_EQ('\0', *oc2);
+    EXPECT_EQ('\0', *oc2);
 
     Result<bool, int> ob = true;
     Result<bool, int> ob2(std::move(ob));
     ASSERT_TRUE(ob2 == true);
-    ASSERT_EQ(true, *ob2);
+    EXPECT_EQ(true, *ob2);
 
     Result<void, int> ov = 0;
     Result<void, int> ov2(std::move(ov));
-    ASSERT_TRUE(ov2 == true);
+    EXPECT_TRUE(ov2 == true);
   }
 
   {
     Result<int, int> oi = Err<int, int>(-1);
     Result<int, int> oi2(std::move(oi));
-    ASSERT_TRUE(oi2 == false);
+    EXPECT_TRUE(oi2 == false);
 
     Result<std::complex<double>, int> ocmplx =
         Err<std::complex<double>, int>(-1);
     Result<std::complex<double>, int> ocmplx2(std::move(ocmplx));
-    ASSERT_TRUE(ocmplx2 == false);
+    EXPECT_TRUE(ocmplx2 == false);
 
     Result<char, int> oc = Err<char, int>(-1);
     Result<char, int> oc2(std::move(oc));
-    ASSERT_TRUE(oc2 == false);
+    EXPECT_TRUE(oc2 == false);
 
     Result<bool, int> ob = Err<bool, int>(-1);
     Result<bool, int> ob2(std::move(ob));
-    ASSERT_TRUE(ob2 == false);
+    EXPECT_TRUE(ob2 == false);
 
     Result<void, int> ov = Err<void, int>(-1);
     Result<void, int> ov2(std::move(ov));
-    ASSERT_TRUE(ov2 == false);
+    EXPECT_TRUE(ov2 == false);
   }
 }
 
 TEST(Result, Dtor) {
-  ASSERT_EQ(0, DtorHelper::counter());
+  EXPECT_EQ(0, DtorHelper::counter());
 
   {
     Result<DtorHelper, int> o = DtorHelper();
     o.Ignore();
-    ASSERT_EQ(1, DtorHelper::counter());
+    EXPECT_EQ(1, DtorHelper::counter());
 
     Result<DtorHelper, int> o2 = DtorHelper();
     o2.Ignore();
-    ASSERT_EQ(2, DtorHelper::counter());
+    EXPECT_EQ(2, DtorHelper::counter());
   }
 
-  ASSERT_EQ(0, DtorHelper::counter());
+  EXPECT_EQ(0, DtorHelper::counter());
 
   {
     Result<int, DtorHelper> o = Err<int, DtorHelper>(DtorHelper());
     o.Ignore();
-    ASSERT_EQ(1, DtorHelper::counter());
+    EXPECT_EQ(1, DtorHelper::counter());
 
     Result<int, DtorHelper> o2 = Err<int, DtorHelper>(DtorHelper());
     o2.Ignore();
-    ASSERT_EQ(2, DtorHelper::counter());
+    EXPECT_EQ(2, DtorHelper::counter());
 
     Result<void, DtorHelper> o3 = Err<void, DtorHelper>(DtorHelper());
     o3.Ignore();
-    ASSERT_EQ(3, DtorHelper::counter());
+    EXPECT_EQ(3, DtorHelper::counter());
   }
 
-  ASSERT_EQ(0, DtorHelper::counter());
+  EXPECT_EQ(0, DtorHelper::counter());
 }
 
 TEST(Result, OperatorEquals) {
-  ASSERT_EQ(0, DtorHelper::counter());
+  EXPECT_EQ(0, DtorHelper::counter());
 
   {
     Result<DtorHelper, int> o = DtorHelper();
     o.Ignore();
     o = DtorHelper();
     o.Ignore();
-    ASSERT_EQ(1, DtorHelper::counter());
+    EXPECT_EQ(1, DtorHelper::counter());
 
     Result<DtorHelper, int> o2 = DtorHelper();
     o2.Ignore();
     o2 = DtorHelper();
     o2.Ignore();
-    ASSERT_EQ(2, DtorHelper::counter());
+    EXPECT_EQ(2, DtorHelper::counter());
   }
 
-  ASSERT_EQ(0, DtorHelper::counter());
+  EXPECT_EQ(0, DtorHelper::counter());
 
   {
     Result<int, DtorHelper> o = Err<int, DtorHelper>(DtorHelper());
-    ASSERT_EQ(1, DtorHelper::counter());
+    EXPECT_EQ(1, DtorHelper::counter());
     o.Ignore();
     o = 0;
     o.Ignore();
-    ASSERT_EQ(0, DtorHelper::counter());
+    EXPECT_EQ(0, DtorHelper::counter());
 
     Result<DtorHelper, int> o2 = Err<DtorHelper, int>(-1);
     o2.Ignore();
     o2 = DtorHelper();
     o2.Ignore();
-    ASSERT_EQ(1, DtorHelper::counter());
+    EXPECT_EQ(1, DtorHelper::counter());
   }
 
-  ASSERT_EQ(0, DtorHelper::counter());
+  EXPECT_EQ(0, DtorHelper::counter());
 }
 
 TEST(Result, CopyOperatorEquals) {
   {
     Result<int, int> oi = 8;
     ASSERT_TRUE(oi == true);
-    ASSERT_EQ(8, *oi);
+    EXPECT_EQ(8, *oi);
 
     Result<int, int> oi2 = 168;
     ASSERT_TRUE(oi2 == true);
-    ASSERT_EQ(168, *oi2);
+    EXPECT_EQ(168, *oi2);
 
     oi = std::move(oi2);
     ASSERT_TRUE(oi == true);
-    ASSERT_EQ(168, *oi);
+    EXPECT_EQ(168, *oi);
 
     std::string test = "Test string! Test!";
     Result<std::string, int> os = test;
     ASSERT_TRUE(os == true);
-    ASSERT_EQ("Test string! Test!", *os);
+    EXPECT_EQ("Test string! Test!", *os);
 
     Result<std::string, int> os2 = std::move(os);
     ASSERT_TRUE(os2 == true);
-    ASSERT_EQ("Test string! Test!", *os2);
+    EXPECT_EQ("Test string! Test!", *os2);
   }
 }
 
 TEST(Result, OperatorBool) {
   {
     Result<int, int> oi = 0;
-    ASSERT_TRUE(oi == true);
+    EXPECT_TRUE(oi == true);
 
     Result<std::complex<double>, int> ocmplx = std::complex<double>(0.0, 0.0);
-    ASSERT_TRUE(ocmplx == true);
+    EXPECT_TRUE(ocmplx == true);
 
     Result<char, int> oc = '\0';
-    ASSERT_TRUE(oc == true);
+    EXPECT_TRUE(oc == true);
 
     Result<bool, int> ob = true;
-    ASSERT_TRUE(ob == true);
+    EXPECT_TRUE(ob == true);
 
     Result<void, int> ov = 0;
-    ASSERT_TRUE(ov == true);
+    EXPECT_TRUE(ov == true);
   }
 }
 
@@ -272,62 +269,56 @@ TEST(Result, OperatorStar) {
   {
     Result<int, int> oi = 0;
     ASSERT_TRUE(oi == true);
-    ASSERT_EQ(0, *oi);
+    EXPECT_EQ(0, *oi);
     *oi = 1;
     ASSERT_TRUE(oi == true);
-    ASSERT_EQ(1, *oi);
+    EXPECT_EQ(1, *oi);
 
     Result<std::complex<double>, int> ocmplx = std::complex<double>(0.0, 0.0);
     ASSERT_TRUE(ocmplx == true);
-    ASSERT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
+    EXPECT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
     *ocmplx = std::complex<double>(1.0, 1.0);
     ASSERT_TRUE(ocmplx == true);
-    ASSERT_EQ(std::complex<double>(1.0, 1.0), *ocmplx);
+    EXPECT_EQ(std::complex<double>(1.0, 1.0), *ocmplx);
 
     Result<char, int> oc = '\0';
     ASSERT_TRUE(oc == true);
-    ASSERT_EQ('\0', *oc);
+    EXPECT_EQ('\0', *oc);
     *oc = 'a';
     ASSERT_TRUE(oc == true);
-    ASSERT_EQ('a', *oc);
+    EXPECT_EQ('a', *oc);
 
     Result<bool, int> ob = true;
     ASSERT_TRUE(ob == true);
-    ASSERT_EQ(true, *ob);
+    EXPECT_EQ(true, *ob);
     *ob = false;
     ASSERT_TRUE(ob == true);
-    ASSERT_EQ(false, *ob);
+    EXPECT_EQ(false, *ob);
   }
 }
 
 TEST(Result, Err) {
   Result<int, int> a = Err<int, int>(-1);
   ASSERT_TRUE(a == false);
-  ASSERT_EQ(-1, a.Err());
+  EXPECT_EQ(-1, a.Err());
 
   a.Err() = 10;
   ASSERT_TRUE(a == false);
-  ASSERT_EQ(10, a.Err());
+  EXPECT_EQ(10, a.Err());
 
   Result<void, int> b = Err<void, int>(-1);
   ASSERT_TRUE(b == false);
-  ASSERT_EQ(-1, b.Err());
+  EXPECT_EQ(-1, b.Err());
 
   b.Err() = 10;
   ASSERT_TRUE(b == false);
-  ASSERT_EQ(10, b.Err());
+  EXPECT_EQ(10, b.Err());
 }
 
 TEST(Result, OperatorArrow) {
   Result<ArrowHelper, int> r = ArrowHelper();
-  ASSERT_TRUE(r == true);
+  EXPECT_TRUE(r == true);
   r->foo();
-}
-
-TEST(Result, Nothing) {
-  Result<int, int> r;
-
-  Result<void, int> r2;
 }
 
 int main(int argc, char** argv) {

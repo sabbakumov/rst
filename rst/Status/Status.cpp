@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Sergey Abbakumov
+// Copyright (c) 2016, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,28 +27,39 @@
 
 #include "rst/Status/Status.h"
 
+#include <cstdlib>
+
+#include "rst/Cpp14/Memory.h"
+
 namespace rst {
 
-Status::Status() : was_checked_(true), code_(0) {}
+const std::string Status::empty_string_;
 
-Status::Status(const int code, std::string message)
-    : was_checked_(false), code_(code), message_(std::move(message)) {}
+Status::Status() : was_checked_(true) {}
 
-Status::Status(Status&& rhs) {
-  was_checked_ = false;
-  code_ = rhs.code_;
-  message_ = std::move(rhs.message_);
+Status::Status(int error_code, std::string error_message)
+    : was_checked_(false), error_info_(rst::make_unique<ErrorInfo>()) {
+  if (error_code == 0) {
+    std::abort();
+  }
 
+  error_info_->error_code = error_code;
+  error_info_->error_message = std::move(error_message);
+}
+
+Status::Status(Status&& rhs) : was_checked_(false) {
+  error_info_ = std::move(rhs.error_info_);
   rhs.was_checked_ = true;
 }
 
 Status& Status::operator=(Status&& rhs) {
-  assert(was_checked_);
+  if (!was_checked_) {
+    std::abort();
+  }
 
   if (this != &rhs) {
     was_checked_ = false;
-    code_ = rhs.code_;
-    message_ = std::move(rhs.message_);
+    error_info_ = std::move(rhs.error_info_);
 
     rhs.was_checked_ = true;
   }
@@ -56,7 +67,10 @@ Status& Status::operator=(Status&& rhs) {
   return *this;
 }
 
-Status::~Status() { assert(was_checked_); }
+Status::~Status() {
+  if (!was_checked_) {
+    std::abort();
+  }
+}
 
 }  // namespace rst
-

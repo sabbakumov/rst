@@ -25,44 +25,53 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_CPP14_MEMORY_H_
-#define RST_CPP14_MEMORY_H_
+#ifndef RST_LOGGER_FILEPTRSINK_H_
+#define RST_LOGGER_FILEPTRSINK_H_
 
+#include <cstdio>
 #include <memory>
+#include <mutex>
+#include <string>
+
+#include "rst/Logger/ISink.h"
 
 namespace rst {
 
-// Clang-based make_unique implementation
+// The class for sinking to a FILE* (can be stdout or stderr)
+class FilePtrSink : public ISink {
+ public:
+  // Saves the FILE pointer. If should_close is not set, doesn't close the FILE
+  // pointer (e.g. stdout, stderr)
+  FilePtrSink(std::FILE* file, std::string prologue_format,
+              bool should_close = true);
 
-template <class T>
-struct unique_if {
-  using unique_single = std::unique_ptr<T>;
+  // Thread safe logging function
+  void Log(const char* filename, int line, const char* severity_level,
+           const char* format, va_list args) override;
+
+ private:
+  // A RAII-wrapper around std::FILE
+  std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
+      nullptr, [](std::FILE* f) {
+        if (f != nullptr) {
+          std::fclose(f);
+        }
+      }};
+  // A non closing RAII-wrapper around std::FILE
+  std::unique_ptr<std::FILE, void (*)(std::FILE*)> non_closing_log_file_{
+      nullptr, [](std::FILE* /*f*/) {}};
+
+  // A pointer to either log_file_ or non_closing_log_file depending whether
+  // should_close is set on construction
+  std::FILE* file_;
+
+  // Prologue printf-like format for filename, line in a file and severity level
+  std::string prologue_format_;
+
+  // Mutex for thread-safe Log function
+  std::mutex mutex_;
 };
-
-template <class T>
-struct unique_if<T[]> {
-  using unique_array_unknown_bound = std::unique_ptr<T[]>;
-};
-
-template <class T, size_t N>
-struct unique_if<T[N]> {
-  using unique_array_known_bound = void;
-};
-
-template <class T, class... Args>
-inline typename unique_if<T>::unique_single make_unique(Args&&... args) {
-  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
-template <class T>
-inline typename unique_if<T>::unique_array_unknown_bound make_unique(size_t n) {
-  using U = typename std::remove_extent<T>::type;
-  return std::unique_ptr<T>(new U[n]());
-}
-
-template <class T, class... Args>
-typename unique_if<T>::unique_array_known_bound make_unique(Args&&...) = delete;
 
 }  // namespace rst
 
-#endif  // RST_CPP14_MEMORY_H_
+#endif  // RST_LOGGER_FILEPTRSINK_H_

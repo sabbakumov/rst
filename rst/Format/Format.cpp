@@ -25,44 +25,63 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_CPP14_MEMORY_H_
-#define RST_CPP14_MEMORY_H_
-
-#include <memory>
+#include "rst/Format/Format.h"
 
 namespace rst {
 
-// Clang-based make_unique implementation
+namespace internal {
 
-template <class T>
-struct unique_if {
-  using unique_single = std::unique_ptr<T>;
-};
+bool HandleCharacter(char c, const char*& s) {
+  if (s == nullptr) {
+    throw FormatError("s is null");
+  }
+  if (c != *s) {
+    throw FormatError("c != *s");
+  }
 
-template <class T>
-struct unique_if<T[]> {
-  using unique_array_unknown_bound = std::unique_ptr<T[]>;
-};
-
-template <class T, size_t N>
-struct unique_if<T[N]> {
-  using unique_array_known_bound = void;
-};
-
-template <class T, class... Args>
-inline typename unique_if<T>::unique_single make_unique(Args&&... args) {
-  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+  switch (c) {
+    case '{': {
+      const char s_1 = *(s + 1);
+      switch (s_1) {
+        case '{': {
+          s++;
+          break;
+        }
+        case '}': {
+          return false;
+        }
+        default: { throw FormatError("Invalid format string"); }
+      }
+      break;
+    }
+    case '}': {
+      const char s_1 = *(s + 1);
+      switch (s_1) {
+        case '}': {
+          s++;
+          break;
+        }
+        default: { throw FormatError("Unmatched '}' in format string"); }
+      }
+      break;
+    }
+  }
+  return true;
 }
 
-template <class T>
-inline typename unique_if<T>::unique_array_unknown_bound make_unique(size_t n) {
-  using U = typename std::remove_extent<T>::type;
-  return std::unique_ptr<T>(new U[n]());
+void Format(Writer& writer, const char* s) {
+  if (s == nullptr) {
+    throw FormatError("s is null");
+  }
+
+  for (char c; (c = *s) != '\0'; s++) {
+    if (!HandleCharacter(c, s)) {
+      throw FormatError("Argument index out of range");
+    }
+    writer.Write(c);
+  }
 }
 
-template <class T, class... Args>
-typename unique_if<T>::unique_array_known_bound make_unique(Args&&...) = delete;
+}  // namespace internal
 
 }  // namespace rst
-
-#endif  // RST_CPP14_MEMORY_H_

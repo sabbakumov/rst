@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Sergey Abbakumov
+// Copyright (c) 2016, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,33 +28,31 @@
 #ifndef RST_LOGGER_LOGGER_H_
 #define RST_LOGGER_LOGGER_H_
 
-#include <cstdio>
-#include <mutex>
+#include <memory>
 
-#define LOG_DEBUG(...)                                              \
-  Logger::Instance().Log(Logger::Level::kDebug, __FILE__, __LINE__, \
-                         __FUNCTION__, __VA_ARGS__)
+#include "rst/Logger/ISink.h"
 
-#define LOG_INFO(...)                                              \
-  Logger::Instance().Log(Logger::Level::kInfo, __FILE__, __LINE__, \
-                         __FUNCTION__, __VA_ARGS__)
+#define LOG_DEBUG(logger, ...) \
+  logger.Log(Logger::Level::kDebug, __FILE__, __LINE__, __VA_ARGS__)
 
-#define LOG_WARN(...)                                                 \
-  Logger::Instance().Log(Logger::Level::kWarning, __FILE__, __LINE__, \
-                         __FUNCTION__, __VA_ARGS__)
+#define LOG_INFO(logger, ...) \
+  logger.Log(Logger::Level::kInfo, __FILE__, __LINE__, __VA_ARGS__)
 
-#define LOG_ERROR(...)                                              \
-  Logger::Instance().Log(Logger::Level::kError, __FILE__, __LINE__, \
-                         __FUNCTION__, __VA_ARGS__)
+#define LOG_WARNING(logger, ...) \
+  logger.Log(Logger::Level::kWarning, __FILE__, __LINE__, __VA_ARGS__)
 
-#define LOG_FATAL(...)                                              \
-  Logger::Instance().Log(Logger::Level::kFatal, __FILE__, __LINE__, \
-                         __FUNCTION__, __VA_ARGS__)
+#define LOG_ERROR(logger, ...) \
+  logger.Log(Logger::Level::kError, __FILE__, __LINE__, __VA_ARGS__)
+
+#define LOG_FATAL(logger, ...) \
+  logger.Log(Logger::Level::kFatal, __FILE__, __LINE__, __VA_ARGS__)
 
 namespace rst {
 
+// The class for logging to a custom sink
 class Logger {
  public:
+  // Severity levels of logging
   enum class Level {
     kAll = 0,
     kDebug = 1,
@@ -65,33 +63,19 @@ class Logger {
     kOff = 6,
   };
 
-  static Logger& Instance();
+  explicit Logger(std::unique_ptr<ISink> sink);
 
-  void Log(Level level, const char* file, int line, const char* function,
-           const char* format, ...);
+  // Logs a message in printf-like format. If the level is less than level
+  // nothing gets logged
+  void Log(Level level, const char* filename, int line, const char* format,
+           ...);
 
-  bool OpenFile(const char* filename);
-  bool OpenFilePtr(FILE* file);
-
-  void Close();
-
-  void SetMinLevel(Level min_level) { min_level_ = min_level; }
+  void set_level(Level level) { level_ = level; }
 
  private:
-  Logger();
+  Level level_ = Level::kAll;
 
-  Logger(const Logger&) = delete;
-  Logger(Logger&&) = delete;
-
-  ~Logger();
-
-  Logger& operator=(const Logger&) = delete;
-  Logger& operator=(Logger&&) = delete;
-
-  bool was_opened_ = false;
-  Level min_level_ = Level::kAll;
-  FILE* log_file_ = nullptr;
-  std::mutex mutex_;
+  std::unique_ptr<ISink> sink_;
 };
 
 }  // namespace rst

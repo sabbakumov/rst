@@ -25,44 +25,64 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_CPP14_MEMORY_H_
-#define RST_CPP14_MEMORY_H_
+#include "rst/Logger/FileNameSink.h"
 
-#include <memory>
+#include "rst/Logger/LogError.h"
+
+using std::mutex;
+using std::string;
+using std::unique_lock;
 
 namespace rst {
 
-// Clang-based make_unique implementation
+FileNameSink::FileNameSink(const string& filename, string prologue_format)
+    : prologue_format_(std::move(prologue_format)) {
+  log_file_.reset(fopen(filename.c_str(), "w"));
 
-template <class T>
-struct unique_if {
-  using unique_single = std::unique_ptr<T>;
-};
-
-template <class T>
-struct unique_if<T[]> {
-  using unique_array_unknown_bound = std::unique_ptr<T[]>;
-};
-
-template <class T, size_t N>
-struct unique_if<T[N]> {
-  using unique_array_known_bound = void;
-};
-
-template <class T, class... Args>
-inline typename unique_if<T>::unique_single make_unique(Args&&... args) {
-  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+  if (log_file_ == nullptr) {
+    throw LogError("Can not open file");
+  }
 }
 
-template <class T>
-inline typename unique_if<T>::unique_array_unknown_bound make_unique(size_t n) {
-  using U = typename std::remove_extent<T>::type;
-  return std::unique_ptr<T>(new U[n]());
-}
+void FileNameSink::Log(const char* filename, int line,
+                       const char* severity_level, const char* format,
+                       va_list args) {
+  if (filename == nullptr) {
+    throw LogError("filename is nullptr");
+  }
 
-template <class T, class... Args>
-typename unique_if<T>::unique_array_known_bound make_unique(Args&&...) = delete;
+  if (severity_level == nullptr) {
+    throw LogError("severity_level is nullptr");
+  }
+
+  if (format == nullptr) {
+    throw LogError("format is nullptr");
+  }
+
+  unique_lock<mutex> lock(mutex_);
+
+  int val = std::fprintf(log_file_.get(), prologue_format_.c_str(), filename,
+                         line, severity_level);
+  if (val < 0) {
+    throw LogError("Error writing to log");
+  }
+
+  val = std::vfprintf(log_file_.get(), format, args);
+  if (val < 0) {
+    throw LogError("Error writing to log");
+  }
+
+  val = std::fprintf(log_file_.get(), "\n");
+  if (val < 0) {
+    throw LogError("Error writing to log");
+  }
+
+  val = std::fflush(log_file_.get());
+  if (val != 0) {
+    throw LogError("Error flushing to log");
+  }
+
+  lock.unlock();
+}
 
 }  // namespace rst
-
-#endif  // RST_CPP14_MEMORY_H_
