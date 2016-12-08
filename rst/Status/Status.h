@@ -54,6 +54,8 @@ class Status {
 
   // Sets the object not checked by default and moves rhs content
   Status(Status&& rhs);
+  
+  Status(const Status&) = delete;
 
   // Sets the object not checked by default and moves rhs content. If the
   // object has not been checked, aborts
@@ -63,6 +65,8 @@ class Status {
            (error_code() == rhs.error_code() &&
             error_message() == error_message());
   }
+
+  Status& operator=(const Status&) = delete;
 
   // If the object has not been checked, aborts
   ~Status();
@@ -91,9 +95,6 @@ class Status {
   void Ignore() { was_checked_ = true; }
 
  private:
-  Status(const Status&) = delete;
-  Status& operator=(const Status&) = delete;
-
   // Whether the object was checked
   bool was_checked_;
 

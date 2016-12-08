@@ -46,8 +46,6 @@
 
 #include "rst/Cpp14/Memory.h"
 
-#include <iostream>
-
 using std::FILE;
 using std::array;
 using std::ifstream;
@@ -310,9 +308,9 @@ TEST(FileNameSink, Log) {
   Log(sink, "filename2", 20, "level2", "%s%d", "Message", 2);
   Log(sink, "filename3", 30, "level3", "%s%d", "Message", 3);
 
-  array<string, 3> messages = {"filename:10 level: Message",
-                               "filename2:20 level2: Message2",
-                               "filename3:30 level3: Message3"};
+  array<string, 3> messages = {{"filename:10 level: Message",
+                                "filename2:20 level2: Message2",
+                                "filename3:30 level3: Message3"}};
 
   ifstream f;
   f.open(filename);
@@ -403,9 +401,9 @@ TEST(FilePtrSink, Log) {
   Log(sink, "filename2", 20, "level2", "%s%d", "Message", 2);
   Log(sink, "filename3", 30, "level3", "%s%d", "Message", 3);
 
-  array<string, 3> messages = {"filename:10 level: Message",
-                               "filename2:20 level2: Message2",
-                               "filename3:30 level3: Message3"};
+  array<string, 3> messages = {{"filename:10 level: Message",
+                                "filename2:20 level2: Message2",
+                                "filename3:30 level3: Message3"}};
 
   std::rewind(file);
 
@@ -432,9 +430,9 @@ TEST(FilePtrSink, LogNonClosing) {
   Log(sink, "filename2", 20, "level2", "%s%d", "Message", 2);
   Log(sink, "filename3", 30, "level3", "%s%d", "Message", 3);
 
-  array<string, 3> messages = {"filename:10 level: Message",
-                               "filename2:20 level2: Message2",
-                               "filename3:30 level3: Message3"};
+  array<string, 3> messages = {{"filename:10 level: Message",
+                                "filename2:20 level2: Message2",
+                                "filename3:30 level3: Message3"}};
 
   std::rewind(file);
 

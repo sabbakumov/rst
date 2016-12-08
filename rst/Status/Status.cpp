@@ -31,13 +31,15 @@
 
 #include "rst/Cpp14/Memory.h"
 
+using std::string;
+
 namespace rst {
 
-const std::string Status::empty_string_;
+const string Status::empty_string_;
 
 Status::Status() : was_checked_(true) {}
 
-Status::Status(int error_code, std::string error_message)
+Status::Status(int error_code, string error_message)
     : was_checked_(false), error_info_(rst::make_unique<ErrorInfo>()) {
   if (error_code == 0) {
     std::abort();

@@ -35,7 +35,7 @@ namespace rst {
 // The interface for the logger sink
 class ISink {
  public:
-  virtual ~ISink();
+  virtual ~ISink() = default;
   // Prints a message to the sink in a format:
   // (filename, line, severity_level) for prologue, args for epilogue in
   // printf-like format

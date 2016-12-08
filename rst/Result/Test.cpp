@@ -33,6 +33,8 @@
 
 using rst::Err;
 using rst::Result;
+using std::complex;
+using std::string;
 
 class DtorHelper {
  public:
@@ -67,9 +69,9 @@ TEST(Result, ValueCtor) {
     ASSERT_TRUE(oi == true);
     EXPECT_EQ(0, *oi);
 
-    Result<std::complex<double>, int> ocmplx = std::complex<double>(0.0, 0.0);
+    Result<complex<double>, int> ocmplx = complex<double>(0.0, 0.0);
     ASSERT_TRUE(ocmplx == true);
-    EXPECT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
+    EXPECT_EQ(complex<double>(0.0, 0.0), *ocmplx);
 
     Result<char, int> oc = '\0';
     ASSERT_TRUE(oc == true);
@@ -79,7 +81,7 @@ TEST(Result, ValueCtor) {
     ASSERT_TRUE(ob == true);
     EXPECT_EQ(true, *ob);
 
-    Result<void, int> ov = 0;
+    Result<void, int> ov(0);
     EXPECT_TRUE(ov == true);
   }
 
@@ -87,7 +89,7 @@ TEST(Result, ValueCtor) {
     Result<int, int> oi(-1, 0);
     EXPECT_TRUE(oi == false);
 
-    Result<std::complex<double>, int> ocmplx(-1, 0);
+    Result<complex<double>, int> ocmplx(-1, 0);
     EXPECT_TRUE(ocmplx == false);
 
     Result<char, int> oc(-1, 0);
@@ -108,10 +110,10 @@ TEST(Result, MoveCtor) {
     ASSERT_TRUE(oi2 == true);
     EXPECT_EQ(0, *oi2);
 
-    Result<std::complex<double>, int> ocmplx = std::complex<double>(0.0, 0.0);
-    Result<std::complex<double>, int> ocmplx2(std::move(ocmplx));
+    Result<complex<double>, int> ocmplx = complex<double>(0.0, 0.0);
+    Result<complex<double>, int> ocmplx2(std::move(ocmplx));
     ASSERT_TRUE(ocmplx2 == true);
-    EXPECT_EQ(std::complex<double>(0.0, 0.0), *ocmplx2);
+    EXPECT_EQ(complex<double>(0.0, 0.0), *ocmplx2);
 
     Result<char, int> oc = '\0';
     Result<char, int> oc2(std::move(oc));
@@ -123,7 +125,7 @@ TEST(Result, MoveCtor) {
     ASSERT_TRUE(ob2 == true);
     EXPECT_EQ(true, *ob2);
 
-    Result<void, int> ov = 0;
+    Result<void, int> ov(0);
     Result<void, int> ov2(std::move(ov));
     EXPECT_TRUE(ov2 == true);
   }
@@ -133,9 +135,8 @@ TEST(Result, MoveCtor) {
     Result<int, int> oi2(std::move(oi));
     EXPECT_TRUE(oi2 == false);
 
-    Result<std::complex<double>, int> ocmplx =
-        Err<std::complex<double>, int>(-1);
-    Result<std::complex<double>, int> ocmplx2(std::move(ocmplx));
+    Result<complex<double>, int> ocmplx = Err<complex<double>, int>(-1);
+    Result<complex<double>, int> ocmplx2(std::move(ocmplx));
     EXPECT_TRUE(ocmplx2 == false);
 
     Result<char, int> oc = Err<char, int>(-1);
@@ -235,12 +236,12 @@ TEST(Result, CopyOperatorEquals) {
     ASSERT_TRUE(oi == true);
     EXPECT_EQ(168, *oi);
 
-    std::string test = "Test string! Test!";
-    Result<std::string, int> os = test;
+    string test = "Test string! Test!";
+    Result<string, int> os = test;
     ASSERT_TRUE(os == true);
     EXPECT_EQ("Test string! Test!", *os);
 
-    Result<std::string, int> os2 = std::move(os);
+    Result<string, int> os2 = std::move(os);
     ASSERT_TRUE(os2 == true);
     EXPECT_EQ("Test string! Test!", *os2);
   }
@@ -251,7 +252,7 @@ TEST(Result, OperatorBool) {
     Result<int, int> oi = 0;
     EXPECT_TRUE(oi == true);
 
-    Result<std::complex<double>, int> ocmplx = std::complex<double>(0.0, 0.0);
+    Result<complex<double>, int> ocmplx = complex<double>(0.0, 0.0);
     EXPECT_TRUE(ocmplx == true);
 
     Result<char, int> oc = '\0';
@@ -260,7 +261,7 @@ TEST(Result, OperatorBool) {
     Result<bool, int> ob = true;
     EXPECT_TRUE(ob == true);
 
-    Result<void, int> ov = 0;
+    Result<void, int> ov(0);
     EXPECT_TRUE(ov == true);
   }
 }
@@ -274,12 +275,12 @@ TEST(Result, OperatorStar) {
     ASSERT_TRUE(oi == true);
     EXPECT_EQ(1, *oi);
 
-    Result<std::complex<double>, int> ocmplx = std::complex<double>(0.0, 0.0);
+    Result<complex<double>, int> ocmplx = complex<double>(0.0, 0.0);
     ASSERT_TRUE(ocmplx == true);
-    EXPECT_EQ(std::complex<double>(0.0, 0.0), *ocmplx);
-    *ocmplx = std::complex<double>(1.0, 1.0);
+    EXPECT_EQ(complex<double>(0.0, 0.0), *ocmplx);
+    *ocmplx = complex<double>(1.0, 1.0);
     ASSERT_TRUE(ocmplx == true);
-    EXPECT_EQ(std::complex<double>(1.0, 1.0), *ocmplx);
+    EXPECT_EQ(complex<double>(1.0, 1.0), *ocmplx);
 
     Result<char, int> oc = '\0';
     ASSERT_TRUE(oc == true);

@@ -68,6 +68,8 @@ class Result {
     using Type = typename std::remove_reference<E2>::type;
     static_assert(std::is_same<E, Type>::value, "Types should match");
   }
+  
+  Result(const Result&) = delete;
 
   // If the object has not been checked, aborts
   ~Result() {
@@ -115,6 +117,8 @@ class Result {
 
     return *this;
   }
+  
+  Result& operator=(const Result& rhs) = delete;
 
   // If the object has not been checked, aborts. Not checked by default
   template <class T2>
@@ -187,9 +191,6 @@ class Result {
   void Ignore() { was_checked_ = true; }
 
  private:
-  Result(const Result&) = delete;
-  Result& operator=(const Result& rhs) = delete;
-
   // Object's validity
   bool is_valid_ = false;
 
@@ -221,7 +222,7 @@ class Result<void, E> {
   }
 
   // Sets the object to be valid and not checked by default
-  Result(int) noexcept : is_valid_(true), was_checked_(false) {}
+  explicit Result(int) noexcept : is_valid_(true), was_checked_(false) {}
 
   // Sets the object to be invalid and not checked by default
   template <class E2>
@@ -230,6 +231,8 @@ class Result<void, E> {
     using Type = typename std::remove_reference<E2>::type;
     static_assert(std::is_same<E, Type>::value, "Types should match");
   }
+  
+  Result(const Result&) = delete;
 
   // If the object has not been checked, aborts
   ~Result() {
@@ -272,6 +275,8 @@ class Result<void, E> {
     return *this;
   }
 
+  Result& operator=(const Result& rhs) = delete;
+
   // Sets the object to be checked. Returns its validity
   operator bool() noexcept {
     was_checked_ = true;
@@ -295,9 +300,6 @@ class Result<void, E> {
   void Ignore() { was_checked_ = true; }
 
  private:
-  Result(const Result&) = delete;
-  Result& operator=(const Result& rhs) = delete;
-
   // Object's validity
   bool is_valid_ = false;
 
