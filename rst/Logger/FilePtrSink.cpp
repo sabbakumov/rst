@@ -68,8 +68,8 @@ void FilePtrSink::Log(const char* filename, int line,
 
   unique_lock<mutex> lock(mutex_);
 
-  int val = std::fprintf(file_, prologue_format_.c_str(), filename, line,
-                         severity_level);
+  auto val = std::fprintf(file_, prologue_format_.c_str(), filename, line,
+                          severity_level);
   if (val < 0) {
     throw LogError("Error writing to log");
   }

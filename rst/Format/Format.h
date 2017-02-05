@@ -52,7 +52,7 @@ inline void Format(Writer& writer, const char* s, const T& value,
     throw FormatError("s is null");
   }
 
-  char c = *s;
+  auto c = *s;
   if (c == '\0') {
     throw FormatError("Extra arguments");
   }

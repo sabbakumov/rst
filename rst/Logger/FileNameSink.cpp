@@ -61,8 +61,8 @@ void FileNameSink::Log(const char* filename, int line,
 
   unique_lock<mutex> lock(mutex_);
 
-  int val = std::fprintf(log_file_.get(), prologue_format_.c_str(), filename,
-                         line, severity_level);
+  auto val = std::fprintf(log_file_.get(), prologue_format_.c_str(), filename,
+                          line, severity_level);
   if (val < 0) {
     throw LogError("Error writing to log");
   }

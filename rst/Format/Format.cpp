@@ -41,7 +41,7 @@ bool HandleCharacter(char c, const char*& s) {
 
   switch (c) {
     case '{': {
-      const char s_1 = *(s + 1);
+      const auto s_1 = *(s + 1);
       switch (s_1) {
         case '{': {
           s++;
@@ -55,7 +55,7 @@ bool HandleCharacter(char c, const char*& s) {
       break;
     }
     case '}': {
-      const char s_1 = *(s + 1);
+      const auto s_1 = *(s + 1);
       switch (s_1) {
         case '}': {
           s++;

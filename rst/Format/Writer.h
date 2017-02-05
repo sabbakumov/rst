@@ -63,7 +63,7 @@ class Writer {
       return;
     }
 
-    const int bytes_written = std::snprintf(str, size, format, val);
+    const auto bytes_written = std::snprintf(str, size, format, val);
     if (bytes_written < 0) {
       throw FormatError("snprintf() failed");
     }
