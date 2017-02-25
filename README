@@ -28,3 +28,7 @@ Now the library contains the following components:
 
 * Format
   A Python-like string format library
+
+* NonCopyable
+  A set of utility classes: NonCopyConstructible, NonAssignable, NonCopyable,
+  NonMoveConstructible, NonMoveAssignable, NonMovable.
