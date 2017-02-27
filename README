@@ -32,3 +32,7 @@ Now the library contains the following components:
 * NonCopyable
   A set of utility classes: NonCopyConstructible, NonAssignable, NonCopyable,
   NonMoveConstructible, NonMoveAssignable, NonMovable.
+
+* Defer
+  A Go-like (also a Microsoft GSL finally-like) method of deferring the
+  action execution at the end of the function.
