@@ -30,15 +30,25 @@
 #include "Memory.h"
 
 TEST(MakeUnique, DefaultConstructor) {
-  rst::make_unique<int>();
+  const auto i = rst::make_unique<int>();
+  *i = 10;
+  EXPECT_EQ(10, *i);
 }
 
 TEST(MakeUnique, CopyConstructor) {
-  rst::make_unique<int>(10);
+  const auto i = rst::make_unique<int>(10);
+  EXPECT_EQ(10, *i);
 }
 
 TEST(MakeUnique, ArrayConstructor) {
-  rst::make_unique<int[]>(10);
+  const auto p = rst::make_unique<size_t[]>(10);
+  for (size_t i = 0; i < 10; i++) {
+    p[i] = i;
+  }
+
+  for (size_t i = 0; i < 10; i++) {
+    EXPECT_EQ(i, p[i]);
+  }
 }
 
 int main(int argc, char** argv) {
