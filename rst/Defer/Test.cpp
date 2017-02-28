@@ -66,6 +66,15 @@ TEST(Defer, MultipleTimesDeclaration) {
   EXPECT_EQ("21", result);
 }
 
+TEST(Defer, NoExceptionPropagation) {
+  auto i = 0;
+  {
+    DEFER([]() { throw 0; });
+  }
+
+  EXPECT_EQ(0, i);
+}
+
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
