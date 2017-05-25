@@ -41,9 +41,8 @@ Status::Status() : was_checked_(true) {}
 
 Status::Status(int error_code, string error_message)
     : was_checked_(false), error_info_(rst::make_unique<ErrorInfo>()) {
-  if (error_code == 0) {
+  if (error_code == 0)
     std::abort();
-  }
 
   error_info_->error_code = error_code;
   error_info_->error_message = std::move(error_message);
@@ -55,24 +54,23 @@ Status::Status(Status&& rhs) : was_checked_(false) {
 }
 
 Status& Status::operator=(Status&& rhs) {
-  if (!was_checked_) {
+  if (!was_checked_)
     std::abort();
-  }
 
-  if (this != &rhs) {
-    was_checked_ = false;
-    error_info_ = std::move(rhs.error_info_);
+  if (this == &rhs)
+    return *this;
 
-    rhs.was_checked_ = true;
-  }
+  was_checked_ = false;
+  error_info_ = std::move(rhs.error_info_);
+
+  rhs.was_checked_ = true;
 
   return *this;
 }
 
 Status::~Status() {
-  if (!was_checked_) {
+  if (!was_checked_)
     std::abort();
-  }
 }
 
 }  // namespace rst

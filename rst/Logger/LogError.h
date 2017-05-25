@@ -33,7 +33,7 @@
 
 namespace rst {
 
-// The exception thrown by the library
+// The exception thrown by the library.
 class LogError : public std::runtime_error {
  public:
   explicit LogError(const std::string& message);

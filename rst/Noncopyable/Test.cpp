@@ -29,7 +29,7 @@
 
 #include <type_traits>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using rst::NonCopyConstructible;
 using rst::NonAssignable;
@@ -79,9 +79,3 @@ TEST(NonMovable, Test) {
   EXPECT_FALSE(std::is_move_constructible<NonMovable>::value);
   EXPECT_FALSE(std::is_move_assignable<NonMovable>::value);
 }
-
-int main(int argc, char** argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
-

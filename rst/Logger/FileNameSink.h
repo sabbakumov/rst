@@ -37,17 +37,17 @@
 
 namespace rst {
 
-// The class for sinking to a file by its filename
+// The class for sinking to a file by its filename.
 class FileNameSink : public ISink {
  public:
-  // Opens a filename for writing
+  // Opens a filename for writing.
   FileNameSink(const std::string& filename, std::string prologue_format);
-  // Thread safe logging function
+  // Thread safe logging function.
   void Log(const char* filename, int line, const char* severity_level,
            const char* format, va_list args) override;
 
  private:
-  // A RAII-wrapper around std::FILE
+  // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
       nullptr, [](std::FILE* f) {
         if (f != nullptr) {
@@ -55,10 +55,11 @@ class FileNameSink : public ISink {
         }
       }};
 
-  // Prologue printf-like format for filename, line in a file and severity level
+  // Prologue printf-like format for filename, line in a file and severity
+  // level.
   std::string prologue_format_;
 
-  // Mutex for thread-safe Log function
+  // Mutex for thread-safe Log function.
   std::mutex mutex_;
 };
 

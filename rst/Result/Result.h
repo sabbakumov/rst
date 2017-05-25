@@ -35,15 +35,15 @@
 
 namespace rst {
 
-// A Rust-like Result<T, E> class for error handling
+// A Rust-like Result<T, E> class for error handling.
 template <class T, class E>
 class Result {
  public:
-  // By default: not valid, not checked
+  // By default: not valid, not checked.
   Result() : is_valid_(false), was_checked_(false), err_(E()) {}
 
   // Sets rhs as checked, copies its validity and moves its content. Not checked
-  // by default
+  // by default.
   Result(Result&& rhs) : is_valid_(rhs.is_valid_), was_checked_(false) {
     rhs.was_checked_ = true;
     if (is_valid_) {
@@ -53,7 +53,7 @@ class Result {
     }
   }
 
-  // Allows implicit conversion from T. Types T and T2 should be equal
+  // Allows implicit conversion from T. Types T and T2 should be equal.
   template <class T2>
   Result(T2&& rhs)
       : is_valid_(true), was_checked_(false), ok_(std::forward<T>(rhs)) {
@@ -61,21 +61,20 @@ class Result {
     static_assert(std::is_same<T, Type>::value, "Types should match");
   }
 
-  // Types E and E2 should be equal
+  // Types E and E2 should be equal.
   template <class E2>
   Result(E2&& rhs, int)
       : is_valid_(false), was_checked_(false), err_(std::forward<E>(rhs)) {
     using Type = typename std::remove_reference<E2>::type;
     static_assert(std::is_same<E, Type>::value, "Types should match");
   }
-  
+
   Result(const Result&) = delete;
 
-  // If the object has not been checked, aborts
+  // If the object has not been checked, aborts.
   ~Result() {
-    if (!was_checked_) {
+    if (!was_checked_)
       std::abort();
-    }
 
     if (is_valid_) {
       ok_.~T();
@@ -87,13 +86,11 @@ class Result {
   // Sets rhs as checked, copies its validity and moves its content. Not checked
   // by default. If the object has not been checked, aborts.
   Result& operator=(Result&& rhs) {
-    if (!was_checked_) {
+    if (!was_checked_)
       std::abort();
-    }
 
-    if (this == &rhs) {
+    if (this == &rhs)
       return *this;
-    }
 
     if (rhs.is_valid_) {
       if (!is_valid_) {
@@ -117,18 +114,17 @@ class Result {
 
     return *this;
   }
-  
+
   Result& operator=(const Result& rhs) = delete;
 
-  // If the object has not been checked, aborts. Not checked by default
+  // If the object has not been checked, aborts. Not checked by default.
   template <class T2>
   Result& operator=(T&& rhs) {
     using Type = typename std::remove_reference<T2>::type;
     static_assert(std::is_same<T, Type>::value, "Types should match");
 
-    if (!was_checked_) {
+    if (!was_checked_)
       std::abort();
-    }
 
     if (is_valid_) {
       ok_ = std::forward<T>(rhs);
@@ -142,7 +138,7 @@ class Result {
     return *this;
   }
 
-  // Sets the object to be checked. Returns its validity
+  // Sets the object to be checked. Returns its validity.
   operator bool() noexcept {
     was_checked_ = true;
     return is_valid_;
@@ -150,111 +146,100 @@ class Result {
 
   // If the object has not been checked or it's invalid, aborts.
   T& operator*() noexcept {
-    if (!was_checked_) {
+    if (!was_checked_)
       std::abort();
-    }
 
-    if (!is_valid_) {
+    if (!is_valid_)
       std::abort();
-    }
 
     return ok_;
   }
 
   // If the object has not been checked or it's invalid, aborts.
   T* operator->() noexcept {
-    if (!was_checked_) {
+    if (!was_checked_)
       std::abort();
-    }
 
-    if (!is_valid_) {
+    if (!is_valid_)
       std::abort();
-    }
 
     return &ok_;
   }
 
   // If the object has not been checked or it's valid, aborts.
   E& Err() noexcept {
-    if (!was_checked_) {
+    if (!was_checked_)
       std::abort();
-    }
 
-    if (is_valid_) {
+    if (is_valid_)
       std::abort();
-    }
 
     return err_;
   }
 
-  // Sets the object to be checked
+  // Sets the object to be checked.
   void Ignore() { was_checked_ = true; }
 
  private:
-  // Object's validity
+  // Object's validity.
   bool is_valid_ = false;
 
-  // Whether the object is checked
+  // Whether the object is checked.
   bool was_checked_ = true;
 
   union {
-    // OK object
+    // OK object.
     T ok_;
-    // Error object
+    // Error object.
     E err_;
   };
 };
 
-// A Rust-like Result<void, E> class for error handling
+// A Rust-like Result<void, E> class for error handling.
 template <class E>
 class Result<void, E> {
  public:
-  // By default: not valid, not checked
+  // By default: not valid, not checked.
   Result() : is_valid_(false), was_checked_(false), err_(E()) {}
 
   // Sets rhs as checked, copies its validity and moves its content. Not checked
-  // by default
+  // by default.
   Result(Result&& rhs) : is_valid_(rhs.is_valid_), was_checked_(false) {
     rhs.was_checked_ = true;
-    if (!is_valid_) {
+    if (!is_valid_)
       new (&err_) E(std::move(rhs.err_));
-    }
   }
 
-  // Sets the object to be valid and not checked by default
+  // Sets the object to be valid and not checked by default.
   explicit Result(int) noexcept : is_valid_(true), was_checked_(false) {}
 
-  // Sets the object to be invalid and not checked by default
+  // Sets the object to be invalid and not checked by default.
   template <class E2>
   Result(E2&& rhs, int)
       : is_valid_(false), was_checked_(false), err_(std::forward<E2>(rhs)) {
     using Type = typename std::remove_reference<E2>::type;
     static_assert(std::is_same<E, Type>::value, "Types should match");
   }
-  
+
   Result(const Result&) = delete;
 
-  // If the object has not been checked, aborts
+  // If the object has not been checked, aborts.
   ~Result() {
-    if (!was_checked_) {
+    if (!was_checked_)
       std::abort();
-    }
 
-    if (!is_valid_) {
+    if (!is_valid_)
       err_.~E();
-    }
   }
 
   // Sets rhs as checked, copies its validity and moves its content. Not checked
   // by default. If the object has not been checked, aborts.
   Result& operator=(Result&& rhs) {
-    if (!was_checked_) {
+    if (!was_checked_)
       std::abort();
-    }
 
-    if (this == &rhs) {
+    if (this == &rhs)
       return *this;
-    }
 
     if (rhs.is_valid_) {
       if (!is_valid_) {
@@ -277,7 +262,7 @@ class Result<void, E> {
 
   Result& operator=(const Result& rhs) = delete;
 
-  // Sets the object to be checked. Returns its validity
+  // Sets the object to be checked. Returns its validity.
   operator bool() noexcept {
     was_checked_ = true;
     return is_valid_;
@@ -285,34 +270,32 @@ class Result<void, E> {
 
   // If the object has not been checked or it's valid, aborts.
   E& Err() noexcept {
-    if (!was_checked_) {
+    if (!was_checked_)
       std::abort();
-    }
 
-    if (is_valid_) {
+    if (is_valid_)
       std::abort();
-    }
 
     return err_;
   }
 
-  // Sets the object to be checked
+  // Sets the object to be checked.
   void Ignore() { was_checked_ = true; }
 
  private:
-  // Object's validity
+  // Object's validity.
   bool is_valid_ = false;
 
-  // Whether the object is checked
+  // Whether the object is checked.
   bool was_checked_ = true;
 
   union {
-    // Error object
+    // Error object.
     E err_;
   };
 };
 
-// Construct the Result object to be error
+// Construct the Result object to be error.
 template <class T, class E>
 Result<T, E> Err(E&& err) {
   return Result<T, E>(std::forward<E>(err), 0);

@@ -39,48 +39,40 @@ FileNameSink::FileNameSink(const string& filename, string prologue_format)
     : prologue_format_(std::move(prologue_format)) {
   log_file_.reset(fopen(filename.c_str(), "w"));
 
-  if (log_file_ == nullptr) {
+  if (log_file_ == nullptr)
     throw LogError("Can not open file");
-  }
 }
 
 void FileNameSink::Log(const char* filename, int line,
                        const char* severity_level, const char* format,
                        va_list args) {
-  if (filename == nullptr) {
+  if (filename == nullptr)
     throw LogError("filename is nullptr");
-  }
 
-  if (severity_level == nullptr) {
+  if (severity_level == nullptr)
     throw LogError("severity_level is nullptr");
-  }
 
-  if (format == nullptr) {
+  if (format == nullptr)
     throw LogError("format is nullptr");
-  }
 
   unique_lock<mutex> lock(mutex_);
 
   auto val = std::fprintf(log_file_.get(), prologue_format_.c_str(), filename,
                           line, severity_level);
-  if (val < 0) {
+  if (val < 0)
     throw LogError("Error writing to log");
-  }
 
   val = std::vfprintf(log_file_.get(), format, args);
-  if (val < 0) {
+  if (val < 0)
     throw LogError("Error writing to log");
-  }
 
   val = std::fprintf(log_file_.get(), "\n");
-  if (val < 0) {
+  if (val < 0)
     throw LogError("Error writing to log");
-  }
 
   val = std::fflush(log_file_.get());
-  if (val != 0) {
+  if (val != 0)
     throw LogError("Error flushing to log");
-  }
 
   lock.unlock();
 }

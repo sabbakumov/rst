@@ -33,7 +33,7 @@
 
 namespace rst {
 
-// The exception thrown by the library
+// The exception thrown by the library.
 class FormatError : public std::runtime_error {
  public:
   explicit FormatError(const std::string& message);

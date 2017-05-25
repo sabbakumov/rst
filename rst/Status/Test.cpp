@@ -27,7 +27,7 @@
 
 #include "rst/Status/Status.h"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using rst::Status;
 using rst::StatusErr;
@@ -104,9 +104,3 @@ TEST(Status, OperatorEquals) {
 }
 
 TEST(Status, Nothing) { Status status; }
-
-int main(int argc, char** argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
-

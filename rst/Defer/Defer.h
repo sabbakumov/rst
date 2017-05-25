@@ -30,12 +30,12 @@
 
 #include <utility>
 
-#define RST_INTERNAL_CAT2(X, Y) X##Y
-#define RST_INTERNAL_CAT(X, Y) RST_INTERNAL_CAT2(X, Y)
+#define RST_DEFER_INTERNAL_CAT2(X, Y) X##Y
+#define RST_DEFER_INTERNAL_CAT(X, Y) RST_DEFER_INTERNAL_CAT2(X, Y)
 
-#define DEFER(F) \
-const auto RST_INTERNAL_CAT(RST_INTERNAL_DEFER_VAR_NAME, __LINE__) = \
-  rst::internal::Defer(F)
+#define RST_DEFER(F)                                                         \
+  const auto RST_DEFER_INTERNAL_CAT(RST_DEFER_INTERNAL_VAR_NAME, __LINE__) = \
+      rst::internal::Defer(F)
 
 namespace rst {
 
@@ -48,13 +48,13 @@ class DeferredAction {
   explicit DeferredAction(F action) : action_(std::move(action)) {}
   DeferredAction(const DeferredAction&) = delete;
   DeferredAction(DeferredAction&&) = default;
-  
+
   ~DeferredAction() {
     try {
       action_();
     } catch (...) {}
   }
-  
+
   DeferredAction& operator=(const DeferredAction&) = delete;
   DeferredAction& operator=(DeferredAction&&) = delete;
 

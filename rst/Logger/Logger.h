@@ -49,10 +49,10 @@
 
 namespace rst {
 
-// The class for logging to a custom sink
+// The class for logging to a custom sink.
 class Logger {
  public:
-  // Severity levels of logging
+  // Severity levels of logging.
   enum class Level {
     kAll = 0,
     kDebug = 1,
@@ -66,7 +66,7 @@ class Logger {
   explicit Logger(std::unique_ptr<ISink> sink);
 
   // Logs a message in printf-like format. If the level is less than level
-  // nothing gets logged
+  // nothing gets logged.
   void Log(Level level, const char* filename, int line, const char* format,
            ...);
 

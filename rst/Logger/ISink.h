@@ -32,13 +32,13 @@
 
 namespace rst {
 
-// The interface for the logger sink
+// The interface for the logger sink.
 class ISink {
  public:
   virtual ~ISink() = default;
   // Prints a message to the sink in a format:
   // (filename, line, severity_level) for prologue, args for epilogue in
-  // printf-like format
+  // printf-like format.
   virtual void Log(const char* filename, int line, const char* severity_level,
                    const char* format, va_list args) = 0;
 };

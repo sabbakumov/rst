@@ -25,13 +25,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <array>
 #include <limits>
 #include <string>
 
+#include "rst/Format/Format.h"
+
 #include <gtest/gtest.h>
 
-#include "Format.h"
-
+using std::array;
 using std::numeric_limits;
 using std::string;
 
@@ -129,42 +131,43 @@ TEST(Writer, FormatAndWriteNullStr) {
 
 TEST(Writer, FormatAndWriteNullFormat) {
   Writer writer;
-  char str[10];
-  EXPECT_THROW(writer.FormatAndWrite(str, 10, nullptr, 0), FormatError);
+  array<char, 10> str;
+  EXPECT_THROW(writer.FormatAndWrite(str.data(), str.size(), nullptr, 0),
+               FormatError);
 }
 
 TEST(Writer, FormatAndWriteZeroSize) {
   Writer writer;
-  char str[10];
-  writer.FormatAndWrite(str, 0, "%d", 0);
+  array<char, 10> str;
+  writer.FormatAndWrite(str.data(), 0, "%d", 0);
   EXPECT_EQ("", writer.CopyString());
 }
 
 TEST(Writer, FormatAndWriteOneSize) {
   Writer writer;
-  char str[10];
-  writer.FormatAndWrite(str, 1, "%d", 0);
+  array<char, 10> str;
+  writer.FormatAndWrite(str.data(), 1, "%d", 0);
   EXPECT_EQ("", writer.CopyString());
 }
 
 TEST(Writer, FormatAndWriteTwoSize) {
   Writer writer;
-  char str[10];
-  writer.FormatAndWrite(str, 2, "%d", 0);
+  array<char, 10> str;
+  writer.FormatAndWrite(str.data(), 2, "%d", 0);
   EXPECT_EQ("0", writer.CopyString());
 }
 
 TEST(Writer, FormatAndWriteThreeSize) {
   Writer writer;
-  char str[10];
-  writer.FormatAndWrite(str, 3, "%d", 10);
+  array<char, 10> str;
+  writer.FormatAndWrite(str.data(), 3, "%d", 10);
   EXPECT_EQ("10", writer.CopyString());
 }
 
 TEST(Writer, FormatAndWriteThreeSizeNotFull) {
   Writer writer;
-  char str[10];
-  writer.FormatAndWrite(str, 3, "%d", 103);
+  array<char, 10> str;
+  writer.FormatAndWrite(str.data(), 3, "%d", 103);
   EXPECT_EQ("10", writer.CopyString());
 }
 
@@ -313,7 +316,7 @@ TEST(Writer, NormalCharPtr) {
 
 TEST(Writer, NormalChar) {
   Writer writer;
-  const char c = 'C';
+  const auto c = 'C';
   writer.Write(c);
   EXPECT_EQ("C", writer.CopyString());
 }
@@ -356,7 +359,7 @@ TEST(Writer, AppendBigChar) {
   Writer writer;
   const string str(Writer::kStaticBufferSize, 'A');
   writer.Write(str);
-  const char c = 'C';
+  const auto c = 'C';
   writer.Write(c);
   EXPECT_EQ(str + c, writer.CopyString());
 }
@@ -444,9 +447,4 @@ TEST(HandleCharacter, CaseCloseOther) {
 TEST(Format, SNullPtr) {
   Writer writer;
   EXPECT_THROW(Format(writer, nullptr), FormatError);
-}
-
-int main(int argc, char** argv) {
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

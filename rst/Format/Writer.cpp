@@ -39,9 +39,8 @@ namespace rst {
 namespace internal {
 
 Writer::Writer() {
-  if (static_buffer_.size() < 2) {
+  if (static_buffer_.size() < 2)
     throw FormatError("Invalid static buffer size");
-  }
 }
 
 void Writer::Write(short val) {
@@ -102,9 +101,8 @@ void Writer::Write(long double val) {
 void Writer::Write(const string& val) { Write(val.c_str(), val.size()); }
 
 void Writer::Write(const char* val) {
-  if (val == nullptr) {
+  if (val == nullptr)
     throw FormatError("val is nullptr");
-  }
 
   Write(val, std::strlen(val));
 }
@@ -112,16 +110,14 @@ void Writer::Write(const char* val) {
 void Writer::Write(char val) { Write(&val, 1); }
 
 void Writer::Write(const char* val, size_t len) {
-  if (val == nullptr) {
+  if (val == nullptr)
     throw FormatError("val is nullptr");
-  }
-  if (len == 0) {
+  if (len == 0)
     return;
-  }
 
   if (is_static_buffer_) {
     if (len < static_buffer_.size() - size_) {
-      std::memcpy(static_buffer_.data() + size_, val, len);
+      std::copy(val, val + len, static_buffer_.data() + size_);
       size_ += len;
       static_buffer_[size_] = '\0';
     } else {
@@ -136,9 +132,8 @@ void Writer::Write(const char* val, size_t len) {
 }
 
 string Writer::MoveString() {
-  if (moved_) {
+  if (moved_)
     throw FormatError("String has been already moved");
-  }
 
   if (is_static_buffer_) {
     string val(static_buffer_.data(), size_);
@@ -151,9 +146,8 @@ string Writer::MoveString() {
 }
 
 string Writer::CopyString() const {
-  if (is_static_buffer_) {
+  if (is_static_buffer_)
     return string(static_buffer_.data(), size_);
-  }
   return dynamic_buffer_;
 }
 

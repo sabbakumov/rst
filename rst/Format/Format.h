@@ -38,24 +38,22 @@ namespace rst {
 
 namespace internal {
 
-// Handles character c in the string s. Returns false if there's {} in s
+// Handles character c in the string s. Returns false if there's {} in s.
 bool HandleCharacter(char c, const char*& s);
 
-// Writes s to the writer. "{{" -> "{", "}}" -> "}"
+// Writes s to the writer. "{{" -> "{", "}}" -> "}".
 void Format(Writer& writer, const char* s);
 
-// Writes s to the writer. "{{" -> "{", "}}" -> "}"
+// Writes s to the writer. "{{" -> "{", "}}" -> "}".
 template <class T, class... Args>
 inline void Format(Writer& writer, const char* s, const T& value,
                    Args&&... args) {
-  if (s == nullptr) {
+  if (s == nullptr)
     throw FormatError("s is null");
-  }
 
   auto c = *s;
-  if (c == '\0') {
+  if (c == '\0')
     throw FormatError("Extra arguments");
-  }
   for (; (c = *s) != '\0'; s++) {
     if (!HandleCharacter(c, s)) {
       writer.Write(value);
@@ -69,7 +67,7 @@ inline void Format(Writer& writer, const char* s, const T& value,
 
 }  // namespace internal
 
-// A wrapper around Format recursive functions
+// A wrapper around Format recursive functions.
 template <class... Args>
 inline std::string format(const char* s, Args&&... args) {
   internal::Writer writer;
@@ -79,7 +77,7 @@ inline std::string format(const char* s, Args&&... args) {
 
 namespace internal {
 
-// Used in user defined literals
+// Used in user defined literals.
 class Formatter {
  public:
   explicit Formatter(const char* str) : str_(str) {}
@@ -96,7 +94,7 @@ class Formatter {
 
 namespace literals {
 
-// User defined literals
+// User defined literals.
 inline internal::Formatter operator"" _format(const char* s, size_t) {
   return internal::Formatter(s);
 }

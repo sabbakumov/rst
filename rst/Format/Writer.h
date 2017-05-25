@@ -41,32 +41,28 @@ namespace rst {
 namespace internal {
 
 // The class for writing values. It has a static and dynamic buffer. By default
-// it uses the static buffer
+// it uses the static buffer.
 class Writer {
  public:
-  // The size of the stack buffer
+  // The size of the stack buffer.
   static constexpr size_t kStaticBufferSize = 1024;
 
   Writer();
 
-  // Writes val like std::snprintf
+  // Writes val like std::snprintf.
   template <class T>
   void FormatAndWrite(char* str, size_t size, const char* format, T val) {
     static_assert(std::is_arithmetic<T>::value, "Not an arithmetic type");
-    if (str == nullptr) {
+    if (str == nullptr)
       throw FormatError("str is nullptr");
-    }
-    if (format == nullptr) {
+    if (format == nullptr)
       throw FormatError("format is nullptr");
-    }
-    if (size <= 1) {
+    if (size <= 1)
       return;
-    }
 
     const auto bytes_written = std::snprintf(str, size, format, val);
-    if (bytes_written < 0) {
+    if (bytes_written < 0)
       throw FormatError("snprintf() failed");
-    }
 
     Write(str, std::min(static_cast<size_t>(bytes_written), size - 1));
   }
@@ -89,32 +85,32 @@ class Writer {
   // Writes len bytes from val to the static buffer by default. When the
   // buffer on the stack gets full or the range is too long for the static
   // buffer, allocates a dynamic buffer, copies existing content to the dynamic
-  // buffer and writes current and all next ranges to the dynamic buffer
+  // buffer and writes current and all next ranges to the dynamic buffer.
   void Write(const char* val, size_t len);
 
   // Returns a string of either static or dynamic buffer. If it's dynamic buffer
-  // performs a move operation, so it's no longer valid to write to the Writer
+  // performs a move operation, so it's no longer valid to write to the Writer.
   std::string MoveString();
 
   // Returns a string of either static or dynamic buffer. It's valid to write to
-  // the Writer more data
+  // the Writer more data.
   std::string CopyString() const;
 
  private:
-  // Whether we use static of dynamic buffer
+  // Whether we use static of dynamic buffer.
   bool is_static_buffer_ = true;
 
-  // Whether we moved the writer via MoveString()
+  // Whether we moved the writer via MoveString().
   bool moved_ = false;
 
-  // The current size of the static_buffer_
+  // The current size of the static_buffer_.
   size_t size_ = 0;
 
   // Dynamic buffer in case of the static buffer gets full or the input is too
-  // long for the static buffer
+  // long for the static buffer.
   std::string dynamic_buffer_;
 
-  // Buffer on the stack to prevent dynamic allocation
+  // Buffer on the stack to prevent dynamic allocation.
   std::array<char, kStaticBufferSize> static_buffer_;
 };
 

@@ -29,7 +29,7 @@
 
 #include <complex>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using rst::Err;
 using rst::Result;
@@ -321,9 +321,3 @@ TEST(Result, OperatorArrow) {
   EXPECT_TRUE(r == true);
   r->foo();
 }
-
-int main(int argc, char** argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
-

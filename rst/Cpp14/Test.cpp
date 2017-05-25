@@ -25,9 +25,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <gtest/gtest.h>
+#include "rst/Cpp14/Memory.h"
 
-#include "Memory.h"
+#include <gtest/gtest.h>
 
 TEST(MakeUnique, DefaultConstructor) {
   const auto i = rst::make_unique<int>();
@@ -42,16 +42,9 @@ TEST(MakeUnique, CopyConstructor) {
 
 TEST(MakeUnique, ArrayConstructor) {
   const auto p = rst::make_unique<size_t[]>(10);
-  for (size_t i = 0; i < 10; i++) {
+  for (size_t i = 0; i < 10; i++)
     p[i] = i;
-  }
 
-  for (size_t i = 0; i < 10; i++) {
+  for (size_t i = 0; i < 10; i++)
     EXPECT_EQ(i, p[i]);
-  }
-}
-
-int main(int argc, char** argv) {
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

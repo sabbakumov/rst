@@ -27,31 +27,31 @@
 
 #include <string>
 
-#include <gtest/gtest.h>
-
 #include "Defer.h"
+
+#include <gtest/gtest.h>
 
 using std::string;
 
+namespace {
+
 auto g_int = 0;
+
+}  // namespace
 
 TEST(Defer, Lambda) {
   auto i = 0;
   {
-    DEFER([&i]() { i = 1; });
+    RST_DEFER([&i]() { i = 1; });
   }
 
   EXPECT_EQ(1, i);
 }
 
-void Foo() {
-  g_int = 1;
-}
+void Foo() { g_int = 1; }
 
 TEST(Defer, Function) {
-  {
-    DEFER(Foo);
-  }
+  { RST_DEFER(Foo); }
 
   EXPECT_EQ(1, g_int);
 }
@@ -59,8 +59,8 @@ TEST(Defer, Function) {
 TEST(Defer, MultipleTimesDeclaration) {
   string result;
   {
-    DEFER([&result]() { result += '1'; });
-    DEFER([&result]() { result += '2'; });
+    RST_DEFER([&result]() { result += '1'; });
+    RST_DEFER([&result]() { result += '2'; });
   }
 
   EXPECT_EQ("21", result);
@@ -69,13 +69,8 @@ TEST(Defer, MultipleTimesDeclaration) {
 TEST(Defer, NoExceptionPropagation) {
   auto i = 0;
   {
-    DEFER([]() { throw 0; });
+    RST_DEFER([]() { throw 0; });
   }
 
   EXPECT_EQ(0, i);
-}
-
-int main(int argc, char** argv) {
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

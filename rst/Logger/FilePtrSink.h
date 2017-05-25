@@ -37,38 +37,39 @@
 
 namespace rst {
 
-// The class for sinking to a FILE* (can be stdout or stderr)
+// The class for sinking to a FILE* (can be stdout or stderr).
 class FilePtrSink : public ISink {
  public:
   // Saves the FILE pointer. If should_close is not set, doesn't close the FILE
-  // pointer (e.g. stdout, stderr)
+  // pointer (e.g. stdout, stderr).
   FilePtrSink(std::FILE* file, std::string prologue_format,
               bool should_close = true);
 
-  // Thread safe logging function
+  // Thread safe logging function.
   void Log(const char* filename, int line, const char* severity_level,
            const char* format, va_list args) override;
 
  private:
-  // A RAII-wrapper around std::FILE
+  // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
       nullptr, [](std::FILE* f) {
         if (f != nullptr) {
           std::fclose(f);
         }
       }};
-  // A non closing RAII-wrapper around std::FILE
+  // A non closing RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> non_closing_log_file_{
       nullptr, [](std::FILE* /*f*/) {}};
 
   // A pointer to either log_file_ or non_closing_log_file depending whether
-  // should_close is set on construction
+  // should_close is set on construction.
   std::FILE* file_;
 
-  // Prologue printf-like format for filename, line in a file and severity level
+  // Prologue printf-like format for filename, line in a file and severity
+  // level.
   std::string prologue_format_;
 
-  // Mutex for thread-safe Log function
+  // Mutex for thread-safe Log function.
   std::mutex mutex_;
 };
 

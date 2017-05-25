@@ -34,31 +34,31 @@
 
 namespace rst {
 
-// Information about the error
+// Information about the error.
 struct ErrorInfo {
-  // Error code
+  // Error code.
   int error_code = 0;
-  // Error message
+  // Error message.
   std::string error_message;
 };
 
-// A Google-like Status class for error handling
+// A Google-like Status class for error handling.
 class Status {
  public:
-  // Sets the object checked by default and to be OK
+  // Sets the object checked by default and to be OK.
   Status();
 
   // Sets the object not checked by default and to be error object with error
-  // code. If the error_code is 0, aborts
+  // code. If the error_code is 0, aborts.
   Status(int error_code, std::string error_message);
 
-  // Sets the object not checked by default and moves rhs content
+  // Sets the object not checked by default and moves rhs content.
   Status(Status&& rhs);
-  
+
   Status(const Status&) = delete;
 
   // Sets the object not checked by default and moves rhs content. If the
-  // object has not been checked, aborts
+  // object has not been checked, aborts.
   Status& operator=(Status&& rhs);
   bool operator==(const Status& rhs) const {
     return (error_info_ == rhs.error_info_) ||
@@ -68,40 +68,38 @@ class Status {
 
   Status& operator=(const Status&) = delete;
 
-  // If the object has not been checked, aborts
+  // If the object has not been checked, aborts.
   ~Status();
 
-  // Sets the object to be checked and returns whether the object is OK object
+  // Sets the object to be checked and returns whether the object is OK object.
   bool ok() {
     was_checked_ = true;
     return error_info_ == nullptr;
   }
 
   const std::string& error_message() const {
-    if (error_info_ == nullptr) {
+    if (error_info_ == nullptr)
       return empty_string_;
-    }
     return error_info_->error_message;
   }
 
   int error_code() const {
-    if (error_info_ == nullptr) {
+    if (error_info_ == nullptr)
       return 0;
-    }
     return error_info_->error_code;
   }
 
-  // Sets the object to be checked
+  // Sets the object to be checked.
   void Ignore() { was_checked_ = true; }
 
  private:
-  // Whether the object was checked
+  // Whether the object was checked.
   bool was_checked_;
 
-  // Information about the error. nullptr if the object is OK
+  // Information about the error. nullptr if the object is OK.
   std::unique_ptr<ErrorInfo> error_info_;
 
-  // The empty string in case of calling error_message() on OK object
+  // The empty string in case of calling error_message() on OK object.
   static const std::string empty_string_;
 };
 

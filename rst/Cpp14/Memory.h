@@ -32,7 +32,7 @@
 
 namespace rst {
 
-// Clang-based make_unique implementation
+// Clang-based make_unique implementation.
 
 template <class T>
 struct unique_if {

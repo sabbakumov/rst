@@ -61,9 +61,8 @@ using namespace testing;
 class File {
  public:
   File() {
-    if (std::tmpnam(buffer_.data()) == nullptr) {
+    if (std::tmpnam(buffer_.data()) == nullptr)
       throw runtime_error("Can not generate filename");
-    }
   }
   ~File() { std::remove(buffer_.data()); }
 
@@ -413,9 +412,8 @@ TEST(FilePtrSink, Log) {
        std::feof(file) == 0 && std::fgets(line.data(), line.size(), file);
        i++) {
     str_line = line.data();
-    if (!str_line.empty() && str_line.back() == '\n') {
+    if (!str_line.empty() && str_line.back() == '\n')
       str_line.erase(str_line.size() - 1);
-    }
     EXPECT_EQ(messages[i], str_line);
   }
 }
@@ -442,9 +440,8 @@ TEST(FilePtrSink, LogNonClosing) {
        std::feof(file) == 0 && std::fgets(line.data(), line.size(), file);
        i++) {
     str_line = line.data();
-    if (!str_line.empty() && str_line.back() == '\n') {
+    if (!str_line.empty() && str_line.back() == '\n')
       str_line.erase(str_line.size() - 1);
-    }
     EXPECT_EQ(messages[i], str_line);
   }
 
@@ -483,17 +480,11 @@ TEST(FilePtrSink, LogThreadSafe) {
   for (array<char, 256> line;
        std::feof(file) == 0 && std::fgets(line.data(), line.size(), file);) {
     string str_line = line.data();
-    if (!str_line.empty() && str_line.back() == '\n') {
+    if (!str_line.empty() && str_line.back() == '\n')
       str_line.erase(str_line.size() - 1);
-    }
     strings.emplace_back(std::move(str_line));
   }
   sort(strings.begin(), strings.end());
 
   EXPECT_EQ(messages, strings);
-}
-
-int main(int argc, char** argv) {
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

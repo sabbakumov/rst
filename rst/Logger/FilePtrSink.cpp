@@ -38,9 +38,8 @@ namespace rst {
 
 FilePtrSink::FilePtrSink(FILE* file, string prologue_format, bool should_close)
     : prologue_format_(std::move(prologue_format)) {
-  if (file == nullptr) {
+  if (file == nullptr)
     throw LogError("file is nullptr");
-  }
 
   if (should_close) {
     log_file_.reset(file);
@@ -54,40 +53,33 @@ FilePtrSink::FilePtrSink(FILE* file, string prologue_format, bool should_close)
 void FilePtrSink::Log(const char* filename, int line,
                       const char* severity_level, const char* format,
                       va_list args) {
-  if (filename == nullptr) {
+  if (filename == nullptr)
     throw LogError("filename is nullptr");
-  }
 
-  if (severity_level == nullptr) {
+  if (severity_level == nullptr)
     throw LogError("severity_level is nullptr");
-  }
 
-  if (format == nullptr) {
+  if (format == nullptr)
     throw LogError("format is nullptr");
-  }
 
   unique_lock<mutex> lock(mutex_);
 
   auto val = std::fprintf(file_, prologue_format_.c_str(), filename, line,
                           severity_level);
-  if (val < 0) {
+  if (val < 0)
     throw LogError("Error writing to log");
-  }
 
   val = std::vfprintf(file_, format, args);
-  if (val < 0) {
+  if (val < 0)
     throw LogError("Error writing to log");
-  }
 
   val = std::fprintf(file_, "\n");
-  if (val < 0) {
+  if (val < 0)
     throw LogError("Error writing to log");
-  }
 
   val = std::fflush(file_);
-  if (val != 0) {
+  if (val != 0)
     throw LogError("Error flushing to log");
-  }
 
   lock.unlock();
 }
