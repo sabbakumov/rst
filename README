@@ -42,3 +42,6 @@ Now the library contains the following components:
 * Defer
   A Go-like (also a Microsoft GSL finally-like) method of deferring the
   action execution at the end of the function.
+
+* Check
+  A set of macros for better error handling.

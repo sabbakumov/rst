@@ -4,6 +4,8 @@ include_directories(.)
 
 add_library(rst
 
+rst/Check/Check.h
+
 rst/Cpp14/Memory.h
 
 rst/Defer/Defer.h
@@ -37,6 +39,9 @@ rst/Status/Status.h
 )
 
 add_executable(rst_tests
+
+rst/Check/Test.cpp
+rst/Check/Test2.cpp
 
 rst/Test.cpp
 
