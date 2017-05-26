@@ -4,6 +4,12 @@ It is licensed under the Simplified BSD License.
 
 Now the library contains the following components:
 
+* Optional
+  A lightweight analogy of Boost.optional and Option enum in Rust. It is used
+  to support one more optional value for every existing type. It uses
+  pointer-like semantics by overloading operator* and operator->. The object of
+  the class aborts if it has not been checked.
+
 * Result
   An analogy of Result enum in Rust. Also it is similar to Go's
   (value, error) return semantics.

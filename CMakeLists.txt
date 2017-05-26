@@ -27,6 +27,8 @@ rst/Logger/Logger.h
 
 rst/Noncopyable/Noncopyable.h
 
+rst/Optional/Optional.h
+
 rst/Result/Result.h
 
 rst/Status/Status.cpp
@@ -47,6 +49,8 @@ rst/Format/Test.cpp
 rst/Logger/Test.cpp
 
 rst/Noncopyable/Test.cpp
+
+rst/Optional/Test.cpp
 
 rst/Result/Test.cpp
 
