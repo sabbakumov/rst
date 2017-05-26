@@ -70,7 +70,7 @@ class Logger {
   void Log(Level level, const char* filename, int line, const char* format,
            ...);
 
-  void set_level(Level level) { level_ = level; }
+  void set_level(Level level) noexcept { level_ = level; }
 
  private:
   Level level_ = Level::kAll;

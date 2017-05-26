@@ -80,8 +80,6 @@ void FilePtrSink::Log(const char* filename, int line,
   val = std::fflush(file_);
   if (val != 0)
     throw LogError("Error flushing to log");
-
-  lock.unlock();
 }
 
 }  // namespace rst

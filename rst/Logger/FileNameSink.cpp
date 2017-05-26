@@ -73,8 +73,6 @@ void FileNameSink::Log(const char* filename, int line,
   val = std::fflush(log_file_.get());
   if (val != 0)
     throw LogError("Error flushing to log");
-
-  lock.unlock();
 }
 
 }  // namespace rst

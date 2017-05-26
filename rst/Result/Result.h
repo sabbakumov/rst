@@ -119,7 +119,7 @@ class Result {
 
   // If the object has not been checked, aborts. Not checked by default.
   template <class T2>
-  Result& operator=(T&& rhs) {
+  Result& operator=(T2&& rhs) {
     using Type = typename std::remove_reference<T2>::type;
     static_assert(std::is_same<T, Type>::value, "Types should match");
 
