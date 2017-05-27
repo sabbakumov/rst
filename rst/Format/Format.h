@@ -31,6 +31,7 @@
 #include <string>
 #include <utility>
 
+#include "rst/Check/Check.h"
 #include "rst/Format/FormatError.h"
 #include "rst/Format/Writer.h"
 
@@ -48,8 +49,7 @@ void Format(Writer& writer, const char* s);
 template <class T, class... Args>
 inline void Format(Writer& writer, const char* s, const T& value,
                    Args&&... args) {
-  if (s == nullptr)
-    throw FormatError("s is null");
+  RST_CHECK(s != nullptr, FormatError);
 
   auto c = *s;
   if (c == '\0')
@@ -70,6 +70,7 @@ inline void Format(Writer& writer, const char* s, const T& value,
 // A wrapper around Format recursive functions.
 template <class... Args>
 inline std::string format(const char* s, Args&&... args) {
+  RST_CHECK(s != nullptr, FormatError);
   internal::Writer writer;
   Format(writer, s, std::forward<Args>(args)...);
   return writer.MoveString();
@@ -80,7 +81,10 @@ namespace internal {
 // Used in user defined literals.
 class Formatter {
  public:
-  explicit Formatter(const char* str) : str_(str) {}
+  explicit Formatter(const char* str) : str_(str) {
+    RST_CHECK(str_ != nullptr, FormatError);
+  }
+
   template <class... Args>
   std::string operator()(Args&&... args) const {
     return format(str_, std::forward<Args>(args)...);
@@ -96,6 +100,7 @@ namespace literals {
 
 // User defined literals.
 inline internal::Formatter operator"" _format(const char* s, size_t) {
+  RST_CHECK(s != nullptr, FormatError);
   return internal::Formatter(s);
 }
 

@@ -41,7 +41,7 @@ rst/Status/Status.h
 add_executable(rst_tests
 
 rst/Check/Test.cpp
-rst/Check/Test2.cpp
+rst/Check/NDebugTest.cpp
 
 rst/Test.cpp
 

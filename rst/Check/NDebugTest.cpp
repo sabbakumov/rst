@@ -29,9 +29,18 @@
 #define NDEBUG
 #include "rst/Check/Check.h"
 
+#include <stdexcept>
+
 #include <gtest/gtest.h>
 
-TEST(Check, DCheck2) {
-  EXPECT_NO_FATAL_FAILURE({ RST_DCHECK(true); });
-  EXPECT_NO_FATAL_FAILURE({ RST_DCHECK(false); });
+using std::runtime_error;
+
+TEST(NDebugCheck, Check) {
+  EXPECT_NO_THROW(RST_CHECK(true, runtime_error));
+  EXPECT_THROW(RST_CHECK(false, runtime_error), runtime_error);
+}
+
+TEST(NDebugCheck, DCheck) {
+  EXPECT_NO_FATAL_FAILURE(RST_DCHECK(true));
+  EXPECT_NO_FATAL_FAILURE(RST_DCHECK(false));
 }

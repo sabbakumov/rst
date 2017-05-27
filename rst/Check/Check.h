@@ -35,11 +35,13 @@
 
 #define RST_DCHECK(condition) assert(condition)
 
-#define RST_CHECK(condition, exception_type)                                  \
-  (condition                                                                  \
-       ? static_cast<void>(0)                                                 \
-       : throw exception_type(                                                \
-             "Runtime failure at " __FILE__ ":" RST_CHECK_INTERNAL_STRINGIFY( \
-                 __LINE__) ". " RST_CHECK_INTERNAL_STRINGIFY(condition)))
+#define RST_CHECK(condition, exception_type)                               \
+  do {                                                                     \
+    (condition)                                                            \
+        ? static_cast<void>(0)                                             \
+        : throw exception_type(                                            \
+              "Runtime failure at " __FILE__                               \
+              ":" RST_CHECK_INTERNAL_STRINGIFY(__LINE__) ". " #condition); \
+  } while (false)
 
 #endif  // RST_CHECK_CHECK_H_

@@ -31,51 +31,63 @@
 
 #include <gtest/gtest.h>
 
-using rst::NonCopyConstructible;
 using rst::NonAssignable;
+using rst::NonCopyConstructible;
 using rst::NonCopyable;
-using rst::NonMoveConstructible;
-using rst::NonMoveAssignable;
 using rst::NonMovable;
+using rst::NonMoveAssignable;
+using rst::NonMoveConstructible;
 
-TEST(NonCopyConstructible, Test) {
-  EXPECT_FALSE(std::is_copy_constructible<NonCopyConstructible>::value);
-  EXPECT_TRUE(std::is_copy_assignable<NonCopyConstructible>::value);
-  EXPECT_TRUE(std::is_move_constructible<NonCopyConstructible>::value);
-  EXPECT_TRUE(std::is_move_assignable<NonCopyConstructible>::value);
+TEST(NonCopyable, NonCopyConstructible) {
+  using T = NonCopyConstructible;
+  EXPECT_TRUE(std::is_default_constructible<T>::value);
+  EXPECT_FALSE(std::is_copy_constructible<T>::value);
+  EXPECT_TRUE(std::is_copy_assignable<T>::value);
+  EXPECT_TRUE(std::is_move_constructible<T>::value);
+  EXPECT_TRUE(std::is_move_assignable<T>::value);
 }
 
-TEST(NonAssignable, Test) {
-  EXPECT_TRUE(std::is_copy_constructible<NonAssignable>::value);
-  EXPECT_FALSE(std::is_copy_assignable<NonAssignable>::value);
-  EXPECT_TRUE(std::is_move_constructible<NonAssignable>::value);
-  EXPECT_TRUE(std::is_move_assignable<NonAssignable>::value);
+TEST(NonCopyable, NonAssignable) {
+  using T = NonAssignable;
+  EXPECT_TRUE(std::is_default_constructible<T>::value);
+  EXPECT_TRUE(std::is_copy_constructible<T>::value);
+  EXPECT_FALSE(std::is_copy_assignable<T>::value);
+  EXPECT_TRUE(std::is_move_constructible<T>::value);
+  EXPECT_TRUE(std::is_move_assignable<T>::value);
 }
 
-TEST(NonCopyable, Test) {
-  EXPECT_FALSE(std::is_copy_constructible<NonCopyable>::value);
-  EXPECT_FALSE(std::is_copy_assignable<NonCopyable>::value);
-  EXPECT_TRUE(std::is_move_constructible<NonCopyable>::value);
-  EXPECT_TRUE(std::is_move_assignable<NonCopyable>::value);
+TEST(NonCopyable, NonCopyable) {
+  using T = NonCopyable;
+  EXPECT_TRUE(std::is_default_constructible<T>::value);
+  EXPECT_FALSE(std::is_copy_constructible<T>::value);
+  EXPECT_FALSE(std::is_copy_assignable<T>::value);
+  EXPECT_TRUE(std::is_move_constructible<T>::value);
+  EXPECT_TRUE(std::is_move_assignable<T>::value);
 }
 
-TEST(NonMoveConstructible, Test) {
-  EXPECT_TRUE(std::is_copy_constructible<NonMoveConstructible>::value);
-  EXPECT_TRUE(std::is_copy_assignable<NonMoveConstructible>::value);
-  EXPECT_FALSE(std::is_move_constructible<NonMoveConstructible>::value);
-  EXPECT_TRUE(std::is_move_assignable<NonMoveConstructible>::value);
+TEST(NonCopyable, NonMoveConstructible) {
+  using T = NonMoveConstructible;
+  EXPECT_TRUE(std::is_default_constructible<T>::value);
+  EXPECT_TRUE(std::is_copy_constructible<T>::value);
+  EXPECT_TRUE(std::is_copy_assignable<T>::value);
+  EXPECT_FALSE(std::is_move_constructible<T>::value);
+  EXPECT_TRUE(std::is_move_assignable<T>::value);
 }
 
-TEST(NonMoveAssignable, Test) {
-  EXPECT_TRUE(std::is_copy_constructible<NonMoveAssignable>::value);
-  EXPECT_TRUE(std::is_copy_assignable<NonMoveAssignable>::value);
-  EXPECT_TRUE(std::is_move_constructible<NonMoveAssignable>::value);
-  EXPECT_FALSE(std::is_move_assignable<NonMoveAssignable>::value);
+TEST(NonCopyable, NonMoveAssignable) {
+  using T = NonMoveAssignable;
+  EXPECT_TRUE(std::is_default_constructible<T>::value);
+  EXPECT_TRUE(std::is_copy_constructible<T>::value);
+  EXPECT_TRUE(std::is_copy_assignable<T>::value);
+  EXPECT_TRUE(std::is_move_constructible<T>::value);
+  EXPECT_FALSE(std::is_move_assignable<T>::value);
 }
 
-TEST(NonMovable, Test) {
-  EXPECT_TRUE(std::is_copy_constructible<NonMovable>::value);
-  EXPECT_TRUE(std::is_copy_assignable<NonMovable>::value);
-  EXPECT_FALSE(std::is_move_constructible<NonMovable>::value);
-  EXPECT_FALSE(std::is_move_assignable<NonMovable>::value);
+TEST(NonCopyable, NonMovable) {
+  using T = NonMovable;
+  EXPECT_TRUE(std::is_default_constructible<T>::value);
+  EXPECT_TRUE(std::is_copy_constructible<T>::value);
+  EXPECT_TRUE(std::is_copy_assignable<T>::value);
+  EXPECT_FALSE(std::is_move_constructible<T>::value);
+  EXPECT_FALSE(std::is_move_assignable<T>::value);
 }

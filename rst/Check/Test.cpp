@@ -35,11 +35,11 @@
 using std::runtime_error;
 
 TEST(Check, Check) {
-  EXPECT_NO_THROW({ RST_CHECK(true, runtime_error); });
-  EXPECT_THROW({ RST_CHECK(false, runtime_error); }, runtime_error);
+  EXPECT_NO_THROW(RST_CHECK(true, runtime_error));
+  EXPECT_THROW(RST_CHECK(false, runtime_error), runtime_error);
 }
 
 TEST(Check, DCheck) {
-  EXPECT_NO_FATAL_FAILURE({ RST_DCHECK(true); });
-  EXPECT_DEATH({ RST_DCHECK(false); }, "");
+  EXPECT_NO_FATAL_FAILURE(RST_DCHECK(true));
+  EXPECT_DEATH(RST_DCHECK(false), "");
 }

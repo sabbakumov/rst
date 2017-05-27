@@ -30,6 +30,7 @@
 #include <cassert>
 #include <cstdarg>
 
+#include "rst/Check/Check.h"
 #include "rst/Logger/LogError.h"
 
 using std::unique_ptr;
@@ -37,17 +38,13 @@ using std::unique_ptr;
 namespace rst {
 
 Logger::Logger(unique_ptr<ISink> sink) : sink_(std::move(sink)) {
-  if (sink_ == nullptr)
-    throw LogError("sink is nullptr");
+  RST_CHECK(sink_ != nullptr, LogError);
 }
 
 void Logger::Log(Level level, const char* filename, int line,
                  const char* format, ...) {
-  if (filename == nullptr)
-    throw LogError("filename is nullptr");
-
-  if (format == nullptr)
-    throw LogError("format is nullptr");
+  RST_CHECK(filename != nullptr, LogError);
+  RST_CHECK(format != nullptr, LogError);
 
   if (static_cast<int>(level) < static_cast<int>(level_))
     return;
@@ -81,7 +78,7 @@ void Logger::Log(Level level, const char* filename, int line,
     }
     default: { throw LogError("Unexpected level"); }
   }
-  assert(level_str != nullptr);
+  RST_DCHECK(level_str != nullptr);
 
   sink_->Log(filename, line, level_str, format, *args);
 }

@@ -27,6 +27,7 @@
 
 #include "rst/Logger/FileNameSink.h"
 
+#include "rst/Check/Check.h"
 #include "rst/Logger/LogError.h"
 
 using std::mutex;
@@ -39,40 +40,30 @@ FileNameSink::FileNameSink(const string& filename, string prologue_format)
     : prologue_format_(std::move(prologue_format)) {
   log_file_.reset(fopen(filename.c_str(), "w"));
 
-  if (log_file_ == nullptr)
-    throw LogError("Can not open file");
+  RST_CHECK(log_file_ != nullptr, LogError);
 }
 
 void FileNameSink::Log(const char* filename, int line,
                        const char* severity_level, const char* format,
                        va_list args) {
-  if (filename == nullptr)
-    throw LogError("filename is nullptr");
-
-  if (severity_level == nullptr)
-    throw LogError("severity_level is nullptr");
-
-  if (format == nullptr)
-    throw LogError("format is nullptr");
+  RST_CHECK(filename != nullptr, LogError);
+  RST_CHECK(severity_level != nullptr, LogError);
+  RST_CHECK(format != nullptr, LogError);
 
   unique_lock<mutex> lock(mutex_);
 
   auto val = std::fprintf(log_file_.get(), prologue_format_.c_str(), filename,
                           line, severity_level);
-  if (val < 0)
-    throw LogError("Error writing to log");
+  RST_CHECK(val >= 0, LogError);
 
   val = std::vfprintf(log_file_.get(), format, args);
-  if (val < 0)
-    throw LogError("Error writing to log");
+  RST_CHECK(val >= 0, LogError);
 
   val = std::fprintf(log_file_.get(), "\n");
-  if (val < 0)
-    throw LogError("Error writing to log");
+  RST_CHECK(val >= 0, LogError);
 
   val = std::fflush(log_file_.get());
-  if (val != 0)
-    throw LogError("Error flushing to log");
+  RST_CHECK(val >= 0, LogError);
 }
 
 }  // namespace rst

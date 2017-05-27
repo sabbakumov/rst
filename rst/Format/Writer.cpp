@@ -39,8 +39,7 @@ namespace rst {
 namespace internal {
 
 Writer::Writer() {
-  if (static_buffer_.size() < 2)
-    throw FormatError("Invalid static buffer size");
+  RST_CHECK(static_buffer_.size() >= 2, FormatError);
 }
 
 void Writer::Write(short val) {
@@ -101,8 +100,7 @@ void Writer::Write(long double val) {
 void Writer::Write(const string& val) { Write(val.c_str(), val.size()); }
 
 void Writer::Write(const char* val) {
-  if (val == nullptr)
-    throw FormatError("val is nullptr");
+  RST_CHECK(val != nullptr, FormatError);
 
   Write(val, std::strlen(val));
 }
@@ -110,8 +108,7 @@ void Writer::Write(const char* val) {
 void Writer::Write(char val) { Write(&val, 1); }
 
 void Writer::Write(const char* val, size_t len) {
-  if (val == nullptr)
-    throw FormatError("val is nullptr");
+  RST_CHECK(val != nullptr, FormatError);
   if (len == 0)
     return;
 

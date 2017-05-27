@@ -48,12 +48,11 @@ class FileNameSink : public ISink {
 
  private:
   // A RAII-wrapper around std::FILE.
-  std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
-      nullptr, [](std::FILE* f) {
-        if (f != nullptr) {
-          std::fclose(f);
-        }
-      }};
+  std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{nullptr,
+                                                             [](std::FILE* f) {
+                                                               if (f != nullptr)
+                                                                 std::fclose(f);
+                                                             }};
 
   // Prologue printf-like format for filename, line in a file and severity
   // level.

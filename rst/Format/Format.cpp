@@ -32,10 +32,8 @@ namespace rst {
 namespace internal {
 
 bool HandleCharacter(char c, const char*& s) {
-  if (s == nullptr)
-    throw FormatError("s is null");
-  if (c != *s)
-    throw FormatError("c != *s");
+  RST_CHECK(s != nullptr, FormatError);
+  RST_CHECK(c == *s, FormatError);
 
   switch (c) {
     case '{': {
@@ -68,8 +66,7 @@ bool HandleCharacter(char c, const char*& s) {
 }
 
 void Format(Writer& writer, const char* s) {
-  if (s == nullptr)
-    throw FormatError("s is null");
+  RST_CHECK(s != nullptr, FormatError);
 
   for (char c; (c = *s) != '\0'; s++) {
     if (!HandleCharacter(c, s))
