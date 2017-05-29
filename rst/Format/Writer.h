@@ -95,7 +95,7 @@ class Writer {
   std::string CopyString() const;
 
  private:
-  // Whether we use static of dynamic buffer.
+  // Whether we use static or dynamic buffer.
   bool is_static_buffer_ = true;
 
   // Whether we moved the writer via MoveString().

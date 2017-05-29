@@ -176,9 +176,9 @@ class Optional {
 
   void Destruct() { data_.~T(); }
 
-  bool is_valid_;
+  bool is_valid_ : 1;
 
-  bool was_checked_;
+  bool was_checked_: 1;
 
   union {
     T data_;

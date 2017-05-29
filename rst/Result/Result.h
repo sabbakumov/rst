@@ -284,10 +284,10 @@ class Result<void, E> {
 
  private:
   // Object's validity.
-  bool is_valid_ = false;
+  bool is_valid_ : 1;
 
   // Whether the object is checked.
-  bool was_checked_ = true;
+  bool was_checked_ : 1;
 
   union {
     // Error object.

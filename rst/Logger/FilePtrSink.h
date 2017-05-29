@@ -62,7 +62,7 @@ class FilePtrSink : public ISink {
 
   // A pointer to either log_file_ or non_closing_log_file depending whether
   // should_close is set on construction.
-  std::FILE* file_;
+  std::FILE* file_ = nullptr;
 
   // Prologue printf-like format for filename, line in a file and severity
   // level.
