@@ -27,12 +27,15 @@
 
 #include "rst/Status/Status.h"
 
+#include <memory>
+
 #include <gtest/gtest.h>
 
 using rst::Status;
 using rst::StatusErr;
 using rst::StatusErrWithCode;
 using rst::StatusOk;
+using std::unique_ptr;
 
 TEST(Status, EmptyConstructor) {
   Status status;
@@ -43,6 +46,9 @@ TEST(Status, Constructor) {
   Status status(-1, "Message");
   EXPECT_EQ(-1, status.error_code());
   EXPECT_FALSE(status.ok());
+
+  unique_ptr<Status> status2;
+  EXPECT_DEATH((status2.reset(new Status(0, "Message"))), "");
 
   Status ok = StatusOk();
   EXPECT_EQ(0, ok.error_code());
@@ -71,6 +77,10 @@ TEST(Status, MoveAssignment) {
   EXPECT_EQ(-1, status2.error_code());
   EXPECT_FALSE(status2.ok());
   EXPECT_EQ(&ref, &status2);
+
+  status2 = Status(-1, "Message");
+  EXPECT_DEATH(status2 = std::move(status), "");
+  status2.Ignore();
 }
 
 TEST(Status, ErrorMessage) {
@@ -104,3 +114,7 @@ TEST(Status, OperatorEquals) {
 }
 
 TEST(Status, Nothing) { Status status; }
+
+TEST(Status, Dtor) {
+  EXPECT_DEATH((Status(-1, "Message")), "");
+}

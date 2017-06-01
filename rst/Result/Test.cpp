@@ -36,6 +36,8 @@ using rst::Result;
 using std::complex;
 using std::string;
 
+namespace {
+
 class DtorHelper {
  public:
   DtorHelper() { counter_++; }
@@ -54,6 +56,8 @@ class ArrowHelper {
  public:
   void foo() const {}
 };
+
+}  // namespace
 
 TEST(Result, DefaultCtor) {
   Result<int, int> oi;
@@ -183,6 +187,12 @@ TEST(Result, Dtor) {
   }
 
   EXPECT_EQ(0, DtorHelper::counter());
+
+  {
+    EXPECT_DEATH((Result<int, int>()), "");
+
+    EXPECT_DEATH((Result<void, int>()), "");
+  }
 }
 
 TEST(Result, OperatorEquals) {
@@ -220,6 +230,44 @@ TEST(Result, OperatorEquals) {
   }
 
   EXPECT_EQ(0, DtorHelper::counter());
+
+  {
+    Result<int, int> oi = 0;
+    Result<int, int> oi2;
+    EXPECT_DEATH(oi2 = std::move(oi), "");
+    oi.Ignore();
+    oi2.Ignore();
+
+    Result<complex<double>, int> ocmplx = complex<double>(0.0, 0.0);
+    Result<complex<double>, int> ocmplx2;
+    EXPECT_DEATH(ocmplx2 = std::move(ocmplx), "");
+    ocmplx.Ignore();
+    ocmplx2.Ignore();
+
+    Result<char, int> oc = '\0';
+    Result<char, int> oc2;
+    EXPECT_DEATH(oc2 = std::move(oc), "");
+    oc.Ignore();
+    oc2.Ignore();
+
+    Result<bool, int> ob = true;
+    Result<bool, int> ob2;
+    EXPECT_DEATH(ob2 = std::move(ob), "");
+    ob.Ignore();
+    ob2.Ignore();
+
+    Result<void, int> ov(0);
+    Result<void, int> ov2;
+    EXPECT_DEATH(ov2 = std::move(ov), "");
+    ov.Ignore();
+    ov2.Ignore();
+  }
+
+  {
+    Result<int, int> o = 0;
+    EXPECT_DEATH(o = 0, "");
+    o.Ignore();
+  }
 }
 
 TEST(Result, CopyOperatorEquals) {
@@ -296,28 +344,67 @@ TEST(Result, OperatorStar) {
     ASSERT_TRUE(ob == true);
     EXPECT_EQ(false, *ob);
   }
+
+  {
+    Result<int, int> oi = 0;
+    EXPECT_DEATH(*oi, "");
+    oi.Ignore();
+
+    Result<int, int> oi2;
+    EXPECT_TRUE(oi2 == false);
+    EXPECT_DEATH(*oi2, "");
+    oi2.Ignore();
+  }
 }
 
 TEST(Result, Err) {
-  Result<int, int> a = Err<int, int>(-1);
-  ASSERT_TRUE(a == false);
-  EXPECT_EQ(-1, a.Err());
+  {
+    Result<int, int> a = Err<int, int>(-1);
+    ASSERT_TRUE(a == false);
+    EXPECT_EQ(-1, a.Err());
 
-  a.Err() = 10;
-  ASSERT_TRUE(a == false);
-  EXPECT_EQ(10, a.Err());
+    a.Err() = 10;
+    ASSERT_TRUE(a == false);
+    EXPECT_EQ(10, a.Err());
 
-  Result<void, int> b = Err<void, int>(-1);
-  ASSERT_TRUE(b == false);
-  EXPECT_EQ(-1, b.Err());
+    Result<void, int> b = Err<void, int>(-1);
+    ASSERT_TRUE(b == false);
+    EXPECT_EQ(-1, b.Err());
 
-  b.Err() = 10;
-  ASSERT_TRUE(b == false);
-  EXPECT_EQ(10, b.Err());
+    b.Err() = 10;
+    ASSERT_TRUE(b == false);
+    EXPECT_EQ(10, b.Err());
+  }
+
+  {
+    Result<int, int> a;
+    EXPECT_DEATH(a.Err(), "");
+    a.Ignore();
+
+    Result<int, int> a2 = 0;
+    EXPECT_TRUE(a2 == true);
+    EXPECT_DEATH(a2.Err(), "");
+    a2.Ignore();
+  }
 }
 
 TEST(Result, OperatorArrow) {
-  Result<ArrowHelper, int> r = ArrowHelper();
-  EXPECT_TRUE(r == true);
-  r->foo();
+  {
+    Result<ArrowHelper, int> r = ArrowHelper();
+    EXPECT_TRUE(r == true);
+    r->foo();
+  }
+
+  {
+    Result<ArrowHelper, int> r = ArrowHelper();
+    EXPECT_DEATH(r->foo(), "");
+    r.Ignore();
+  }
+
+  {
+    Result<ArrowHelper, int> r;
+    EXPECT_TRUE(r == false);
+    EXPECT_DEATH(r->foo(), "");
+    r.Ignore();
+  }
 }
