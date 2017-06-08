@@ -17,6 +17,8 @@ rst/Format/FormatError.h
 rst/Format/Writer.cpp
 rst/Format/Writer.h
 
+rst/HiddenString/HiddenString.h
+
 rst/Logger/FileNameSink.cpp
 rst/Logger/FileNameSink.h
 rst/Logger/FilePtrSink.cpp
@@ -50,6 +52,8 @@ rst/Cpp14/Test.cpp
 rst/Defer/Test.cpp
 
 rst/Format/Test.cpp
+
+rst/HiddenString/Test.cpp
 
 rst/Logger/Test.cpp
 
