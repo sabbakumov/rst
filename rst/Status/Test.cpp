@@ -51,7 +51,8 @@ TEST(Status, Constructor) {
   EXPECT_DEATH((status2.reset(new Status(0, "Message"))), "");
 
   Status ok = StatusOk();
-  EXPECT_EQ(0, ok.error_code());
+  EXPECT_DEATH(ok.error_code(), "");
+  EXPECT_DEATH(ok.error_message(), "");
   EXPECT_TRUE(ok.ok());
 
   Status err = StatusErr("Message");

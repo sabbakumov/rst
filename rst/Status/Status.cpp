@@ -27,15 +27,19 @@
 
 #include "rst/Status/Status.h"
 
-#include <cstdlib>
-
 #include "rst/Cpp14/Memory.h"
 
 using std::string;
 
 namespace rst {
 
-const string Status::empty_string_;
+// Information about the error.
+struct Status::ErrorInfo {
+  // Error code.
+  int error_code = 0;
+  // Error message.
+  std::string error_message;
+};
 
 Status::Status() : was_checked_(true) {}
 
@@ -71,6 +75,24 @@ Status& Status::operator=(Status&& rhs) {
 Status::~Status() {
   if (!was_checked_)
     std::abort();
+}
+
+bool Status::operator==(const Status& rhs) const {
+  return (error_info_ == rhs.error_info_) ||
+         (error_code() == rhs.error_code() &&
+          error_message() == error_message());
+}
+
+const std::string& Status::error_message() const {
+  if (error_info_ == nullptr)
+    std::abort();
+  return error_info_->error_message;
+}
+
+int Status::error_code() const {
+  if (error_info_ == nullptr)
+    std::abort();
+  return error_info_->error_code;
 }
 
 }  // namespace rst

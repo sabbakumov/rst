@@ -28,19 +28,12 @@
 #ifndef RST_STATUS_STATUS_H_
 #define RST_STATUS_STATUS_H_
 
+#include <cstdlib>
 #include <memory>
 #include <string>
 #include <utility>
 
 namespace rst {
-
-// Information about the error.
-struct ErrorInfo {
-  // Error code.
-  int error_code = 0;
-  // Error message.
-  std::string error_message;
-};
 
 // A Google-like Status class for error handling.
 class Status {
@@ -60,11 +53,7 @@ class Status {
   // Sets the object not checked by default and moves rhs content. If the
   // object has not been checked, aborts.
   Status& operator=(Status&& rhs);
-  bool operator==(const Status& rhs) const {
-    return (error_info_ == rhs.error_info_) ||
-           (error_code() == rhs.error_code() &&
-            error_message() == error_message());
-  }
+  bool operator==(const Status& rhs) const;
 
   Status& operator=(const Status&) = delete;
 
@@ -77,17 +66,9 @@ class Status {
     return error_info_ == nullptr;
   }
 
-  const std::string& error_message() const {
-    if (error_info_ == nullptr)
-      return empty_string_;
-    return error_info_->error_message;
-  }
+  const std::string& error_message() const;
 
-  int error_code() const {
-    if (error_info_ == nullptr)
-      return 0;
-    return error_info_->error_code;
-  }
+  int error_code() const;
 
   // Sets the object to be checked.
   void Ignore() { was_checked_ = true; }
@@ -97,10 +78,8 @@ class Status {
   bool was_checked_;
 
   // Information about the error. nullptr if the object is OK.
+  struct ErrorInfo;
   std::unique_ptr<ErrorInfo> error_info_;
-
-  // The empty string in case of calling error_message() on OK object.
-  static const std::string empty_string_;
 };
 
 inline Status StatusOk() { return Status(); }
