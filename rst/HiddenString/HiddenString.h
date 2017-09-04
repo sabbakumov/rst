@@ -95,7 +95,7 @@ class HiddenString<IndexList<Index...>> {
   constexpr HiddenString(const char* str)
       : str_{EncryptCharacter(str[Index], Index)...} {}
 
-  std::string Decrypt() {
+  std::string Decrypt() const {
     std::string result(str_, sizeof...(Index));
     for (size_t i = 0; i < sizeof...(Index); i++)
       result[i] ^= (kXorKey + i);
@@ -103,13 +103,13 @@ class HiddenString<IndexList<Index...>> {
   }
 
  private:
-  char str_[sizeof...(Index) + 1];
+  const char str_[sizeof...(Index) + 1];
 };
 
-#define RST_HIDDEN_STRING(str)                                          \
-  (rst::internal::HiddenString<                                         \
-       rst::internal::ConstructIndexList<sizeof(str) - 1>::Result>(str) \
-       .Decrypt())
+#define RST_HIDDEN_STRING(var, str)                               \
+  static constexpr rst::internal::HiddenString<                   \
+      rst::internal::ConstructIndexList<sizeof(str) - 1>::Result> \
+      var(str)
 
 }  // namespace internal
 

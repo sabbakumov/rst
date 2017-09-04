@@ -30,7 +30,12 @@
 #include <gtest/gtest.h>
 
 TEST(HiddenString, Normal) {
-  EXPECT_EQ("abcDEF", RST_HIDDEN_STRING("abcDEF"));
-  EXPECT_EQ("ABC", RST_HIDDEN_STRING("ABC"));
-  EXPECT_EQ("0123456789", RST_HIDDEN_STRING("0123456789"));
+  RST_HIDDEN_STRING(kFirst, "abcDEF");
+  EXPECT_EQ("abcDEF", kFirst.Decrypt());
+
+  RST_HIDDEN_STRING(kSecond, "ABC");
+  EXPECT_EQ("ABC", kSecond.Decrypt());
+
+  RST_HIDDEN_STRING(kThird, "0123456789");
+  EXPECT_EQ("0123456789", kThird.Decrypt());
 }
