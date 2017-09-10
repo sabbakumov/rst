@@ -25,48 +25,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_DEFER_DEFER_H_
-#define RST_DEFER_DEFER_H_
+#ifndef RST_BUILDFLAG_BUILDFLAG_H_
+#define RST_BUILDFLAG_BUILDFLAG_H_
 
-#include <utility>
+#define RST_BUILDFLAG_INTERNAL_CAT2(x, y) x##y
+#define RST_BUILDFLAG_INTERNAL_CAT(x, y) RST_BUILDFLAG_INTERNAL_CAT2(x, y)
 
-#include "rst/Noncopyable/Noncopyable.h"
+#define RST_BUILDFLAG(flag) (RST_BUILDFLAG_INTERNAL_CAT(RST_BUILDFLAG_, flag)())
 
-#define RST_DEFER_INTERNAL_CAT2(x, y) x##y
-#define RST_DEFER_INTERNAL_CAT(x, y) RST_DEFER_INTERNAL_CAT2(x, y)
-
-#define RST_DEFER(f)                                                         \
-  const auto RST_DEFER_INTERNAL_CAT(RST_DEFER_INTERNAL_VAR_NAME, __LINE__) = \
-      rst::internal::Defer(f)
-
-namespace rst {
-
-namespace internal {
-
-template <class F>
-class DeferredAction : public NonCopyable, public NonMoveAssignable {
- public:
-  DeferredAction() = delete;
-  explicit DeferredAction(F action) : action_(std::move(action)) {}
-  DeferredAction(DeferredAction&&) = default;
-
-  ~DeferredAction() {
-    try {
-      action_();
-    } catch (...) {}
-  }
-
- private:
-  F action_;
-};
-
-template <class F>
-inline DeferredAction<F> Defer(F&& f) {
-  return DeferredAction<F>(std::forward<F>(f));
-}
-
-}  // namespace internal
-
-}  // namespace rst
-
-#endif  // RST_DEFER_DEFER_H_
+#endif  // RST_BUILDFLAG_BUILDFLAG_H_

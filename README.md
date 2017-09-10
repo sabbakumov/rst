@@ -51,3 +51,6 @@ Now the library contains the following components:
 ## Hidden String
   A compile time string encryption. It's useful when you need to have a
   "secret" strings in a program that are not findable in a hexeditor.
+
+## BuildFlag
+  A Chromium-like build-flag support.

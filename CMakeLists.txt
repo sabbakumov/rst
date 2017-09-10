@@ -4,6 +4,8 @@ include_directories(.)
 
 add_library(rst
 
+rst/BuildFlag/BuildFlag.h
+
 rst/Check/Check.h
 
 rst/Cpp14/Memory.h
@@ -41,6 +43,8 @@ rst/Status/Status.h
 )
 
 add_executable(rst_tests
+
+rst/BuildFlag/Test.cpp
 
 rst/Check/Test.cpp
 rst/Check/NDebugTest.cpp
