@@ -34,11 +34,10 @@
 
 namespace rst {
 
-class NoneType {
- public:
-  constexpr NoneType() = default;
+struct NoneType {
+  constexpr NoneType(int) {}
 };
-constexpr NoneType None;
+constexpr NoneType None(0);
 
 // A Boost-like optional.
 template <class T>
