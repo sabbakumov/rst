@@ -34,5 +34,6 @@ namespace rst {
 
 FormatError::FormatError(const string& message) : runtime_error(message) {}
 FormatError::FormatError(const char* message) : runtime_error(message) {}
+FormatError::~FormatError() = default;
 
 }  // namespace rst

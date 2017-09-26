@@ -38,6 +38,9 @@ class FormatError : public std::runtime_error {
  public:
   explicit FormatError(const std::string& message);
   explicit FormatError(const char* message);
+  FormatError(const FormatError&) = default;
+
+  ~FormatError() override;
 };
 
 }  // namespace rst
