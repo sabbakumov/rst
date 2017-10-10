@@ -57,19 +57,19 @@ TEST(FormatterTest, Escape) {
 }
 
 TEST(FormatterTest, UnmatchedBraces) {
-  EXPECT_THROW(format("{"), FormatError);
+  EXPECT_DEATH(format("{"), "");
 
-  EXPECT_THROW(format("}"), FormatError);
+  EXPECT_DEATH(format("}"), "");
 
-  EXPECT_THROW(format("{0{}"), FormatError);
+  EXPECT_DEATH(format("{0{}"), "");
 }
 
 TEST(FormatterTest, UnmatchedBraces2) {
-  EXPECT_THROW(format("{", 1), FormatError);
+  EXPECT_DEATH(format("{", 1), "");
 
-  EXPECT_THROW(format("}", 1), FormatError);
+  EXPECT_DEATH(format("}", 1), "");
 
-  EXPECT_THROW(format("{0{}", 1), FormatError);
+  EXPECT_DEATH(format("{0{}", 1), "");
 }
 
 TEST(FormatterTest, NoArgs) { EXPECT_EQ("test", format("test")); }
@@ -85,21 +85,21 @@ TEST(FormatterTest, ArgsInDifferentPositions) {
 }
 
 TEST(FormatterTest, ArgErrors) {
-  EXPECT_THROW(format("{"), FormatError);
+  EXPECT_DEATH(format("{"), "");
 
-  EXPECT_THROW(format("{?}"), FormatError);
+  EXPECT_DEATH(format("{?}"), "");
 
-  EXPECT_THROW(format("{0"), FormatError);
+  EXPECT_DEATH(format("{0"), "");
 
-  EXPECT_THROW(format("{}"), FormatError);
+  EXPECT_DEATH(format("{}"), "");
 }
 
 TEST(FormatterTest, ArgErrors2) {
-  EXPECT_THROW(format("{", 1), FormatError);
+  EXPECT_DEATH(format("{", 1), "");
 
-  EXPECT_THROW(format("{?}", 1), FormatError);
+  EXPECT_DEATH(format("{?}", 1), "");
 
-  EXPECT_THROW(format("{0", 1), FormatError);
+  EXPECT_DEATH(format("{0", 1), "");
 }
 
 TEST(FormatTest, Variadic) { EXPECT_EQ("abc1", format("{}c{}", "ab", 1)); }
@@ -110,7 +110,7 @@ TEST(FormatTest, MaxArgs) {
                    8, 9, 'a', 'b', 'c', 'd', 'e', 1.23, 1.23f));
 }
 
-TEST(FormatTest, ExtraArgument) { EXPECT_THROW(format("", 1), FormatError); }
+TEST(FormatTest, ExtraArgument) { EXPECT_DEATH(format("", 1), ""); }
 
 TEST(Literals, Commong) {
   EXPECT_EQ("", ""_format());
@@ -126,14 +126,13 @@ TEST(Writer, DefaultCtor) {
 
 TEST(Writer, FormatAndWriteNullStr) {
   Writer writer;
-  EXPECT_THROW(writer.FormatAndWrite(nullptr, 10, "format", 0), FormatError);
+  EXPECT_DEATH(writer.FormatAndWrite(nullptr, 10, "format", 0), "");
 }
 
 TEST(Writer, FormatAndWriteNullFormat) {
   Writer writer;
   array<char, 10> str;
-  EXPECT_THROW(writer.FormatAndWrite(str.data(), str.size(), nullptr, 0),
-               FormatError);
+  EXPECT_DEATH(writer.FormatAndWrite(str.data(), str.size(), nullptr, 0), "");
 }
 
 TEST(Writer, FormatAndWriteZeroSize) {
@@ -173,7 +172,7 @@ TEST(Writer, FormatAndWriteThreeSizeNotFull) {
 
 TEST(FormatTemplate, SNullPtr) {
   Writer writer;
-  EXPECT_THROW(Format(writer, nullptr, 0), FormatError);
+  EXPECT_DEATH(Format(writer, nullptr, 0), "");
 }
 
 TEST(Writer, Numbers) {
@@ -205,54 +204,29 @@ TEST(Writer, Numbers) {
 }
 
 TEST(Writer, MinMax) {
-  const auto min_short_val = numeric_limits<short>::min();
-  const auto max_short_val = numeric_limits<short>::max();
-  const auto min_int_val = numeric_limits<int>::min();
-  const auto max_int_val = numeric_limits<int>::max();
-  const auto min_long_val = numeric_limits<long>::min();
-  const auto max_long_val = numeric_limits<long>::max();
-  const auto min_long_long_val = numeric_limits<long long>::min();
-  const auto max_long_long_val = numeric_limits<long long>::max();
-  const auto min_unsigned_short_val = numeric_limits<unsigned short>::min();
-  const auto max_unsigned_short_val = numeric_limits<unsigned short>::max();
-  const auto min_unsigned_int_val = numeric_limits<unsigned int>::min();
-  const auto max_unsigned_int_val = numeric_limits<unsigned int>::max();
-  const auto min_unsigned_long_val = numeric_limits<unsigned long>::min();
-  const auto max_unsigned_long_val = numeric_limits<unsigned long>::max();
-  const auto min_unsigned_long_long_val =
-      numeric_limits<unsigned long long>::min();
-  const auto max_unsigned_long_long_val =
-      numeric_limits<unsigned long long>::max();
-  const auto min_float_val = numeric_limits<float>::min();
-  const auto max_float_val = numeric_limits<float>::max();
-  const auto min_double_val = numeric_limits<double>::min();
-  const auto max_double_val = numeric_limits<double>::max();
-  const auto min_long_double_val = numeric_limits<long double>::min();
-  const auto max_long_double_val = numeric_limits<long double>::max();
-
   Writer writer;
-  writer.Write(min_short_val);
-  writer.Write(max_short_val);
-  writer.Write(min_int_val);
-  writer.Write(max_int_val);
-  writer.Write(min_long_val);
-  writer.Write(max_long_val);
-  writer.Write(min_long_long_val);
-  writer.Write(max_long_long_val);
-  writer.Write(min_unsigned_short_val);
-  writer.Write(max_unsigned_short_val);
-  writer.Write(min_unsigned_int_val);
-  writer.Write(max_unsigned_int_val);
-  writer.Write(min_unsigned_long_val);
-  writer.Write(max_unsigned_long_val);
-  writer.Write(min_unsigned_long_long_val);
-  writer.Write(max_unsigned_long_long_val);
-  writer.Write(min_float_val);
-  writer.Write(max_float_val);
-  writer.Write(min_double_val);
-  writer.Write(max_double_val);
-  writer.Write(min_long_double_val);
-  writer.Write(max_long_double_val);
+  writer.Write(numeric_limits<short>::min());
+  writer.Write(numeric_limits<short>::max());
+  writer.Write(numeric_limits<int>::min());
+  writer.Write(numeric_limits<int>::max());
+  writer.Write(numeric_limits<long>::min());
+  writer.Write(numeric_limits<long>::max());
+  writer.Write(numeric_limits<long long>::min());
+  writer.Write(numeric_limits<long long>::max());
+  writer.Write(numeric_limits<unsigned short>::min());
+  writer.Write(numeric_limits<unsigned short>::max());
+  writer.Write(numeric_limits<unsigned int>::min());
+  writer.Write(numeric_limits<unsigned int>::max());
+  writer.Write(numeric_limits<unsigned long>::min());
+  writer.Write(numeric_limits<unsigned long>::max());
+  writer.Write(numeric_limits<unsigned long long>::min());
+  writer.Write(numeric_limits<unsigned long long>::max());
+  writer.Write(numeric_limits<float>::min());
+  writer.Write(numeric_limits<float>::max());
+  writer.Write(numeric_limits<double>::min());
+  writer.Write(numeric_limits<double>::max());
+  writer.Write(numeric_limits<long double>::min());
+  writer.Write(numeric_limits<long double>::max());
 
   string result;
   result += std::to_string(numeric_limits<short>::min());
@@ -290,14 +264,14 @@ TEST(Writer, EmptyStdString) {
 
 TEST(Writer, EmptyCharPtr) {
   Writer writer;
-  const char* str = "";
+  const auto str = "";
   writer.Write(str);
   EXPECT_EQ("", writer.CopyString());
 }
 
 TEST(Writer, NullCharPtr) {
   Writer writer;
-  EXPECT_THROW(writer.Write(nullptr), FormatError);
+  EXPECT_DEATH(writer.Write(nullptr), "");
 }
 
 TEST(Writer, NormalStdString) {
@@ -309,7 +283,7 @@ TEST(Writer, NormalStdString) {
 
 TEST(Writer, NormalCharPtr) {
   Writer writer;
-  const char* str = "Normal";
+  const auto str = "Normal";
   writer.Write(str);
   EXPECT_EQ("Normal", writer.CopyString());
 }
@@ -347,7 +321,7 @@ TEST(Writer, AppendBigStdString) {
 
 TEST(Writer, AppendBigCharPtr) {
   Writer writer;
-  const char* initial_str = "Initial";
+  const auto initial_str = "Initial";
   const string str(Writer::kStaticBufferSize, 'A');
   writer.Write(initial_str);
   writer.Write(str.c_str());
@@ -366,12 +340,12 @@ TEST(Writer, AppendBigChar) {
 
 TEST(Writer, WriteNullPtr) {
   Writer writer;
-  EXPECT_THROW(writer.Write(nullptr, 10), FormatError);
+  EXPECT_DEATH(writer.Write(nullptr, 10), "");
 }
 
 TEST(Writer, WriteZeroSize) {
   Writer writer;
-  const char* str = "Initial";
+  const auto str = "Initial";
   writer.Write(str, 0);
   EXPECT_EQ("", writer.CopyString());
 }
@@ -380,7 +354,7 @@ TEST(Writer, MoveStringStatic) {
   Writer writer;
   writer.Write("Initial");
   EXPECT_EQ("Initial", writer.MoveString());
-  EXPECT_THROW(writer.MoveString(), FormatError);
+  EXPECT_DEATH(writer.MoveString(), "");
 }
 
 TEST(Writer, MoveStringDynamic) {
@@ -388,7 +362,7 @@ TEST(Writer, MoveStringDynamic) {
   const string str(Writer::kStaticBufferSize, 'A');
   writer.Write(str);
   EXPECT_EQ(str, writer.MoveString());
-  EXPECT_THROW(writer.MoveString(), FormatError);
+  EXPECT_DEATH(writer.MoveString(), "");
 }
 
 TEST(Writer, CopyStringStatic) {
@@ -408,43 +382,43 @@ TEST(Writer, CopyStringDynamic) {
 
 TEST(HandleCharacter, SNullPtr) {
   const char* s = nullptr;
-  EXPECT_THROW(HandleCharacter('a', s), FormatError);
+  EXPECT_DEATH(HandleCharacter('a', s), "");
 }
 
 TEST(HandleCharacter, AnotherString) {
-  const char* s = "abc";
-  EXPECT_THROW(HandleCharacter('d', s), FormatError);
+  const auto* s = "abc";
+  EXPECT_DEATH(HandleCharacter('d', s), "");
 }
 
 TEST(HandleCharacter, CaseOpenOpen) {
-  const char* s = "{{";
+  const auto* s = "{{";
   EXPECT_TRUE(HandleCharacter(*s, s));
   EXPECT_STREQ("{", s);
 }
 
 TEST(HandleCharacter, CaseOpenClose) {
-  const char* s = "{}";
+  const auto* s = "{}";
   EXPECT_FALSE(HandleCharacter(*s, s));
   EXPECT_STREQ("{}", s);
 }
 
 TEST(HandleCharacter, CaseOpenOther) {
-  const char* s = "{o";
-  EXPECT_THROW(HandleCharacter(*s, s), FormatError);
+  const auto* s = "{o";
+  EXPECT_DEATH(HandleCharacter(*s, s), "");
 }
 
 TEST(HandleCharacter, CaseCloseClose) {
-  const char* s = "}}";
+  const auto* s = "}}";
   EXPECT_TRUE(HandleCharacter(*s, s));
   EXPECT_STREQ("}", s);
 }
 
 TEST(HandleCharacter, CaseCloseOther) {
-  const char* s = "}o";
-  EXPECT_THROW(HandleCharacter(*s, s), FormatError);
+  const auto* s = "}o";
+  EXPECT_DEATH(HandleCharacter(*s, s), "");
 }
 
 TEST(Format, SNullPtr) {
   Writer writer;
-  EXPECT_THROW(Format(writer, nullptr), FormatError);
+  EXPECT_DEATH(Format(writer, nullptr), "");
 }

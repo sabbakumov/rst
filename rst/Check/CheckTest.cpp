@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Sergey Abbakumov
+// Copyright (c) 2017, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,24 +25,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_FORMAT_FORMATERROR_H_
-#define RST_FORMAT_FORMATERROR_H_
+#include "rst/Check/Check.h"
 
-#include <stdexcept>
-#include <string>
+#include <gtest/gtest.h>
 
-namespace rst {
+TEST(Check, Check) {
+  EXPECT_NO_FATAL_FAILURE(RST_CHECK(true));
+  EXPECT_DEATH(RST_CHECK(false), "");
+}
 
-// The exception thrown by the library.
-class FormatError : public std::runtime_error {
- public:
-  explicit FormatError(const std::string& message);
-  explicit FormatError(const char* message);
-  FormatError(const FormatError&) = default;
-
-  ~FormatError() override;
-};
-
-}  // namespace rst
-
-#endif  // RST_FORMAT_FORMATERROR_H_
+TEST(Check, DCheck) {
+  EXPECT_NO_FATAL_FAILURE(RST_DCHECK(true));
+  EXPECT_DEATH(RST_DCHECK(false), "");
+}

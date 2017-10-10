@@ -38,9 +38,7 @@ namespace rst {
 
 namespace internal {
 
-Writer::Writer() {
-  RST_CHECK(static_buffer_.size() >= 2, FormatError);
-}
+Writer::Writer() { RST_DCHECK(static_buffer_.size() >= 2); }
 
 void Writer::Write(short val) {
   array<char, 4 * sizeof val> buffer;
@@ -100,7 +98,7 @@ void Writer::Write(long double val) {
 void Writer::Write(const string& val) { Write(val.c_str(), val.size()); }
 
 void Writer::Write(const char* val) {
-  RST_CHECK(val != nullptr, FormatError);
+  RST_DCHECK(val != nullptr);
 
   Write(val, std::strlen(val));
 }
@@ -108,7 +106,7 @@ void Writer::Write(const char* val) {
 void Writer::Write(char val) { Write(&val, 1); }
 
 void Writer::Write(const char* val, size_t len) {
-  RST_CHECK(val != nullptr, FormatError);
+  RST_DCHECK(val != nullptr);
   if (len == 0)
     return;
 
@@ -129,8 +127,7 @@ void Writer::Write(const char* val, size_t len) {
 }
 
 string Writer::MoveString() {
-  if (moved_)
-    throw FormatError("String has been already moved");
+  RST_DCHECK(!moved_ && "String has been already moved");
 
   if (is_static_buffer_) {
     string val(static_buffer_.data(), size_);

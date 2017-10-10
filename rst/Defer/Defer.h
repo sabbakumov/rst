@@ -47,14 +47,10 @@ template <class F>
 class DeferredAction : public NonCopyable, public NonMoveAssignable {
  public:
   DeferredAction() = delete;
-  explicit DeferredAction(F action) : action_(std::move(action)) {}
+  explicit DeferredAction(F&& action) : action_(std::forward<F>(action)) {}
   DeferredAction(DeferredAction&&) = default;
 
-  ~DeferredAction() {
-    try {
-      action_();
-    } catch (...) {}
-  }
+  ~DeferredAction() { action_(); }
 
  private:
   F action_;

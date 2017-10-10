@@ -27,7 +27,9 @@
 
 #include "rst/Status/Status.h"
 
-#include "rst/Cpp14/Memory.h"
+#include <utility>
+
+#include "rst/Check/Check.h"
 
 using std::string;
 
@@ -35,64 +37,63 @@ namespace rst {
 
 // Information about the error.
 struct Status::ErrorInfo {
+  // Error domain.
+  const char* error_domain = nullptr;
   // Error code.
   int error_code = 0;
   // Error message.
   std::string error_message;
 };
 
-Status::Status() : was_checked_(true) {}
+Status::Status() = default;
 
-Status::Status(int error_code, string error_message)
-    : was_checked_(false), error_info_(rst::make_unique<ErrorInfo>()) {
-  if (error_code == 0)
-    std::abort();
+Status::Status(const char* error_domain, int error_code, string error_message)
+    : error_info_(std::make_unique<ErrorInfo>()) {
+  RST_DCHECK(error_domain != nullptr);
+  RST_DCHECK(error_code != 0);
 
+  error_info_->error_domain = error_domain;
   error_info_->error_code = error_code;
   error_info_->error_message = std::move(error_message);
 }
 
-Status::Status(Status&& rhs) : was_checked_(false) {
+Status::Status(Status&& rhs) {
   error_info_ = std::move(rhs.error_info_);
-  rhs.was_checked_ = true;
+  rhs.set_was_checked(true);
 }
 
 Status& Status::operator=(Status&& rhs) {
-  if (!was_checked_)
-    std::abort();
+  RST_DCHECK(was_checked_);
 
   if (this == &rhs)
     return *this;
 
-  was_checked_ = false;
+  set_was_checked(false);
   error_info_ = std::move(rhs.error_info_);
 
-  rhs.was_checked_ = true;
+  rhs.set_was_checked(true);
 
   return *this;
 }
 
-Status::~Status() {
-  if (!was_checked_)
-    std::abort();
-}
+Status::~Status() { RST_DCHECK(was_checked_); }
 
-bool Status::operator==(const Status& rhs) const {
-  return (error_info_ == rhs.error_info_) ||
-         (error_code() == rhs.error_code() &&
-          error_message() == error_message());
-}
-
-const std::string& Status::error_message() const {
-  if (error_info_ == nullptr)
-    std::abort();
-  return error_info_->error_message;
+const char* Status::error_domain() const {
+  RST_DCHECK(was_checked_);
+  RST_DCHECK(error_info_ != nullptr);
+  return error_info_->error_domain;
 }
 
 int Status::error_code() const {
-  if (error_info_ == nullptr)
-    std::abort();
+  RST_DCHECK(was_checked_);
+  RST_DCHECK(error_info_ != nullptr);
   return error_info_->error_code;
+}
+
+const std::string& Status::error_message() const {
+  RST_DCHECK(was_checked_);
+  RST_DCHECK(error_info_ != nullptr);
+  return error_info_->error_message;
 }
 
 }  // namespace rst

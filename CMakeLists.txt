@@ -14,62 +14,58 @@ rst/Defer/Defer.h
 
 rst/Format/Format.cpp
 rst/Format/Format.h
-rst/Format/FormatError.cpp
-rst/Format/FormatError.h
 rst/Format/Writer.cpp
 rst/Format/Writer.h
 
 rst/HiddenString/HiddenString.h
 
-rst/Logger/FileNameSink.cpp
-rst/Logger/FileNameSink.h
-rst/Logger/FilePtrSink.cpp
-rst/Logger/FilePtrSink.h
-rst/Logger/ISink.h
-rst/Logger/LogError.cpp
-rst/Logger/LogError.h
-rst/Logger/Logger.cpp
-rst/Logger/Logger.h
+# rst/Logger/FileNameSink.cpp
+# rst/Logger/FileNameSink.h
+# rst/Logger/FilePtrSink.cpp
+# rst/Logger/FilePtrSink.h
+# rst/Logger/ISink.h
+# rst/Logger/LogError.cpp
+# rst/Logger/LogError.h
+# rst/Logger/Logger.cpp
+# rst/Logger/Logger.h
 
 rst/Noncopyable/Noncopyable.h
 
 rst/Optional/Optional.h
 
-rst/Result/Result.h
-
 rst/Status/Status.cpp
 rst/Status/Status.h
+rst/Status/StatusOr.h
 
 )
 
 add_executable(rst_tests
 
-rst/BuildFlag/Test.cpp
+rst/BuildFlag/BuildFlagTest.cpp
 
-rst/Check/Test.cpp
-rst/Check/NDebugTest.cpp
+rst/Check/CheckTest.cpp
+rst/Check/CheckNDebugTest.cpp
 
 rst/Test.cpp
 
-rst/Cpp14/Test.cpp
+rst/Cpp14/MemoryTest.cpp
 
-rst/Defer/Test.cpp
+rst/Defer/DeferTest.cpp
 
-rst/Format/Test.cpp
+rst/Format/FormatTest.cpp
 
-rst/HiddenString/Test.cpp
+rst/HiddenString/HiddenStringTest.cpp
 
-rst/Logger/Test.cpp
+# # rst/Logger/LoggerTest.cpp
 
-rst/Noncopyable/Test.cpp
+rst/Noncopyable/NoncopyableTest.cpp
 
-rst/Optional/Test.cpp
+rst/Optional/OptionalTest.cpp
 
-rst/Result/Test.cpp
-
-rst/Status/Test.cpp
+rst/Status/StatusOrTest.cpp
+rst/Status/StatusTest.cpp
 )
 
 TARGET_LINK_LIBRARIES(rst_tests rst pthread gtest gmock)
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -std=c++11 -g -fsanitize=address -pthread")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -std=c++14 -g -fsanitize=address -pthread")

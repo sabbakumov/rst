@@ -28,69 +28,80 @@
 #ifndef RST_STATUS_STATUS_H_
 #define RST_STATUS_STATUS_H_
 
-#include <cstdlib>
 #include <memory>
 #include <string>
-#include <utility>
+
+#include "rst/Noncopyable/Noncopyable.h"
+
+#ifndef RST_NODISCARD
+#if __cplusplus > 201402L && __has_cpp_attribute(nodiscard)
+#define RST_NODISCARD [[nodiscard]]
+#elif !__cplusplus
+#define RST_NODISCARD
+#elif __has_cpp_attribute(clang::warn_unused_result)
+#define RST_NODISCARD [[clang::warn_unused_result]]
+#else
+#define RST_NODISCARD
+#endif
+#endif  // RST_NODISCARD
 
 namespace rst {
 
 // A Google-like Status class for error handling.
-class Status {
+class RST_NODISCARD Status : public NonCopyable {
  public:
-  // Sets the object checked by default and to be OK.
-  Status();
+  static Status OK() {
+    return Status();
+  }
 
-  // Sets the object not checked by default and to be error object with error
-  // code. If the error_code is 0, aborts.
-  Status(int error_code, std::string error_message);
+  // Sets the object not checked by default and to be the error object with
+  // error domain and code. The domain should not be nullptr and error_code
+  // should not be 0.
+  Status(const char* error_domain, int error_code, std::string error_message);
 
   // Sets the object not checked by default and moves rhs content.
   Status(Status&& rhs);
 
-  Status(const Status&) = delete;
-
-  // Sets the object not checked by default and moves rhs content. If the
-  // object has not been checked, aborts.
-  Status& operator=(Status&& rhs);
-  bool operator==(const Status& rhs) const;
-
-  Status& operator=(const Status&) = delete;
-
-  // If the object has not been checked, aborts.
   ~Status();
+
+  // Sets the object not checked by default and moves rhs content.
+  Status& operator=(Status&& rhs);
 
   // Sets the object to be checked and returns whether the object is OK object.
   bool ok() {
-    was_checked_ = true;
+    set_was_checked(true);
     return error_info_ == nullptr;
   }
 
+  const char* error_domain() const;
+  int error_code() const;
   const std::string& error_message() const;
 
-  int error_code() const;
-
   // Sets the object to be checked.
-  void Ignore() { was_checked_ = true; }
+  void Ignore() { set_was_checked(true); }
 
  private:
-  // Whether the object was checked.
-  bool was_checked_;
+  template <class T>
+  friend class StatusOr;
+
+  // Sets the object not checked by default and to be OK.
+  Status();
+
+#ifndef NDEBUG
+  void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
+#else   // NDEBUG
+  void set_was_checked(bool) {}
+#endif  // NDEBUG
 
   // Information about the error. nullptr if the object is OK.
   struct ErrorInfo;
   std::unique_ptr<ErrorInfo> error_info_;
+
+#ifndef NDEBUG
+  // Whether the object was checked.
+  bool was_checked_ = false;
+#endif  // NDEBUG
 };
-
-inline Status StatusOk() { return Status(); }
-
-inline Status StatusErr(std::string error_message) {
-  return Status(-1, std::move(error_message));
-}
-
-inline Status StatusErrWithCode(int error_code, std::string error_message) {
-  return Status(error_code, std::move(error_message));
-}
 
 }  // namespace rst
 

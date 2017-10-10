@@ -44,8 +44,6 @@
 #include "LogError.h"
 #include "Logger.h"
 
-#include "rst/Cpp14/Memory.h"
-
 using std::FILE;
 using std::array;
 using std::ifstream;
@@ -88,21 +86,21 @@ class ISinkMock : public ISink {
 TEST(Logger, ConstructorNullSink) { EXPECT_THROW(Logger(nullptr), LogError); }
 
 TEST(Logger, LogNullFilename) {
-  auto sink = make_unique<ISinkMock>();
+  auto sink = std::make_unique<ISinkMock>();
   Logger logger(std::move(sink));
   EXPECT_THROW(logger.Log(Logger::Level::kDebug, nullptr, 0, "format"),
                LogError);
 }
 
 TEST(Logger, LogNullFormat) {
-  auto sink = make_unique<ISinkMock>();
+  auto sink = std::make_unique<ISinkMock>();
   Logger logger(std::move(sink));
   EXPECT_THROW(logger.Log(Logger::Level::kDebug, "filename", 0, nullptr),
                LogError);
 }
 
 TEST(Logger, Log) {
-  auto sink = make_unique<ISinkMock>();
+  auto sink = std::make_unique<ISinkMock>();
   const char* filename = "filename";
   const char* level_str = "DEBUG";
   const auto line = 10;
@@ -116,7 +114,7 @@ TEST(Logger, Log) {
 }
 
 TEST(Logger, LogSeverityLevelComparison) {
-  auto sink = make_unique<ISinkMock>();
+  auto sink = std::make_unique<ISinkMock>();
   const char* filename = "filename";
   const auto line = 10;
   const char* format = "format";
@@ -142,7 +140,7 @@ TEST(Logger, LogSeverityLevelComparison) {
 }
 
 TEST(Logger, LogSeverityLevelComparisonPass) {
-  auto sink = make_unique<ISinkMock>();
+  auto sink = std::make_unique<ISinkMock>();
   const char* filename = "filename";
   const auto line = 10;
   const char* format = "format";
@@ -181,7 +179,7 @@ TEST(Logger, LogSeverityLevelComparisonPass) {
 }
 
 TEST(Logger, LogEnumToString) {
-  auto sink = make_unique<ISinkMock>();
+  auto sink = std::make_unique<ISinkMock>();
   const char* filename = "filename";
   const auto line = 10;
   const char* format = "format";
@@ -207,7 +205,7 @@ TEST(Logger, LogEnumToString) {
 }
 
 TEST(Logger, LogEnumToStringIncorrectCases) {
-  auto sink = make_unique<ISinkMock>();
+  auto sink = std::make_unique<ISinkMock>();
   const char* filename = "filename";
   const auto line = 10;
   const char* format = "format";
@@ -221,7 +219,7 @@ TEST(Logger, LogEnumToStringIncorrectCases) {
 }
 
 TEST(Logger, LogThrow) {
-  auto sink = make_unique<ISinkMock>();
+  auto sink = std::make_unique<ISinkMock>();
   const char* filename = "filename";
   const char* level_str = "DEBUG";
   const auto line = 10;
@@ -237,7 +235,7 @@ TEST(Logger, LogThrow) {
 }
 
 TEST(Logger, Macros) {
-  auto sink = make_unique<ISinkMock>();
+  auto sink = std::make_unique<ISinkMock>();
   const char* format = "%s";
   const char* message = "message";
 
@@ -290,7 +288,7 @@ void Log(ISink& sink, const char* filename, int line,
          const char* severity_level, const char* format, ...) {
   va_list plain_args;
   unique_ptr<va_list, void (*)(va_list*)> args{
-      &plain_args, [](va_list* list) { va_end(*list); }};
+      &plain_args, [](va_list* list) -> void { va_end(*list); }};
   va_start(*args, format);
 
   sink.Log(filename, line, severity_level, format, *args);
@@ -327,14 +325,14 @@ TEST(FileNameSink, LogThreadSafe) {
 
   FileNameSink sink(filename, std::move(prologue_format));
 
-  thread t1([&sink]() {
+  thread t1([&sink]() -> void {
     std::this_thread::yield();
     Log(sink, "filename", 10, "level", "%s", "Message");
   });
-  thread t2([&sink]() {
+  thread t2([&sink]() -> void {
     Log(sink, "filename2", 20, "level2", "%s%d", "Message", 2);
   });
-  thread t3([&sink]() {
+  thread t3([&sink]() -> void {
     Log(sink, "filename3", 30, "level3", "%s%d", "Message", 3);
   });
 
@@ -454,14 +452,14 @@ TEST(FilePtrSink, LogThreadSafe) {
 
   FilePtrSink sink(file, std::move(prologue_format));
 
-  thread t1([&sink]() {
+  thread t1([&sink]() -> void {
     std::this_thread::yield();
     Log(sink, "filename", 10, "level", "%s", "Message");
   });
-  thread t2([&sink]() {
+  thread t2([&sink]() -> void {
     Log(sink, "filename2", 20, "level2", "%s%d", "Message", 2);
   });
-  thread t3([&sink]() {
+  thread t3([&sink]() -> void {
     Log(sink, "filename3", 30, "level3", "%s%d", "Message", 3);
   });
 

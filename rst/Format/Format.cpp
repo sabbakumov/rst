@@ -32,8 +32,8 @@ namespace rst {
 namespace internal {
 
 bool HandleCharacter(char c, const char*& s) {
-  RST_CHECK(s != nullptr, FormatError);
-  RST_CHECK(c == *s, FormatError);
+  RST_DCHECK(s != nullptr);
+  RST_DCHECK(c == *s);
 
   switch (c) {
     case '{': {
@@ -46,7 +46,7 @@ bool HandleCharacter(char c, const char*& s) {
         case '}': {
           return false;
         }
-        default: { throw FormatError("Invalid format string"); }
+        default: { RST_DCHECK(false && "Invalid format string"); }
       }
       break;
     }
@@ -57,7 +57,7 @@ bool HandleCharacter(char c, const char*& s) {
           s++;
           break;
         }
-        default: { throw FormatError("Unmatched '}' in format string"); }
+        default: { RST_DCHECK(false && "Unmatched '}' in format string"); }
       }
       break;
     }
@@ -66,11 +66,12 @@ bool HandleCharacter(char c, const char*& s) {
 }
 
 void Format(Writer& writer, const char* s) {
-  RST_CHECK(s != nullptr, FormatError);
+  RST_DCHECK(s != nullptr);
 
-  for (char c; (c = *s) != '\0'; s++) {
-    if (!HandleCharacter(c, s))
-      throw FormatError("Argument index out of range");
+  for (auto c = '\0'; (c = *s) != '\0'; s++) {
+    const auto result = HandleCharacter(c, s);
+    RST_DCHECK(result && "Argument index out of range");
+    (void)result;
     writer.Write(c);
   }
 }

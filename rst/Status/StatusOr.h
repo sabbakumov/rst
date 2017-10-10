@@ -25,13 +25,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_OPTIONAL_OPTIONAL_H_
-#define RST_OPTIONAL_OPTIONAL_H_
+#ifndef RST_STATUS_STATUSOR_H_
+#define RST_STATUS_STATUSOR_H_
 
 #include <new>
 #include <utility>
 
 #include "rst/Check/Check.h"
+#include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Status/Status.h"
 
 #ifndef RST_NODISCARD
 #if __cplusplus > 201402L && __has_cpp_attribute(nodiscard)
@@ -47,123 +49,124 @@
 
 namespace rst {
 
-struct NoneType {
-  constexpr NoneType(int) {}
-};
-constexpr NoneType None(0);
-
-// A Boost-like optional.
 template <class T>
-class RST_NODISCARD Optional {
+class RST_NODISCARD StatusOr : public NonCopyable {
  public:
-  // Allows implicit conversion from T.
-  Optional(const T& value) : value_(value), is_valid_(true) {}
-  // Allows implicit conversion from T.
-  Optional(T&& value) : value_(std::move(value)), is_valid_(true) {}
+  StatusOr() = delete;
 
-  Optional(const Optional& rhs) : is_valid_(rhs.is_valid_) {
-    if (is_valid_)
-      Construct(rhs.value_);
-  }
-
-  Optional(Optional&& rhs) : is_valid_(rhs.is_valid_) {
-    if (is_valid_)
+  StatusOr(StatusOr&& rhs) : status_(std::move(rhs.status_)) {
+    if (status_.error_info_ == nullptr)
       Construct(std::move(rhs.value_));
+    rhs.set_was_checked(true);
   }
 
-  // Allows implicit conversion from NoneType.
-  Optional(const NoneType&) : is_valid_(false) {}
+  StatusOr(const T& value) { Construct(value); }
 
-  Optional() : is_valid_(false) {}
+  StatusOr(T&& value) { Construct(std::move(value)); }
 
-  ~Optional() {
-    if (is_valid_)
+  StatusOr(Status status) : status_(std::move(status)) {
+    RST_DCHECK(status_.error_info_ != nullptr);
+  }
+
+  ~StatusOr() {
+    RST_DCHECK(was_checked_);
+
+    if (status_.error_info_ == nullptr)
       Destruct();
   }
 
-  Optional& operator=(const T& value) {
-    if (is_valid_)
+  StatusOr& operator=(StatusOr&& rhs) {
+    RST_DCHECK(was_checked_);
+
+    if (this == &rhs)
+      return *this;
+
+    if (status_.error_info_ == nullptr)
       Destruct();
+
+    status_ = std::move(rhs.status_);
+
+    if (status_.error_info_ == nullptr)
+      Construct(std::move(rhs.value_));
+
+    set_was_checked(false);
+    rhs.set_was_checked(true);
+
+    return *this;
+  }
+
+  StatusOr& operator=(const T& value) {
+    RST_DCHECK(was_checked_);
+
+    if (status_.error_info_ == nullptr)
+      Destruct();
+
+    status_ = Status::OK();
 
     Construct(value);
-    is_valid_ = true;
+
     set_was_checked(false);
 
     return *this;
   }
 
-  Optional& operator=(T&& value) {
-    if (is_valid_)
+  StatusOr& operator=(T&& value) {
+    RST_DCHECK(was_checked_);
+
+    if (status_.error_info_ == nullptr)
       Destruct();
+
+    status_ = Status::OK();
 
     Construct(std::move(value));
-    is_valid_ = true;
+
     set_was_checked(false);
 
     return *this;
   }
 
-  Optional& operator=(const Optional& rhs) {
-    if (this == &rhs)
-      return *this;
+  StatusOr& operator=(Status status) {
+    RST_DCHECK(was_checked_);
+    RST_DCHECK(status.error_info_ != nullptr);
 
-    if (is_valid_)
+    if (status.error_info_ == nullptr)
       Destruct();
 
-    if (rhs.is_valid_) {
-      Construct(rhs.value_);
-      is_valid_ = true;
-    } else {
-      is_valid_ = false;
-    }
+    status_ = std::move(status);
     set_was_checked(false);
 
     return *this;
   }
 
-  Optional& operator=(Optional&& rhs) {
-    if (this == &rhs)
-      return *this;
-
-    if (is_valid_)
-      Destruct();
-
-    if (rhs.is_valid_) {
-      Construct(std::move(rhs.value_));
-      is_valid_ = true;
-    } else {
-      is_valid_ = false;
-    }
-    set_was_checked(false);
-
-    return *this;
-  }
-
-  Optional& operator=(const NoneType&) {
-    if (is_valid_)
-      Destruct();
-
-    is_valid_ = false;
-    set_was_checked(false);
-
-    return *this;
+  bool ok() {
+    set_was_checked(true);
+    return status_.ok();
   }
 
   T& operator*() {
     RST_DCHECK(was_checked_);
-    RST_DCHECK(is_valid_);
+    RST_DCHECK(status_.error_info_ == nullptr);
+
     return value_;
   }
 
   T* operator->() {
     RST_DCHECK(was_checked_);
-    RST_DCHECK(is_valid_);
+    RST_DCHECK(status_.error_info_ == nullptr);
+
     return &value_;
   }
 
-  operator bool() {
+  Status& status() {
+    RST_DCHECK(was_checked_);
+    RST_DCHECK(status_.error_info_ != nullptr);
+
+    return status_;
+  }
+
+  void Ignore() {
     set_was_checked(true);
-    return is_valid_;
+    status_.set_was_checked(true);
   }
 
  private:
@@ -182,8 +185,8 @@ class RST_NODISCARD Optional {
   union {
     T value_;
   };
+  Status status_;
 
-  bool is_valid_ : 1;
 #ifndef NDEBUG
   bool was_checked_ = false;
 #endif  // NDEBUG
@@ -191,4 +194,4 @@ class RST_NODISCARD Optional {
 
 }  // namespace rst
 
-#endif  // RST_OPTIONAL_OPTIONAL_H_
+#endif  // RST_STATUS_STATUSOR_H_

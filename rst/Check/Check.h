@@ -29,19 +29,14 @@
 #define RST_CHECK_CHECK_H_
 
 #include <cassert>
-
-#define RST_CHECK_INTERNAL_STRINGIFY2(x) #x
-#define RST_CHECK_INTERNAL_STRINGIFY(x) RST_CHECK_INTERNAL_STRINGIFY2(x)
+#include <cstdlib>
 
 #define RST_DCHECK(condition) assert(condition)
 
-#define RST_CHECK(condition, exception_type)                               \
-  do {                                                                     \
-    (condition)                                                            \
-        ? static_cast<void>(0)                                             \
-        : throw exception_type(                                            \
-              "Runtime failure at " __FILE__                               \
-              ":" RST_CHECK_INTERNAL_STRINGIFY(__LINE__) ". " #condition); \
+#define RST_CHECK(condition) \
+  do {                       \
+    if (!(condition))        \
+      std::abort();          \
   } while (false)
 
 #endif  // RST_CHECK_CHECK_H_

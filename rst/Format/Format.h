@@ -32,7 +32,6 @@
 #include <utility>
 
 #include "rst/Check/Check.h"
-#include "rst/Format/FormatError.h"
 #include "rst/Format/Writer.h"
 
 namespace rst {
@@ -49,11 +48,10 @@ void Format(Writer& writer, const char* s);
 template <class T, class... Args>
 inline void Format(Writer& writer, const char* s, const T& value,
                    Args&&... args) {
-  RST_CHECK(s != nullptr, FormatError);
+  RST_DCHECK(s != nullptr);
 
   auto c = *s;
-  if (c == '\0')
-    throw FormatError("Extra arguments");
+  RST_DCHECK(c != '\0' && "Extra arguments");
   for (; (c = *s) != '\0'; s++) {
     if (!HandleCharacter(c, s)) {
       writer.Write(value);
@@ -70,7 +68,7 @@ inline void Format(Writer& writer, const char* s, const T& value,
 // A wrapper around Format recursive functions.
 template <class... Args>
 inline std::string format(const char* s, Args&&... args) {
-  RST_CHECK(s != nullptr, FormatError);
+  RST_DCHECK(s != nullptr);
   internal::Writer writer;
   Format(writer, s, std::forward<Args>(args)...);
   return writer.MoveString();
@@ -82,7 +80,7 @@ namespace internal {
 class Formatter {
  public:
   explicit Formatter(const char* str) : str_(str) {
-    RST_CHECK(str_ != nullptr, FormatError);
+    RST_DCHECK(str_ != nullptr);
   }
 
   template <class... Args>
@@ -100,7 +98,7 @@ namespace literals {
 
 // User defined literals.
 inline internal::Formatter operator"" _format(const char* s, size_t) {
-  RST_CHECK(s != nullptr, FormatError);
+  RST_DCHECK(s != nullptr);
   return internal::Formatter(s);
 }
 

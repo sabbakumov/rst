@@ -51,7 +51,7 @@ void Logger::Log(Level level, const char* filename, int line,
 
   va_list plain_args;
   unique_ptr<va_list, void (*)(va_list*)> args{
-      &plain_args, [](va_list* list) { va_end(*list); }};
+      &plain_args, [](va_list* list) -> void { va_end(*list); }};
   va_start(*args, format);
 
   const char* level_str = nullptr;

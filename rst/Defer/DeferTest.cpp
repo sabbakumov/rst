@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Sergey Abbakumov
+// Copyright (c) 2017, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,15 +25,43 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Format/FormatError.h"
+#include <string>
 
-using std::runtime_error;
+#include "Defer.h"
+
+#include <gtest/gtest.h>
+
 using std::string;
 
-namespace rst {
+namespace {
 
-FormatError::FormatError(const string& message) : runtime_error(message) {}
-FormatError::FormatError(const char* message) : runtime_error(message) {}
-FormatError::~FormatError() = default;
+auto g_int = 0;
 
-}  // namespace rst
+}  // namespace
+
+TEST(Defer, Lambda) {
+  auto i = 0;
+  {
+    RST_DEFER([&i]() { i = 1; });
+  }
+
+  EXPECT_EQ(1, i);
+}
+
+void Foo() { g_int = 1; }
+
+TEST(Defer, Function) {
+  { RST_DEFER(Foo); }
+
+  EXPECT_EQ(1, g_int);
+}
+
+TEST(Defer, MultipleTimesDeclaration) {
+  string result;
+  {
+    RST_DEFER([&result]() { result += '1'; });
+    RST_DEFER([&result]() { result += '2'; });
+  }
+
+  EXPECT_EQ("21", result);
+}

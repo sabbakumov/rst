@@ -32,90 +32,68 @@
 #include <gtest/gtest.h>
 
 using rst::Status;
-using rst::StatusErr;
-using rst::StatusErrWithCode;
-using rst::StatusOk;
 using std::unique_ptr;
 
-TEST(Status, EmptyConstructor) {
-  Status status;
+namespace {
+
+constexpr const char* kDomain = "Domain";
+
+}  // namespace
+
+TEST(Status, OK) {
+  auto status = Status::OK();
   EXPECT_TRUE(status.ok());
+
+  EXPECT_DEATH(Status::OK(), "");
 }
 
 TEST(Status, Constructor) {
-  Status status(-1, "Message");
+  Status status(kDomain, -1, "Message");
+  ASSERT_FALSE(status.ok());
+  EXPECT_EQ(kDomain, status.error_domain());
   EXPECT_EQ(-1, status.error_code());
-  EXPECT_FALSE(status.ok());
+  EXPECT_EQ("Message", status.error_message());
 
-  unique_ptr<Status> status2;
-  EXPECT_DEATH((status2.reset(new Status(0, "Message"))), "");
-
-  Status ok = StatusOk();
-  EXPECT_DEATH(ok.error_code(), "");
-  EXPECT_DEATH(ok.error_message(), "");
-  EXPECT_TRUE(ok.ok());
-
-  Status err = StatusErr("Message");
-  EXPECT_EQ(-1, err.error_code());
-  EXPECT_FALSE(err.ok());
-
-  Status err2 = StatusErrWithCode(-2, "Message");
-  EXPECT_EQ(-2, err2.error_code());
-  EXPECT_FALSE(err2.ok());
+  EXPECT_DEATH((Status(nullptr, -1, "Message")), "");
+  EXPECT_DEATH((Status(kDomain, 0, "Message")), "");
 }
 
 TEST(Status, MoveConstructor) {
-  Status status(-1, "Message");
+  Status status(kDomain, -1, "Message");
   Status status2(std::move(status));
+  ASSERT_FALSE(status2.ok());
+  EXPECT_EQ(kDomain, status2.error_domain());
   EXPECT_EQ(-1, status2.error_code());
-  EXPECT_FALSE(status2.ok());
+  EXPECT_EQ("Message", status2.error_message());
 }
 
 TEST(Status, MoveAssignment) {
-  Status status(-1, "Message");
-  Status status2;
-  Status& ref = status2 = std::move(status);
+  Status status(kDomain, -1, "Message");
+  auto status2 = Status::OK();
+  status2.Ignore();
+  status2 = std::move(status);
+  ASSERT_FALSE(status2.ok());
+  EXPECT_EQ(kDomain, status2.error_domain());
   EXPECT_EQ(-1, status2.error_code());
-  EXPECT_FALSE(status2.ok());
-  EXPECT_EQ(&ref, &status2);
+  EXPECT_EQ("Message", status2.error_message());
 
-  status2 = Status(-1, "Message");
+  status2 = Status(kDomain, -1, "Message");
   EXPECT_DEATH(status2 = std::move(status), "");
   status2.Ignore();
 }
 
-TEST(Status, ErrorMessage) {
-  Status status(-1, "Message");
+TEST(Status, Dtor) { EXPECT_DEATH((Status(kDomain, -1, "Message")), ""); }
+
+TEST(Status, ErrorInfo) {
+  auto status = Status::OK();
+  EXPECT_DEATH(status.error_domain(), "");
+  EXPECT_DEATH(status.error_code(), "");
+  EXPECT_DEATH(status.error_message(), "");
   status.Ignore();
 
-  EXPECT_EQ("Message", status.error_message());
-}
-
-TEST(Status, OperatorEquals) {
-  Status status;
-  Status status2;
-
-  EXPECT_TRUE(status == status2);
-
-  status = StatusErrWithCode(-1, "Status 1");
-  status.Ignore();
-
-  status2 = StatusErrWithCode(-1, "Status 2");
-  status2.Ignore();
-
-  EXPECT_TRUE(status == status2);
-
-  status = StatusErrWithCode(-2, "Status 1");
-  status.Ignore();
-
-  status2 = StatusErrWithCode(-1, "Status 1");
-  status2.Ignore();
-
-  EXPECT_FALSE(status == status2);
-}
-
-TEST(Status, Nothing) { Status status; }
-
-TEST(Status, Dtor) {
-  EXPECT_DEATH((Status(-1, "Message")), "");
+  auto status2 = Status::OK();
+  EXPECT_TRUE(status2.ok());
+  EXPECT_DEATH(status.error_domain(), "");
+  EXPECT_DEATH(status.error_code(), "");
+  EXPECT_DEATH(status.error_message(), "");
 }

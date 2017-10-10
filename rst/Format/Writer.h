@@ -35,7 +35,6 @@
 #include <type_traits>
 
 #include "rst/Check/Check.h"
-#include "rst/Format/FormatError.h"
 
 namespace rst {
 
@@ -54,13 +53,14 @@ class Writer {
   template <class T>
   void FormatAndWrite(char* str, size_t size, const char* format, T val) {
     static_assert(std::is_arithmetic<T>::value, "Not an arithmetic type");
-    RST_CHECK(str != nullptr, FormatError);
-    RST_CHECK(format != nullptr, FormatError);
+    RST_DCHECK(str != nullptr);
+    RST_DCHECK(format != nullptr);
     if (size <= 1)
       return;
 
     const auto bytes_written = std::snprintf(str, size, format, val);
-    RST_CHECK(bytes_written >= 0, FormatError);
+    RST_DCHECK(bytes_written >= 0);
+    (void)bytes_written;
 
     Write(str, std::min(static_cast<size_t>(bytes_written), size - 1));
   }

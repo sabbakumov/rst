@@ -26,20 +26,17 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #undef NDEBUG
+#define NDEBUG
 #include "rst/Check/Check.h"
-
-#include <stdexcept>
 
 #include <gtest/gtest.h>
 
-using std::runtime_error;
-
-TEST(Check, Check) {
-  EXPECT_NO_THROW(RST_CHECK(true, runtime_error));
-  EXPECT_THROW(RST_CHECK(false, runtime_error), runtime_error);
+TEST(NDebugCheck, Check) {
+  EXPECT_NO_FATAL_FAILURE(RST_CHECK(true));
+  EXPECT_DEATH(RST_CHECK(false), "");
 }
 
-TEST(Check, DCheck) {
+TEST(NDebugCheck, DCheck) {
   EXPECT_NO_FATAL_FAILURE(RST_DCHECK(true));
-  EXPECT_DEATH(RST_DCHECK(false), "");
+  EXPECT_NO_FATAL_FAILURE(RST_DCHECK(false));
 }
