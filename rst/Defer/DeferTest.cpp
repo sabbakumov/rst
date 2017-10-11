@@ -25,9 +25,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <string>
+#include "rst/Defer/Defer.h"
 
-#include "Defer.h"
+#include <string>
 
 #include <gtest/gtest.h>
 
@@ -36,6 +36,8 @@ using std::string;
 namespace {
 
 auto g_int = 0;
+
+void Foo() { g_int = 1; }
 
 }  // namespace
 
@@ -47,8 +49,6 @@ TEST(Defer, Lambda) {
 
   EXPECT_EQ(1, i);
 }
-
-void Foo() { g_int = 1; }
 
 TEST(Defer, Function) {
   { RST_DEFER(Foo); }

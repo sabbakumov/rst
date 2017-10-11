@@ -71,7 +71,7 @@ inline std::string format(const char* s, Args&&... args) {
   RST_DCHECK(s != nullptr);
   internal::Writer writer;
   Format(writer, s, std::forward<Args>(args)...);
-  return writer.MoveString();
+  return writer.TakeString();
 }
 
 namespace internal {

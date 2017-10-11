@@ -41,9 +41,9 @@ using rst::StatusOr;
 
 namespace {
 
-constexpr const char* kStringValue = "String value for testing StatusOr";
+constexpr auto kStringValue = "String value for testing StatusOr";
 
-constexpr const char* kDomain = "Domain";
+constexpr auto kDomain = "Domain";
 
 class DtorHelper {
  public:
@@ -213,7 +213,7 @@ TEST(StatusOr, OperatorEquals) {
   }
 }
 
-TEST(StatusOr, CopyOperatorEquals) {
+TEST(StatusOr, MoveOperatorEquals) {
   {
     StatusOr<int> status_or = 8;
     ASSERT_TRUE(status_or.ok());

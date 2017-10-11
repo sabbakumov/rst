@@ -36,7 +36,7 @@ using std::unique_ptr;
 
 namespace {
 
-constexpr const char* kDomain = "Domain";
+constexpr auto kDomain = "Domain";
 
 }  // namespace
 
@@ -47,7 +47,7 @@ TEST(Status, OK) {
   EXPECT_DEATH(Status::OK(), "");
 }
 
-TEST(Status, Constructor) {
+TEST(Status, Ctor) {
   Status status(kDomain, -1, "Message");
   ASSERT_FALSE(status.ok());
   EXPECT_EQ(kDomain, status.error_domain());
@@ -58,7 +58,7 @@ TEST(Status, Constructor) {
   EXPECT_DEATH((Status(kDomain, 0, "Message")), "");
 }
 
-TEST(Status, MoveConstructor) {
+TEST(Status, MoveCtor) {
   Status status(kDomain, -1, "Message");
   Status status2(std::move(status));
   ASSERT_FALSE(status2.ok());

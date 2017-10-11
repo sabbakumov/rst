@@ -25,6 +25,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "rst/Logger/FileNameSink.h"
+#include "rst/Logger/FilePtrSink.h"
+#include "rst/Logger/ISink.h"
+#include "rst/Logger/LogError.h"
+#include "rst/Logger/Logger.h"
+
 #include <array>
 #include <cstdarg>
 #include <cstdio>
@@ -37,12 +43,6 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
-#include "FileNameSink.h"
-#include "FilePtrSink.h"
-#include "ISink.h"
-#include "LogError.h"
-#include "Logger.h"
 
 using std::FILE;
 using std::array;

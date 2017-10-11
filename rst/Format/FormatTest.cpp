@@ -25,11 +25,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "rst/Format/Format.h"
+
 #include <array>
 #include <limits>
 #include <string>
-
-#include "rst/Format/Format.h"
 
 #include <gtest/gtest.h>
 
@@ -64,7 +64,7 @@ TEST(FormatterTest, UnmatchedBraces) {
   EXPECT_DEATH(format("{0{}"), "");
 }
 
-TEST(FormatterTest, UnmatchedBraces2) {
+TEST(FormatterTest, UnmatchedBracesWithArgs) {
   EXPECT_DEATH(format("{", 1), "");
 
   EXPECT_DEATH(format("}", 1), "");
@@ -94,7 +94,7 @@ TEST(FormatterTest, ArgErrors) {
   EXPECT_DEATH(format("{}"), "");
 }
 
-TEST(FormatterTest, ArgErrors2) {
+TEST(FormatterTest, ArgErrorsWithArgs) {
   EXPECT_DEATH(format("{", 1), "");
 
   EXPECT_DEATH(format("{?}", 1), "");
@@ -112,7 +112,7 @@ TEST(FormatTest, MaxArgs) {
 
 TEST(FormatTest, ExtraArgument) { EXPECT_DEATH(format("", 1), ""); }
 
-TEST(Literals, Commong) {
+TEST(Literals, Common) {
   EXPECT_EQ("", ""_format());
   EXPECT_EQ("1234 Hello, world",
             "{} {}, {}{}{}"_format(1234, "Hello", "wor", 'l', 'd'));
@@ -121,7 +121,7 @@ TEST(Literals, Commong) {
 TEST(Writer, DefaultCtor) {
   Writer writer;
   EXPECT_EQ("", writer.CopyString());
-  EXPECT_EQ("", writer.MoveString());
+  EXPECT_EQ("", writer.TakeString());
 }
 
 TEST(Writer, FormatAndWriteNullStr) {
@@ -176,17 +176,17 @@ TEST(FormatTemplate, SNullPtr) {
 }
 
 TEST(Writer, Numbers) {
-  const short short_val = 0;
-  const int int_val = 1;
-  const long long_val = 2;
-  const long long long_long_val = 3;
-  const unsigned short unsigned_short_val = 4;
-  const unsigned int unsigned_int_val = 5;
-  const unsigned long unsigned_long_val = 6;
-  const unsigned long long unsigned_long_long_val = 7;
-  const float float_val = 8.0f;
-  const double double_val = 9.0;
-  const long double long_double_val = 10.0;
+  static constexpr short short_val = 0;
+  static constexpr int int_val = 1;
+  static constexpr long long_val = 2;
+  static constexpr long long long_long_val = 3;
+  static constexpr unsigned short unsigned_short_val = 4;
+  static constexpr unsigned int unsigned_int_val = 5;
+  static constexpr unsigned long unsigned_long_val = 6;
+  static constexpr unsigned long long unsigned_long_long_val = 7;
+  static constexpr float float_val = 8.0f;
+  static constexpr double double_val = 9.0;
+  static constexpr long double long_double_val = 10.0L;
 
   Writer writer;
   writer.Write(short_val);
@@ -264,7 +264,7 @@ TEST(Writer, EmptyStdString) {
 
 TEST(Writer, EmptyCharPtr) {
   Writer writer;
-  const auto str = "";
+  static constexpr auto str = "";
   writer.Write(str);
   EXPECT_EQ("", writer.CopyString());
 }
@@ -283,14 +283,14 @@ TEST(Writer, NormalStdString) {
 
 TEST(Writer, NormalCharPtr) {
   Writer writer;
-  const auto str = "Normal";
+  static constexpr auto str = "Normal";
   writer.Write(str);
   EXPECT_EQ("Normal", writer.CopyString());
 }
 
 TEST(Writer, NormalChar) {
   Writer writer;
-  const auto c = 'C';
+  static constexpr auto c = 'C';
   writer.Write(c);
   EXPECT_EQ("C", writer.CopyString());
 }
@@ -321,7 +321,7 @@ TEST(Writer, AppendBigStdString) {
 
 TEST(Writer, AppendBigCharPtr) {
   Writer writer;
-  const auto initial_str = "Initial";
+  static constexpr auto initial_str = "Initial";
   const string str(Writer::kStaticBufferSize, 'A');
   writer.Write(initial_str);
   writer.Write(str.c_str());
@@ -333,7 +333,7 @@ TEST(Writer, AppendBigChar) {
   Writer writer;
   const string str(Writer::kStaticBufferSize, 'A');
   writer.Write(str);
-  const auto c = 'C';
+  static constexpr auto c = 'C';
   writer.Write(c);
   EXPECT_EQ(str + c, writer.CopyString());
 }
@@ -345,24 +345,24 @@ TEST(Writer, WriteNullPtr) {
 
 TEST(Writer, WriteZeroSize) {
   Writer writer;
-  const auto str = "Initial";
+  static constexpr auto str = "Initial";
   writer.Write(str, 0);
   EXPECT_EQ("", writer.CopyString());
 }
 
-TEST(Writer, MoveStringStatic) {
+TEST(Writer, TakeStringStatic) {
   Writer writer;
   writer.Write("Initial");
-  EXPECT_EQ("Initial", writer.MoveString());
-  EXPECT_DEATH(writer.MoveString(), "");
+  EXPECT_EQ("Initial", writer.TakeString());
+  EXPECT_DEATH(writer.TakeString(), "");
 }
 
-TEST(Writer, MoveStringDynamic) {
+TEST(Writer, TakeStringDynamic) {
   Writer writer;
   const string str(Writer::kStaticBufferSize, 'A');
   writer.Write(str);
-  EXPECT_EQ(str, writer.MoveString());
-  EXPECT_DEATH(writer.MoveString(), "");
+  EXPECT_EQ(str, writer.TakeString());
+  EXPECT_DEATH(writer.TakeString(), "");
 }
 
 TEST(Writer, CopyStringStatic) {
@@ -386,35 +386,35 @@ TEST(HandleCharacter, SNullPtr) {
 }
 
 TEST(HandleCharacter, AnotherString) {
-  const auto* s = "abc";
+  auto s = "abc";
   EXPECT_DEATH(HandleCharacter('d', s), "");
 }
 
 TEST(HandleCharacter, CaseOpenOpen) {
-  const auto* s = "{{";
+  auto s = "{{";
   EXPECT_TRUE(HandleCharacter(*s, s));
   EXPECT_STREQ("{", s);
 }
 
 TEST(HandleCharacter, CaseOpenClose) {
-  const auto* s = "{}";
+  auto s = "{}";
   EXPECT_FALSE(HandleCharacter(*s, s));
   EXPECT_STREQ("{}", s);
 }
 
 TEST(HandleCharacter, CaseOpenOther) {
-  const auto* s = "{o";
+  auto s = "{o";
   EXPECT_DEATH(HandleCharacter(*s, s), "");
 }
 
 TEST(HandleCharacter, CaseCloseClose) {
-  const auto* s = "}}";
+  auto s = "}}";
   EXPECT_TRUE(HandleCharacter(*s, s));
   EXPECT_STREQ("}", s);
 }
 
 TEST(HandleCharacter, CaseCloseOther) {
-  const auto* s = "}o";
+  auto s = "}o";
   EXPECT_DEATH(HandleCharacter(*s, s), "");
 }
 

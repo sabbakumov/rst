@@ -88,18 +88,24 @@ class Writer {
 
   // Returns a string of either static or dynamic buffer. If it's dynamic buffer
   // performs a move operation, so it's no longer valid to write to the Writer.
-  std::string MoveString();
+  std::string TakeString();
 
   // Returns a string of either static or dynamic buffer. It's valid to write to
   // the Writer more data.
   std::string CopyString() const;
 
  private:
+#ifndef NDEBUG
+  void set_moved() { moved_ = true; }
+
+  // Whether we moved the writer via TakeString().
+  bool moved_ = false;
+#else   // NDEBUG
+  void set_moved() {}
+#endif  // NDEBUG
+
   // Whether we use static or dynamic buffer.
   bool is_static_buffer_ = true;
-
-  // Whether we moved the writer via MoveString().
-  bool moved_ = false;
 
   // The current size of the static_buffer_.
   size_t size_ = 0;

@@ -72,7 +72,7 @@ class RST_NODISCARD Optional {
   }
 
   // Allows implicit conversion from NoneType.
-  Optional(const NoneType&) : is_valid_(false) {}
+  Optional(NoneType) : is_valid_(false) {}
 
   Optional() : is_valid_(false) {}
 
@@ -139,7 +139,7 @@ class RST_NODISCARD Optional {
     return *this;
   }
 
-  Optional& operator=(const NoneType&) {
+  Optional& operator=(NoneType) {
     if (is_valid_)
       Destruct();
 

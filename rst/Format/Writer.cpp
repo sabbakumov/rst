@@ -126,16 +126,16 @@ void Writer::Write(const char* val, size_t len) {
   }
 }
 
-string Writer::MoveString() {
+string Writer::TakeString() {
   RST_DCHECK(!moved_ && "String has been already moved");
 
   if (is_static_buffer_) {
     string val(static_buffer_.data(), size_);
-    moved_ = true;
+    set_moved();
     return val;
   }
 
-  moved_ = true;
+  set_moved();
   return std::move(dynamic_buffer_);
 }
 
