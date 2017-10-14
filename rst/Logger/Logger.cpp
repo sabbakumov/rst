@@ -27,32 +27,43 @@
 
 #include "rst/Logger/Logger.h"
 
-#include <cassert>
 #include <cstdarg>
+#include <cstdlib>
+#include <utility>
 
 #include "rst/Check/Check.h"
+#include "rst/Defer/Defer.h"
+#include "rst/Logger/ISink.h"
 #include "rst/Logger/LogError.h"
 
 using std::unique_ptr;
 
 namespace rst {
 
+namespace {
+
+Logger* g_logger = nullptr;
+
+}  // namespace
+
 Logger::Logger(unique_ptr<ISink> sink) : sink_(std::move(sink)) {
-  RST_CHECK(sink_ != nullptr, LogError);
+  RST_DCHECK(sink_ != nullptr);
 }
 
+// static
 void Logger::Log(Level level, const char* filename, int line,
                  const char* format, ...) {
-  RST_CHECK(filename != nullptr, LogError);
-  RST_CHECK(format != nullptr, LogError);
+  RST_DCHECK(g_logger != nullptr);
+  RST_DCHECK(filename != nullptr);
+  RST_DCHECK(line > 0);
+  RST_DCHECK(format != nullptr);
 
-  if (static_cast<int>(level) < static_cast<int>(level_))
+  if (static_cast<int>(level) < static_cast<int>(g_logger->level_))
     return;
 
-  va_list plain_args;
-  unique_ptr<va_list, void (*)(va_list*)> args{
-      &plain_args, [](va_list* list) -> void { va_end(*list); }};
-  va_start(*args, format);
+  va_list args;
+  va_start(args, format);
+  RST_DEFER([&args]() -> void { va_end(args); });
 
   const char* level_str = nullptr;
   switch (level) {
@@ -76,11 +87,22 @@ void Logger::Log(Level level, const char* filename, int line,
       level_str = "FATAL";
       break;
     }
-    default: { throw LogError("Unexpected level"); }
+    default: { RST_DCHECK(false && "Unexpected level"); }
   }
   RST_DCHECK(level_str != nullptr);
 
-  sink_->Log(filename, line, level_str, format, *args);
+  g_logger->sink_->Log(filename, line, level_str, format, args);
+
+  if (level == Level::kFatal) {
+    g_logger->sink_.reset();
+    std::abort();
+  }
+}
+
+// static
+void Logger::SetLogger(Logger* logger) {
+  RST_DCHECK(logger != nullptr);
+  g_logger = logger;
 }
 
 }  // namespace rst

@@ -37,16 +37,19 @@
 
 namespace rst {
 
-// The class for sinking to a file by its filename.
-class FileNameSink : public ISink {
- public:
-  // Opens a filename for writing.
-  FileNameSink(const std::string& filename, std::string prologue_format);
-  // Thread safe logging function.
-  void Log(const char* filename, int line, const char* severity_level,
-           const char* format, va_list args) override;
+class Status;
 
- private:
+template <class T>
+class StatusOr;
+
+class FileNameSinkData {
+ public:
+  explicit FileNameSinkData(std::string prologue_format);
+
+  FileNameSinkData(FileNameSinkData&&) = default;
+  FileNameSinkData& operator=(FileNameSinkData&&) = default;
+
+ protected:
   // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
       nullptr, [](std::FILE* f) -> void {
@@ -57,6 +60,27 @@ class FileNameSink : public ISink {
   // Prologue printf-like format for filename, line in a file and severity
   // level.
   std::string prologue_format_;
+};
+
+// The class for sinking to a file by its filename.
+class FileNameSink : public ISink, public FileNameSinkData {
+ public:
+  // Opens a filename for writing.
+  static StatusOr<FileNameSink> Create(const std::string& filename,
+                                       std::string prologue_format);
+
+  FileNameSink(FileNameSink&& rhs);
+
+  FileNameSink& operator=(FileNameSink&& rhs);
+
+  // Thread safe logging function.
+  void Log(const char* filename, int line, const char* severity_level,
+           const char* format, va_list args) override;
+
+ private:
+  // Opens a filename for writing.
+  FileNameSink(const std::string& filename, std::string prologue_format,
+               Status& status);
 
   // Mutex for thread-safe Log function.
   std::mutex mutex_;

@@ -27,43 +27,84 @@
 
 #include "rst/Logger/FileNameSink.h"
 
+#include <utility>
+
 #include "rst/Check/Check.h"
+#include "rst/Format/Format.h"
 #include "rst/Logger/LogError.h"
+#include "rst/Status/Status.h"
+#include "rst/Status/StatusOr.h"
 
 using std::mutex;
 using std::string;
 using std::unique_lock;
 
+using namespace rst::literals;
+
 namespace rst {
 
-FileNameSink::FileNameSink(const string& filename, string prologue_format)
-    : prologue_format_(std::move(prologue_format)) {
+FileNameSinkData::FileNameSinkData(string prologue_format)
+    : prologue_format_(std::move(prologue_format)) {}
+
+FileNameSink::FileNameSink(const string& filename, string prologue_format,
+                           Status& status)
+    : FileNameSinkData(std::move(prologue_format)) {
   log_file_.reset(fopen(filename.c_str(), "w"));
 
-  RST_CHECK(log_file_ != nullptr, LogError);
+  if (log_file_ == nullptr)
+    status = Status(kLoggerErrorDomain,
+                    static_cast<int>(LoggerErrorCode::kOpenFileFailed),
+                    "Can't open file {}"_format(filename));
+
+  status = Status::OK();
+}
+
+FileNameSink::FileNameSink(FileNameSink&& rhs)
+    : FileNameSinkData(std::move(rhs)) {}
+
+FileNameSink& FileNameSink::operator=(FileNameSink&& rhs) {
+  if (this == &rhs)
+    return *this;
+
+  static_cast<FileNameSinkData&>(*this) = std::move(rhs);
+  return *this;
+}
+
+// static
+StatusOr<FileNameSink> FileNameSink::Create(const std::string& filename,
+                                            std::string prologue_format) {
+  auto status = Status::OK();
+  status.Ignore();
+  FileNameSink sink(filename, std::move(prologue_format), status);
+
+  if (!status.ok())
+    return std::move(status);
+
+  return std::move(sink);
 }
 
 void FileNameSink::Log(const char* filename, int line,
                        const char* severity_level, const char* format,
                        va_list args) {
-  RST_CHECK(filename != nullptr, LogError);
-  RST_CHECK(severity_level != nullptr, LogError);
-  RST_CHECK(format != nullptr, LogError);
+  RST_DCHECK(filename != nullptr);
+  RST_DCHECK(line > 0);
+  RST_DCHECK(severity_level != nullptr);
+  RST_DCHECK(format != nullptr);
 
   unique_lock<mutex> lock(mutex_);
 
   auto val = std::fprintf(log_file_.get(), prologue_format_.c_str(), filename,
                           line, severity_level);
-  RST_CHECK(val >= 0, LogError);
+  RST_CHECK(val >= 0);
 
   val = std::vfprintf(log_file_.get(), format, args);
-  RST_CHECK(val >= 0, LogError);
+  RST_CHECK(val >= 0);
 
   val = std::fprintf(log_file_.get(), "\n");
-  RST_CHECK(val >= 0, LogError);
+  RST_CHECK(val >= 0);
 
   val = std::fflush(log_file_.get());
-  RST_CHECK(val >= 0, LogError);
+  RST_CHECK(val >= 0);
 }
 
 }  // namespace rst

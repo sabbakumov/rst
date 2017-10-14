@@ -19,15 +19,15 @@ rst/Format/Writer.h
 
 rst/HiddenString/HiddenString.h
 
-# rst/Logger/FileNameSink.cpp
-# rst/Logger/FileNameSink.h
-# rst/Logger/FilePtrSink.cpp
-# rst/Logger/FilePtrSink.h
-# rst/Logger/ISink.h
-# rst/Logger/LogError.cpp
-# rst/Logger/LogError.h
-# rst/Logger/Logger.cpp
-# rst/Logger/Logger.h
+rst/Logger/FileNameSink.cpp
+rst/Logger/FileNameSink.h
+rst/Logger/FilePtrSink.cpp
+rst/Logger/FilePtrSink.h
+rst/Logger/ISink.h
+rst/Logger/LogError.cpp
+rst/Logger/LogError.h
+rst/Logger/Logger.cpp
+rst/Logger/Logger.h
 
 rst/Noncopyable/Noncopyable.h
 
@@ -56,7 +56,7 @@ rst/Format/FormatTest.cpp
 
 rst/HiddenString/HiddenStringTest.cpp
 
-# # rst/Logger/LoggerTest.cpp
+rst/Logger/LoggerTest.cpp
 
 rst/Noncopyable/NoncopyableTest.cpp
 
@@ -68,4 +68,4 @@ rst/Status/StatusTest.cpp
 
 TARGET_LINK_LIBRARIES(rst_tests rst pthread gtest gmock)
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -std=c++14 -g -fsanitize=address -pthread")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -std=c++14 -g -fsanitize=address -pthread -fno-exceptions -fno-rtti")

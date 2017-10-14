@@ -106,9 +106,9 @@ class HiddenString<IndexList<Index...>> {
   const char str_[sizeof...(Index) + 1];
 };
 
-#define RST_HIDDEN_STRING(var, str)                               \
-  static constexpr rst::internal::HiddenString<                   \
-      rst::internal::ConstructIndexList<sizeof(str) - 1>::Result> \
+#define RST_HIDDEN_STRING(var, str)                                 \
+  static constexpr ::rst::internal::HiddenString<                   \
+      ::rst::internal::ConstructIndexList<sizeof(str) - 1>::Result> \
       var(str)
 
 }  // namespace internal

@@ -28,17 +28,13 @@
 #ifndef RST_LOGGER_LOGERROR_H_
 #define RST_LOGGER_LOGERROR_H_
 
-#include <stdexcept>
-#include <string>
-
 namespace rst {
 
-// The exception thrown by the library.
-class LogError : public std::runtime_error {
- public:
-  explicit LogError(const std::string& message);
-  explicit LogError(const char* message);
+enum class LoggerErrorCode {
+  kOpenFileFailed = 1,
 };
+
+extern const char* const kLoggerErrorDomain;
 
 }  // namespace rst
 

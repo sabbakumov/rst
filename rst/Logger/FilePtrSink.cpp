@@ -28,7 +28,6 @@
 #include "rst/Logger/FilePtrSink.h"
 
 #include "rst/Check/Check.h"
-#include "rst/Logger/LogError.h"
 
 using std::FILE;
 using std::mutex;
@@ -39,7 +38,7 @@ namespace rst {
 
 FilePtrSink::FilePtrSink(FILE* file, string prologue_format, bool should_close)
     : prologue_format_(std::move(prologue_format)) {
-  RST_CHECK(file != nullptr, LogError);
+  RST_DCHECK(file != nullptr);
 
   if (should_close) {
     log_file_.reset(file);
@@ -53,24 +52,25 @@ FilePtrSink::FilePtrSink(FILE* file, string prologue_format, bool should_close)
 void FilePtrSink::Log(const char* filename, int line,
                       const char* severity_level, const char* format,
                       va_list args) {
-  RST_CHECK(filename != nullptr, LogError);
-  RST_CHECK(severity_level != nullptr, LogError);
-  RST_CHECK(format != nullptr, LogError);
+  RST_DCHECK(filename != nullptr);
+  RST_DCHECK(line > 0);
+  RST_DCHECK(severity_level != nullptr);
+  RST_DCHECK(format != nullptr);
 
   unique_lock<mutex> lock(mutex_);
 
   auto val = std::fprintf(file_, prologue_format_.c_str(), filename, line,
                           severity_level);
-  RST_CHECK(val >= 0, LogError);
+  RST_CHECK(val >= 0);
 
   val = std::vfprintf(file_, format, args);
-  RST_CHECK(val >= 0, LogError);
+  RST_CHECK(val >= 0);
 
   val = std::fprintf(file_, "\n");
-  RST_CHECK(val >= 0, LogError);
+  RST_CHECK(val >= 0);
 
   val = std::fflush(file_);
-  RST_CHECK(val >= 0, LogError);
+  RST_CHECK(val >= 0);
 }
 
 }  // namespace rst

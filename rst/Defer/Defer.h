@@ -37,7 +37,7 @@
 
 #define RST_DEFER(f)                                                         \
   const auto RST_DEFER_INTERNAL_CAT(RST_DEFER_INTERNAL_VAR_NAME, __LINE__) = \
-      rst::internal::Defer(f)
+      ::rst::internal::Defer(f)
 
 namespace rst {
 

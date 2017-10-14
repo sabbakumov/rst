@@ -25,29 +25,33 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "rst/Logger/Logger.h"
 #include "rst/Logger/FileNameSink.h"
 #include "rst/Logger/FilePtrSink.h"
 #include "rst/Logger/ISink.h"
 #include "rst/Logger/LogError.h"
-#include "rst/Logger/Logger.h"
 
+#include <algorithm>
 #include <array>
 #include <cstdarg>
 #include <cstdio>
 #include <fstream>
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-using std::FILE;
+#include "rst/Check/Check.h"
+#include "rst/Defer/Defer.h"
+#include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Status/StatusOr.h"
+
 using std::array;
 using std::ifstream;
-using std::runtime_error;
 using std::string;
 using std::thread;
 using std::unique_ptr;
@@ -56,284 +60,318 @@ using std::vector;
 using namespace rst;
 using namespace testing;
 
-class File {
+namespace {
+
+class File : public rst::NonCopyable, public rst::NonMovable {
  public:
-  File() {
-    if (std::tmpnam(buffer_.data()) == nullptr)
-      throw runtime_error("Can not generate filename");
-  }
+  File() { RST_CHECK(std::tmpnam(buffer_.data()) != nullptr); }
   ~File() { std::remove(buffer_.data()); }
 
-  string FileName() const { return string(buffer_.data()); }
+  const char* FileName() const { return buffer_.data(); }
 
  private:
-  File(const File&) = delete;
-  File& operator=(const File&) = delete;
-
-  File(File&&) = delete;
-  File& operator=(File&&) = delete;
-
   array<char, L_tmpnam> buffer_;
 };
 
-class ISinkMock : public ISink {
+class SinkMock : public ISink {
  public:
   MOCK_METHOD5(Log,
                void(const char* filename, int line, const char* severity_level,
                     const char* format, va_list args));
 };
 
-TEST(Logger, ConstructorNullSink) { EXPECT_THROW(Logger(nullptr), LogError); }
+void Log(ISink& sink, const char* filename, int line,
+         const char* severity_level, const char* format, ...) {
+  ASSERT_NE(nullptr, filename);
+  ASSERT_GT(line, 0);
+  ASSERT_NE(nullptr, severity_level);
+  ASSERT_NE(nullptr, format);
+
+  va_list args;
+  va_start(args, format);
+  RST_DEFER([&args]() -> void { va_end(args); });
+
+  sink.Log(filename, line, severity_level, format, args);
+}
+
+}  // namespace
+
+TEST(Logger, ConstructorNullSink) { EXPECT_DEATH(Logger(nullptr), ""); }
+
+TEST(Logger, LogNullLogger) {
+  auto sink = std::make_unique<SinkMock>();
+  Logger logger(std::move(sink));
+  EXPECT_DEATH(Logger::Log(Logger::Level::kDebug, "filename", 1, "format"), "");
+}
 
 TEST(Logger, LogNullFilename) {
-  auto sink = std::make_unique<ISinkMock>();
+  auto sink = std::make_unique<SinkMock>();
   Logger logger(std::move(sink));
-  EXPECT_THROW(logger.Log(Logger::Level::kDebug, nullptr, 0, "format"),
-               LogError);
+  Logger::SetLogger(&logger);
+  EXPECT_DEATH(Logger::Log(Logger::Level::kDebug, nullptr, 1, "format"), "");
+}
+
+TEST(Logger, LogZeroLine) {
+  auto sink = std::make_unique<SinkMock>();
+  Logger logger(std::move(sink));
+  Logger::SetLogger(&logger);
+  EXPECT_DEATH(Logger::Log(Logger::Level::kDebug, "filename", 0, "format"), "");
+}
+
+TEST(Logger, LogNegativeLine) {
+  auto sink = std::make_unique<SinkMock>();
+  Logger logger(std::move(sink));
+  Logger::SetLogger(&logger);
+  EXPECT_DEATH(Logger::Log(Logger::Level::kDebug, "filename", -1, "format"),
+               "");
 }
 
 TEST(Logger, LogNullFormat) {
-  auto sink = std::make_unique<ISinkMock>();
+  auto sink = std::make_unique<SinkMock>();
   Logger logger(std::move(sink));
-  EXPECT_THROW(logger.Log(Logger::Level::kDebug, "filename", 0, nullptr),
-               LogError);
+  Logger::SetLogger(&logger);
+  EXPECT_DEATH(Logger::Log(Logger::Level::kDebug, "filename", 1, nullptr), "");
 }
 
 TEST(Logger, Log) {
-  auto sink = std::make_unique<ISinkMock>();
-  const char* filename = "filename";
-  const char* level_str = "DEBUG";
-  const auto line = 10;
-  const char* format = "format";
+  auto sink = std::make_unique<SinkMock>();
+  static constexpr auto kFilename = "filename";
+  static constexpr auto kLevelStr = "DEBUG";
+  static constexpr auto kLine = 10;
+  static constexpr auto kFormat = "format";
 
-  EXPECT_CALL(*sink, Log(StrEq(filename), Eq(line), StrEq(level_str),
-                         StrEq(format), _));
+  EXPECT_CALL(
+      *sink, Log(StrEq(kFilename), kLine, StrEq(kLevelStr), StrEq(kFormat), _));
 
   Logger logger(std::move(sink));
-  logger.Log(Logger::Level::kDebug, filename, line, format);
+  Logger::SetLogger(&logger);
+  Logger::Log(Logger::Level::kDebug, kFilename, kLine, kFormat);
 }
 
 TEST(Logger, LogSeverityLevelComparison) {
-  auto sink = std::make_unique<ISinkMock>();
-  const char* filename = "filename";
-  const auto line = 10;
-  const char* format = "format";
+  auto sink = std::make_unique<SinkMock>();
+  static constexpr auto kFilename = "filename";
+  static constexpr auto kLine = 10;
+  static constexpr auto kFormat = "format";
 
   EXPECT_CALL(*sink, Log(_, _, _, _, _)).Times(0);
 
   Logger logger(std::move(sink));
+  Logger::SetLogger(&logger);
 
   logger.set_level(Logger::Level::kInfo);
-  logger.Log(Logger::Level::kDebug, filename, line, format);
+  Logger::Log(Logger::Level::kDebug, kFilename, kLine, kFormat);
 
   logger.set_level(Logger::Level::kWarning);
-  logger.Log(Logger::Level::kInfo, filename, line, format);
+  Logger::Log(Logger::Level::kInfo, kFilename, kLine, kFormat);
 
   logger.set_level(Logger::Level::kError);
-  logger.Log(Logger::Level::kWarning, filename, line, format);
+  Logger::Log(Logger::Level::kWarning, kFilename, kLine, kFormat);
 
   logger.set_level(Logger::Level::kFatal);
-  logger.Log(Logger::Level::kError, filename, line, format);
+  Logger::Log(Logger::Level::kError, kFilename, kLine, kFormat);
 
   logger.set_level(Logger::Level::kOff);
-  logger.Log(Logger::Level::kFatal, filename, line, format);
+  Logger::Log(Logger::Level::kFatal, kFilename, kLine, kFormat);
 }
 
 TEST(Logger, LogSeverityLevelComparisonPass) {
-  auto sink = std::make_unique<ISinkMock>();
-  const char* filename = "filename";
-  const auto line = 10;
-  const char* format = "format";
+  auto sink = std::make_unique<SinkMock>();
+  static constexpr auto filename = "filename";
+  static constexpr auto line = 10;
+  static constexpr auto format = "format";
 
-  EXPECT_CALL(*sink, Log(StrEq(filename), Eq(line), _, StrEq(format), _))
-      .Times(9);
+  EXPECT_CALL(*sink, Log(StrEq(filename), line, _, StrEq(format), _)).Times(8);
 
   Logger logger(std::move(sink));
+  Logger::SetLogger(&logger);
 
   logger.set_level(Logger::Level::kAll);
-  logger.Log(Logger::Level::kDebug, filename, line, format);
+  Logger::Log(Logger::Level::kDebug, filename, line, format);
 
   logger.set_level(Logger::Level::kDebug);
-  logger.Log(Logger::Level::kInfo, filename, line, format);
+  Logger::Log(Logger::Level::kInfo, filename, line, format);
 
   logger.set_level(Logger::Level::kDebug);
-  logger.Log(Logger::Level::kDebug, filename, line, format);
+  Logger::Log(Logger::Level::kDebug, filename, line, format);
 
   logger.set_level(Logger::Level::kInfo);
-  logger.Log(Logger::Level::kWarning, filename, line, format);
+  Logger::Log(Logger::Level::kWarning, filename, line, format);
 
   logger.set_level(Logger::Level::kInfo);
-  logger.Log(Logger::Level::kInfo, filename, line, format);
+  Logger::Log(Logger::Level::kInfo, filename, line, format);
 
   logger.set_level(Logger::Level::kWarning);
-  logger.Log(Logger::Level::kError, filename, line, format);
+  Logger::Log(Logger::Level::kError, filename, line, format);
 
   logger.set_level(Logger::Level::kWarning);
-  logger.Log(Logger::Level::kWarning, filename, line, format);
+  Logger::Log(Logger::Level::kWarning, filename, line, format);
 
   logger.set_level(Logger::Level::kError);
-  logger.Log(Logger::Level::kFatal, filename, line, format);
+  EXPECT_DEATH(Logger::Log(Logger::Level::kFatal, filename, line, format), "");
 
   logger.set_level(Logger::Level::kError);
-  logger.Log(Logger::Level::kError, filename, line, format);
+  Logger::Log(Logger::Level::kError, filename, line, format);
 }
 
 TEST(Logger, LogEnumToString) {
-  auto sink = std::make_unique<ISinkMock>();
-  const char* filename = "filename";
-  const auto line = 10;
-  const char* format = "format";
+  auto sink = std::make_unique<SinkMock>();
+  static constexpr auto filename = "filename";
+  static constexpr auto line = 10;
+  static constexpr auto format = "format";
 
   EXPECT_CALL(*sink,
-              Log(StrEq(filename), Eq(line), StrEq("DEBUG"), StrEq(format), _));
+              Log(StrEq(filename), line, StrEq("DEBUG"), StrEq(format), _));
   EXPECT_CALL(*sink,
-              Log(StrEq(filename), Eq(line), StrEq("INFO"), StrEq(format), _));
-  EXPECT_CALL(*sink, Log(StrEq(filename), Eq(line), StrEq("WARNING"),
-                         StrEq(format), _));
+              Log(StrEq(filename), line, StrEq("INFO"), StrEq(format), _));
   EXPECT_CALL(*sink,
-              Log(StrEq(filename), Eq(line), StrEq("ERROR"), StrEq(format), _));
+              Log(StrEq(filename), line, StrEq("WARNING"), StrEq(format), _));
   EXPECT_CALL(*sink,
-              Log(StrEq(filename), Eq(line), StrEq("FATAL"), StrEq(format), _));
+              Log(StrEq(filename), line, StrEq("ERROR"), StrEq(format), _));
 
   Logger logger(std::move(sink));
+  Logger::SetLogger(&logger);
 
-  logger.Log(Logger::Level::kDebug, filename, line, format);
-  logger.Log(Logger::Level::kInfo, filename, line, format);
-  logger.Log(Logger::Level::kWarning, filename, line, format);
-  logger.Log(Logger::Level::kError, filename, line, format);
-  logger.Log(Logger::Level::kFatal, filename, line, format);
+  Logger::Log(Logger::Level::kDebug, filename, line, format);
+  Logger::Log(Logger::Level::kInfo, filename, line, format);
+  Logger::Log(Logger::Level::kWarning, filename, line, format);
+  Logger::Log(Logger::Level::kError, filename, line, format);
+  EXPECT_DEATH(Logger::Log(Logger::Level::kFatal, filename, line, format), "");
 }
 
 TEST(Logger, LogEnumToStringIncorrectCases) {
-  auto sink = std::make_unique<ISinkMock>();
-  const char* filename = "filename";
-  const auto line = 10;
-  const char* format = "format";
+  auto sink = std::make_unique<SinkMock>();
+  static constexpr auto kFilename = "filename";
+  static constexpr auto kLine = 10;
+  static constexpr auto kFormat = "format";
 
   Logger logger(std::move(sink));
+  Logger::SetLogger(&logger);
 
-  EXPECT_THROW(logger.Log(Logger::Level::kAll, filename, line, format),
-               LogError);
-  EXPECT_THROW(logger.Log(Logger::Level::kOff, filename, line, format),
-               LogError);
-}
-
-TEST(Logger, LogThrow) {
-  auto sink = std::make_unique<ISinkMock>();
-  const char* filename = "filename";
-  const char* level_str = "DEBUG";
-  const auto line = 10;
-  const char* format = "format";
-
-  EXPECT_CALL(
-      *sink, Log(StrEq(filename), Eq(line), StrEq(level_str), StrEq(format), _))
-      .WillOnce(Throw(runtime_error("")));
-
-  Logger logger(std::move(sink));
-  EXPECT_THROW(logger.Log(Logger::Level::kDebug, filename, line, format),
-               runtime_error);
+  EXPECT_DEATH(Logger::Log(Logger::Level::kAll, kFilename, kLine, kFormat), "");
+  EXPECT_DEATH(Logger::Log(Logger::Level::kOff, kFilename, kLine, kFormat), "");
 }
 
 TEST(Logger, Macros) {
-  auto sink = std::make_unique<ISinkMock>();
-  const char* format = "%s";
-  const char* message = "message";
+  auto sink = std::make_unique<SinkMock>();
+  static constexpr auto format = "%s";
+  static constexpr auto message = "message";
 
   EXPECT_CALL(*sink, Log(_, _, StrEq("DEBUG"), StrEq(format), _));
   EXPECT_CALL(*sink, Log(_, _, StrEq("INFO"), StrEq(format), _));
   EXPECT_CALL(*sink, Log(_, _, StrEq("WARNING"), StrEq(format), _));
   EXPECT_CALL(*sink, Log(_, _, StrEq("ERROR"), StrEq(format), _));
-  EXPECT_CALL(*sink, Log(_, _, StrEq("FATAL"), StrEq(format), _));
 
   Logger logger(std::move(sink));
+  Logger::SetLogger(&logger);
 
-  LOG_DEBUG(logger, format, message);
-  LOG_INFO(logger, format, message);
-  LOG_WARNING(logger, format, message);
-  LOG_ERROR(logger, format, message);
-  LOG_FATAL(logger, format, message);
+  LOG_DEBUG(format, message);
+  LOG_INFO(format, message);
+  LOG_WARNING(format, message);
+  LOG_ERROR(format, message);
+  EXPECT_DEATH(LOG_FATAL(format, message), "");
 }
+
+TEST(Logger, SetNullLogger) { EXPECT_DEATH(Logger::SetLogger(nullptr), ""); }
 
 TEST(FileNameSink, LogNullFilename) {
   File file;
-  const string filename = file.FileName();
+  const auto filename = file.FileName();
   const string prologue_format;
   va_list args;
 
-  FileNameSink sink(filename, prologue_format);
-  EXPECT_THROW(sink.Log(nullptr, 0, "level", "format", args), LogError);
+  auto sink = FileNameSink::Create(filename, prologue_format);
+  ASSERT_TRUE(sink.ok());
+  EXPECT_DEATH(sink->Log(nullptr, 1, "level", "format", args), "");
+}
+
+TEST(FileNameSink, LogZeroLine) {
+  File file;
+  const auto filename = file.FileName();
+  const string prologue_format;
+  va_list args;
+
+  auto sink = FileNameSink::Create(filename, prologue_format);
+  ASSERT_TRUE(sink.ok());
+  EXPECT_DEATH(sink->Log("filename", 0, "level", "format", args), "");
+}
+
+TEST(FileNameSink, LogNegativeLine) {
+  File file;
+  const auto filename = file.FileName();
+  const string prologue_format;
+  va_list args;
+
+  auto sink = FileNameSink::Create(filename, prologue_format);
+  ASSERT_TRUE(sink.ok());
+  EXPECT_DEATH(sink->Log("filename", -1, "level", "format", args), "");
 }
 
 TEST(FileNameSink, LogNullSeverity) {
   File file;
-  const string filename = file.FileName();
+  const auto filename = file.FileName();
   const string prologue_format;
   va_list args;
 
-  FileNameSink sink(filename, prologue_format);
-  EXPECT_THROW(sink.Log("filename", 0, nullptr, "format", args), LogError);
+  auto sink = FileNameSink::Create(filename, prologue_format);
+  ASSERT_TRUE(sink.ok());
+  EXPECT_DEATH(sink->Log("filename", 1, nullptr, "format", args), "");
 }
 
 TEST(FileNameSink, LogNullFormat) {
   File file;
-  const string filename = file.FileName();
+  const auto filename = file.FileName();
   const string prologue_format;
   va_list args;
 
-  FileNameSink sink(filename, prologue_format);
-  EXPECT_THROW(sink.Log("filename", 0, "level", nullptr, args), LogError);
-}
-
-void Log(ISink& sink, const char* filename, int line,
-         const char* severity_level, const char* format, ...) {
-  va_list plain_args;
-  unique_ptr<va_list, void (*)(va_list*)> args{
-      &plain_args, [](va_list* list) -> void { va_end(*list); }};
-  va_start(*args, format);
-
-  sink.Log(filename, line, severity_level, format, *args);
+  auto sink = FileNameSink::Create(filename, prologue_format);
+  ASSERT_TRUE(sink.ok());
+  EXPECT_DEATH(sink->Log("filename", 1, "level", nullptr, args), "");
 }
 
 TEST(FileNameSink, Log) {
   File file;
-  const string filename = file.FileName();
-  string prologue_format = "%s:%d %s: ";
+  const auto filename = file.FileName();
+  static constexpr auto kPrologueFormat = "%s:%d %s: ";
 
-  FileNameSink sink(filename, std::move(prologue_format));
+  auto sink = FileNameSink::Create(filename, kPrologueFormat);
+  ASSERT_TRUE(sink.ok());
 
-  Log(sink, "filename", 10, "level", "%s", "Message");
-  Log(sink, "filename2", 20, "level2", "%s%d", "Message", 2);
-  Log(sink, "filename3", 30, "level3", "%s%d", "Message", 3);
+  Log(*sink, "filename", 10, "level", "%s", "Message");
+  Log(*sink, "filename2", 20, "level2", "%s%d", "Message", 2);
+  Log(*sink, "filename3", 30, "level3", "%s%d", "Message", 3);
 
-  array<string, 3> messages = {{"filename:10 level: Message",
-                                "filename2:20 level2: Message2",
-                                "filename3:30 level3: Message3"}};
+  const vector<string> messages = {"filename:10 level: Message",
+                                   "filename2:20 level2: Message2",
+                                   "filename3:30 level3: Message3"};
 
-  ifstream f;
-  f.open(filename);
+  ifstream f(filename);
+  ASSERT_TRUE(f.is_open());
 
-  size_t i = 0;
-  for (string line; std::getline(f, line); i++) {
-    EXPECT_EQ(messages[i], line);
-  }
+  vector<string> strings;
+  for (string line; std::getline(f, line);)
+    strings.emplace_back(std::move(line));
+
+  EXPECT_EQ(messages, strings);
 }
 
 TEST(FileNameSink, LogThreadSafe) {
   File file;
-  const string filename = file.FileName();
-  string prologue_format = "%s:%d %s: ";
+  const auto filename = file.FileName();
+  static constexpr auto kPrologueFormat = "%s:%d %s: ";
 
-  FileNameSink sink(filename, std::move(prologue_format));
+  auto sink = FileNameSink::Create(filename, kPrologueFormat);
+  ASSERT_TRUE(sink.ok());
 
   thread t1([&sink]() -> void {
     std::this_thread::yield();
-    Log(sink, "filename", 10, "level", "%s", "Message");
+    Log(*sink, "filename", 10, "level", "%s", "Message");
   });
   thread t2([&sink]() -> void {
-    Log(sink, "filename2", 20, "level2", "%s%d", "Message", 2);
+    Log(*sink, "filename3", 30, "level3", "%s%d", "Message", 3);
   });
   thread t3([&sink]() -> void {
-    Log(sink, "filename3", 30, "level3", "%s%d", "Message", 3);
+    Log(*sink, "filename2", 20, "level2", "%s%d", "Message", 2);
   });
 
   t1.join();
@@ -343,64 +381,81 @@ TEST(FileNameSink, LogThreadSafe) {
   vector<string> messages = {"filename:10 level: Message",
                              "filename2:20 level2: Message2",
                              "filename3:30 level3: Message3"};
-  sort(messages.begin(), messages.end());
+  std::sort(messages.begin(), messages.end());
 
-  ifstream f;
-  f.open(filename);
+  ifstream f(filename);
+  ASSERT_TRUE(f.is_open());
 
   vector<string> strings;
-  for (string line; std::getline(f, line);) {
-    strings.emplace_back(line);
-  }
-  sort(strings.begin(), strings.end());
+  for (string line; std::getline(f, line);)
+    strings.emplace_back(std::move(line));
+  std::sort(strings.begin(), strings.end());
 
   EXPECT_EQ(messages, strings);
 }
 
 TEST(FilePtrSink, ConstructorNullFile) {
-  EXPECT_THROW(FilePtrSink(nullptr, ""), LogError);
+  EXPECT_DEATH(FilePtrSink(nullptr, ""), "");
 }
 
 TEST(FilePtrSink, LogNullFilename) {
-  FILE* file = tmpfile();
+  const auto file = tmpfile();
   const string prologue_format;
   va_list args;
 
   FilePtrSink sink(file, prologue_format);
-  EXPECT_THROW(sink.Log(nullptr, 0, "level", "format", args), LogError);
+  EXPECT_DEATH(sink.Log(nullptr, 1, "level", "format", args), "");
+}
+
+TEST(FilePtrSink, LogZeroLine) {
+  const auto file = tmpfile();
+  const string prologue_format;
+  va_list args;
+
+  FilePtrSink sink(file, prologue_format);
+  EXPECT_DEATH(sink.Log("filename", 0, "level", "format", args), "");
+}
+
+TEST(FilePtrSink, LogNegativeLine) {
+  const auto file = tmpfile();
+  const string prologue_format;
+  va_list args;
+
+  FilePtrSink sink(file, prologue_format);
+  EXPECT_DEATH(sink.Log("filename", -1, "level", "format", args), "");
 }
 
 TEST(FilePtrSink, LogNullSeverity) {
-  FILE* file = tmpfile();
+  const auto file = tmpfile();
   const string prologue_format;
   va_list args;
 
   FilePtrSink sink(file, prologue_format);
-  EXPECT_THROW(sink.Log("filename", 0, nullptr, "format", args), LogError);
+  EXPECT_DEATH(sink.Log("filename", 1, nullptr, "format", args), "");
 }
 
 TEST(FilePtrSink, LogNullFormat) {
-  FILE* file = tmpfile();
+  const auto file = tmpfile();
   const string prologue_format;
   va_list args;
 
   FilePtrSink sink(file, prologue_format);
-  EXPECT_THROW(sink.Log("filename", 0, "level", nullptr, args), LogError);
+  EXPECT_DEATH(sink.Log("filename", 1, "level", nullptr, args), "");
 }
 
 TEST(FilePtrSink, Log) {
-  FILE* file = tmpfile();
-  string prologue_format = "%s:%d %s: ";
+  const auto file = tmpfile();
+  static constexpr auto kPrologueFormat = "%s:%d %s: ";
 
-  FilePtrSink sink(file, std::move(prologue_format));
+  FilePtrSink sink(file, kPrologueFormat);
 
   Log(sink, "filename", 10, "level", "%s", "Message");
   Log(sink, "filename2", 20, "level2", "%s%d", "Message", 2);
   Log(sink, "filename3", 30, "level3", "%s%d", "Message", 3);
 
-  array<string, 3> messages = {{"filename:10 level: Message",
-                                "filename2:20 level2: Message2",
-                                "filename3:30 level3: Message3"}};
+  const array<string, 3> messages = {{"filename:10 level: Message",
+                                      "filename2:20 level2: Message2",
+                                      "filename3:30 level3: Message3"}};
 
   std::rewind(file);
 
@@ -417,18 +472,18 @@ TEST(FilePtrSink, Log) {
 }
 
 TEST(FilePtrSink, LogNonClosing) {
-  FILE* file = tmpfile();
-  string prologue_format = "%s:%d %s: ";
+  const auto file = tmpfile();
+  static constexpr auto kPrologueFormat = "%s:%d %s: ";
 
-  FilePtrSink sink(file, std::move(prologue_format), false);
+  FilePtrSink sink(file, kPrologueFormat, false);
 
   Log(sink, "filename", 10, "level", "%s", "Message");
   Log(sink, "filename2", 20, "level2", "%s%d", "Message", 2);
   Log(sink, "filename3", 30, "level3", "%s%d", "Message", 3);
 
-  array<string, 3> messages = {{"filename:10 level: Message",
-                                "filename2:20 level2: Message2",
-                                "filename3:30 level3: Message3"}};
+  const array<string, 3> messages = {{"filename:10 level: Message",
+                                      "filename2:20 level2: Message2",
+                                      "filename3:30 level3: Message3"}};
 
   std::rewind(file);
 
@@ -442,15 +497,13 @@ TEST(FilePtrSink, LogNonClosing) {
       str_line.erase(str_line.size() - 1);
     EXPECT_EQ(messages[i], str_line);
   }
-
-  std::fclose(file);
 }
 
 TEST(FilePtrSink, LogThreadSafe) {
-  FILE* file = tmpfile();
-  string prologue_format = "%s:%d %s: ";
+  const auto file = tmpfile();
+  static constexpr auto kPrologueFormat = "%s:%d %s: ";
 
-  FilePtrSink sink(file, std::move(prologue_format));
+  FilePtrSink sink(file, kPrologueFormat);
 
   thread t1([&sink]() -> void {
     std::this_thread::yield();
@@ -470,7 +523,7 @@ TEST(FilePtrSink, LogThreadSafe) {
   vector<string> messages = {{"filename:10 level: Message"},
                              {"filename2:20 level2: Message2"},
                              {"filename3:30 level3: Message3"}};
-  sort(messages.begin(), messages.end());
+  std::sort(messages.begin(), messages.end());
 
   vector<string> strings;
   std::rewind(file);
@@ -482,7 +535,7 @@ TEST(FilePtrSink, LogThreadSafe) {
       str_line.erase(str_line.size() - 1);
     strings.emplace_back(std::move(str_line));
   }
-  sort(strings.begin(), strings.end());
+  std::sort(strings.begin(), strings.end());
 
   EXPECT_EQ(messages, strings);
 }

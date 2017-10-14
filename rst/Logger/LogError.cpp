@@ -27,12 +27,8 @@
 
 #include "rst/Logger/LogError.h"
 
-using std::string;
-using std::runtime_error;
-
 namespace rst {
 
-LogError::LogError(const string& message) : runtime_error(message) {}
-LogError::LogError(const char* message) : runtime_error(message) {}
+const char* const kLoggerErrorDomain = "LoggerErrorDomain";
 
 }  // namespace rst

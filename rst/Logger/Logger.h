@@ -30,47 +30,47 @@
 
 #include <memory>
 
-#include "rst/Logger/ISink.h"
+#include "rst/Noncopyable/Noncopyable.h"
 
-#define LOG_DEBUG(logger, ...) \
-  logger.Log(Logger::Level::kDebug, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_DEBUG(...)                                                 \
+  ::rst::Logger::Log(::rst::Logger::Level::kDebug, __FILE__, __LINE__, \
+                     __VA_ARGS__)
 
-#define LOG_INFO(logger, ...) \
-  logger.Log(Logger::Level::kInfo, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_INFO(...)                                                 \
+  ::rst::Logger::Log(::rst::Logger::Level::kInfo, __FILE__, __LINE__, \
+                     __VA_ARGS__)
 
-#define LOG_WARNING(logger, ...) \
-  logger.Log(Logger::Level::kWarning, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WARNING(...)                                                 \
+  ::rst::Logger::Log(::rst::Logger::Level::kWarning, __FILE__, __LINE__, \
+                     __VA_ARGS__)
 
-#define LOG_ERROR(logger, ...) \
-  logger.Log(Logger::Level::kError, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_ERROR(...)                                                 \
+  ::rst::Logger::Log(::rst::Logger::Level::kError, __FILE__, __LINE__, \
+                     __VA_ARGS__)
 
-#define LOG_FATAL(logger, ...) \
-  logger.Log(Logger::Level::kFatal, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_FATAL(...)                                                 \
+  ::rst::Logger::Log(::rst::Logger::Level::kFatal, __FILE__, __LINE__, \
+                     __VA_ARGS__)
 
 namespace rst {
 
+class ISink;
+
 // The class for logging to a custom sink.
-class Logger {
+class Logger : public NonCopyable, public NonMovable {
  public:
   // Severity levels of logging.
-  enum class Level {
-    kAll = 0,
-    kDebug = 1,
-    kInfo = 2,
-    kWarning = 3,
-    kError = 4,
-    kFatal = 5,
-    kOff = 6,
-  };
+  enum class Level { kAll = 0, kDebug, kInfo, kWarning, kError, kFatal, kOff };
 
   explicit Logger(std::unique_ptr<ISink> sink);
 
-  // Logs a message in printf-like format. If the level is less than level
+  // Logs a message in printf-like format. If the level is less than level_
   // nothing gets logged.
-  void Log(Level level, const char* filename, int line, const char* format,
-           ...);
+  static void Log(Level level, const char* filename, int line,
+                  const char* format, ...);
+  static void SetLogger(Logger* logger);
 
-  void set_level(Level level) noexcept { level_ = level; }
+  void set_level(Level level) { level_ = level; }
 
  private:
   Level level_ = Level::kAll;
