@@ -182,10 +182,10 @@ class RST_NODISCARD StatusOr : public NonCopyable {
   void set_was_checked(bool) {}
 #endif  // NDEBUG
 
+  Status status_;
   union {
     T value_;
   };
-  Status status_;
 
 #ifndef NDEBUG
   bool was_checked_ = false;

@@ -50,16 +50,16 @@ class FileNameSinkData {
   FileNameSinkData& operator=(FileNameSinkData&&) = default;
 
  protected:
+  // Prologue printf-like format for filename, line in a file and severity
+  // level.
+  std::string prologue_format_;
+
   // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
       nullptr, [](std::FILE* f) -> void {
         if (f != nullptr)
           std::fclose(f);
       }};
-
-  // Prologue printf-like format for filename, line in a file and severity
-  // level.
-  std::string prologue_format_;
 };
 
 // The class for sinking to a file by its filename.

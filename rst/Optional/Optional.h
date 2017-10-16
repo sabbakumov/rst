@@ -72,9 +72,9 @@ class RST_NODISCARD Optional {
   }
 
   // Allows implicit conversion from NoneType.
-  Optional(NoneType) : is_valid_(false) {}
+  Optional(NoneType) {}
 
-  Optional() : is_valid_(false) {}
+  Optional() {}
 
   ~Optional() {
     if (is_valid_)
@@ -183,7 +183,7 @@ class RST_NODISCARD Optional {
     T value_;
   };
 
-  bool is_valid_ : 1;
+  bool is_valid_ = false;
 #ifndef NDEBUG
   bool was_checked_ = false;
 #endif  // NDEBUG

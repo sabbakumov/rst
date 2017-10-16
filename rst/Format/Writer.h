@@ -60,7 +60,6 @@ class Writer {
 
     const auto bytes_written = std::snprintf(str, size, format, val);
     RST_DCHECK(bytes_written >= 0);
-    (void)bytes_written;
 
     Write(str, std::min(static_cast<size_t>(bytes_written), size - 1));
   }
@@ -104,18 +103,18 @@ class Writer {
   void set_moved() {}
 #endif  // NDEBUG
 
-  // Whether we use static or dynamic buffer.
-  bool is_static_buffer_ = true;
-
-  // The current size of the static_buffer_.
-  size_t size_ = 0;
+  // Buffer on the stack to prevent dynamic allocation.
+  std::array<char, kStaticBufferSize> static_buffer_;
 
   // Dynamic buffer in case of the static buffer gets full or the input is too
   // long for the static buffer.
   std::string dynamic_buffer_;
 
-  // Buffer on the stack to prevent dynamic allocation.
-  std::array<char, kStaticBufferSize> static_buffer_;
+  // The current size of the static_buffer_.
+  size_t size_ = 0;
+
+  // Whether we use static or dynamic buffer.
+  bool is_static_buffer_ = true;
 };
 
 }  // namespace internal

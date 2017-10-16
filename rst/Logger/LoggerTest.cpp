@@ -98,16 +98,6 @@ void Log(ISink& sink, const char* filename, int line,
 
 TEST(Logger, ConstructorNullSink) { EXPECT_DEATH(Logger(nullptr), ""); }
 
-TEST(Logger, LogNullLogger) {
-  EXPECT_DEATH(
-      {
-        auto sink = std::make_unique<SinkMock>();
-        Logger logger(std::move(sink));
-        Logger::Log(Logger::Level::kDebug, "filename", 1, "format");
-      },
-      "");
-}
-
 TEST(Logger, LogNullFilename) {
   auto sink = std::make_unique<SinkMock>();
   Logger logger(std::move(sink));
