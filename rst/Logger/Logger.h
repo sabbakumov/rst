@@ -52,6 +52,38 @@
   ::rst::Logger::Log(::rst::Logger::Level::kFatal, __FILE__, __LINE__, \
                      __VA_ARGS__)
 
+#ifndef NDEBUG
+
+#define DLOG_DEBUG(...)                                                \
+  ::rst::Logger::Log(::rst::Logger::Level::kDebug, __FILE__, __LINE__, \
+                     __VA_ARGS__)
+
+#define DLOG_INFO(...)                                                \
+  ::rst::Logger::Log(::rst::Logger::Level::kInfo, __FILE__, __LINE__, \
+                     __VA_ARGS__)
+
+#define DLOG_WARNING(...)                                                \
+  ::rst::Logger::Log(::rst::Logger::Level::kWarning, __FILE__, __LINE__, \
+                     __VA_ARGS__)
+
+#define DLOG_ERROR(...)                                                \
+  ::rst::Logger::Log(::rst::Logger::Level::kError, __FILE__, __LINE__, \
+                     __VA_ARGS__)
+
+#define DLOG_FATAL(...)                                                \
+  ::rst::Logger::Log(::rst::Logger::Level::kFatal, __FILE__, __LINE__, \
+                     __VA_ARGS__)
+
+#else  // NDEBUG
+
+#define DLOG_DEBUG(...)
+#define DLOG_INFO(...)
+#define DLOG_WARNING(...)
+#define DLOG_ERROR(...)
+#define DLOG_FATAL(...)
+
+#endif  // NDEBUG
+
 namespace rst {
 
 class ISink;

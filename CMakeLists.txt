@@ -56,6 +56,7 @@ rst/Format/FormatTest.cpp
 
 rst/HiddenString/HiddenStringTest.cpp
 
+rst/Logger/LoggerNDebugTest.cpp
 rst/Logger/LoggerTest.cpp
 
 rst/Noncopyable/NoncopyableTest.cpp

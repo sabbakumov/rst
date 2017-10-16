@@ -99,9 +99,13 @@ void Log(ISink& sink, const char* filename, int line,
 TEST(Logger, ConstructorNullSink) { EXPECT_DEATH(Logger(nullptr), ""); }
 
 TEST(Logger, LogNullLogger) {
-  auto sink = std::make_unique<SinkMock>();
-  Logger logger(std::move(sink));
-  EXPECT_DEATH(Logger::Log(Logger::Level::kDebug, "filename", 1, "format"), "");
+  EXPECT_DEATH(
+      {
+        auto sink = std::make_unique<SinkMock>();
+        Logger logger(std::move(sink));
+        Logger::Log(Logger::Level::kDebug, "filename", 1, "format");
+      },
+      "");
 }
 
 TEST(Logger, LogNullFilename) {
@@ -270,6 +274,26 @@ TEST(Logger, Macros) {
   LOG_WARNING(format, message);
   LOG_ERROR(format, message);
   EXPECT_DEATH(LOG_FATAL(format, message), "");
+}
+
+TEST(Logger, DebugMacros) {
+  auto sink = std::make_unique<SinkMock>();
+  static constexpr auto format = "%s";
+  static constexpr auto message = "message";
+
+  EXPECT_CALL(*sink, Log(_, _, StrEq("DEBUG"), StrEq(format), _));
+  EXPECT_CALL(*sink, Log(_, _, StrEq("INFO"), StrEq(format), _));
+  EXPECT_CALL(*sink, Log(_, _, StrEq("WARNING"), StrEq(format), _));
+  EXPECT_CALL(*sink, Log(_, _, StrEq("ERROR"), StrEq(format), _));
+
+  Logger logger(std::move(sink));
+  Logger::SetLogger(&logger);
+
+  DLOG_DEBUG(format, message);
+  DLOG_INFO(format, message);
+  DLOG_WARNING(format, message);
+  DLOG_ERROR(format, message);
+  EXPECT_DEATH(DLOG_FATAL(format, message), "");
 }
 
 TEST(Logger, SetNullLogger) { EXPECT_DEATH(Logger::SetLogger(nullptr), ""); }
