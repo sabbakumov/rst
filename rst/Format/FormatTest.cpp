@@ -110,7 +110,11 @@ TEST(FormatTest, MaxArgs) {
                    8, 9, 'a', 'b', 'c', 'd', 'e', 1.23, 1.23f));
 }
 
-TEST(FormatTest, ExtraArgument) { EXPECT_DEATH(format("", 1), ""); }
+TEST(FormatTest, ExtraArgument) {
+  EXPECT_DEATH(format("", 1), "");
+  EXPECT_DEATH(format("string", 1), "");
+  EXPECT_DEATH(format("string{}{}", 1), "");
+}
 
 TEST(Literals, Common) {
   EXPECT_EQ("", ""_format());

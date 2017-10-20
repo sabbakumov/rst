@@ -28,6 +28,7 @@
 #ifndef RST_FORMAT_FORMAT_H_
 #define RST_FORMAT_FORMAT_H_
 
+#include <array>
 #include <string>
 #include <utility>
 
@@ -44,23 +45,86 @@ bool HandleCharacter(char c, const char*& s);
 // Writes s to the writer. "{{" -> "{", "}}" -> "}".
 void Format(Writer& writer, const char* s);
 
+class Value {
+ public:
+  Value() = delete;
+
+  Value(short short_val);
+  Value(unsigned short unsigned_short_val);
+  Value(int int_val);
+  Value(unsigned int unsigned_int_val);
+  Value(long long_val);
+  Value(unsigned long unsigned_long_val);
+  Value(long long long_long_val);
+  Value(unsigned long long unsigned_long_long_val);
+  Value(float float_val);
+  Value(double double_val);
+  Value(long double long_double_val);
+  Value(const std::string& string_val);
+  Value(const char* char_ptr_val);
+  Value(char char_val);
+
+  void Write(Writer& writer) const;
+
+ private:
+  enum class Type {
+    kInt,
+    kDouble,
+    kString,
+    kCharPtr,
+    kChar,
+    kShort,
+    kFloat,
+    kUnsignedShort,
+    kUnsignedInt,
+    kLong,
+    kUnsignedLong,
+    kLongLong,
+    kUnsignedLongLong,
+    kLongDouble,
+  };
+
+  Type type_;
+
+  union {
+    short short_val_;
+    unsigned short unsigned_short_val_;
+    int int_val_;
+    unsigned int unsigned_int_val_;
+    long long_val_;
+    unsigned long unsigned_long_val_;
+    long long long_long_val_;
+    unsigned long long unsigned_long_long_val_;
+    float float_val_;
+    double double_val_;
+    long double long_double_val_;
+    const std::string* string_val_;
+    const char* char_ptr_val_;
+    char char_val_;
+  };
+};
+
 // Writes s to the writer. "{{" -> "{", "}}" -> "}".
-template <class T, class... Args>
-inline void Format(Writer& writer, const char* s, const T& value,
-                   Args&&... args) {
+template <class... Args>
+inline void Format(Writer& writer, const char* s, Args&&... args) {
   RST_DCHECK(s != nullptr);
 
-  auto c = *s;
-  RST_DCHECK(c != '\0' && "Extra arguments");
-  for (; (c = *s) != '\0'; s++) {
+  const std::array<Value, sizeof...(args)> values = {
+      {std::forward<Args>(args)...}};
+
+  size_t arg_idx = 0;
+  for (auto c = '\0'; (c = *s) != '\0'; s++) {
     if (!HandleCharacter(c, s)) {
-      writer.Write(value);
-      s += 2;
-      Format(writer, s, std::forward<Args>(args)...);
-      return;
+      RST_DCHECK(arg_idx < values.size() && "Extra arguments");
+      values[arg_idx].Write(writer);
+      s++;
+      arg_idx++;
+      continue;
     }
     writer.Write(c);
   }
+
+  RST_DCHECK(arg_idx == values.size() && "Numbers of parameters should match");
 }
 
 }  // namespace internal
