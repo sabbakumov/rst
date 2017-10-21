@@ -51,10 +51,12 @@ FileNameSink::FileNameSink(const string& filename, string prologue_format,
     : FileNameSinkData(std::move(prologue_format)) {
   log_file_.reset(fopen(filename.c_str(), "w"));
 
-  if (log_file_ == nullptr)
+  if (log_file_ == nullptr) {
     status = Status(kLoggerErrorDomain,
                     static_cast<int>(LoggerErrorCode::kOpenFileFailed),
                     "Can't open file {}"_format(filename));
+    return;
+  }
 
   status = Status::OK();
 }
