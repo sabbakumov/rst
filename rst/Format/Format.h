@@ -67,7 +67,7 @@ class Value {
   void Write(Writer& writer) const;
 
  private:
-  enum class Type {
+  enum class Type : unsigned int {
     kInt,
     kDouble,
     kString,

@@ -27,9 +27,87 @@
 
 #include "rst/Format/Format.h"
 
+using std::string;
+
 namespace rst {
 
 namespace internal {
+
+namespace {
+
+using WriteFunction = void(Writer& writer, const void* ptr);
+
+void WriteShort(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const short*>(ptr);
+  writer.Write(val);
+}
+
+void WriteUnsignedShort(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const unsigned short*>(ptr);
+  writer.Write(val);
+}
+
+void WriteInt(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const int*>(ptr);
+  writer.Write(val);
+}
+
+void WriteUnsignedInt(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const unsigned int*>(ptr);
+  writer.Write(val);
+}
+
+void WriteLong(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const long*>(ptr);
+  writer.Write(val);
+}
+
+void WriteUnsignedLong(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const unsigned long*>(ptr);
+  writer.Write(val);
+}
+
+void WriteLongLong(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const long long*>(ptr);
+  writer.Write(val);
+}
+
+void WriteUnsignedLongLong(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const unsigned long long*>(ptr);
+  writer.Write(val);
+}
+
+void WriteFloat(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const float*>(ptr);
+  writer.Write(val);
+}
+
+void WriteDouble(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const double*>(ptr);
+  writer.Write(val);
+}
+
+void WriteLongDouble(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const long double*>(ptr);
+  writer.Write(val);
+}
+
+void WriteString(Writer& writer, const void* ptr) {
+  const auto& val = *static_cast<const string*>(ptr);
+  writer.Write(val);
+}
+
+void WriteCharPtr(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const char* const*>(ptr);
+  writer.Write(val);
+}
+
+void WriteChar(Writer& writer, const void* ptr) {
+  const auto val = *static_cast<const char*>(ptr);
+  writer.Write(val);
+}
+
+}  // namespace
 
 bool HandleCharacter(char c, const char*& s) {
   RST_DCHECK(s != nullptr);
@@ -106,7 +184,7 @@ Value::Value(double double_val)
 Value::Value(long double long_double_val)
     : type_(Type::kLongDouble), long_double_val_(long_double_val) {}
 
-Value::Value(const std::string& string_val)
+Value::Value(const string& string_val)
     : type_(Type::kString), string_val_(&string_val) {}
 
 Value::Value(const char* char_ptr_val)
@@ -117,65 +195,30 @@ Value::Value(const char* char_ptr_val)
 Value::Value(char char_val) : type_(Type::kChar), char_val_(char_val) {}
 
 void Value::Write(Writer& writer) const {
-  switch (type_) {
-    case Type::kInt: {
-      writer.Write(int_val_);
-      break;
-    }
-    case Type::kDouble: {
-      writer.Write(double_val_);
-      break;
-    }
-    case Type::kString: {
-      writer.Write(*string_val_);
-      break;
-    }
-    case Type::kCharPtr: {
-      writer.Write(char_ptr_val_);
-      break;
-    }
-    case Type::kChar: {
-      writer.Write(char_val_);
-      break;
-    }
-    case Type::kShort: {
-      writer.Write(short_val_);
-      break;
-    }
-    case Type::kFloat: {
-      writer.Write(float_val_);
-      break;
-    }
-    case Type::kUnsignedShort: {
-      writer.Write(unsigned_short_val_);
-      break;
-    }
-    case Type::kUnsignedInt: {
-      writer.Write(unsigned_int_val_);
-      break;
-    }
-    case Type::kLong: {
-      writer.Write(long_val_);
-      break;
-    }
-    case Type::kUnsignedLong: {
-      writer.Write(unsigned_long_val_);
-      break;
-    }
-    case Type::kLongLong: {
-      writer.Write(long_long_val_);
-      break;
-    }
-    case Type::kUnsignedLongLong: {
-      writer.Write(unsigned_long_val_);
-      break;
-    }
-    case Type::kLongDouble: {
-      writer.Write(long_double_val_);
-      break;
-    }
-    default: { RST_DCHECK(false); }
-  }
+  const struct {
+    WriteFunction* func = nullptr;
+    const void* ptr = nullptr;
+  } formatters[] = {{&WriteInt, &int_val_},
+                    {&WriteDouble, &double_val_},
+                    {&WriteString, &string_val_},
+                    {&WriteCharPtr, &char_ptr_val_},
+                    {&WriteChar, &char_val_},
+                    {&WriteShort, &short_val_},
+                    {&WriteFloat, &float_val_},
+                    {&WriteUnsignedShort, &unsigned_short_val_},
+                    {&WriteUnsignedInt, &unsigned_int_val_},
+                    {&WriteLong, &long_val_},
+                    {&WriteUnsignedLong, &unsigned_long_val_},
+                    {&WriteLongLong, &long_long_val_},
+                    {&WriteUnsignedLongLong, &unsigned_long_val_},
+                    {&WriteLongDouble, &long_double_val_}};
+
+  static constexpr auto size = sizeof formatters / sizeof formatters[0];
+  const auto index = static_cast<size_t>(type_);
+  RST_DCHECK(index < size);
+
+  const auto& formatter = formatters[index];
+  formatter.func(writer, formatter.ptr);
 }
 
 }  // namespace internal
