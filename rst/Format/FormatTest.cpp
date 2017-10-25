@@ -116,6 +116,13 @@ TEST(FormatTest, ExtraArgument) {
   EXPECT_DEATH(format("string{}{}", 1), "");
 }
 
+TEST(FormatTest, Strings) {
+  const string s = "string";
+  EXPECT_EQ("string", "{}"_format(s));
+  EXPECT_EQ("stringstring", "{}{}"_format(s, s));
+  EXPECT_EQ("temp", "{}"_format(string("temp")));
+}
+
 TEST(Literals, Common) {
   EXPECT_EQ("", ""_format());
   EXPECT_EQ("1234 Hello, world",

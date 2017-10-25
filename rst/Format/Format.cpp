@@ -98,7 +98,7 @@ void WriteString(Writer& writer, const void* ptr) {
 }
 
 void WriteCharPtr(Writer& writer, const void* ptr) {
-  const auto val = *static_cast<const char* const*>(ptr);
+  const auto val = static_cast<const char*>(ptr);
   writer.Write(val);
 }
 
@@ -200,8 +200,8 @@ void Value::Write(Writer& writer) const {
     const void* ptr = nullptr;
   } formatters[] = {{&WriteInt, &int_val_},
                     {&WriteDouble, &double_val_},
-                    {&WriteString, &string_val_},
-                    {&WriteCharPtr, &char_ptr_val_},
+                    {&WriteString, string_val_},
+                    {&WriteCharPtr, char_ptr_val_},
                     {&WriteChar, &char_val_},
                     {&WriteShort, &short_val_},
                     {&WriteFloat, &float_val_},
