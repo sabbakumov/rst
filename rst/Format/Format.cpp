@@ -93,12 +93,12 @@ void WriteLongDouble(Writer& writer, const void* ptr) {
 }
 
 void WriteString(Writer& writer, const void* ptr) {
-  const auto& val = *static_cast<const string*>(ptr);
+  const auto& val = **static_cast<const string* const*>(ptr);
   writer.Write(val);
 }
 
 void WriteCharPtr(Writer& writer, const void* ptr) {
-  const auto val = static_cast<const char*>(ptr);
+  const auto val = *static_cast<const char* const*>(ptr);
   writer.Write(val);
 }
 
@@ -195,30 +195,27 @@ Value::Value(const char* char_ptr_val)
 Value::Value(char char_val) : type_(Type::kChar), char_val_(char_val) {}
 
 void Value::Write(Writer& writer) const {
-  const struct {
-    WriteFunction* func = nullptr;
-    const void* ptr = nullptr;
-  } formatters[] = {{&WriteInt, &int_val_},
-                    {&WriteDouble, &double_val_},
-                    {&WriteString, string_val_},
-                    {&WriteCharPtr, char_ptr_val_},
-                    {&WriteChar, &char_val_},
-                    {&WriteShort, &short_val_},
-                    {&WriteFloat, &float_val_},
-                    {&WriteUnsignedShort, &unsigned_short_val_},
-                    {&WriteUnsignedInt, &unsigned_int_val_},
-                    {&WriteLong, &long_val_},
-                    {&WriteUnsignedLong, &unsigned_long_val_},
-                    {&WriteLongLong, &long_long_val_},
-                    {&WriteUnsignedLongLong, &unsigned_long_val_},
-                    {&WriteLongDouble, &long_double_val_}};
+  static constexpr WriteFunction* funcs[] = {&WriteInt,
+                                             &WriteDouble,
+                                             &WriteString,
+                                             &WriteCharPtr,
+                                             &WriteChar,
+                                             &WriteShort,
+                                             &WriteFloat,
+                                             &WriteUnsignedShort,
+                                             &WriteUnsignedInt,
+                                             &WriteLong,
+                                             &WriteUnsignedLong,
+                                             &WriteLongLong,
+                                             &WriteUnsignedLongLong,
+                                             &WriteLongDouble};
 
-  static constexpr auto size = sizeof formatters / sizeof formatters[0];
+  static constexpr auto size = sizeof funcs / sizeof funcs[0];
   const auto index = static_cast<size_t>(type_);
   RST_DCHECK(index < size);
 
-  const auto& formatter = formatters[index];
-  formatter.func(writer, formatter.ptr);
+  const auto func = funcs[index];
+  func(writer, &short_val_);
 }
 
 }  // namespace internal
