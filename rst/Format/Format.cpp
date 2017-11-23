@@ -211,6 +211,7 @@ void Value::Write(Writer& writer) const {
                                              &WriteLongDouble};
 
   static constexpr auto size = sizeof funcs / sizeof funcs[0];
+  (void)size;
   const auto index = static_cast<size_t>(type_);
   RST_DCHECK(index < size);
 

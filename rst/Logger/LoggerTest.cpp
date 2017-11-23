@@ -270,6 +270,7 @@ TEST(Logger, DebugMacros) {
   auto sink = std::make_unique<SinkMock>();
   static constexpr auto format = "%s";
   static constexpr auto message = "message";
+  (void)message;
 
   EXPECT_CALL(*sink, Log(_, _, StrEq("DEBUG"), StrEq(format), _));
   EXPECT_CALL(*sink, Log(_, _, StrEq("INFO"), StrEq(format), _));
