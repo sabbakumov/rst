@@ -35,90 +35,134 @@ namespace internal {
 
 namespace {
 
-using WriteFunction = void(Writer& writer, const void* ptr);
+using WriteFunction = void(Writer* writer, const void* ptr);
 
-void WriteShort(Writer& writer, const void* ptr) {
+void WriteShort(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const short*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteUnsignedShort(Writer& writer, const void* ptr) {
+void WriteUnsignedShort(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const unsigned short*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteInt(Writer& writer, const void* ptr) {
+void WriteInt(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const int*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteUnsignedInt(Writer& writer, const void* ptr) {
+void WriteUnsignedInt(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const unsigned int*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteLong(Writer& writer, const void* ptr) {
+void WriteLong(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const long*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteUnsignedLong(Writer& writer, const void* ptr) {
+void WriteUnsignedLong(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const unsigned long*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteLongLong(Writer& writer, const void* ptr) {
+void WriteLongLong(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const long long*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteUnsignedLongLong(Writer& writer, const void* ptr) {
+void WriteUnsignedLongLong(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const unsigned long long*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteFloat(Writer& writer, const void* ptr) {
+void WriteFloat(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const float*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteDouble(Writer& writer, const void* ptr) {
+void WriteDouble(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const double*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteLongDouble(Writer& writer, const void* ptr) {
+void WriteLongDouble(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const long double*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteString(Writer& writer, const void* ptr) {
+void WriteString(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto& val = **static_cast<const string* const*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteCharPtr(Writer& writer, const void* ptr) {
+void WriteCharPtr(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const char* const*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
-void WriteChar(Writer& writer, const void* ptr) {
+void WriteChar(Writer* writer, const void* ptr) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(ptr != nullptr);
+
   const auto val = *static_cast<const char*>(ptr);
-  writer.Write(val);
+  writer->Write(val);
 }
 
 }  // namespace
 
-bool HandleCharacter(char c, const char*& s) {
+bool HandleCharacter(char c, const char** s) {
   RST_DCHECK(s != nullptr);
-  RST_DCHECK(c == *s);
+  const char*& s_ref = *s;
+  RST_DCHECK(s_ref != nullptr);
+  RST_DCHECK(c == *s_ref);
 
   switch (c) {
     case '{': {
-      const auto s_1 = *(s + 1);
+      const auto s_1 = *(s_ref + 1);
       switch (s_1) {
         case '{': {
-          s++;
+          s_ref++;
           break;
         }
         case '}': {
@@ -129,10 +173,10 @@ bool HandleCharacter(char c, const char*& s) {
       break;
     }
     case '}': {
-      const auto s_1 = *(s + 1);
+      const auto s_1 = *(s_ref + 1);
       switch (s_1) {
         case '}': {
-          s++;
+          s_ref++;
           break;
         }
         default: { RST_DCHECK(false && "Unmatched '}' in format string"); }
@@ -143,14 +187,15 @@ bool HandleCharacter(char c, const char*& s) {
   return true;
 }
 
-void Format(Writer& writer, const char* s) {
+void Format(Writer* writer, const char* s) {
+  RST_DCHECK(writer != nullptr);
   RST_DCHECK(s != nullptr);
 
   for (auto c = '\0'; (c = *s) != '\0'; s++) {
-    const auto result = HandleCharacter(c, s);
+    const auto result = HandleCharacter(c, &s);
     RST_DCHECK(result && "Argument index out of range");
     (void)result;
-    writer.Write(c);
+    writer->Write(c);
   }
 }
 
@@ -194,7 +239,9 @@ Value::Value(const char* char_ptr_val)
 
 Value::Value(char char_val) : type_(Type::kChar), char_val_(char_val) {}
 
-void Value::Write(Writer& writer) const {
+void Value::Write(Writer* writer) const {
+  RST_DCHECK(writer != nullptr);
+
   static constexpr WriteFunction* funcs[] = {&WriteInt,
                                              &WriteDouble,
                                              &WriteString,

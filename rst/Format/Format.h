@@ -40,10 +40,10 @@ namespace rst {
 namespace internal {
 
 // Handles character c in the string s. Returns false if there's {} in s.
-bool HandleCharacter(char c, const char*& s);
+bool HandleCharacter(char c, const char** s);
 
 // Writes s to the writer. "{{" -> "{", "}}" -> "}".
-void Format(Writer& writer, const char* s);
+void Format(Writer* writer, const char* s);
 
 class Value {
  public:
@@ -64,7 +64,7 @@ class Value {
   Value(const char* char_ptr_val);
   Value(char char_val);
 
-  void Write(Writer& writer) const;
+  void Write(Writer* writer) const;
 
  private:
   enum class Type : unsigned int {
@@ -106,7 +106,8 @@ class Value {
 
 // Writes s to the writer. "{{" -> "{", "}}" -> "}".
 template <class... Args>
-inline void Format(Writer& writer, const char* s, Args&&... args) {
+inline void Format(Writer* writer, const char* s, Args&&... args) {
+  RST_DCHECK(writer != nullptr);
   RST_DCHECK(s != nullptr);
 
   const std::array<Value, sizeof...(args)> values = {
@@ -114,14 +115,14 @@ inline void Format(Writer& writer, const char* s, Args&&... args) {
 
   size_t arg_idx = 0;
   for (auto c = '\0'; (c = *s) != '\0'; s++) {
-    if (!HandleCharacter(c, s)) {
+    if (!HandleCharacter(c, &s)) {
       RST_DCHECK(arg_idx < values.size() && "Extra arguments");
       values[arg_idx].Write(writer);
       s++;
       arg_idx++;
       continue;
     }
-    writer.Write(c);
+    writer->Write(c);
   }
 
   RST_DCHECK(arg_idx == values.size() && "Numbers of parameters should match");
@@ -134,7 +135,7 @@ template <class... Args>
 inline std::string format(const char* s, Args&&... args) {
   RST_DCHECK(s != nullptr);
   internal::Writer writer;
-  Format(writer, s, std::forward<Args>(args)...);
+  Format(&writer, s, std::forward<Args>(args)...);
   return writer.TakeString();
 }
 

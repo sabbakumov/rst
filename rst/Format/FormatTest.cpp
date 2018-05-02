@@ -183,7 +183,7 @@ TEST(Writer, FormatAndWriteThreeSizeNotFull) {
 
 TEST(FormatTemplate, SNullPtr) {
   Writer writer;
-  EXPECT_DEATH(Format(writer, nullptr, 0), "");
+  EXPECT_DEATH(Format(&writer, nullptr, 0), "");
 }
 
 TEST(Writer, Numbers) {
@@ -392,44 +392,52 @@ TEST(Writer, CopyStringDynamic) {
 }
 
 TEST(HandleCharacter, SNullPtr) {
+  EXPECT_DEATH(HandleCharacter('a', nullptr), "");
+}
+
+TEST(HandleCharacter, SRefNullPtr) {
   const char* s = nullptr;
-  EXPECT_DEATH(HandleCharacter('a', s), "");
+  EXPECT_DEATH(HandleCharacter('a', &s), "");
 }
 
 TEST(HandleCharacter, AnotherString) {
   auto s = "abc";
-  EXPECT_DEATH(HandleCharacter('d', s), "");
+  EXPECT_DEATH(HandleCharacter('d', &s), "");
 }
 
 TEST(HandleCharacter, CaseOpenOpen) {
   auto s = "{{";
-  EXPECT_TRUE(HandleCharacter(*s, s));
+  EXPECT_TRUE(HandleCharacter(*s, &s));
   EXPECT_STREQ("{", s);
 }
 
 TEST(HandleCharacter, CaseOpenClose) {
   auto s = "{}";
-  EXPECT_FALSE(HandleCharacter(*s, s));
+  EXPECT_FALSE(HandleCharacter(*s, &s));
   EXPECT_STREQ("{}", s);
 }
 
 TEST(HandleCharacter, CaseOpenOther) {
   auto s = "{o";
-  EXPECT_DEATH(HandleCharacter(*s, s), "");
+  EXPECT_DEATH(HandleCharacter(*s, &s), "");
 }
 
 TEST(HandleCharacter, CaseCloseClose) {
   auto s = "}}";
-  EXPECT_TRUE(HandleCharacter(*s, s));
+  EXPECT_TRUE(HandleCharacter(*s, &s));
   EXPECT_STREQ("}", s);
 }
 
 TEST(HandleCharacter, CaseCloseOther) {
   auto s = "}o";
-  EXPECT_DEATH(HandleCharacter(*s, s), "");
+  EXPECT_DEATH(HandleCharacter(*s, &s), "");
+}
+
+TEST(Format, WriterNullPtr) {
+  EXPECT_DEATH(Format(nullptr, ""), "");
 }
 
 TEST(Format, SNullPtr) {
   Writer writer;
-  EXPECT_DEATH(Format(writer, nullptr), "");
+  EXPECT_DEATH(Format(&writer, nullptr), "");
 }

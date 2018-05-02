@@ -47,18 +47,20 @@ FileNameSinkData::FileNameSinkData(string prologue_format)
     : prologue_format_(std::move(prologue_format)) {}
 
 FileNameSink::FileNameSink(const string& filename, string prologue_format,
-                           Status& status)
+                           Status* status)
     : FileNameSinkData(std::move(prologue_format)) {
+  RST_DCHECK(status != nullptr);
+
   log_file_.reset(fopen(filename.c_str(), "w"));
 
   if (log_file_ == nullptr) {
-    status = Status(kLoggerErrorDomain,
-                    static_cast<int>(LoggerErrorCode::kOpenFileFailed),
-                    "Can't open file {}"_format(filename));
+    *status = Status(kLoggerErrorDomain,
+                     static_cast<int>(LoggerErrorCode::kOpenFileFailed),
+                     "Can't open file {}"_format(filename));
     return;
   }
 
-  status = Status::OK();
+  *status = Status::OK();
 }
 
 FileNameSink::FileNameSink(FileNameSink&& rhs)
@@ -77,7 +79,7 @@ StatusOr<FileNameSink> FileNameSink::Create(const std::string& filename,
                                             std::string prologue_format) {
   auto status = Status::OK();
   status.Ignore();
-  FileNameSink sink(filename, std::move(prologue_format), status);
+  FileNameSink sink(filename, std::move(prologue_format), &status);
 
   if (!status.ok())
     return std::move(status);

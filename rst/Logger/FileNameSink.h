@@ -80,7 +80,7 @@ class FileNameSink : public ISink, public FileNameSinkData {
  private:
   // Opens a filename for writing.
   FileNameSink(const std::string& filename, std::string prologue_format,
-               Status& status);
+               Status* status);
 
   // Mutex for thread-safe Log function.
   std::mutex mutex_;
