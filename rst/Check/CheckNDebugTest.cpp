@@ -31,6 +31,8 @@
 
 #include <gtest/gtest.h>
 
+namespace rst {
+
 TEST(NDebugCheck, Check) {
   EXPECT_NO_FATAL_FAILURE(RST_CHECK(true));
   EXPECT_DEATH(RST_CHECK(false), "");
@@ -40,3 +42,5 @@ TEST(NDebugCheck, DCheck) {
   EXPECT_NO_FATAL_FAILURE(RST_DCHECK(true));
   EXPECT_NO_FATAL_FAILURE(RST_DCHECK(false));
 }
+
+}  // namespace rst

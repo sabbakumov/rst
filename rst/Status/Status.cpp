@@ -96,4 +96,14 @@ const std::string& Status::error_message() const {
   return error_info_->error_message;
 }
 
+StatusAsOutParameter::StatusAsOutParameter(Status* status) : status_(status) {
+  RST_DCHECK(status_ != nullptr);
+  RST_DCHECK(!status_->was_checked_);
+  status_->set_was_checked(true);
+}
+
+StatusAsOutParameter::~StatusAsOutParameter() {
+  status_->set_was_checked(false);
+}
+
 }  // namespace rst

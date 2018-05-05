@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Sergey Abbakumov
+// Copyright (c) 2016, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,26 +25,44 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Cpp14/Memory.h"
+#ifndef RST_LEGACY_MEMORY_H_
+#define RST_LEGACY_MEMORY_H_
 
-#include <gtest/gtest.h>
+#include <memory>
 
-TEST(MakeUnique, DefaultConstructor) {
-  const auto i = rst::make_unique<int>();
-  *i = 10;
-  EXPECT_EQ(10, *i);
+namespace rst {
+
+// Clang-based make_unique implementation.
+
+template <class T>
+struct unique_if {
+  using unique_single = std::unique_ptr<T>;
+};
+
+template <class T>
+struct unique_if<T[]> {
+  using unique_array_unknown_bound = std::unique_ptr<T[]>;
+};
+
+template <class T, size_t N>
+struct unique_if<T[N]> {
+  using unique_array_known_bound = void;
+};
+
+template <class T, class... Args>
+inline typename unique_if<T>::unique_single make_unique(Args&&... args) {
+  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
-TEST(MakeUnique, CopyConstructor) {
-  const auto i = rst::make_unique<int>(10);
-  EXPECT_EQ(10, *i);
+template <class T>
+inline typename unique_if<T>::unique_array_unknown_bound make_unique(size_t n) {
+  using U = typename std::remove_extent<T>::type;
+  return std::unique_ptr<T>(new U[n]());
 }
 
-TEST(MakeUnique, ArrayConstructor) {
-  const auto p = rst::make_unique<size_t[]>(10);
-  for (size_t i = 0; i < 10; i++)
-    p[i] = i;
+template <class T, class... Args>
+typename unique_if<T>::unique_array_known_bound make_unique(Args&&...) = delete;
 
-  for (size_t i = 0; i < 10; i++)
-    EXPECT_EQ(i, p[i]);
-}
+}  // namespace rst
+
+#endif  // RST_LEGACY_MEMORY_H_

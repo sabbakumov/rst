@@ -29,6 +29,8 @@
 
 #include <gtest/gtest.h>
 
+namespace rst {
+
 TEST(HiddenString, Normal) {
   RST_HIDDEN_STRING(kFirst, "abcDEF");
   EXPECT_EQ("abcDEF", kFirst.Decrypt());
@@ -39,3 +41,5 @@ TEST(HiddenString, Normal) {
   RST_HIDDEN_STRING(kThird, "0123456789");
   EXPECT_EQ("0123456789", kThird.Decrypt());
 }
+
+}  // namespace rst

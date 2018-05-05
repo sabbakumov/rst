@@ -29,6 +29,8 @@
 
 #include <gtest/gtest.h>
 
+namespace rst {
+
 TEST(Check, Check) {
   EXPECT_NO_FATAL_FAILURE(RST_CHECK(true));
   EXPECT_DEATH(RST_CHECK(false), "");
@@ -38,3 +40,5 @@ TEST(Check, DCheck) {
   EXPECT_NO_FATAL_FAILURE(RST_DCHECK(true));
   EXPECT_DEATH(RST_DCHECK(false), "");
 }
+
+}  // namespace rst

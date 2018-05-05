@@ -44,7 +44,7 @@ namespace rst {
 namespace internal {
 
 template <class F>
-class DeferredAction : public NonCopyable, public NonMoveAssignable {
+class DeferredAction : public NonCopyable {
  public:
   DeferredAction() = delete;
   explicit DeferredAction(F&& action) : action_(std::forward<F>(action)) {}

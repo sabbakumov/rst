@@ -33,6 +33,8 @@
 
 using std::string;
 
+namespace rst {
+
 namespace {
 
 auto g_int = 0;
@@ -65,3 +67,5 @@ TEST(Defer, MultipleTimesDeclaration) {
 
   EXPECT_EQ("21", result);
 }
+
+}  // namespace rst

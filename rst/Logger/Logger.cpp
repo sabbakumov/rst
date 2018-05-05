@@ -27,16 +27,17 @@
 
 #include "rst/Logger/Logger.h"
 
-#include <cstdarg>
 #include <cstdlib>
 #include <utility>
 
 #include "rst/Check/Check.h"
-#include "rst/Defer/Defer.h"
-#include "rst/Logger/ISink.h"
+#include "rst/Format/Format.h"
 #include "rst/Logger/LogError.h"
 
+using std::string;
 using std::unique_ptr;
+
+using namespace rst::literals;
 
 namespace rst {
 
@@ -52,18 +53,13 @@ Logger::Logger(unique_ptr<ISink> sink) : sink_(std::move(sink)) {
 
 // static
 void Logger::Log(Level level, const char* filename, int line,
-                 const char* format, ...) {
+                 const string& message) {
   RST_DCHECK(g_logger != nullptr);
   RST_DCHECK(filename != nullptr);
   RST_DCHECK(line > 0);
-  RST_DCHECK(format != nullptr);
 
   if (static_cast<int>(level) < static_cast<int>(g_logger->level_))
     return;
-
-  va_list args;
-  va_start(args, format);
-  RST_DEFER([&args]() -> void { va_end(args); });
 
   const char* level_str = nullptr;
   switch (level) {
@@ -91,7 +87,8 @@ void Logger::Log(Level level, const char* filename, int line,
   }
   RST_DCHECK(level_str != nullptr);
 
-  g_logger->sink_->Log(filename, line, level_str, format, args);
+  g_logger->sink_->Log(
+      "[{}:{}({})] {}"_format(level_str, filename, line, message));
 
   if (level == Level::kFatal) {
     g_logger->sink_.reset();

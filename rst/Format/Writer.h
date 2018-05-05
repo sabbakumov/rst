@@ -35,6 +35,7 @@
 #include <type_traits>
 
 #include "rst/Check/Check.h"
+#include "rst/Noncopyable/Noncopyable.h"
 
 namespace rst {
 
@@ -42,7 +43,7 @@ namespace internal {
 
 // The class for writing values. It has a static and dynamic buffer. By default
 // it uses the static buffer.
-class Writer {
+class Writer : public NonCopyable {
  public:
   // The size of the stack buffer.
   static constexpr size_t kStaticBufferSize = 1024;

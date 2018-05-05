@@ -8,8 +8,6 @@ rst/BuildFlag/BuildFlag.h
 
 rst/Check/Check.h
 
-rst/Cpp14/Memory.h
-
 rst/Defer/Defer.h
 
 rst/Format/Format.cpp
@@ -18,6 +16,9 @@ rst/Format/Writer.cpp
 rst/Format/Writer.h
 
 rst/HiddenString/HiddenString.h
+
+rst/Legacy/Memory.h
+rst/Legacy/Optional.h
 
 rst/Logger/FileNameSink.cpp
 rst/Logger/FileNameSink.h
@@ -30,8 +31,6 @@ rst/Logger/Logger.cpp
 rst/Logger/Logger.h
 
 rst/Noncopyable/Noncopyable.h
-
-rst/Optional/Optional.h
 
 rst/Status/Status.cpp
 rst/Status/Status.h
@@ -48,20 +47,19 @@ rst/Check/CheckNDebugTest.cpp
 
 rst/Test.cpp
 
-rst/Cpp14/MemoryTest.cpp
-
 rst/Defer/DeferTest.cpp
 
 rst/Format/FormatTest.cpp
 
 rst/HiddenString/HiddenStringTest.cpp
 
+rst/Legacy/MemoryTest.cpp
+rst/Legacy/OptionalTest.cpp
+
 rst/Logger/LoggerNDebugTest.cpp
 rst/Logger/LoggerTest.cpp
 
 rst/Noncopyable/NoncopyableTest.cpp
-
-rst/Optional/OptionalTest.cpp
 
 rst/Status/StatusOrTest.cpp
 rst/Status/StatusTest.cpp

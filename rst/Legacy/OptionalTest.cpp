@@ -25,7 +25,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Optional/Optional.h"
+#include "rst/Legacy/Optional.h"
 
 #include <complex>
 #include <string>
@@ -36,8 +36,7 @@
 using std::complex;
 using std::string;
 
-using rst::None;
-using rst::Optional;
+namespace rst {
 
 namespace {
 
@@ -264,3 +263,5 @@ TEST(Optional, OperatorArrow) {
     EXPECT_DEATH(ni->Foo(), "");
   }
 }
+
+}  // namespace rst

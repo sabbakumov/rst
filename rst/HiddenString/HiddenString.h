@@ -32,6 +32,8 @@
 #include <cstdint>
 #include <string>
 
+#include "rst/Noncopyable/Noncopyable.h"
+
 // Compile time encrypted string modified implementation originally taken from
 // https://stackoverflow.com/questions/7270473/compile-time-string-encryption.
 
@@ -90,7 +92,7 @@ template <typename IndexList>
 class HiddenString;
 
 template <size_t... Index>
-class HiddenString<IndexList<Index...>> {
+class HiddenString<IndexList<Index...>> : public NonCopyable {
  public:
   constexpr HiddenString(const char* str)
       : str_{EncryptCharacter(str[Index], Index)...} {}

@@ -31,29 +31,23 @@
 #include <cstdio>
 #include <memory>
 #include <mutex>
-#include <string>
 
 #include "rst/Logger/ISink.h"
+#include "rst/Noncopyable/Noncopyable.h"
 
 namespace rst {
 
 // The class for sinking to a FILE* (can be stdout or stderr).
-class FilePtrSink : public ISink {
+class FilePtrSink : public ISink, public NonCopyable {
  public:
   // Saves the FILE pointer. If should_close is not set, doesn't close the FILE
   // pointer (e.g. stdout, stderr).
-  FilePtrSink(std::FILE* file, std::string prologue_format,
-              bool should_close = true);
+  FilePtrSink(std::FILE* file, bool should_close = true);
 
   // Thread safe logging function.
-  void Log(const char* filename, int line, const char* severity_level,
-           const char* format, va_list args) override;
+  void Log(const std::string& message) override;
 
  private:
-  // Prologue printf-like format for filename, line in a file and severity
-  // level.
-  std::string prologue_format_;
-
   // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
       nullptr, [](std::FILE* f) -> void {

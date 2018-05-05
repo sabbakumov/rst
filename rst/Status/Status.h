@@ -32,6 +32,7 @@
 #include <string>
 
 #include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Status/Status.h"
 
 #ifndef RST_NODISCARD
 #if __cplusplus > 201402L && __has_cpp_attribute(nodiscard)
@@ -46,6 +47,8 @@
 #endif  // RST_NODISCARD
 
 namespace rst {
+
+class StatusAsOutParameter;
 
 // A Google-like Status class for error handling.
 class RST_NODISCARD Status : public NonCopyable {
@@ -68,7 +71,7 @@ class RST_NODISCARD Status : public NonCopyable {
   Status& operator=(Status&& rhs);
 
   // Sets the object to be checked and returns whether the object is OK object.
-  bool ok() {
+  bool ok() const {
     set_was_checked(true);
     return error_info_ == nullptr;
   }
@@ -81,6 +84,8 @@ class RST_NODISCARD Status : public NonCopyable {
   void Ignore() { set_was_checked(true); }
 
  private:
+  friend class StatusAsOutParameter;
+
   template <class T>
   friend class StatusOr;
 
@@ -88,9 +93,9 @@ class RST_NODISCARD Status : public NonCopyable {
   Status();
 
 #ifndef NDEBUG
-  void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
+  void set_was_checked(bool was_checked) const { was_checked_ = was_checked; }
 #else   // NDEBUG
-  void set_was_checked(bool) {}
+  void set_was_checked(bool) const {}
 #endif  // NDEBUG
 
   // Information about the error. nullptr if the object is OK.
@@ -99,8 +104,18 @@ class RST_NODISCARD Status : public NonCopyable {
 
 #ifndef NDEBUG
   // Whether the object was checked.
-  bool was_checked_ = false;
+  mutable bool was_checked_ = false;
 #endif  // NDEBUG
+};
+
+// A helper for Status used as out-parameters.
+class StatusAsOutParameter : public NonCopyable {
+ public:
+  explicit StatusAsOutParameter(Status* status);
+  ~StatusAsOutParameter();
+
+ private:
+  Status* status_ = nullptr;
 };
 
 }  // namespace rst

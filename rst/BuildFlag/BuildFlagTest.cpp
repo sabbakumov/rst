@@ -32,6 +32,8 @@
 #define RST_BUILDFLAG_FOO() (true)
 #define RST_BUILDFLAG_BAR() (false)
 
+namespace rst {
+
 TEST(BuildFlag, TurnOn) {
 #if RST_BUILDFLAG(FOO)
   SUCCEED();
@@ -47,3 +49,5 @@ TEST(BuildFlag, TurnOff) {
   FAIL();
 #endif  // !RST_BUILDFLAG(BAR)
 }
+
+}  // namespace rst

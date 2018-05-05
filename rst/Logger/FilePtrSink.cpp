@@ -36,8 +36,7 @@ using std::unique_lock;
 
 namespace rst {
 
-FilePtrSink::FilePtrSink(FILE* file, string prologue_format, bool should_close)
-    : prologue_format_(std::move(prologue_format)) {
+FilePtrSink::FilePtrSink(FILE* file, bool should_close) {
   RST_DCHECK(file != nullptr);
 
   if (should_close) {
@@ -49,24 +48,10 @@ FilePtrSink::FilePtrSink(FILE* file, string prologue_format, bool should_close)
   }
 }
 
-void FilePtrSink::Log(const char* filename, int line,
-                      const char* severity_level, const char* format,
-                      va_list args) {
-  RST_DCHECK(filename != nullptr);
-  RST_DCHECK(line > 0);
-  RST_DCHECK(severity_level != nullptr);
-  RST_DCHECK(format != nullptr);
-
+void FilePtrSink::Log(const string& message) {
   unique_lock<mutex> lock(mutex_);
 
-  auto val = std::fprintf(file_, prologue_format_.c_str(), filename, line,
-                          severity_level);
-  RST_CHECK(val >= 0);
-
-  val = std::vfprintf(file_, format, args);
-  RST_CHECK(val >= 0);
-
-  val = std::fprintf(file_, "\n");
+  auto val = std::fprintf(file_, "%s\n", message.c_str());
   RST_CHECK(val >= 0);
 
   val = std::fflush(file_);

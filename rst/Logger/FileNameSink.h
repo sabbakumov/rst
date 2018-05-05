@@ -31,28 +31,27 @@
 #include <cstdio>
 #include <memory>
 #include <mutex>
-#include <string>
 
 #include "rst/Logger/ISink.h"
+#include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Status/Status.h"
+#include "rst/Status/StatusOr.h"
 
 namespace rst {
 
-class Status;
-
-template <class T>
-class StatusOr;
-
-class FileNameSinkData {
+// The class for sinking to a file by its filename.
+class FileNameSink : public ISink, public NonCopyable {
  public:
-  explicit FileNameSinkData(std::string prologue_format);
+  // Opens a filename for writing.
+  static StatusOr<std::unique_ptr<FileNameSink>> Create(
+      const std::string& filename);
 
-  FileNameSinkData(FileNameSinkData&&) = default;
-  FileNameSinkData& operator=(FileNameSinkData&&) = default;
+  // Thread safe logging function.
+  void Log(const std::string& message) override;
 
- protected:
-  // Prologue printf-like format for filename, line in a file and severity
-  // level.
-  std::string prologue_format_;
+ private:
+  // Opens a filename for writing.
+  FileNameSink(const std::string& filename, Status* status);
 
   // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
@@ -60,27 +59,6 @@ class FileNameSinkData {
         if (f != nullptr)
           std::fclose(f);
       }};
-};
-
-// The class for sinking to a file by its filename.
-class FileNameSink : public ISink, public FileNameSinkData {
- public:
-  // Opens a filename for writing.
-  static StatusOr<FileNameSink> Create(const std::string& filename,
-                                       std::string prologue_format);
-
-  FileNameSink(FileNameSink&& rhs);
-
-  FileNameSink& operator=(FileNameSink&& rhs);
-
-  // Thread safe logging function.
-  void Log(const char* filename, int line, const char* severity_level,
-           const char* format, va_list args) override;
-
- private:
-  // Opens a filename for writing.
-  FileNameSink(const std::string& filename, std::string prologue_format,
-               Status* status);
 
   // Mutex for thread-safe Log function.
   std::mutex mutex_;

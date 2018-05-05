@@ -30,24 +30,6 @@
 
 namespace rst {
 
-class NonCopyConstructible {
- public:
-  NonCopyConstructible() = default;
-  NonCopyConstructible(const NonCopyConstructible&) = delete;
-  NonCopyConstructible(NonCopyConstructible&&) = default;
-  NonCopyConstructible& operator=(const NonCopyConstructible&) = default;
-  NonCopyConstructible& operator=(NonCopyConstructible&&) = default;
-};
-
-class NonAssignable {
- public:
-  NonAssignable() = default;
-  NonAssignable(const NonAssignable&) = default;
-  NonAssignable(NonAssignable&&) = default;
-  NonAssignable& operator=(const NonAssignable&) = delete;
-  NonAssignable& operator=(NonAssignable&&) = default;
-};
-
 class NonCopyable {
  public:
   NonCopyable() = default;
@@ -55,33 +37,6 @@ class NonCopyable {
   NonCopyable(NonCopyable&&) = default;
   NonCopyable& operator=(const NonCopyable&) = delete;
   NonCopyable& operator=(NonCopyable&&) = default;
-};
-
-class NonMoveConstructible {
- public:
-  NonMoveConstructible() = default;
-  NonMoveConstructible(const NonMoveConstructible&) = default;
-  NonMoveConstructible(NonMoveConstructible&&) = delete;
-  NonMoveConstructible& operator=(const NonMoveConstructible&) = default;
-  NonMoveConstructible& operator=(NonMoveConstructible&&) = default;
-};
-
-class NonMoveAssignable {
- public:
-  NonMoveAssignable() = default;
-  NonMoveAssignable(const NonMoveAssignable&) = default;
-  NonMoveAssignable(NonMoveAssignable&&) = default;
-  NonMoveAssignable& operator=(const NonMoveAssignable&) = default;
-  NonMoveAssignable& operator=(NonMoveAssignable&&) = delete;
-};
-
-class NonMovable {
- public:
-  NonMovable() = default;
-  NonMovable(const NonMovable&) = default;
-  NonMovable(NonMovable&&) = delete;
-  NonMovable& operator=(const NonMovable&) = default;
-  NonMovable& operator=(NonMovable&&) = delete;
 };
 
 }  // namespace rst

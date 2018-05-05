@@ -31,8 +31,9 @@
 
 #include <gtest/gtest.h>
 
-using rst::Status;
 using std::unique_ptr;
+
+namespace rst {
 
 namespace {
 
@@ -97,3 +98,15 @@ TEST(Status, ErrorInfo) {
   EXPECT_DEATH(status.error_code(), "");
   EXPECT_DEATH(status.error_message(), "");
 }
+
+TEST(StatusAsOutParameter, Test) {
+  auto status = Status::OK();
+  {
+    StatusAsOutParameter sao(&status);
+    status = Status::OK();
+  }
+
+  EXPECT_TRUE(status.ok());
+}
+
+}  // namespace rst

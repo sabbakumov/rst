@@ -37,8 +37,9 @@ using std::array;
 using std::numeric_limits;
 using std::string;
 
-using namespace rst;
-using namespace rst::literals;
+namespace rst {
+
+using namespace literals;
 using namespace internal;
 
 TEST(FormatterTest, Escape) {
@@ -441,3 +442,5 @@ TEST(Format, SNullPtr) {
   Writer writer;
   EXPECT_DEATH(Format(&writer, nullptr), "");
 }
+
+}  // namespace rst

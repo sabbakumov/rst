@@ -28,7 +28,7 @@
 #ifndef RST_LOGGER_ISINK_H_
 #define RST_LOGGER_ISINK_H_
 
-#include <cstdarg>
+#include <string>
 
 namespace rst {
 
@@ -36,11 +36,7 @@ namespace rst {
 class ISink {
  public:
   virtual ~ISink() = default;
-  // Prints a message to the sink in a format:
-  // (filename, line, severity_level) for prologue, args for epilogue in
-  // printf-like format.
-  virtual void Log(const char* filename, int line, const char* severity_level,
-                   const char* format, va_list args) = 0;
+  virtual void Log(const std::string& message) = 0;
 };
 
 }  // namespace rst

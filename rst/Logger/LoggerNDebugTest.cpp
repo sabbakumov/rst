@@ -30,23 +30,23 @@
 #include "rst/Logger/Logger.h"
 #include "rst/Logger/ISink.h"
 
-#include <cstdarg>
 #include <memory>
 #include <utility>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-using namespace rst;
+using std::string;
+
 using namespace testing;
+
+namespace rst {
 
 namespace {
 
 class SinkMock : public ISink {
  public:
-  MOCK_METHOD5(Log,
-               void(const char* filename, int line, const char* severity_level,
-                    const char* format, va_list args));
+  MOCK_METHOD1(Log, void(const string& message));
 };
 
 }  // namespace
@@ -54,14 +54,16 @@ class SinkMock : public ISink {
 TEST(Logger, DebugMacrosNDebug) {
   auto sink = std::make_unique<SinkMock>();
 
-  EXPECT_CALL(*sink, Log(_, _, _, _, _)).Times(0);
+  EXPECT_CALL(*sink, Log(_)).Times(0);
 
   Logger logger(std::move(sink));
   Logger::SetLogger(&logger);
 
-  DLOG_DEBUG(format, message);
-  DLOG_INFO(format, message);
-  DLOG_WARNING(format, message);
-  DLOG_ERROR(format, message);
-  DLOG_FATAL(format, message);
+  DLOG_DEBUG(kMessage);
+  DLOG_INFO(kMessage);
+  DLOG_WARNING(kMessage);
+  DLOG_ERROR(kMessage);
+  DLOG_FATAL(kMessage);
 }
+
+}  // namespace rst

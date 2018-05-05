@@ -31,30 +31,7 @@
 
 #include <gtest/gtest.h>
 
-using rst::NonAssignable;
-using rst::NonCopyConstructible;
-using rst::NonCopyable;
-using rst::NonMovable;
-using rst::NonMoveAssignable;
-using rst::NonMoveConstructible;
-
-TEST(NonCopyable, NonCopyConstructible) {
-  using T = NonCopyConstructible;
-  EXPECT_TRUE(std::is_default_constructible<T>::value);
-  EXPECT_FALSE(std::is_copy_constructible<T>::value);
-  EXPECT_TRUE(std::is_copy_assignable<T>::value);
-  EXPECT_TRUE(std::is_move_constructible<T>::value);
-  EXPECT_TRUE(std::is_move_assignable<T>::value);
-}
-
-TEST(NonCopyable, NonAssignable) {
-  using T = NonAssignable;
-  EXPECT_TRUE(std::is_default_constructible<T>::value);
-  EXPECT_TRUE(std::is_copy_constructible<T>::value);
-  EXPECT_FALSE(std::is_copy_assignable<T>::value);
-  EXPECT_TRUE(std::is_move_constructible<T>::value);
-  EXPECT_TRUE(std::is_move_assignable<T>::value);
-}
+namespace rst {
 
 TEST(NonCopyable, NonCopyable) {
   using T = NonCopyable;
@@ -65,29 +42,8 @@ TEST(NonCopyable, NonCopyable) {
   EXPECT_TRUE(std::is_move_assignable<T>::value);
 }
 
-TEST(NonCopyable, NonMoveConstructible) {
-  using T = NonMoveConstructible;
-  EXPECT_TRUE(std::is_default_constructible<T>::value);
-  EXPECT_TRUE(std::is_copy_constructible<T>::value);
-  EXPECT_TRUE(std::is_copy_assignable<T>::value);
-  EXPECT_FALSE(std::is_move_constructible<T>::value);
-  EXPECT_TRUE(std::is_move_assignable<T>::value);
+TEST(NonCopyable, Construct) {
+  NonCopyable();
 }
 
-TEST(NonCopyable, NonMoveAssignable) {
-  using T = NonMoveAssignable;
-  EXPECT_TRUE(std::is_default_constructible<T>::value);
-  EXPECT_TRUE(std::is_copy_constructible<T>::value);
-  EXPECT_TRUE(std::is_copy_assignable<T>::value);
-  EXPECT_TRUE(std::is_move_constructible<T>::value);
-  EXPECT_FALSE(std::is_move_assignable<T>::value);
-}
-
-TEST(NonCopyable, NonMovable) {
-  using T = NonMovable;
-  EXPECT_TRUE(std::is_default_constructible<T>::value);
-  EXPECT_TRUE(std::is_copy_constructible<T>::value);
-  EXPECT_TRUE(std::is_copy_assignable<T>::value);
-  EXPECT_FALSE(std::is_move_constructible<T>::value);
-  EXPECT_FALSE(std::is_move_assignable<T>::value);
-}
+}  // namespace rst

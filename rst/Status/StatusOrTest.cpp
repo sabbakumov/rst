@@ -36,8 +36,7 @@
 using std::complex;
 using std::string;
 
-using rst::Status;
-using rst::StatusOr;
+namespace rst {
 
 namespace {
 
@@ -315,3 +314,5 @@ TEST(StatusOr, Status) {
     EXPECT_EQ("Message", status.error_message());
   }
 }
+
+}  // namespace rst

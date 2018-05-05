@@ -29,77 +29,68 @@
 #define RST_LOGGER_LOGGER_H_
 
 #include <memory>
+#include <string>
 
+#include "rst/Logger/ISink.h"
 #include "rst/Noncopyable/Noncopyable.h"
 
-#define LOG_DEBUG(...)                                                 \
-  ::rst::Logger::Log(::rst::Logger::Level::kDebug, __FILE__, __LINE__, \
-                     __VA_ARGS__)
+#define LOG_DEBUG(message) \
+  ::rst::Logger::Log(::rst::Logger::Level::kDebug, __FILE__, __LINE__, message)
 
-#define LOG_INFO(...)                                                 \
-  ::rst::Logger::Log(::rst::Logger::Level::kInfo, __FILE__, __LINE__, \
-                     __VA_ARGS__)
+#define LOG_INFO(message) \
+  ::rst::Logger::Log(::rst::Logger::Level::kInfo, __FILE__, __LINE__, message)
 
-#define LOG_WARNING(...)                                                 \
+#define LOG_WARNING(message)                                             \
   ::rst::Logger::Log(::rst::Logger::Level::kWarning, __FILE__, __LINE__, \
-                     __VA_ARGS__)
+                     message)
 
-#define LOG_ERROR(...)                                                 \
-  ::rst::Logger::Log(::rst::Logger::Level::kError, __FILE__, __LINE__, \
-                     __VA_ARGS__)
+#define LOG_ERROR(message) \
+  ::rst::Logger::Log(::rst::Logger::Level::kError, __FILE__, __LINE__, message)
 
-#define LOG_FATAL(...)                                                 \
-  ::rst::Logger::Log(::rst::Logger::Level::kFatal, __FILE__, __LINE__, \
-                     __VA_ARGS__)
+#define LOG_FATAL(message) \
+  ::rst::Logger::Log(::rst::Logger::Level::kFatal, __FILE__, __LINE__, message)
 
 #ifndef NDEBUG
 
-#define DLOG_DEBUG(...)                                                \
-  ::rst::Logger::Log(::rst::Logger::Level::kDebug, __FILE__, __LINE__, \
-                     __VA_ARGS__)
+#define DLOG_DEBUG(message) \
+  ::rst::Logger::Log(::rst::Logger::Level::kDebug, __FILE__, __LINE__, message)
 
-#define DLOG_INFO(...)                                                \
-  ::rst::Logger::Log(::rst::Logger::Level::kInfo, __FILE__, __LINE__, \
-                     __VA_ARGS__)
+#define DLOG_INFO(message) \
+  ::rst::Logger::Log(::rst::Logger::Level::kInfo, __FILE__, __LINE__, message)
 
-#define DLOG_WARNING(...)                                                \
+#define DLOG_WARNING(message)                                            \
   ::rst::Logger::Log(::rst::Logger::Level::kWarning, __FILE__, __LINE__, \
-                     __VA_ARGS__)
+                     message)
 
-#define DLOG_ERROR(...)                                                \
-  ::rst::Logger::Log(::rst::Logger::Level::kError, __FILE__, __LINE__, \
-                     __VA_ARGS__)
+#define DLOG_ERROR(message) \
+  ::rst::Logger::Log(::rst::Logger::Level::kError, __FILE__, __LINE__, message)
 
-#define DLOG_FATAL(...)                                                \
-  ::rst::Logger::Log(::rst::Logger::Level::kFatal, __FILE__, __LINE__, \
-                     __VA_ARGS__)
+#define DLOG_FATAL(message) \
+  ::rst::Logger::Log(::rst::Logger::Level::kFatal, __FILE__, __LINE__, message)
 
 #else  // NDEBUG
 
-#define DLOG_DEBUG(...)
-#define DLOG_INFO(...)
-#define DLOG_WARNING(...)
-#define DLOG_ERROR(...)
-#define DLOG_FATAL(...)
+#define DLOG_DEBUG(message)
+#define DLOG_INFO(message)
+#define DLOG_WARNING(message)
+#define DLOG_ERROR(message)
+#define DLOG_FATAL(message)
 
 #endif  // NDEBUG
 
 namespace rst {
 
-class ISink;
-
 // The class for logging to a custom sink.
-class Logger : public NonCopyable, public NonMovable {
+class Logger : public NonCopyable {
  public:
   // Severity levels of logging.
   enum class Level { kAll = 0, kDebug, kInfo, kWarning, kError, kFatal, kOff };
 
   explicit Logger(std::unique_ptr<ISink> sink);
 
-  // Logs a message in printf-like format. If the level is less than level_
-  // nothing gets logged.
+  // Logs a message. If the level is less than level_ nothing gets logged.
   static void Log(Level level, const char* filename, int line,
-                  const char* format, ...);
+                  const std::string& message);
   static void SetLogger(Logger* logger);
 
   void set_level(Level level) { level_ = level; }
