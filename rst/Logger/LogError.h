@@ -30,7 +30,7 @@
 
 namespace rst {
 
-enum class LoggerErrorCode {
+enum LoggerErrorCode {
   kOpenFileFailed = 1,
 };
 
