@@ -81,7 +81,7 @@ class RST_NODISCARD Status : public NonCopyable {
   const std::string& error_message() const;
 
   // Sets the object to be checked.
-  void Ignore() { set_was_checked(true); }
+  void Ignore() const { set_was_checked(true); }
 
  private:
   friend class StatusAsOutParameter;

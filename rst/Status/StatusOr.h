@@ -138,7 +138,7 @@ class RST_NODISCARD StatusOr : public NonCopyable {
     return *this;
   }
 
-  bool ok() {
+  bool ok() const {
     set_was_checked(true);
     return status_.ok();
   }
@@ -164,7 +164,14 @@ class RST_NODISCARD StatusOr : public NonCopyable {
     return status_;
   }
 
-  void Ignore() {
+  const Status& status() const {
+    RST_DCHECK(was_checked_);
+    RST_DCHECK(status_.error_info_ != nullptr);
+
+    return status_;
+  }
+
+  void Ignore() const {
     set_was_checked(true);
     status_.set_was_checked(true);
   }
@@ -177,9 +184,9 @@ class RST_NODISCARD StatusOr : public NonCopyable {
   void Destruct() { value_.~T(); }
 
 #ifndef NDEBUG
-  void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
+  void set_was_checked(bool was_checked) const { was_checked_ = was_checked; }
 #else   // NDEBUG
-  void set_was_checked(bool) {}
+  void set_was_checked(bool) const {}
 #endif  // NDEBUG
 
   Status status_;
@@ -188,7 +195,7 @@ class RST_NODISCARD StatusOr : public NonCopyable {
   };
 
 #ifndef NDEBUG
-  bool was_checked_ = false;
+  mutable bool was_checked_ = false;
 #endif  // NDEBUG
 };
 

@@ -298,15 +298,33 @@ TEST(StatusOr, Status) {
     EXPECT_DEATH(status_or.status(), "");
     status_or.Ignore();
   }
+  {
+    const StatusOr<int> status_or = 0;
+    EXPECT_DEATH(status_or.status(), "");
+    status_or.Ignore();
+  }
 
   {
     StatusOr<int> status_or = 0;
     status_or.Ignore();
     EXPECT_DEATH(status_or.status(), "");
   }
+  {
+    const StatusOr<int> status_or = 0;
+    status_or.Ignore();
+    EXPECT_DEATH(status_or.status(), "");
+  }
 
   {
     StatusOr<int> status_or = Status(kDomain, -1, "Message");
+    status_or.Ignore();
+    const auto& status = status_or.status();
+    EXPECT_EQ(kDomain, status.error_domain());
+    EXPECT_EQ(-1, status.error_code());
+    EXPECT_EQ("Message", status.error_message());
+  }
+  {
+    const StatusOr<int> status_or = Status(kDomain, -1, "Message");
     status_or.Ignore();
     const auto& status = status_or.status();
     EXPECT_EQ(kDomain, status.error_domain());
