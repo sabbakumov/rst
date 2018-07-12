@@ -33,16 +33,11 @@
 #include "rst/Format/Format.h"
 #include "rst/Logger/LogError.h"
 
-using std::mutex;
-using std::string;
-using std::unique_lock;
-using std::unique_ptr;
-
 using namespace rst::literals;
 
 namespace rst {
 
-FileNameSink::FileNameSink(const string& filename, Status* status) {
+FileNameSink::FileNameSink(const std::string& filename, Status* status) {
   RST_DCHECK(status != nullptr);
 
   StatusAsOutParameter sao(status);
@@ -59,7 +54,7 @@ FileNameSink::FileNameSink(const string& filename, Status* status) {
 }
 
 // static
-StatusOr<unique_ptr<FileNameSink>> FileNameSink::Create(
+StatusOr<std::unique_ptr<FileNameSink>> FileNameSink::Create(
     const std::string& filename) {
   auto status = Status::OK();
   std::unique_ptr<FileNameSink> sink(new FileNameSink(filename, &status));
@@ -70,8 +65,8 @@ StatusOr<unique_ptr<FileNameSink>> FileNameSink::Create(
   return std::move(sink);
 }
 
-void FileNameSink::Log(const string& message) {
-  unique_lock<mutex> lock(mutex_);
+void FileNameSink::Log(const std::string& message) {
+  std::unique_lock<std::mutex> lock(mutex_);
 
   auto val = std::fprintf(log_file_.get(), "%s\n", message.c_str());
   RST_CHECK(val >= 0);

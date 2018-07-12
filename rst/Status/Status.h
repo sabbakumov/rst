@@ -53,9 +53,7 @@ class StatusAsOutParameter;
 // A Google-like Status class for error handling.
 class RST_NODISCARD Status : public NonCopyable {
  public:
-  static Status OK() {
-    return Status();
-  }
+  static Status OK() { return Status(); }
 
   // Sets the object not checked by default and to be the error object with
   // error domain and code. The domain should not be nullptr and error_code

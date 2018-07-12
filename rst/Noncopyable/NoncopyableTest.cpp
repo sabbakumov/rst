@@ -42,8 +42,6 @@ TEST(NonCopyable, NonCopyable) {
   EXPECT_TRUE(std::is_move_assignable<T>::value);
 }
 
-TEST(NonCopyable, Construct) {
-  NonCopyable();
-}
+TEST(NonCopyable, Construct) { NonCopyable(); }
 
 }  // namespace rst

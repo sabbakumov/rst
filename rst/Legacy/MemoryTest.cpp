@@ -34,12 +34,12 @@ namespace rst {
 TEST(MakeUnique, DefaultConstructor) {
   const auto i = rst::make_unique<int>();
   *i = 10;
-  EXPECT_EQ(10, *i);
+  EXPECT_EQ(*i, 10);
 }
 
 TEST(MakeUnique, CopyConstructor) {
   const auto i = rst::make_unique<int>(10);
-  EXPECT_EQ(10, *i);
+  EXPECT_EQ(*i, 10);
 }
 
 TEST(MakeUnique, ArrayConstructor) {
@@ -48,7 +48,7 @@ TEST(MakeUnique, ArrayConstructor) {
     p[i] = i;
 
   for (size_t i = 0; i < 10; i++)
-    EXPECT_EQ(i, p[i]);
+    EXPECT_EQ(p[i], i);
 }
 
 }  // namespace rst

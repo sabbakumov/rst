@@ -33,13 +33,13 @@ namespace rst {
 
 TEST(HiddenString, Normal) {
   RST_HIDDEN_STRING(kFirst, "abcDEF");
-  EXPECT_EQ("abcDEF", kFirst.Decrypt());
+  EXPECT_EQ(kFirst.Decrypt(), "abcDEF");
 
   RST_HIDDEN_STRING(kSecond, "ABC");
-  EXPECT_EQ("ABC", kSecond.Decrypt());
+  EXPECT_EQ(kSecond.Decrypt(), "ABC");
 
   RST_HIDDEN_STRING(kThird, "0123456789");
-  EXPECT_EQ("0123456789", kThird.Decrypt());
+  EXPECT_EQ(kThird.Decrypt(), "0123456789");
 }
 
 }  // namespace rst

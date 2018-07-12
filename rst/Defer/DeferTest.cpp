@@ -31,8 +31,6 @@
 
 #include <gtest/gtest.h>
 
-using std::string;
-
 namespace rst {
 
 namespace {
@@ -49,23 +47,23 @@ TEST(Defer, Lambda) {
     RST_DEFER([&i]() -> void { i = 1; });
   }
 
-  EXPECT_EQ(1, i);
+  EXPECT_EQ(i, 1);
 }
 
 TEST(Defer, Function) {
   { RST_DEFER(Foo); }
 
-  EXPECT_EQ(1, g_int);
+  EXPECT_EQ(g_int, 1);
 }
 
 TEST(Defer, MultipleTimesDeclaration) {
-  string result;
+  std::string result;
   {
     RST_DEFER([&result]() -> void { result += '1'; });
     RST_DEFER([&result]() -> void { result += '2'; });
   }
 
-  EXPECT_EQ("21", result);
+  EXPECT_EQ(result, "21");
 }
 
 }  // namespace rst

@@ -27,8 +27,6 @@
 
 #include "rst/Format/Format.h"
 
-using std::string;
-
 namespace rst {
 
 namespace internal {
@@ -129,7 +127,7 @@ void WriteString(Writer* writer, const void* ptr) {
   RST_DCHECK(writer != nullptr);
   RST_DCHECK(ptr != nullptr);
 
-  const auto& val = **static_cast<const string* const*>(ptr);
+  const auto& val = **static_cast<const std::string* const*>(ptr);
   writer->Write(val);
 }
 
@@ -229,7 +227,7 @@ Value::Value(double double_val)
 Value::Value(long double long_double_val)
     : type_(Type::kLongDouble), long_double_val_(long_double_val) {}
 
-Value::Value(const string& string_val)
+Value::Value(const std::string& string_val)
     : type_(Type::kString), string_val_(&string_val) {}
 
 Value::Value(const char* char_ptr_val)

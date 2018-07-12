@@ -31,8 +31,6 @@
 
 #include <gtest/gtest.h>
 
-using std::unique_ptr;
-
 namespace rst {
 
 namespace {
@@ -51,9 +49,9 @@ TEST(Status, OK) {
 TEST(Status, Ctor) {
   Status status(kDomain, -1, "Message");
   ASSERT_FALSE(status.ok());
-  EXPECT_EQ(kDomain, status.error_domain());
-  EXPECT_EQ(-1, status.error_code());
-  EXPECT_EQ("Message", status.error_message());
+  EXPECT_EQ(status.error_domain(), kDomain);
+  EXPECT_EQ(status.error_code(), -1);
+  EXPECT_EQ(status.error_message(), "Message");
 
   EXPECT_DEATH((Status(nullptr, -1, "Message")), "");
   EXPECT_DEATH((Status(kDomain, 0, "Message")), "");
@@ -63,9 +61,9 @@ TEST(Status, MoveCtor) {
   Status status(kDomain, -1, "Message");
   Status status2(std::move(status));
   ASSERT_FALSE(status2.ok());
-  EXPECT_EQ(kDomain, status2.error_domain());
-  EXPECT_EQ(-1, status2.error_code());
-  EXPECT_EQ("Message", status2.error_message());
+  EXPECT_EQ(status2.error_domain(), kDomain);
+  EXPECT_EQ(status2.error_code(), -1);
+  EXPECT_EQ(status2.error_message(), "Message");
 }
 
 TEST(Status, MoveAssignment) {
@@ -74,9 +72,9 @@ TEST(Status, MoveAssignment) {
   status2.Ignore();
   status2 = std::move(status);
   ASSERT_FALSE(status2.ok());
-  EXPECT_EQ(kDomain, status2.error_domain());
-  EXPECT_EQ(-1, status2.error_code());
-  EXPECT_EQ("Message", status2.error_message());
+  EXPECT_EQ(status2.error_domain(), kDomain);
+  EXPECT_EQ(status2.error_code(), -1);
+  EXPECT_EQ(status2.error_message(), "Message");
 
   status2 = Status(kDomain, -1, "Message");
   EXPECT_DEATH(status2 = std::move(status), "");

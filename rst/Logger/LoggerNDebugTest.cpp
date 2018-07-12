@@ -27,8 +27,8 @@
 
 #undef NDEBUG
 #define NDEBUG
-#include "rst/Logger/Logger.h"
 #include "rst/Logger/ISink.h"
+#include "rst/Logger/Logger.h"
 
 #include <memory>
 #include <utility>
@@ -36,9 +36,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-using std::string;
-
-using namespace testing;
+using testing::_;
 
 namespace rst {
 
@@ -46,7 +44,7 @@ namespace {
 
 class SinkMock : public ISink {
  public:
-  MOCK_METHOD1(Log, void(const string& message));
+  MOCK_METHOD1(Log, void(const std::string& message));
 };
 
 }  // namespace

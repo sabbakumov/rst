@@ -31,8 +31,6 @@
 
 #include "rst/Check/Check.h"
 
-using std::string;
-
 namespace rst {
 
 // Information about the error.
@@ -47,7 +45,8 @@ struct Status::ErrorInfo {
 
 Status::Status() = default;
 
-Status::Status(const char* error_domain, int error_code, string error_message)
+Status::Status(const char* error_domain, int error_code,
+               std::string error_message)
     : error_info_(std::make_unique<ErrorInfo>()) {
   RST_DCHECK(error_domain != nullptr);
   RST_DCHECK(error_code != 0);

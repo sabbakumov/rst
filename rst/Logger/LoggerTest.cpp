@@ -48,14 +48,7 @@
 #include "rst/Check/Check.h"
 #include "rst/Noncopyable/Noncopyable.h"
 
-using std::array;
-using std::ifstream;
-using std::string;
-using std::thread;
-using std::unique_ptr;
-using std::vector;
-
-using namespace testing;
+using testing::_;
 
 namespace rst {
 
@@ -75,12 +68,12 @@ class File : public rst::NonCopyable {
   const char* FileName() const { return buffer_.data(); }
 
  private:
-  array<char, L_tmpnam> buffer_;
+  std::array<char, L_tmpnam> buffer_;
 };
 
 class SinkMock : public ISink {
  public:
-  MOCK_METHOD1(Log, void(const string& message));
+  MOCK_METHOD1(Log, void(const std::string& message));
 };
 
 }  // namespace
@@ -90,7 +83,7 @@ TEST(Logger, ConstructorNullSink) { EXPECT_DEATH(Logger(nullptr), ""); }
 TEST(Logger, Log) {
   auto sink = std::make_unique<SinkMock>();
 
-  EXPECT_CALL(*sink, Log(string("[") + kLevelStr + ":" + kFilename + "(" +
+  EXPECT_CALL(*sink, Log(std::string("[") + kLevelStr + ":" + kFilename + "(" +
                          kLineStr + ")] " + kMessage));
 
   Logger logger(std::move(sink));
@@ -162,15 +155,15 @@ TEST(Logger, LogSeverityLevelComparisonPass) {
 TEST(Logger, LogEnumToString) {
   auto sink = std::make_unique<SinkMock>();
 
-  InSequence seq;
+  testing::InSequence seq;
 
-  EXPECT_CALL(*sink, Log(string("[") + "DEBUG" + ":" + kFilename + "(" +
+  EXPECT_CALL(*sink, Log(std::string("[") + "DEBUG" + ":" + kFilename + "(" +
                          kLineStr + ")] " + kMessage));
-  EXPECT_CALL(*sink, Log(string("[") + "INFO" + ":" + kFilename + "(" +
+  EXPECT_CALL(*sink, Log(std::string("[") + "INFO" + ":" + kFilename + "(" +
                          kLineStr + ")] " + kMessage));
-  EXPECT_CALL(*sink, Log(string("[") + "WARNING" + ":" + kFilename + "(" +
+  EXPECT_CALL(*sink, Log(std::string("[") + "WARNING" + ":" + kFilename + "(" +
                          kLineStr + ")] " + kMessage));
-  EXPECT_CALL(*sink, Log(string("[") + "ERROR" + ":" + kFilename + "(" +
+  EXPECT_CALL(*sink, Log(std::string("[") + "ERROR" + ":" + kFilename + "(" +
                          kLineStr + ")] " + kMessage));
 
   Logger logger(std::move(sink));
@@ -267,16 +260,17 @@ TEST(FileNameSink, Log) {
   (*sink)->Log("Message2");
   (*sink)->Log("Message3");
 
-  const vector<string> messages = {"Message1", "Message2", "Message3"};
+  const std::vector<std::string> messages = {"Message1", "Message2",
+                                             "Message3"};
 
-  ifstream f(filename);
+  std::ifstream f(filename);
   ASSERT_TRUE(f.is_open());
 
-  vector<string> strings;
-  for (string line; std::getline(f, line);)
+  std::vector<std::string> strings;
+  for (std::string line; std::getline(f, line);)
     strings.emplace_back(std::move(line));
 
-  EXPECT_EQ(messages, strings);
+  EXPECT_EQ(strings, messages);
 }
 
 TEST(FileNameSink, LogThreadSafe) {
@@ -286,29 +280,29 @@ TEST(FileNameSink, LogThreadSafe) {
   auto sink = FileNameSink::Create(filename);
   ASSERT_TRUE(sink.ok());
 
-  thread t1([&sink]() -> void {
+  std::thread t1([&sink]() -> void {
     std::this_thread::yield();
     (*sink)->Log("Message1");
   });
-  thread t2([&sink]() -> void { (*sink)->Log("Message2"); });
-  thread t3([&sink]() -> void { (*sink)->Log("Message3"); });
+  std::thread t2([&sink]() -> void { (*sink)->Log("Message2"); });
+  std::thread t3([&sink]() -> void { (*sink)->Log("Message3"); });
 
   t1.join();
   t2.join();
   t3.join();
 
-  vector<string> messages = {"Message1", "Message2", "Message3"};
+  std::vector<std::string> messages = {"Message1", "Message2", "Message3"};
   std::sort(messages.begin(), messages.end());
 
-  ifstream f(filename);
+  std::ifstream f(filename);
   ASSERT_TRUE(f.is_open());
 
-  vector<string> strings;
-  for (string line; std::getline(f, line);)
+  std::vector<std::string> strings;
+  for (std::string line; std::getline(f, line);)
     strings.emplace_back(std::move(line));
   std::sort(strings.begin(), strings.end());
 
-  EXPECT_EQ(messages, strings);
+  EXPECT_EQ(strings, messages);
 }
 
 TEST(FilePtrSink, ConstructorNullFile) {
@@ -324,19 +318,20 @@ TEST(FilePtrSink, Log) {
   sink.Log("Message2");
   sink.Log("Message3");
 
-  const array<string, 3> messages = {{"Message1", "Message2", "Message3"}};
+  const std::array<std::string, 3> messages = {
+      {"Message1", "Message2", "Message3"}};
 
   std::rewind(file);
 
   size_t i = 0;
-  string str_line;
-  for (array<char, 256> line;
+  std::string str_line;
+  for (std::array<char, 256> line;
        std::feof(file) == 0 && std::fgets(line.data(), line.size(), file);
        i++) {
     str_line = line.data();
     if (!str_line.empty() && str_line.back() == '\n')
       str_line.erase(str_line.size() - 1);
-    EXPECT_EQ(messages[i], str_line);
+    EXPECT_EQ(str_line, messages[i]);
   }
 }
 
@@ -349,19 +344,20 @@ TEST(FilePtrSink, LogNonClosing) {
   sink.Log("Message2");
   sink.Log("Message3");
 
-  const array<string, 3> messages = {{"Message1", "Message2", "Message3"}};
+  const std::array<std::string, 3> messages = {
+      {"Message1", "Message2", "Message3"}};
 
   std::rewind(file);
 
   size_t i = 0;
-  string str_line;
-  for (array<char, 256> line;
+  std::string str_line;
+  for (std::array<char, 256> line;
        std::feof(file) == 0 && std::fgets(line.data(), line.size(), file);
        i++) {
     str_line = line.data();
     if (!str_line.empty() && str_line.back() == '\n')
       str_line.erase(str_line.size() - 1);
-    EXPECT_EQ(messages[i], str_line);
+    EXPECT_EQ(str_line, messages[i]);
   }
 }
 
@@ -370,33 +366,34 @@ TEST(FilePtrSink, LogThreadSafe) {
 
   FilePtrSink sink(file);
 
-  thread t1([&sink]() -> void {
+  std::thread t1([&sink]() -> void {
     std::this_thread::yield();
     sink.Log("Message1");
   });
-  thread t2([&sink]() -> void { sink.Log("Message2"); });
-  thread t3([&sink]() -> void { sink.Log("Message3"); });
+  std::thread t2([&sink]() -> void { sink.Log("Message2"); });
+  std::thread t3([&sink]() -> void { sink.Log("Message3"); });
 
   t1.join();
   t2.join();
   t3.join();
 
-  vector<string> messages = {{"Message1"}, {"Message2"}, {"Message3"}};
+  std::vector<std::string> messages = {
+      {"Message1"}, {"Message2"}, {"Message3"}};
   std::sort(messages.begin(), messages.end());
 
-  vector<string> strings;
+  std::vector<std::string> strings;
   std::rewind(file);
 
-  for (array<char, 256> line;
+  for (std::array<char, 256> line;
        std::feof(file) == 0 && std::fgets(line.data(), line.size(), file);) {
-    string str_line = line.data();
+    std::string str_line = line.data();
     if (!str_line.empty() && str_line.back() == '\n')
       str_line.erase(str_line.size() - 1);
     strings.emplace_back(std::move(str_line));
   }
   std::sort(strings.begin(), strings.end());
 
-  EXPECT_EQ(messages, strings);
+  EXPECT_EQ(strings, messages);
 }
 
 }  // namespace rst

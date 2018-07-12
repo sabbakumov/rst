@@ -29,14 +29,9 @@
 
 #include "rst/Check/Check.h"
 
-using std::FILE;
-using std::mutex;
-using std::string;
-using std::unique_lock;
-
 namespace rst {
 
-FilePtrSink::FilePtrSink(FILE* file, bool should_close) {
+FilePtrSink::FilePtrSink(std::FILE* file, bool should_close) {
   RST_DCHECK(file != nullptr);
 
   if (should_close) {
@@ -48,8 +43,8 @@ FilePtrSink::FilePtrSink(FILE* file, bool should_close) {
   }
 }
 
-void FilePtrSink::Log(const string& message) {
-  unique_lock<mutex> lock(mutex_);
+void FilePtrSink::Log(const std::string& message) {
+  std::unique_lock<std::mutex> lock(mutex_);
 
   auto val = std::fprintf(file_, "%s\n", message.c_str());
   RST_CHECK(val >= 0);

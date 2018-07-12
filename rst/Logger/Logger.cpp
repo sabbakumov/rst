@@ -34,9 +34,6 @@
 #include "rst/Format/Format.h"
 #include "rst/Logger/LogError.h"
 
-using std::string;
-using std::unique_ptr;
-
 using namespace rst::literals;
 
 namespace rst {
@@ -47,13 +44,13 @@ Logger* g_logger = nullptr;
 
 }  // namespace
 
-Logger::Logger(unique_ptr<ISink> sink) : sink_(std::move(sink)) {
+Logger::Logger(std::unique_ptr<ISink> sink) : sink_(std::move(sink)) {
   RST_DCHECK(sink_ != nullptr);
 }
 
 // static
 void Logger::Log(Level level, const char* filename, int line,
-                 const string& message) {
+                 const std::string& message) {
   RST_DCHECK(g_logger != nullptr);
   RST_DCHECK(filename != nullptr);
   RST_DCHECK(line > 0);
