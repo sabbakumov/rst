@@ -45,7 +45,7 @@ TEST(Status, OK) {
   auto status = Status::OK();
   EXPECT_TRUE(status.ok());
 
-  EXPECT_DEATH(Status::OK(), "");
+  EXPECT_DEATH({ auto status = Status::OK(); }, "");
 }
 
 TEST(Status, Ctor) {
