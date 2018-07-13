@@ -68,10 +68,9 @@ TEST(StatusOr, ValueCtor) {
     ASSERT_TRUE(status_or.ok());
     EXPECT_EQ(*status_or, 0);
 
-    StatusOr<std::complex<double>> status_or_cmplx =
-        std::complex<double>(0.0, 0.0);
+    StatusOr<std::complex<double>> status_or_cmplx = std::complex(0.0, 0.0);
     ASSERT_TRUE(status_or_cmplx.ok());
-    EXPECT_EQ(*status_or_cmplx, std::complex<double>(0.0, 0.0));
+    EXPECT_EQ(*status_or_cmplx, std::complex(0.0, 0.0));
 
     std::string s = "Test string";
     StatusOr<std::string> status_or_str = s;
@@ -100,12 +99,11 @@ TEST(StatusOr, MoveCtor) {
     ASSERT_TRUE(status_or2.ok());
     EXPECT_EQ(*status_or2, 0);
 
-    StatusOr<std::complex<double>> status_or_cmplx =
-        std::complex<double>(0.0, 0.0);
+    StatusOr<std::complex<double>> status_or_cmplx = std::complex(0.0, 0.0);
     StatusOr<std::complex<double>> status_or_cmplx2 =
         std::move(status_or_cmplx);
     ASSERT_TRUE(status_or_cmplx2.ok());
-    EXPECT_EQ(*status_or_cmplx2, std::complex<double>(0.0, 0.0));
+    EXPECT_EQ(*status_or_cmplx2, std::complex(0.0, 0.0));
   }
 
   {
@@ -198,10 +196,8 @@ TEST(StatusOr, OperatorEquals) {
     status_or.Ignore();
     status_or2.Ignore();
 
-    StatusOr<std::complex<double>> status_or_cmplx =
-        std::complex<double>(0.0, 0.0);
-    StatusOr<std::complex<double>> status_or_cmplx2 =
-        std::complex<double>(0.0, 0.0);
+    StatusOr<std::complex<double>> status_or_cmplx = std::complex(0.0, 0.0);
+    StatusOr<std::complex<double>> status_or_cmplx2 = std::complex(0.0, 0.0);
     EXPECT_DEATH(status_or_cmplx2 = std::move(status_or_cmplx), "");
     status_or_cmplx.Ignore();
     status_or_cmplx2.Ignore();
@@ -244,8 +240,7 @@ TEST(StatusOr, Ok) {
     StatusOr<int> status_or = 0;
     EXPECT_TRUE(status_or.ok());
 
-    StatusOr<std::complex<double>> status_or_cmplx =
-        std::complex<double>(0.0, 0.0);
+    StatusOr<std::complex<double>> status_or_cmplx = std::complex(0.0, 0.0);
     EXPECT_TRUE(status_or_cmplx.ok());
   }
 }
@@ -259,13 +254,12 @@ TEST(StatusOr, OperatorStar) {
     ASSERT_TRUE(status_or.ok());
     EXPECT_EQ(*status_or, 1);
 
-    StatusOr<std::complex<double>> status_or_cmplx =
-        std::complex<double>(0.0, 0.0);
+    StatusOr<std::complex<double>> status_or_cmplx = std::complex(0.0, 0.0);
     ASSERT_TRUE(status_or_cmplx.ok());
-    EXPECT_EQ(*status_or_cmplx, std::complex<double>(0.0, 0.0));
-    *status_or_cmplx = std::complex<double>(1.0, 1.0);
+    EXPECT_EQ(*status_or_cmplx, std::complex(0.0, 0.0));
+    *status_or_cmplx = std::complex(1.0, 1.0);
     ASSERT_TRUE(status_or_cmplx.ok());
-    EXPECT_EQ(*status_or_cmplx, std::complex<double>(1.0, 1.0));
+    EXPECT_EQ(*status_or_cmplx, std::complex(1.0, 1.0));
   }
 
   {

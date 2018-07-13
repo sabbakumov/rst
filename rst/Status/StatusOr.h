@@ -35,22 +35,10 @@
 #include "rst/Noncopyable/Noncopyable.h"
 #include "rst/Status/Status.h"
 
-#ifndef RST_NODISCARD
-#if __cplusplus > 201402L && __has_cpp_attribute(nodiscard)
-#define RST_NODISCARD [[nodiscard]]
-#elif !__cplusplus
-#define RST_NODISCARD
-#elif __has_cpp_attribute(clang::warn_unused_result)
-#define RST_NODISCARD [[clang::warn_unused_result]]
-#else
-#define RST_NODISCARD
-#endif
-#endif  // RST_NODISCARD
-
 namespace rst {
 
 template <class T>
-class RST_NODISCARD StatusOr : public NonCopyable {
+class [[nodiscard]] StatusOr : public NonCopyable {
  public:
   StatusOr() = delete;
 

@@ -67,7 +67,7 @@ TEST(Optional, ValueCtor) {
   Optional<int> oi = 0;
   EXPECT_TRUE(oi == true);
 
-  Optional<std::complex<double>> ocmplx = std::complex<double>(0.0, 0.0);
+  Optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
   EXPECT_TRUE(ocmplx == true);
 
   std::string s = "Test string";
@@ -96,10 +96,10 @@ TEST(Optional, CopyCtor) {
     ASSERT_TRUE(oi2 == true);
     EXPECT_EQ(*oi2, 0);
 
-    Optional<std::complex<double>> ocmplx = std::complex<double>(0.0, 0.0);
+    Optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
     Optional<std::complex<double>> ocmplx2(ocmplx);
     ASSERT_TRUE(ocmplx2 == true);
-    EXPECT_EQ(*ocmplx2, std::complex<double>(0.0));
+    EXPECT_EQ(*ocmplx2, std::complex(0.0, 0.0));
   }
 
   {
@@ -162,11 +162,11 @@ TEST(Optional, CopyOperatorEquals) {
     ASSERT_TRUE(oi2 == true);
     EXPECT_EQ(*oi2, 0);
 
-    Optional<std::complex<double>> ocmplx = std::complex<double>(0.0, 0.0);
+    Optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
     Optional<std::complex<double>> ocmplx2;
     ocmplx2 = ocmplx;
     ASSERT_TRUE(ocmplx2 == true);
-    EXPECT_EQ(*ocmplx2, std::complex<double>(0.0));
+    EXPECT_EQ(*ocmplx2, std::complex(0.0, 0.0));
   }
 
   {
@@ -187,7 +187,7 @@ TEST(Optional, OperatorBool) {
     Optional<int> oi = 0;
     EXPECT_TRUE(oi == true);
 
-    Optional<std::complex<double>> ocmplx = std::complex<double>(0.0, 0.0);
+    Optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
     EXPECT_TRUE(ocmplx == true);
   }
 }
@@ -201,12 +201,12 @@ TEST(Optional, OperatorStar) {
     ASSERT_TRUE(oi == true);
     EXPECT_EQ(*oi, 1);
 
-    Optional<std::complex<double>> ocmplx = std::complex<double>(0.0, 0.0);
+    Optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
     ASSERT_TRUE(ocmplx == true);
-    EXPECT_EQ(*ocmplx, std::complex<double>(0.0, 0.0));
-    *ocmplx = std::complex<double>(1.0, 1.0);
+    EXPECT_EQ(*ocmplx, std::complex(0.0, 0.0));
+    *ocmplx = std::complex(1.0, 1.0);
     ASSERT_TRUE(ocmplx == true);
-    EXPECT_EQ(*ocmplx, std::complex<double>(1.0, 1.0));
+    EXPECT_EQ(*ocmplx, std::complex(1.0, 1.0));
 
     std::string s = "Test string";
     Optional<std::string> os = s;
@@ -240,9 +240,9 @@ TEST(Optional, ReturnByValue) {
   EXPECT_EQ(*oi, 10);
 
   Optional<std::complex<double>> ocmplx =
-      ReturnOptional(std::complex<double>(1.0, 1.0));
+      ReturnOptional(std::complex(1.0, 1.0));
   ASSERT_TRUE(ocmplx == true);
-  EXPECT_EQ(*ocmplx, std::complex<double>(1.0, 1.0));
+  EXPECT_EQ(*ocmplx, std::complex(1.0, 1.0));
 }
 
 TEST(Optional, OperatorArrow) {

@@ -33,18 +33,6 @@
 
 #include "rst/Check/Check.h"
 
-#ifndef RST_NODISCARD
-#if __cplusplus > 201402L && __has_cpp_attribute(nodiscard)
-#define RST_NODISCARD [[nodiscard]]
-#elif !__cplusplus
-#define RST_NODISCARD
-#elif __has_cpp_attribute(clang::warn_unused_result)
-#define RST_NODISCARD [[clang::warn_unused_result]]
-#else
-#define RST_NODISCARD
-#endif
-#endif  // RST_NODISCARD
-
 namespace rst {
 
 struct NoneType {
@@ -54,7 +42,7 @@ constexpr NoneType None(0);
 
 // A Boost-like optional.
 template <class T>
-class RST_NODISCARD Optional {
+class [[nodiscard]] Optional {
  public:
   // Allows implicit conversion from T.
   Optional(const T& value) : value_(value), is_valid_(true) {}

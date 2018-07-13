@@ -67,4 +67,4 @@ rst/Status/StatusTest.cpp
 
 TARGET_LINK_LIBRARIES(rst_tests rst pthread gtest gmock)
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -std=c++14 -g -fsanitize=address -pthread -fno-exceptions -fno-rtti")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -std=c++17 -g -fsanitize=address -pthread -fno-exceptions -fno-rtti")
