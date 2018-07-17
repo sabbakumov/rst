@@ -126,7 +126,7 @@ class [[nodiscard]] StatusOr : public NonCopyable {
     return *this;
   }
 
-  bool ok() const {
+  bool ok() {
     set_was_checked(true);
     return status_.ok();
   }
@@ -159,7 +159,7 @@ class [[nodiscard]] StatusOr : public NonCopyable {
     return status_;
   }
 
-  void Ignore() const {
+  void Ignore() {
     set_was_checked(true);
     status_.set_was_checked(true);
   }
@@ -172,9 +172,9 @@ class [[nodiscard]] StatusOr : public NonCopyable {
   void Destruct() { value_.~T(); }
 
 #ifndef NDEBUG
-  void set_was_checked(bool was_checked) const { was_checked_ = was_checked; }
+  void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
 #else   // NDEBUG
-  void set_was_checked(bool) const {}
+  void set_was_checked(bool) {}
 #endif  // NDEBUG
 
   Status status_;
@@ -183,7 +183,7 @@ class [[nodiscard]] StatusOr : public NonCopyable {
   };
 
 #ifndef NDEBUG
-  mutable bool was_checked_ = false;
+  bool was_checked_ = false;
 #endif  // NDEBUG
 };
 

@@ -57,7 +57,7 @@ class [[nodiscard]] Status : public NonCopyable {
   Status& operator=(Status&& rhs);
 
   // Sets the object to be checked and returns whether the object is OK object.
-  bool ok() const {
+  bool ok() {
     set_was_checked(true);
     return error_info_ == nullptr;
   }
@@ -67,7 +67,7 @@ class [[nodiscard]] Status : public NonCopyable {
   const std::string& error_message() const;
 
   // Sets the object to be checked.
-  void Ignore() const { set_was_checked(true); }
+  void Ignore() { set_was_checked(true); }
 
  private:
   friend class StatusAsOutParameter;
@@ -79,9 +79,9 @@ class [[nodiscard]] Status : public NonCopyable {
   Status();
 
 #ifndef NDEBUG
-  void set_was_checked(bool was_checked) const { was_checked_ = was_checked; }
+  void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
 #else   // NDEBUG
-  void set_was_checked(bool) const {}
+  void set_was_checked(bool) {}
 #endif  // NDEBUG
 
   // Information about the error. nullptr if the object is OK.
@@ -90,7 +90,7 @@ class [[nodiscard]] Status : public NonCopyable {
 
 #ifndef NDEBUG
   // Whether the object was checked.
-  mutable bool was_checked_ = false;
+  bool was_checked_ = false;
 #endif  // NDEBUG
 };
 
