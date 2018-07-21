@@ -57,9 +57,13 @@ class [[nodiscard]] Status : public NonCopyable {
   Status& operator=(Status&& rhs);
 
   // Sets the object to be checked and returns whether the object is OK object.
-  bool ok() {
+  bool ok() { return !err(); }
+
+  // Sets the object to be checked and returns whether the object is error
+  // object.
+  bool err() {
     set_was_checked(true);
-    return error_info_ == nullptr;
+    return error_info_ != nullptr;
   }
 
   const char* error_domain() const;

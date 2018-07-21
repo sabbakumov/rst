@@ -126,9 +126,11 @@ class [[nodiscard]] StatusOr : public NonCopyable {
     return *this;
   }
 
-  bool ok() {
+  bool ok() { return !err(); }
+
+  bool err() {
     set_was_checked(true);
-    return status_.ok();
+    return status_.err();
   }
 
   T& operator*() {

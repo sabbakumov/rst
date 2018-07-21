@@ -66,25 +66,30 @@ TEST(StatusOr, ValueCtor) {
   {
     StatusOr<int> status_or = 0;
     ASSERT_TRUE(status_or.ok());
+    ASSERT_FALSE(status_or.err());
     EXPECT_EQ(*status_or, 0);
 
     StatusOr<std::complex<double>> status_or_cmplx = std::complex(0.0, 0.0);
     ASSERT_TRUE(status_or_cmplx.ok());
+    ASSERT_FALSE(status_or_cmplx.err());
     EXPECT_EQ(*status_or_cmplx, std::complex(0.0, 0.0));
 
     std::string s = "Test string";
     StatusOr<std::string> status_or_str = s;
     ASSERT_TRUE(status_or_str.ok());
+    ASSERT_FALSE(status_or_str.err());
     EXPECT_EQ(*status_or_str, "Test string");
 
     StatusOr<std::string> status_or_str2 = std::move(s);
     ASSERT_TRUE(status_or_str2.ok());
+    ASSERT_FALSE(status_or_str2.err());
     EXPECT_EQ(*status_or_str2, "Test string");
   }
 
   {
     StatusOr<int> status_or = Status(kDomain, -1, std::string());
     EXPECT_FALSE(status_or.ok());
+    EXPECT_TRUE(status_or.err());
 
     auto status = Status::OK();
     EXPECT_DEATH(StatusOr<int>(std::move(status)), "");
@@ -97,12 +102,14 @@ TEST(StatusOr, MoveCtor) {
     StatusOr<int> status_or = 0;
     StatusOr<int> status_or2 = std::move(status_or);
     ASSERT_TRUE(status_or2.ok());
+    ASSERT_FALSE(status_or2.err());
     EXPECT_EQ(*status_or2, 0);
 
     StatusOr<std::complex<double>> status_or_cmplx = std::complex(0.0, 0.0);
     StatusOr<std::complex<double>> status_or_cmplx2 =
         std::move(status_or_cmplx);
     ASSERT_TRUE(status_or_cmplx2.ok());
+    ASSERT_FALSE(status_or_cmplx2.err());
     EXPECT_EQ(*status_or_cmplx2, std::complex(0.0, 0.0));
   }
 
@@ -110,6 +117,7 @@ TEST(StatusOr, MoveCtor) {
     StatusOr<int> status_or = Status(kDomain, -1, std::string());
     StatusOr<int> status_or2 = std::move(status_or);
     EXPECT_FALSE(status_or2.ok());
+    EXPECT_TRUE(status_or2.err());
   }
 }
 
@@ -168,6 +176,7 @@ TEST(StatusOr, OperatorEquals) {
     status_or.Ignore();
     status_or = Status(kDomain, -1, "Message");
     ASSERT_FALSE(status_or.ok());
+    ASSERT_TRUE(status_or.err());
     EXPECT_EQ(status_or.status().error_domain(), kDomain);
     EXPECT_EQ(status_or.status().error_code(), -1);
     EXPECT_EQ(status_or.status().error_message(), "Message");
@@ -214,23 +223,28 @@ TEST(StatusOr, MoveOperatorEquals) {
   {
     StatusOr<int> status_or = 8;
     ASSERT_TRUE(status_or.ok());
+    ASSERT_FALSE(status_or.err());
     EXPECT_EQ(*status_or, 8);
 
     StatusOr<int> status_or2 = 168;
     ASSERT_TRUE(status_or2.ok());
+    ASSERT_FALSE(status_or2.err());
     EXPECT_EQ(*status_or2, 168);
 
     status_or = std::move(status_or2);
     ASSERT_TRUE(status_or.ok());
+    ASSERT_FALSE(status_or.err());
     EXPECT_EQ(*status_or, 168);
 
     std::string test = "Test string! Test!";
     StatusOr<std::string> os = test;
     ASSERT_TRUE(os.ok());
+    ASSERT_FALSE(os.err());
     EXPECT_EQ(*os, "Test string! Test!");
 
     StatusOr<std::string> os2 = std::move(os);
     ASSERT_TRUE(os2.ok());
+    ASSERT_FALSE(os2.err());
     EXPECT_EQ(*os2, "Test string! Test!");
   }
 }
@@ -239,9 +253,11 @@ TEST(StatusOr, Ok) {
   {
     StatusOr<int> status_or = 0;
     EXPECT_TRUE(status_or.ok());
+    EXPECT_FALSE(status_or.err());
 
     StatusOr<std::complex<double>> status_or_cmplx = std::complex(0.0, 0.0);
     EXPECT_TRUE(status_or_cmplx.ok());
+    EXPECT_FALSE(status_or_cmplx.err());
   }
 }
 
@@ -249,16 +265,20 @@ TEST(StatusOr, OperatorStar) {
   {
     StatusOr<int> status_or = 0;
     ASSERT_TRUE(status_or.ok());
+    ASSERT_FALSE(status_or.err());
     EXPECT_EQ(*status_or, 0);
     *status_or = 1;
     ASSERT_TRUE(status_or.ok());
+    ASSERT_FALSE(status_or.err());
     EXPECT_EQ(*status_or, 1);
 
     StatusOr<std::complex<double>> status_or_cmplx = std::complex(0.0, 0.0);
     ASSERT_TRUE(status_or_cmplx.ok());
+    ASSERT_FALSE(status_or_cmplx.err());
     EXPECT_EQ(*status_or_cmplx, std::complex(0.0, 0.0));
     *status_or_cmplx = std::complex(1.0, 1.0);
     ASSERT_TRUE(status_or_cmplx.ok());
+    ASSERT_FALSE(status_or_cmplx.err());
     EXPECT_EQ(*status_or_cmplx, std::complex(1.0, 1.0));
   }
 
@@ -273,6 +293,7 @@ TEST(StatusOr, OperatorArrow) {
   {
     StatusOr<ArrowHelper> r = ArrowHelper();
     ASSERT_TRUE(r.ok());
+    ASSERT_FALSE(r.err());
     r->foo();
   }
 
@@ -285,6 +306,7 @@ TEST(StatusOr, OperatorArrow) {
   {
     StatusOr<ArrowHelper> r = Status(kDomain, -1, std::string());
     ASSERT_FALSE(r.ok());
+    ASSERT_TRUE(r.err());
     r.Ignore();
     EXPECT_DEATH(r->foo(), "");
   }

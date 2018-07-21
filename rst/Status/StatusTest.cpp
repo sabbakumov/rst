@@ -46,9 +46,15 @@ TEST(Status, OK) {
   EXPECT_DEATH({ auto status = Status::OK(); }, "");
 }
 
+TEST(Status, Err) {
+  auto status = Status::OK();
+  EXPECT_FALSE(status.err());
+}
+
 TEST(Status, Ctor) {
   Status status(kDomain, -1, "Message");
   ASSERT_FALSE(status.ok());
+  ASSERT_TRUE(status.err());
   EXPECT_EQ(status.error_domain(), kDomain);
   EXPECT_EQ(status.error_code(), -1);
   EXPECT_EQ(status.error_message(), "Message");
@@ -61,6 +67,7 @@ TEST(Status, MoveCtor) {
   Status status(kDomain, -1, "Message");
   Status status2(std::move(status));
   ASSERT_FALSE(status2.ok());
+  ASSERT_TRUE(status2.err());
   EXPECT_EQ(status2.error_domain(), kDomain);
   EXPECT_EQ(status2.error_code(), -1);
   EXPECT_EQ(status2.error_message(), "Message");
@@ -72,6 +79,7 @@ TEST(Status, MoveAssignment) {
   status2.Ignore();
   status2 = std::move(status);
   ASSERT_FALSE(status2.ok());
+  ASSERT_TRUE(status2.err());
   EXPECT_EQ(status2.error_domain(), kDomain);
   EXPECT_EQ(status2.error_code(), -1);
   EXPECT_EQ(status2.error_message(), "Message");
@@ -92,6 +100,7 @@ TEST(Status, ErrorInfo) {
 
   auto status2 = Status::OK();
   EXPECT_TRUE(status2.ok());
+  EXPECT_FALSE(status2.err());
   EXPECT_DEATH(status.error_domain(), "");
   EXPECT_DEATH(status.error_code(), "");
   EXPECT_DEATH(status.error_message(), "");
@@ -105,6 +114,7 @@ TEST(StatusAsOutParameter, Test) {
   }
 
   EXPECT_TRUE(status.ok());
+  EXPECT_FALSE(status.err());
 }
 
 }  // namespace rst

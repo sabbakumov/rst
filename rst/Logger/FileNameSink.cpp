@@ -59,7 +59,7 @@ StatusOr<std::unique_ptr<FileNameSink>> FileNameSink::Create(
   auto status = Status::OK();
   std::unique_ptr<FileNameSink> sink(new FileNameSink(filename, &status));
 
-  if (!status.ok())
+  if (status.err())
     return std::move(status);
 
   return std::move(sink);
