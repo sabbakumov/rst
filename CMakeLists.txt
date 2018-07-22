@@ -36,6 +36,9 @@ rst/Status/Status.cpp
 rst/Status/Status.h
 rst/Status/StatusOr.h
 
+rst/STL/Adapters.h
+rst/STL/Algorithm.h
+
 )
 
 add_executable(rst_tests
@@ -63,6 +66,9 @@ rst/Noncopyable/NoncopyableTest.cpp
 
 rst/Status/StatusOrTest.cpp
 rst/Status/StatusTest.cpp
+
+rst/STL/AdaptersTest.cpp
+rst/STL/AlgorithmTest.cpp
 )
 
 TARGET_LINK_LIBRARIES(rst_tests rst pthread gtest gmock)

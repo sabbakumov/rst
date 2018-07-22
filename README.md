@@ -37,3 +37,6 @@ Now the library contains the following components:
 ## Status
   A Google-like _Status_ class for recoverable error handling with small
   improvements. It's impossible now to ignore an error.
+
+## STL
+  A set of STL utilities.
