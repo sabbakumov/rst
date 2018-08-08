@@ -33,6 +33,8 @@
 
 #define RST_DCHECK(condition) assert(condition)
 
+#define RST_NOTREACHED() RST_DCHECK(false)
+
 #define RST_CHECK(condition) \
   do {                       \
     if (!(condition))        \

@@ -43,4 +43,6 @@ TEST(NDebugCheck, DCheck) {
   EXPECT_NO_FATAL_FAILURE(RST_DCHECK(false));
 }
 
+TEST(NDebugCheck, Notreached) { EXPECT_NO_FATAL_FAILURE(RST_NOTREACHED()); }
+
 }  // namespace rst

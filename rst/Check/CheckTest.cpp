@@ -41,4 +41,6 @@ TEST(Check, DCheck) {
   EXPECT_DEATH(RST_DCHECK(false), "");
 }
 
+TEST(Check, Notreached) { EXPECT_DEATH(RST_NOTREACHED(), ""); }
+
 }  // namespace rst
