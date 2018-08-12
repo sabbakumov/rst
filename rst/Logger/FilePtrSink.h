@@ -45,7 +45,7 @@ class FilePtrSink : public ISink, public NonCopyable {
   FilePtrSink(std::FILE* file, bool should_close = true);
 
   // Thread safe logging function.
-  void Log(const std::string& message) override;
+  void Log(const std::string& message) final;
 
  private:
   // A RAII-wrapper around std::FILE.

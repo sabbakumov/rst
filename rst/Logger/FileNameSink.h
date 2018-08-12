@@ -47,7 +47,7 @@ class FileNameSink : public ISink, public NonCopyable {
       const std::string& filename);
 
   // Thread safe logging function.
-  void Log(const std::string& message) override;
+  void Log(const std::string& message) final;
 
  private:
   // Opens a filename for writing.
