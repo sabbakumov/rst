@@ -28,7 +28,7 @@
 #ifndef RST_FORMAT_FORMAT_H_
 #define RST_FORMAT_FORMAT_H_
 
-#include <array>
+#include <iterator>
 #include <string>
 #include <utility>
 
@@ -111,13 +111,12 @@ inline void Format(Writer* writer, const char* s, Args&&... args) {
   RST_DCHECK(writer != nullptr);
   RST_DCHECK(s != nullptr);
 
-  const std::array<Value, sizeof...(args)> values = {
-      {std::forward<Args>(args)...}};
+  const Value values[] = {std::forward<Args>(args)...};
 
   size_t arg_idx = 0;
   for (auto c = '\0'; (c = *s) != '\0'; s++) {
     if (!HandleCharacter(c, &s)) {
-      RST_DCHECK(arg_idx < values.size() && "Extra arguments");
+      RST_DCHECK(arg_idx < std::size(values) && "Extra arguments");
       values[arg_idx].Write(writer);
       s++;
       arg_idx++;
@@ -126,7 +125,8 @@ inline void Format(Writer* writer, const char* s, Args&&... args) {
     writer->Write(c);
   }
 
-  RST_DCHECK(arg_idx == values.size() && "Numbers of parameters should match");
+  RST_DCHECK(arg_idx == std::size(values) &&
+             "Numbers of parameters should match");
 }
 
 }  // namespace internal

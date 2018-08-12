@@ -50,7 +50,7 @@ constexpr uint64_t GetSeed() {
          (__TIME__[0] - '0') * uint64_t{36000};
 }
 
-constexpr uint64_t LinearCongruentGenerator(int rounds) {
+constexpr uint64_t LinearCongruentGenerator(const int rounds) {
   return uint64_t{1013904223} +
          uint64_t{1664525} *
              ((rounds > 0) ? LinearCongruentGenerator(rounds - 1) : GetSeed());
@@ -58,7 +58,7 @@ constexpr uint64_t LinearCongruentGenerator(int rounds) {
 
 constexpr uint64_t Random() { return LinearCongruentGenerator(10); }
 
-constexpr uint64_t RandomNumber(uint64_t min, uint64_t max) {
+constexpr uint64_t RandomNumber(const uint64_t min, const uint64_t max) {
   return min + Random() % (max - min + 1);
 }
 
@@ -86,7 +86,9 @@ struct ConstructIndexList<0> {
 
 constexpr auto kXorKey = static_cast<char>(RandomNumber(0x00, 0xFF));
 
-constexpr char EncryptCharacter(char c, size_t i) { return c ^ (kXorKey + i); }
+constexpr char EncryptCharacter(const char c, const size_t i) {
+  return c ^ (kXorKey + i);
+}
 
 template <typename IndexList>
 class HiddenString;

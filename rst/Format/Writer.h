@@ -29,7 +29,6 @@
 #define RST_FORMAT_WRITER_H_
 
 #include <algorithm>
-#include <array>
 #include <cstdio>
 #include <string>
 #include <type_traits>
@@ -52,7 +51,8 @@ class Writer : public NonCopyable {
 
   // Writes val like std::snprintf.
   template <class T>
-  void FormatAndWrite(char* str, size_t size, const char* format, T val) {
+  void FormatAndWrite(char* str, const size_t size, const char* format,
+                      const T val) {
     static_assert(std::is_arithmetic<T>::value, "Not an arithmetic type");
     RST_DCHECK(str != nullptr);
     RST_DCHECK(format != nullptr);
@@ -105,7 +105,7 @@ class Writer : public NonCopyable {
 #endif  // NDEBUG
 
   // Buffer on the stack to prevent dynamic allocation.
-  std::array<char, kStaticBufferSize> static_buffer_;
+  char static_buffer_[kStaticBufferSize];
 
   // Dynamic buffer in case of the static buffer gets full or the input is too
   // long for the static buffer.

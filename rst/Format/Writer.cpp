@@ -28,70 +28,68 @@
 #include "rst/Format/Writer.h"
 
 #include <cstring>
+#include <iterator>
 #include <limits>
 
 namespace rst {
 
 namespace internal {
 
-Writer::Writer() { RST_DCHECK(static_buffer_.size() >= 2); }
+Writer::Writer() { RST_DCHECK(std::size(static_buffer_) >= 2); }
 
-void Writer::Write(short val) {
-  std::array<char, 4 * sizeof val> buffer;
-  FormatAndWrite(buffer.data(), buffer.size(), "%hd", val);
+void Writer::Write(const short val) {
+  char buffer[4 * sizeof val];
+  FormatAndWrite(buffer, std::size(buffer), "%hd", val);
 }
 
-void Writer::Write(unsigned short val) {
-  std::array<char, 4 * sizeof val> buffer;
-  FormatAndWrite(buffer.data(), buffer.size(), "%hu", val);
+void Writer::Write(const unsigned short val) {
+  char buffer[4 * sizeof val];
+  FormatAndWrite(buffer, std::size(buffer), "%hu", val);
 }
 
-void Writer::Write(int val) {
-  std::array<char, 4 * sizeof val> buffer;
-  FormatAndWrite(buffer.data(), buffer.size(), "%d", val);
+void Writer::Write(const int val) {
+  char buffer[4 * sizeof val];
+  FormatAndWrite(buffer, std::size(buffer), "%d", val);
 }
 
-void Writer::Write(unsigned int val) {
-  std::array<char, 4 * sizeof val> buffer;
-  FormatAndWrite(buffer.data(), buffer.size(), "%u", val);
+void Writer::Write(const unsigned int val) {
+  char buffer[4 * sizeof val];
+  FormatAndWrite(buffer, std::size(buffer), "%u", val);
 }
 
-void Writer::Write(long val) {
-  std::array<char, 4 * sizeof val> buffer;
-  FormatAndWrite(buffer.data(), buffer.size(), "%ld", val);
+void Writer::Write(const long val) {
+  char buffer[4 * sizeof val];
+  FormatAndWrite(buffer, std::size(buffer), "%ld", val);
 }
 
-void Writer::Write(unsigned long val) {
-  std::array<char, 4 * sizeof val> buffer;
-  FormatAndWrite(buffer.data(), buffer.size(), "%lu", val);
+void Writer::Write(const unsigned long val) {
+  char buffer[4 * sizeof val];
+  FormatAndWrite(buffer, std::size(buffer), "%lu", val);
 }
 
-void Writer::Write(long long val) {
-  std::array<char, 4 * sizeof val> buffer;
-  FormatAndWrite(buffer.data(), buffer.size(), "%lld", val);
+void Writer::Write(const long long val) {
+  char buffer[4 * sizeof val];
+  FormatAndWrite(buffer, std::size(buffer), "%lld", val);
 }
 
-void Writer::Write(unsigned long long val) {
-  std::array<char, 4 * sizeof val> buffer;
-  FormatAndWrite(buffer.data(), buffer.size(), "%llu", val);
+void Writer::Write(const unsigned long long val) {
+  char buffer[4 * sizeof val];
+  FormatAndWrite(buffer, std::size(buffer), "%llu", val);
 }
 
-void Writer::Write(float val) {
-  std::array<char, std::numeric_limits<decltype(val)>::max_exponent10 + 20>
-      buffer;
-  FormatAndWrite(buffer.data(), buffer.size(), "%f", val);
+void Writer::Write(const float val) {
+  char buffer[std::numeric_limits<decltype(val)>::max_exponent10 + 20];
+  FormatAndWrite(buffer, std::size(buffer), "%f", val);
 }
 
-void Writer::Write(double val) {
-  std::array<char, std::numeric_limits<decltype(val)>::max_exponent10 + 20>
-      buffer;
-  FormatAndWrite(buffer.data(), buffer.size(), "%f", val);
+void Writer::Write(const double val) {
+  char buffer[std::numeric_limits<decltype(val)>::max_exponent10 + 20];
+  FormatAndWrite(buffer, std::size(buffer), "%f", val);
 }
 
-void Writer::Write(long double val) {
-  std::array<char, std::numeric_limits<decltype(val)>::max_exponent10 + 20>
-      buffer;
-  FormatAndWrite(buffer.data(), buffer.size(), "%Lf", val);
+void Writer::Write(const long double val) {
+  char buffer[std::numeric_limits<decltype(val)>::max_exponent10 + 20];
+  FormatAndWrite(buffer, std::size(buffer), "%Lf", val);
 }
 
 void Writer::Write(const std::string& val) { Write(val.c_str(), val.size()); }
@@ -102,21 +100,21 @@ void Writer::Write(const char* val) {
   Write(val, std::strlen(val));
 }
 
-void Writer::Write(char val) { Write(&val, 1); }
+void Writer::Write(const char val) { Write(&val, 1); }
 
-void Writer::Write(const char* val, size_t len) {
+void Writer::Write(const char* val, const size_t len) {
   RST_DCHECK(val != nullptr);
   if (len == 0)
     return;
 
   if (is_static_buffer_) {
-    if (len < static_buffer_.size() - size_) {
-      std::copy(val, val + len, static_buffer_.data() + size_);
+    if (len < std::size(static_buffer_) - size_) {
+      std::copy(val, val + len, static_buffer_ + size_);
       size_ += len;
       static_buffer_[size_] = '\0';
     } else {
       dynamic_buffer_.reserve(size_ + len + 1);
-      dynamic_buffer_.assign(static_buffer_.data(), size_);
+      dynamic_buffer_.assign(static_buffer_, size_);
       dynamic_buffer_.append(val, len);
       is_static_buffer_ = false;
     }
@@ -129,7 +127,7 @@ std::string Writer::TakeString() {
   RST_DCHECK(!moved_ && "String has been already moved");
 
   if (is_static_buffer_) {
-    std::string val(static_buffer_.data(), size_);
+    std::string val(static_buffer_, size_);
     set_moved();
     return val;
   }
@@ -140,7 +138,7 @@ std::string Writer::TakeString() {
 
 std::string Writer::CopyString() const {
   if (is_static_buffer_)
-    return std::string(static_buffer_.data(), size_);
+    return std::string(static_buffer_, size_);
   return dynamic_buffer_;
 }
 

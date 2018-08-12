@@ -31,7 +31,7 @@
 
 namespace rst {
 
-FilePtrSink::FilePtrSink(std::FILE* file, bool should_close) {
+FilePtrSink::FilePtrSink(std::FILE* file, const bool should_close) {
   RST_DCHECK(file != nullptr);
 
   if (should_close) {

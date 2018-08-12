@@ -30,9 +30,7 @@
 
 namespace rst {
 
-enum LoggerErrorCode {
-  kOpenFileFailed = 1,
-};
+enum LoggerErrorCode { kOpenFileFailed = 1 };
 
 extern const char* const kLoggerErrorDomain;
 

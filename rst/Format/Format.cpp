@@ -149,7 +149,7 @@ void WriteChar(Writer* writer, const void* ptr) {
 
 }  // namespace
 
-bool HandleCharacter(char c, const char** s) {
+bool HandleCharacter(const char c, const char** s) {
   RST_DCHECK(s != nullptr);
   const char*& s_ref = *s;
   RST_DCHECK(s_ref != nullptr);
@@ -197,34 +197,36 @@ void Format(Writer* writer, const char* s) {
   }
 }
 
-Value::Value(short short_val) : type_(Type::kShort), short_val_(short_val) {}
+Value::Value(const short short_val)
+    : type_(Type::kShort), short_val_(short_val) {}
 
-Value::Value(unsigned short unsigned_short_val)
+Value::Value(const unsigned short unsigned_short_val)
     : type_(Type::kUnsignedShort), unsigned_short_val_(unsigned_short_val) {}
 
-Value::Value(int int_val) : type_(Type::kInt), int_val_(int_val) {}
+Value::Value(const int int_val) : type_(Type::kInt), int_val_(int_val) {}
 
-Value::Value(unsigned int unsigned_int_val)
+Value::Value(const unsigned int unsigned_int_val)
     : type_(Type::kUnsignedInt), unsigned_int_val_(unsigned_int_val) {}
 
-Value::Value(long long_val) : type_(Type::kLong), long_val_(long_val) {}
+Value::Value(const long long_val) : type_(Type::kLong), long_val_(long_val) {}
 
-Value::Value(unsigned long unsigned_long_val)
+Value::Value(const unsigned long unsigned_long_val)
     : type_(Type::kUnsignedLong), unsigned_long_val_(unsigned_long_val) {}
 
-Value::Value(long long long_long_val)
+Value::Value(const long long long_long_val)
     : type_(Type::kLongLong), long_long_val_(long_long_val) {}
 
-Value::Value(unsigned long long unsigned_long_long_val)
+Value::Value(const unsigned long long unsigned_long_long_val)
     : type_(Type::kUnsignedLongLong),
       unsigned_long_long_val_(unsigned_long_long_val) {}
 
-Value::Value(float float_val) : type_(Type::kFloat), float_val_(float_val) {}
+Value::Value(const float float_val)
+    : type_(Type::kFloat), float_val_(float_val) {}
 
-Value::Value(double double_val)
+Value::Value(const double double_val)
     : type_(Type::kDouble), double_val_(double_val) {}
 
-Value::Value(long double long_double_val)
+Value::Value(const long double long_double_val)
     : type_(Type::kLongDouble), long_double_val_(long_double_val) {}
 
 Value::Value(const std::string& string_val)
@@ -235,7 +237,7 @@ Value::Value(const char* char_ptr_val)
   RST_DCHECK(char_ptr_val != nullptr);
 }
 
-Value::Value(char char_val) : type_(Type::kChar), char_val_(char_val) {}
+Value::Value(const char char_val) : type_(Type::kChar), char_val_(char_val) {}
 
 void Value::Write(Writer* writer) const {
   RST_DCHECK(writer != nullptr);
@@ -255,10 +257,8 @@ void Value::Write(Writer* writer) const {
                                              &WriteUnsignedLongLong,
                                              &WriteLongDouble};
 
-  static constexpr auto size = sizeof funcs / sizeof funcs[0];
-  (void)size;
   const auto index = static_cast<size_t>(type_);
-  RST_DCHECK(index < size);
+  RST_DCHECK(index < std::size(funcs));
 
   const auto func = funcs[index];
   func(writer, &short_val_);

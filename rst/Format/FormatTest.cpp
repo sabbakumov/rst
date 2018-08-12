@@ -27,7 +27,7 @@
 
 #include "rst/Format/Format.h"
 
-#include <array>
+#include <iterator>
 #include <limits>
 #include <string>
 
@@ -139,42 +139,42 @@ TEST(Writer, FormatAndWriteNullStr) {
 
 TEST(Writer, FormatAndWriteNullFormat) {
   Writer writer;
-  std::array<char, 10> str;
-  EXPECT_DEATH(writer.FormatAndWrite(str.data(), str.size(), nullptr, 0), "");
+  char str[10];
+  EXPECT_DEATH(writer.FormatAndWrite(str, std::size(str), nullptr, 0), "");
 }
 
 TEST(Writer, FormatAndWriteZeroSize) {
   Writer writer;
-  std::array<char, 10> str;
-  writer.FormatAndWrite(str.data(), 0, "%d", 0);
+  char str[10];
+  writer.FormatAndWrite(str, 0, "%d", 0);
   EXPECT_EQ(writer.CopyString(), std::string());
 }
 
 TEST(Writer, FormatAndWriteOneSize) {
   Writer writer;
-  std::array<char, 10> str;
-  writer.FormatAndWrite(str.data(), 1, "%d", 0);
+  char str[10];
+  writer.FormatAndWrite(str, 1, "%d", 0);
   EXPECT_EQ(writer.CopyString(), std::string());
 }
 
 TEST(Writer, FormatAndWriteTwoSize) {
   Writer writer;
-  std::array<char, 10> str;
-  writer.FormatAndWrite(str.data(), 2, "%d", 0);
+  char str[10];
+  writer.FormatAndWrite(str, 2, "%d", 0);
   EXPECT_EQ(writer.CopyString(), "0");
 }
 
 TEST(Writer, FormatAndWriteThreeSize) {
   Writer writer;
-  std::array<char, 10> str;
-  writer.FormatAndWrite(str.data(), 3, "%d", 10);
+  char str[10];
+  writer.FormatAndWrite(str, 3, "%d", 10);
   EXPECT_EQ(writer.CopyString(), "10");
 }
 
 TEST(Writer, FormatAndWriteThreeSizeNotFull) {
   Writer writer;
-  std::array<char, 10> str;
-  writer.FormatAndWrite(str.data(), 3, "%d", 103);
+  char str[10];
+  writer.FormatAndWrite(str, 3, "%d", 103);
   EXPECT_EQ(writer.CopyString(), "10");
 }
 

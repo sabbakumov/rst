@@ -55,7 +55,8 @@ inline typename unique_if<T>::unique_single make_unique(Args&&... args) {
 }
 
 template <class T>
-inline typename unique_if<T>::unique_array_unknown_bound make_unique(size_t n) {
+inline typename unique_if<T>::unique_array_unknown_bound make_unique(
+    const size_t n) {
   using U = typename std::remove_extent<T>::type;
   return std::unique_ptr<T>(new U[n]());
 }

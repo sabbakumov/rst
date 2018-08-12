@@ -45,7 +45,7 @@ struct Status::ErrorInfo {
 
 Status::Status() = default;
 
-Status::Status(const char* error_domain, int error_code,
+Status::Status(const char* error_domain, const int error_code,
                std::string error_message)
     : error_info_(std::make_unique<ErrorInfo>()) {
   RST_DCHECK(error_domain != nullptr);

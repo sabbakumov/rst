@@ -32,10 +32,10 @@
 #include "rst/Logger/LogError.h"
 
 #include <algorithm>
-#include <array>
 #include <cstdarg>
 #include <cstdio>
 #include <fstream>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <thread>
@@ -62,13 +62,13 @@ constexpr auto kMessage = "message";
 
 class File : public rst::NonCopyable {
  public:
-  File() { RST_CHECK(std::tmpnam(buffer_.data()) != nullptr); }
-  ~File() { std::remove(buffer_.data()); }
+  File() { RST_CHECK(std::tmpnam(buffer_) != nullptr); }
+  ~File() { std::remove(buffer_); }
 
-  const char* FileName() const { return buffer_.data(); }
+  const char* FileName() const { return buffer_; }
 
  private:
-  std::array<char, L_tmpnam> buffer_;
+  char buffer_[L_tmpnam];
 };
 
 class SinkMock : public ISink {
@@ -318,17 +318,15 @@ TEST(FilePtrSink, Log) {
   sink.Log("Message2");
   sink.Log("Message3");
 
-  const std::array<std::string, 3> messages = {
-      {"Message1", "Message2", "Message3"}};
+  const std::string messages[] = {"Message1", "Message2", "Message3"};
 
   std::rewind(file);
 
   size_t i = 0;
   std::string str_line;
-  for (std::array<char, 256> line;
-       std::feof(file) == 0 && std::fgets(line.data(), line.size(), file);
-       i++) {
-    str_line = line.data();
+  for (char line[256];
+       std::feof(file) == 0 && std::fgets(line, std::size(line), file); i++) {
+    str_line = line;
     if (!str_line.empty() && str_line.back() == '\n')
       str_line.erase(str_line.size() - 1);
     EXPECT_EQ(str_line, messages[i]);
@@ -344,17 +342,15 @@ TEST(FilePtrSink, LogNonClosing) {
   sink.Log("Message2");
   sink.Log("Message3");
 
-  const std::array<std::string, 3> messages = {
-      {"Message1", "Message2", "Message3"}};
+  const std::string messages[] = {"Message1", "Message2", "Message3"};
 
   std::rewind(file);
 
   size_t i = 0;
   std::string str_line;
-  for (std::array<char, 256> line;
-       std::feof(file) == 0 && std::fgets(line.data(), line.size(), file);
-       i++) {
-    str_line = line.data();
+  for (char line[256];
+       std::feof(file) == 0 && std::fgets(line, std::size(line), file); i++) {
+    str_line = line;
     if (!str_line.empty() && str_line.back() == '\n')
       str_line.erase(str_line.size() - 1);
     EXPECT_EQ(str_line, messages[i]);
@@ -384,9 +380,9 @@ TEST(FilePtrSink, LogThreadSafe) {
   std::vector<std::string> strings;
   std::rewind(file);
 
-  for (std::array<char, 256> line;
-       std::feof(file) == 0 && std::fgets(line.data(), line.size(), file);) {
-    std::string str_line = line.data();
+  for (char line[256];
+       std::feof(file) == 0 && std::fgets(line, std::size(line), file);) {
+    std::string str_line = line;
     if (!str_line.empty() && str_line.back() == '\n')
       str_line.erase(str_line.size() - 1);
     strings.emplace_back(std::move(str_line));

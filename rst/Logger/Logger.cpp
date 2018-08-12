@@ -49,7 +49,7 @@ Logger::Logger(std::unique_ptr<ISink> sink) : sink_(std::move(sink)) {
 }
 
 // static
-void Logger::Log(Level level, const char* filename, int line,
+void Logger::Log(const Level level, const char* filename, const int line,
                  const std::string& message) {
   RST_DCHECK(g_logger != nullptr);
   RST_DCHECK(filename != nullptr);
