@@ -30,6 +30,8 @@ rst/Logger/LogError.h
 rst/Logger/Logger.cpp
 rst/Logger/Logger.h
 
+rst/Memory/WeakPtr.h
+
 rst/Noncopyable/Noncopyable.h
 
 rst/Status/Status.cpp
@@ -61,6 +63,8 @@ rst/Legacy/OptionalTest.cpp
 
 rst/Logger/LoggerNDebugTest.cpp
 rst/Logger/LoggerTest.cpp
+
+rst/Memory/WeakPtrTest.cpp
 
 rst/Noncopyable/NoncopyableTest.cpp
 

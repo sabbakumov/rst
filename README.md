@@ -31,6 +31,9 @@ Now the library contains the following components:
 ## Logger
   A fast flexible thread-safe logger for C++11.
 
+## Memory
+  A set of memory related utility classes like WeakPtr.
+
 ## NonCopyable
   A Boost-like _NonCopyable_ class.
 
