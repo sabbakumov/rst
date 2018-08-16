@@ -117,6 +117,9 @@ class WeakPtrFactory : public NonCopyable {
     RST_DCHECK(ptr != nullptr);
   }
 
+  WeakPtrFactory(WeakPtrFactory&&) = delete;
+  WeakPtrFactory& operator=(WeakPtrFactory&&) = delete;
+
   WeakPtr<T> GetWeakPtr() const { return WeakPtr<T>(flag_, ptr_); }
 
  private:
