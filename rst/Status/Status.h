@@ -31,7 +31,7 @@
 #include <memory>
 #include <string>
 
-#include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Macros/Macros.h"
 #include "rst/Status/Status.h"
 
 namespace rst {
@@ -39,7 +39,7 @@ namespace rst {
 class StatusAsOutParameter;
 
 // A Google-like Status class for error handling.
-class [[nodiscard]] Status : public NonCopyable {
+class [[nodiscard]] Status {
  public:
   static Status OK() { return Status(); }
 
@@ -96,16 +96,20 @@ class [[nodiscard]] Status : public NonCopyable {
   // Whether the object was checked.
   bool was_checked_ = false;
 #endif  // NDEBUG
+
+  RST_DISALLOW_COPY_AND_ASSIGN(Status);
 };
 
 // A helper for Status used as out-parameters.
-class StatusAsOutParameter : public NonCopyable {
+class StatusAsOutParameter {
  public:
   explicit StatusAsOutParameter(Status* status);
   ~StatusAsOutParameter();
 
  private:
   Status* status_ = nullptr;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(StatusAsOutParameter);
 };
 
 }  // namespace rst

@@ -32,13 +32,13 @@
 #include <utility>
 
 #include "rst/Check/Check.h"
-#include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Macros/Macros.h"
 #include "rst/Status/Status.h"
 
 namespace rst {
 
 template <class T>
-class [[nodiscard]] StatusOr : public NonCopyable {
+class [[nodiscard]] StatusOr {
  public:
   StatusOr() = delete;
 
@@ -187,6 +187,8 @@ class [[nodiscard]] StatusOr : public NonCopyable {
 #ifndef NDEBUG
   bool was_checked_ = false;
 #endif  // NDEBUG
+
+  RST_DISALLOW_COPY_AND_ASSIGN(StatusOr);
 };
 
 }  // namespace rst

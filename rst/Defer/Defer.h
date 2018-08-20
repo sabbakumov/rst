@@ -30,7 +30,7 @@
 
 #include <utility>
 
-#include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Macros/Macros.h"
 
 #define RST_DEFER_INTERNAL_CAT2(x, y) x##y
 #define RST_DEFER_INTERNAL_CAT(x, y) RST_DEFER_INTERNAL_CAT2(x, y)
@@ -44,7 +44,7 @@ namespace rst {
 namespace internal {
 
 template <class F>
-class DeferredAction : public NonCopyable {
+class DeferredAction {
  public:
   DeferredAction() = delete;
   explicit DeferredAction(F&& action) : action_(std::forward<F>(action)) {}
@@ -54,6 +54,8 @@ class DeferredAction : public NonCopyable {
 
  private:
   F action_;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(DeferredAction);
 };
 
 template <class F>

@@ -34,7 +34,7 @@
 
 #include "rst/Check/Check.h"
 #include "rst/Format/Writer.h"
-#include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Macros/Macros.h"
 
 namespace rst {
 
@@ -46,10 +46,8 @@ bool HandleCharacter(char c, const char** s);
 // Writes s to the writer. "{{" -> "{", "}}" -> "}".
 void Format(Writer* writer, const char* s);
 
-class Value : public NonCopyable {
+class Value {
  public:
-  Value() = delete;
-
   Value(short short_val);
   Value(unsigned short unsigned_short_val);
   Value(int int_val);
@@ -103,6 +101,8 @@ class Value : public NonCopyable {
     const char* char_ptr_val_;
     char char_val_;
   };
+
+  RST_DISALLOW_IMPLICIT_CONSTRUCTORS(Value);
 };
 
 // Writes s to the writer. "{{" -> "{", "}}" -> "}".
@@ -143,7 +143,7 @@ inline std::string format(const char* s, Args&&... args) {
 namespace internal {
 
 // Used in user defined literals.
-class Formatter : public NonCopyable {
+class Formatter {
  public:
   explicit Formatter(const char* str) : str_(str) {
     RST_DCHECK(str_ != nullptr);
@@ -156,6 +156,8 @@ class Formatter : public NonCopyable {
 
  private:
   const char* str_ = nullptr;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(Formatter);
 };
 
 }  // namespace internal

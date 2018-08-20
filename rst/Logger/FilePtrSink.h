@@ -33,12 +33,12 @@
 #include <mutex>
 
 #include "rst/Logger/ISink.h"
-#include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Macros/Macros.h"
 
 namespace rst {
 
 // The class for sinking to a FILE* (can be stdout or stderr).
-class FilePtrSink : public ISink, public NonCopyable {
+class FilePtrSink : public ISink {
  public:
   // Saves the FILE pointer. If should_close is not set, doesn't close the FILE
   // pointer (e.g. stdout, stderr).
@@ -64,6 +64,8 @@ class FilePtrSink : public ISink, public NonCopyable {
 
   // Mutex for thread-safe Log function.
   std::mutex mutex_;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(FilePtrSink);
 };
 
 }  // namespace rst

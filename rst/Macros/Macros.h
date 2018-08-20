@@ -25,23 +25,21 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Noncopyable/Noncopyable.h"
+#ifndef RST_MACROS_MACROS_H_
+#define RST_MACROS_MACROS_H_
 
-#include <type_traits>
+// Google like macros.
 
-#include <gtest/gtest.h>
+#define RST_DISALLOW_COPY(Class) Class(const Class&) = delete
 
-namespace rst {
+#define RST_DISALLOW_ASSIGN(Class) Class& operator=(const Class&) = delete
 
-TEST(NonCopyable, NonCopyable) {
-  using T = NonCopyable;
-  EXPECT_TRUE(std::is_default_constructible<T>::value);
-  EXPECT_FALSE(std::is_copy_constructible<T>::value);
-  EXPECT_FALSE(std::is_copy_assignable<T>::value);
-  EXPECT_TRUE(std::is_move_constructible<T>::value);
-  EXPECT_TRUE(std::is_move_assignable<T>::value);
-}
+#define RST_DISALLOW_COPY_AND_ASSIGN(Class) \
+  RST_DISALLOW_COPY(Class);                 \
+  RST_DISALLOW_ASSIGN(Class)
 
-TEST(NonCopyable, Construct) { NonCopyable(); }
+#define RST_DISALLOW_IMPLICIT_CONSTRUCTORS(Class) \
+  Class() = delete;                               \
+  RST_DISALLOW_COPY_AND_ASSIGN(Class)
 
-}  // namespace rst
+#endif  // RST_MACROS_MACROS_H_

@@ -30,6 +30,8 @@
 
 #include <iterator>
 
+#include "rst/Macros/Macros.h"
+
 namespace rst {
 namespace internal {
 
@@ -46,6 +48,8 @@ class ReversedAdapter {
 
  private:
   T& t_;
+
+  RST_DISALLOW_ASSIGN(ReversedAdapter);
 };
 
 }  // namespace internal

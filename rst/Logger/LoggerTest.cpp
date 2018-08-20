@@ -46,7 +46,7 @@
 #include <gtest/gtest.h>
 
 #include "rst/Check/Check.h"
-#include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Macros/Macros.h"
 
 using testing::_;
 
@@ -60,7 +60,7 @@ constexpr auto kLine = 10;
 constexpr auto kLineStr = "10";
 constexpr auto kMessage = "message";
 
-class File : public rst::NonCopyable {
+class File {
  public:
   File() { RST_CHECK(std::tmpnam(buffer_) != nullptr); }
   ~File() { std::remove(buffer_); }
@@ -69,6 +69,8 @@ class File : public rst::NonCopyable {
 
  private:
   char buffer_[L_tmpnam];
+
+  RST_DISALLOW_COPY_AND_ASSIGN(File);
 };
 
 class SinkMock : public ISink {

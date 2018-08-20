@@ -34,7 +34,7 @@
 #include <utility>
 
 #include "rst/Check/Check.h"
-#include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Macros/Macros.h"
 
 // Chromium-based WeakPtr.
 namespace rst {
@@ -110,7 +110,7 @@ bool operator!=(std::nullptr_t, const WeakPtr<T>& weak_ptr) {
 }
 
 template <class T>
-class WeakPtrFactory : public NonCopyable {
+class WeakPtrFactory {
  public:
   explicit WeakPtrFactory(T* ptr)
       : flag_(std::make_shared<internal::Flag>()), ptr_(ptr) {
@@ -125,6 +125,8 @@ class WeakPtrFactory : public NonCopyable {
  private:
   std::shared_ptr<internal::Flag> flag_;
   T* ptr_ = nullptr;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(WeakPtrFactory);
 };
 
 }  // namespace rst

@@ -32,7 +32,7 @@
 #include <string>
 
 #include "rst/Logger/ISink.h"
-#include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Macros/Macros.h"
 
 #define LOG_DEBUG(message) \
   ::rst::Logger::Log(::rst::Logger::Level::kDebug, __FILE__, __LINE__, message)
@@ -81,7 +81,7 @@
 namespace rst {
 
 // The class for logging to a custom sink.
-class Logger : public NonCopyable {
+class Logger {
  public:
   // Severity levels of logging.
   enum class Level { kAll = 0, kDebug, kInfo, kWarning, kError, kFatal, kOff };
@@ -99,6 +99,8 @@ class Logger : public NonCopyable {
   Level level_ = Level::kAll;
 
   std::unique_ptr<ISink> sink_;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(Logger);
 };
 
 }  // namespace rst

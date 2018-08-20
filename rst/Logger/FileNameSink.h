@@ -33,14 +33,14 @@
 #include <mutex>
 
 #include "rst/Logger/ISink.h"
-#include "rst/Noncopyable/Noncopyable.h"
+#include "rst/Macros/Macros.h"
 #include "rst/Status/Status.h"
 #include "rst/Status/StatusOr.h"
 
 namespace rst {
 
 // The class for sinking to a file by its filename.
-class FileNameSink : public ISink, public NonCopyable {
+class FileNameSink : public ISink {
  public:
   // Opens a filename for writing.
   static StatusOr<std::unique_ptr<FileNameSink>> Create(
@@ -62,6 +62,8 @@ class FileNameSink : public ISink, public NonCopyable {
 
   // Mutex for thread-safe Log function.
   std::mutex mutex_;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(FileNameSink);
 };
 
 }  // namespace rst
