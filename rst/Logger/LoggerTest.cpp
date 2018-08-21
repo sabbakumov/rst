@@ -308,7 +308,7 @@ TEST(FileNameSink, LogThreadSafe) {
 }
 
 TEST(FilePtrSink, ConstructorNullFile) {
-  EXPECT_DEATH(FilePtrSink(nullptr, ""), "");
+  EXPECT_DEATH(FilePtrSink(nullptr), "");
 }
 
 TEST(FilePtrSink, Log) {

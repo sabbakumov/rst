@@ -87,7 +87,7 @@ struct ConstructIndexList<0> {
 constexpr auto kXorKey = static_cast<char>(RandomNumber(0x00, 0xFF));
 
 constexpr char EncryptCharacter(const char c, const size_t i) {
-  return c ^ (kXorKey + i);
+  return c ^ static_cast<char>(kXorKey + i);
 }
 
 template <typename IndexList>

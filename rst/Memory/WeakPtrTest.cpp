@@ -41,13 +41,6 @@ struct Base {
 
 struct Derived : public Base {};
 
-struct Weak {
-  WeakPtr<Weak> AsWeakPtr() const { return weak_factory_.GetWeakPtr(); }
-
-  std::string data;
-  WeakPtrFactory<Weak> weak_factory_{this};
-};
-
 }  // namespace
 
 TEST(WeakPtrTest, Basic) {
