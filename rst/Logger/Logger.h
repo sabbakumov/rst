@@ -84,7 +84,15 @@ namespace rst {
 class Logger {
  public:
   // Severity levels of logging.
-  enum class Level { kAll = 0, kDebug, kInfo, kWarning, kError, kFatal, kOff };
+  enum class Level {
+    kAll = 0,
+    kDebug,
+    kInfo,
+    kWarning,
+    kError,
+    kFatal,
+    kOff,
+  };
 
   explicit Logger(std::unique_ptr<ISink> sink);
 

@@ -40,8 +40,6 @@ namespace rst {
 template <class T>
 class [[nodiscard]] StatusOr {
  public:
-  StatusOr() = delete;
-
   StatusOr(StatusOr&& rhs) : status_(std::move(rhs.status_)) {
     if (status_.error_info_ == nullptr)
       Construct(std::move(rhs.value_));

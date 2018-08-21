@@ -33,8 +33,6 @@ namespace internal {
 
 namespace {
 
-using WriteFunction = void(Writer* writer, const void* ptr);
-
 void WriteShort(Writer* writer, const void* ptr) {
   RST_DCHECK(writer != nullptr);
   RST_DCHECK(ptr != nullptr);
@@ -242,20 +240,23 @@ Value::Value(const char char_val) : type_(Type::kChar), char_val_(char_val) {}
 void Value::Write(Writer* writer) const {
   RST_DCHECK(writer != nullptr);
 
-  static constexpr WriteFunction* funcs[] = {&WriteInt,
-                                             &WriteDouble,
-                                             &WriteString,
-                                             &WriteCharPtr,
-                                             &WriteChar,
-                                             &WriteShort,
-                                             &WriteFloat,
-                                             &WriteUnsignedShort,
-                                             &WriteUnsignedInt,
-                                             &WriteLong,
-                                             &WriteUnsignedLong,
-                                             &WriteLongLong,
-                                             &WriteUnsignedLongLong,
-                                             &WriteLongDouble};
+  using WriteFunction = void(Writer * writer, const void* ptr);
+  static constexpr WriteFunction* funcs[] = {
+      &WriteInt,
+      &WriteDouble,
+      &WriteString,
+      &WriteCharPtr,
+      &WriteChar,
+      &WriteShort,
+      &WriteFloat,
+      &WriteUnsignedShort,
+      &WriteUnsignedInt,
+      &WriteLong,
+      &WriteUnsignedLong,
+      &WriteLongLong,
+      &WriteUnsignedLongLong,
+      &WriteLongDouble,
+  };
 
   const auto index = static_cast<size_t>(type_);
   RST_DCHECK(index < std::size(funcs));
