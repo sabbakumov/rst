@@ -33,6 +33,12 @@
 #include <utility>
 
 namespace rst {
+namespace internal {
+
+template <typename C>
+using ContainerIter = decltype(std::begin(std::declval<C&>()));
+
+}  // namespace internal
 
 template <class C>
 void Sort(C& c) {
@@ -52,6 +58,12 @@ void StableSort(C& c) {
 template <class C, class Compare>
 void StableSort(C& c, Compare&& comp) {
   std::stable_sort(std::begin(c), std::end(c), std::forward<Compare>(comp));
+}
+
+template <class C, class UnaryPredicate>
+internal::ContainerIter<C> FindIf(C& c, UnaryPredicate&& pred) {
+  return std::find_if(std::begin(c), std::end(c),
+                      std::forward<UnaryPredicate>(pred));
 }
 
 }  // namespace rst
