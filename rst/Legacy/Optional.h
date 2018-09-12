@@ -35,41 +35,41 @@
 
 namespace rst {
 
-struct NoneType {
-  constexpr NoneType(int) {}
+struct nullopt_t {
+  constexpr explicit nullopt_t(int) {}
 };
-constexpr NoneType None(0);
+constexpr nullopt_t nullopt(0);
 
 // A Boost-like optional.
 template <class T>
-class [[nodiscard]] Optional {
+class [[nodiscard]] optional {
  public:
   // Allows implicit conversion from T.
-  Optional(const T& value) : value_(value), is_valid_(true) {}
+  optional(const T& value) : value_(value), is_valid_(true) {}
   // Allows implicit conversion from T.
-  Optional(T&& value) : value_(std::move(value)), is_valid_(true) {}
+  optional(T && value) : value_(std::move(value)), is_valid_(true) {}
 
-  Optional(const Optional& rhs) : is_valid_(rhs.is_valid_) {
+  optional(const optional& rhs) : is_valid_(rhs.is_valid_) {
     if (is_valid_)
       Construct(rhs.value_);
   }
 
-  Optional(Optional&& rhs) : is_valid_(rhs.is_valid_) {
+  optional(optional && rhs) : is_valid_(rhs.is_valid_) {
     if (is_valid_)
       Construct(std::move(rhs.value_));
   }
 
-  // Allows implicit conversion from NoneType.
-  Optional(NoneType) {}
+  // Allows implicit conversion from nullopt_t.
+  optional(nullopt_t) {}
 
-  Optional() {}
+  optional() {}
 
-  ~Optional() {
+  ~optional() {
     if (is_valid_)
       Destruct();
   }
 
-  Optional& operator=(const T& value) {
+  optional& operator=(const T& value) {
     if (is_valid_)
       Destruct();
 
@@ -80,7 +80,7 @@ class [[nodiscard]] Optional {
     return *this;
   }
 
-  Optional& operator=(T&& value) {
+  optional& operator=(T&& value) {
     if (is_valid_)
       Destruct();
 
@@ -91,7 +91,7 @@ class [[nodiscard]] Optional {
     return *this;
   }
 
-  Optional& operator=(const Optional& rhs) {
+  optional& operator=(const optional& rhs) {
     if (this == &rhs)
       return *this;
 
@@ -109,7 +109,7 @@ class [[nodiscard]] Optional {
     return *this;
   }
 
-  Optional& operator=(Optional&& rhs) {
+  optional& operator=(optional&& rhs) {
     if (this == &rhs)
       return *this;
 
@@ -127,7 +127,7 @@ class [[nodiscard]] Optional {
     return *this;
   }
 
-  Optional& operator=(NoneType) {
+  optional& operator=(nullopt_t) {
     if (is_valid_)
       Destruct();
 
@@ -143,28 +143,64 @@ class [[nodiscard]] Optional {
     return value_;
   }
 
+  const T& operator*() const {
+    RST_DCHECK(was_checked_);
+    RST_DCHECK(is_valid_);
+    return value_;
+  }
+
   T* operator->() {
     RST_DCHECK(was_checked_);
     RST_DCHECK(is_valid_);
     return &value_;
   }
 
-  operator bool() {
+  T* operator->() const {
+    RST_DCHECK(was_checked_);
+    RST_DCHECK(is_valid_);
+    return &value_;
+  }
+
+  explicit operator bool() const {
     set_was_checked(true);
     return is_valid_;
+  }
+
+  bool has_value() const {
+    set_was_checked(true);
+    return is_valid_;
+  }
+
+  template <class U>
+  T value_or(U && default_value) const {
+    if (is_valid_)
+      return value_;
+    return static_cast<T>(std::forward<U>(default_value));
+  }
+
+  template <class... Args>
+  T& emplace(Args && ... args) {
+    if (is_valid_)
+      Destruct();
+
+    Construct(T(std::forward<Args>(args)...));
+    is_valid_ = true;
+    set_was_checked(false);
+
+    return value_;
   }
 
  private:
   void Construct(const T& value) { new (&value_) T(value); }
 
-  void Construct(T&& value) { new (&value_) T(std::move(value)); }
+  void Construct(T && value) { new (&value_) T(std::move(value)); }
 
   void Destruct() { value_.~T(); }
 
 #ifndef NDEBUG
-  void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
+  void set_was_checked(bool was_checked) const { was_checked_ = was_checked; }
 #else   // NDEBUG
-  void set_was_checked(bool) {}
+  void set_was_checked(bool) const {}
 #endif  // NDEBUG
 
   union {
@@ -173,9 +209,49 @@ class [[nodiscard]] Optional {
 
   bool is_valid_ = false;
 #ifndef NDEBUG
-  bool was_checked_ = false;
+  mutable bool was_checked_ = false;
 #endif  // NDEBUG
 };
+
+template <class T, class U>
+bool operator==(const optional<T>& opt, const U& value) {
+  return opt.has_value() ? *opt == value : false;
+}
+
+template <class T>
+bool operator==(const optional<T>& opt, const bool value) {
+  return opt.has_value() == value;
+}
+
+template <class T, class U>
+bool operator==(const U& value, const optional<T>& opt) {
+  return opt.has_value() ? value == *opt : false;
+}
+
+template <class T>
+bool operator==(const bool value, const optional<T>& opt) {
+  return opt.has_value() == value;
+}
+
+template <class T, class U>
+bool operator!=(const optional<T>& opt, const U& value) {
+  return opt.has_value() ? *opt != value : true;
+}
+
+template <class T>
+bool operator!=(const optional<T>& opt, const bool value) {
+  return opt.has_value() == value;
+}
+
+template <class T, class U>
+bool operator!=(const U& value, const optional<T>& opt) {
+  return opt.has_value() ? value != *opt : true;
+}
+
+template <class T>
+bool operator!=(const bool value, const optional<T>& opt) {
+  return opt.has_value() == value;
+}
 
 }  // namespace rst
 

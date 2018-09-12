@@ -57,58 +57,58 @@ class ArrowHelper {
 };
 
 template <class T>
-Optional<T> ReturnOptional(const T& val) {
-  return Optional<T>(val);
+optional<T> ReturnOptional(const T& val) {
+  return optional<T>(val);
 }
 
 }  // namespace
 
 TEST(Optional, ValueCtor) {
-  Optional<int> oi = 0;
+  optional<int> oi = 0;
   EXPECT_TRUE(oi == true);
 
-  Optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
+  optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
   EXPECT_TRUE(ocmplx == true);
 
   std::string s = "Test string";
-  Optional<std::string> os = s;
+  optional<std::string> os = s;
   EXPECT_TRUE(os == true);
 
-  Optional<std::string> os2 = std::move(s);
+  optional<std::string> os2 = std::move(s);
   EXPECT_TRUE(os2 == true);
 
-  Optional<int> ni(None);
+  optional<int> ni(nullopt);
   EXPECT_TRUE(ni == false);
 }
 
 TEST(Optional, DefaultCtor) {
-  Optional<int> oi;
+  optional<int> oi;
   EXPECT_TRUE(oi == false);
 
-  Optional<std::complex<double>> ocmplx;
+  optional<std::complex<double>> ocmplx;
   EXPECT_TRUE(ocmplx == false);
 }
 
 TEST(Optional, CopyCtor) {
   {
-    Optional<int> oi = 0;
-    Optional<int> oi2(oi);
+    optional<int> oi = 0;
+    optional<int> oi2(oi);
     ASSERT_TRUE(oi2 == true);
     EXPECT_EQ(*oi2, 0);
 
-    Optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
-    Optional<std::complex<double>> ocmplx2(ocmplx);
+    optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
+    optional<std::complex<double>> ocmplx2(ocmplx);
     ASSERT_TRUE(ocmplx2 == true);
     EXPECT_EQ(*ocmplx2, std::complex(0.0, 0.0));
   }
 
   {
-    Optional<int> oi;
-    Optional<int> oi2(oi);
+    optional<int> oi;
+    optional<int> oi2(oi);
     EXPECT_TRUE(oi2 == false);
 
-    Optional<std::complex<double>> ocmplx;
-    Optional<std::complex<double>> ocmplx2(ocmplx);
+    optional<std::complex<double>> ocmplx;
+    optional<std::complex<double>> ocmplx2(ocmplx);
     EXPECT_TRUE(ocmplx2 == false);
   }
 }
@@ -117,10 +117,10 @@ TEST(Optional, Dtor) {
   EXPECT_EQ(DtorHelper::counter(), 0);
 
   {
-    Optional<DtorHelper> o = DtorHelper();
+    optional<DtorHelper> o = DtorHelper();
     EXPECT_EQ(DtorHelper::counter(), 1);
 
-    Optional<DtorHelper> o2 = DtorHelper();
+    optional<DtorHelper> o2 = DtorHelper();
     EXPECT_EQ(DtorHelper::counter(), 2);
   }
 
@@ -131,77 +131,91 @@ TEST(Optional, OperatorEquals) {
   EXPECT_EQ(DtorHelper::counter(), 0);
 
   {
-    Optional<DtorHelper> o;
+    optional<DtorHelper> o;
     o = DtorHelper();
     EXPECT_EQ(DtorHelper::counter(), 1);
 
-    Optional<DtorHelper> o2;
+    optional<DtorHelper> o2;
     o2 = DtorHelper();
     EXPECT_EQ(DtorHelper::counter(), 2);
   }
 
   EXPECT_EQ(DtorHelper::counter(), 0);
 
-  Optional<int> oi;
-  oi = None;
+  optional<int> oi;
+  oi = nullopt;
   EXPECT_TRUE(oi == false);
 }
 
 TEST(Optional, CopyOperatorEquals) {
   {
-    Optional<int> oi = 0;
+    optional<int> oi = 0;
     oi = oi;
     ASSERT_TRUE(oi == true);
     EXPECT_EQ(*oi, 0);
   }
 
   {
-    Optional<int> oi = 0;
-    Optional<int> oi2;
+    optional<int> oi = 0;
+    optional<int> oi2;
     oi2 = oi;
     ASSERT_TRUE(oi2 == true);
     EXPECT_EQ(*oi2, 0);
 
-    Optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
-    Optional<std::complex<double>> ocmplx2;
+    optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
+    optional<std::complex<double>> ocmplx2;
     ocmplx2 = ocmplx;
     ASSERT_TRUE(ocmplx2 == true);
     EXPECT_EQ(*ocmplx2, std::complex(0.0, 0.0));
   }
 
   {
-    Optional<int> oi;
-    Optional<int> oi2;
+    optional<int> oi;
+    optional<int> oi2;
     oi2 = oi;
     EXPECT_TRUE(oi2 == false);
 
-    Optional<std::complex<double>> ocmplx;
-    Optional<std::complex<double>> ocmplx2;
+    optional<std::complex<double>> ocmplx;
+    optional<std::complex<double>> ocmplx2;
     ocmplx2 = ocmplx;
     EXPECT_TRUE(ocmplx2 == false);
   }
 }
 
 TEST(Optional, OperatorBool) {
+  optional<int> o;
+  EXPECT_TRUE(o == false);
   {
-    Optional<int> oi = 0;
+    optional<int> oi = 0;
     EXPECT_TRUE(oi == true);
 
-    Optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
+    optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
     EXPECT_TRUE(ocmplx == true);
+  }
+}
+
+TEST(Optional, HasValue) {
+  optional<int> o;
+  EXPECT_FALSE(o.has_value());
+  {
+    optional<int> oi = 0;
+    EXPECT_TRUE(oi.has_value());
+
+    optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
+    EXPECT_TRUE(ocmplx.has_value());
   }
 }
 
 TEST(Optional, OperatorStar) {
   {
-    Optional<int> oi = 0;
+    optional<int> oi = 0;
     ASSERT_TRUE(oi == true);
     EXPECT_EQ(*oi, 0);
     *oi = 1;
     ASSERT_TRUE(oi == true);
     EXPECT_EQ(*oi, 1);
 
-    Optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
+    optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
     ASSERT_TRUE(ocmplx == true);
     EXPECT_EQ(*ocmplx, std::complex(0.0, 0.0));
     *ocmplx = std::complex(1.0, 1.0);
@@ -209,37 +223,37 @@ TEST(Optional, OperatorStar) {
     EXPECT_EQ(*ocmplx, std::complex(1.0, 1.0));
 
     std::string s = "Test string";
-    Optional<std::string> os = s;
+    optional<std::string> os = s;
     ASSERT_TRUE(os == true);
     EXPECT_EQ(*os, "Test string");
 
-    Optional<std::string> os2 = std::move(s);
+    optional<std::string> os2 = std::move(s);
     ASSERT_TRUE(os2 == true);
     EXPECT_EQ(*os2, "Test string");
   }
   {
-    Optional<int> oi;
+    optional<int> oi;
     EXPECT_DEATH(*oi, "");
 
-    Optional<std::complex<double>> ocmplx;
+    optional<std::complex<double>> ocmplx;
     EXPECT_DEATH(ocmplx->real(), "");
   }
   {
-    Optional<int> oi;
+    optional<int> oi;
     EXPECT_DEATH(*oi, "");
 
-    Optional<int> ni(None);
+    optional<int> ni(nullopt);
     EXPECT_TRUE(ni == false);
     EXPECT_DEATH(*ni, "");
   }
 }
 
 TEST(Optional, ReturnByValue) {
-  Optional<int> oi = ReturnOptional(10);
+  optional<int> oi = ReturnOptional(10);
   ASSERT_TRUE(oi == true);
   EXPECT_EQ(*oi, 10);
 
-  Optional<std::complex<double>> ocmplx =
+  optional<std::complex<double>> ocmplx =
       ReturnOptional(std::complex(1.0, 1.0));
   ASSERT_TRUE(ocmplx == true);
   EXPECT_EQ(*ocmplx, std::complex(1.0, 1.0));
@@ -247,19 +261,46 @@ TEST(Optional, ReturnByValue) {
 
 TEST(Optional, OperatorArrow) {
   {
-    Optional<ArrowHelper> o = ArrowHelper();
+    optional<ArrowHelper> o = ArrowHelper();
 
     EXPECT_TRUE(o == true);
     o->Foo();
   }
   {
-    Optional<ArrowHelper> o;
+    optional<ArrowHelper> o;
     EXPECT_DEATH(o->Foo(), "");
 
-    Optional<ArrowHelper> ni(None);
+    optional<ArrowHelper> ni(nullopt);
     EXPECT_TRUE(ni == false);
     EXPECT_DEATH(ni->Foo(), "");
   }
+}
+
+TEST(Optional, ValueOr) {
+  optional<std::string> o;
+  EXPECT_EQ(o.value_or("test"), "test");
+
+  optional<std::string> o2("data");
+  EXPECT_EQ(o2.value_or("test"), "data");
+}
+
+TEST(Optional, Emplace) {
+  optional<std::string> o;
+  EXPECT_TRUE(o == false);
+  o.emplace("test");
+  EXPECT_TRUE(o == true);
+  EXPECT_TRUE(*o == "test");
+}
+
+TEST(Optional, Comparison) {
+  optional<std::string> o;
+  optional<std::string> o2("data");
+
+  EXPECT_FALSE(o == "data");
+  EXPECT_FALSE("data" == o);
+
+  EXPECT_TRUE(o2 == "data");
+  EXPECT_TRUE("data" == o2);
 }
 
 }  // namespace rst
