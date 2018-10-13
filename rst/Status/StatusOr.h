@@ -41,8 +41,10 @@ template <class T>
 class [[nodiscard]] StatusOr {
  public:
   StatusOr(StatusOr&& rhs) : status_(std::move(rhs.status_)) {
-    if (status_.error_info_ == nullptr)
+    if (rhs.was_constructed_) {
+      RST_DCHECK(status_.error_info_ == nullptr);
       Construct(std::move(rhs.value_));
+    }
     rhs.set_was_checked(true);
   }
 
@@ -57,7 +59,7 @@ class [[nodiscard]] StatusOr {
   ~StatusOr() {
     RST_DCHECK(was_checked_);
 
-    if (status_.error_info_ == nullptr)
+    if (was_constructed_)
       Destruct();
   }
 
@@ -67,12 +69,12 @@ class [[nodiscard]] StatusOr {
     if (this == &rhs)
       return *this;
 
-    if (status_.error_info_ == nullptr)
+    if (was_constructed_)
       Destruct();
 
     status_ = std::move(rhs.status_);
 
-    if (status_.error_info_ == nullptr)
+    if (rhs.was_constructed_)
       Construct(std::move(rhs.value_));
 
     set_was_checked(false);
@@ -84,7 +86,7 @@ class [[nodiscard]] StatusOr {
   StatusOr& operator=(const T& value) {
     RST_DCHECK(was_checked_);
 
-    if (status_.error_info_ == nullptr)
+    if (was_constructed_)
       Destruct();
 
     status_ = Status::OK();
@@ -99,7 +101,7 @@ class [[nodiscard]] StatusOr {
   StatusOr& operator=(T&& value) {
     RST_DCHECK(was_checked_);
 
-    if (status_.error_info_ == nullptr)
+    if (was_constructed_)
       Destruct();
 
     status_ = Status::OK();
@@ -115,7 +117,7 @@ class [[nodiscard]] StatusOr {
     RST_DCHECK(was_checked_);
     RST_DCHECK(status.error_info_ != nullptr);
 
-    if (status.error_info_ == nullptr)
+    if (was_constructed_)
       Destruct();
 
     status_ = std::move(status);
@@ -133,14 +135,14 @@ class [[nodiscard]] StatusOr {
 
   T& operator*() {
     RST_DCHECK(was_checked_);
-    RST_DCHECK(status_.error_info_ == nullptr);
+    RST_DCHECK(was_constructed_);
 
     return value_;
   }
 
   T* operator->() {
     RST_DCHECK(was_checked_);
-    RST_DCHECK(status_.error_info_ == nullptr);
+    RST_DCHECK(was_constructed_);
 
     return &value_;
   }
@@ -165,11 +167,23 @@ class [[nodiscard]] StatusOr {
   }
 
  private:
-  void Construct(const T& value) { new (&value_) T(value); }
+  void Construct(const T& value) {
+    RST_DCHECK(!was_constructed_);
+    new (&value_) T(value);
+    was_constructed_ = true;
+  }
 
-  void Construct(T&& value) { new (&value_) T(std::move(value)); }
+  void Construct(T && value) {
+    RST_DCHECK(!was_constructed_);
+    new (&value_) T(std::move(value));
+    was_constructed_ = true;
+  }
 
-  void Destruct() { value_.~T(); }
+  void Destruct() {
+    RST_DCHECK(was_constructed_);
+    value_.~T();
+    was_constructed_ = false;
+  }
 
 #ifndef NDEBUG
   void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
@@ -181,6 +195,7 @@ class [[nodiscard]] StatusOr {
   union {
     T value_;
   };
+  bool was_constructed_ = false;
 
 #ifndef NDEBUG
   bool was_checked_ = false;

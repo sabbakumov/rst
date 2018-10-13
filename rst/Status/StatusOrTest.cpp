@@ -335,4 +335,18 @@ TEST(StatusOr, Status) {
   }
 }
 
+TEST(Status, StatusOrFromAnother) {
+  StatusOr<std::string> status_or = Status(kDomain, -1, "Message");
+  EXPECT_FALSE(status_or.ok());
+  StatusOr<std::string> status_or2 = std::move(status_or.status());
+  EXPECT_FALSE(status_or2.ok());
+}
+
+TEST(Status, StatusOrFromAnotherMove) {
+  StatusOr<std::string> status_or = Status(kDomain, -1, "Message");
+  EXPECT_FALSE(status_or.ok());
+  StatusOr<std::string> status_or2(std::move(status_or));
+  EXPECT_FALSE(status_or2.ok());
+}
+
 }  // namespace rst
