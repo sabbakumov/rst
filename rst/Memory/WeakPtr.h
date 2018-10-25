@@ -112,10 +112,7 @@ bool operator!=(std::nullptr_t, const WeakPtr<T>& weak_ptr) {
 template <class T>
 class WeakPtrFactory {
  public:
-  explicit WeakPtrFactory(T* ptr)
-      : flag_(std::make_shared<internal::Flag>()), ptr_(ptr) {
-    RST_DCHECK(ptr != nullptr);
-  }
+  explicit WeakPtrFactory(T* ptr) : ptr_(ptr) { RST_DCHECK(ptr != nullptr); }
 
   WeakPtrFactory(WeakPtrFactory&&) = delete;
   WeakPtrFactory& operator=(WeakPtrFactory&&) = delete;
@@ -123,7 +120,7 @@ class WeakPtrFactory {
   WeakPtr<T> GetWeakPtr() const { return WeakPtr<T>(flag_, ptr_); }
 
  private:
-  std::shared_ptr<internal::Flag> flag_;
+  std::shared_ptr<internal::Flag> flag_ = std::make_shared<internal::Flag>();
   T* ptr_ = nullptr;
 
   RST_DISALLOW_COPY_AND_ASSIGN(WeakPtrFactory);

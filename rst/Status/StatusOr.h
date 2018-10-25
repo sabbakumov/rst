@@ -29,6 +29,7 @@
 #define RST_STATUS_STATUSOR_H_
 
 #include <new>
+#include <optional>
 #include <utility>
 
 #include "rst/Check/Check.h"
@@ -41,9 +42,9 @@ template <class T>
 class [[nodiscard]] StatusOr {
  public:
   StatusOr(StatusOr&& rhs) : status_(std::move(rhs.status_)) {
-    if (rhs.was_constructed_) {
+    if (rhs.value_.has_value()) {
       RST_DCHECK(status_.error_info_ == nullptr);
-      Construct(std::move(rhs.value_));
+      Construct(std::move(*rhs.value_));
     }
     rhs.set_was_checked(true);
   }
@@ -56,12 +57,7 @@ class [[nodiscard]] StatusOr {
     RST_DCHECK(status_.error_info_ != nullptr);
   }
 
-  ~StatusOr() {
-    RST_DCHECK(was_checked_);
-
-    if (was_constructed_)
-      Destruct();
-  }
+  ~StatusOr() { RST_DCHECK(was_checked_); }
 
   StatusOr& operator=(StatusOr&& rhs) {
     RST_DCHECK(was_checked_);
@@ -69,13 +65,10 @@ class [[nodiscard]] StatusOr {
     if (this == &rhs)
       return *this;
 
-    if (was_constructed_)
-      Destruct();
-
     status_ = std::move(rhs.status_);
 
-    if (rhs.was_constructed_)
-      Construct(std::move(rhs.value_));
+    if (rhs.value_.has_value())
+      Construct(std::move(*rhs.value_));
 
     set_was_checked(false);
     rhs.set_was_checked(true);
@@ -85,9 +78,6 @@ class [[nodiscard]] StatusOr {
 
   StatusOr& operator=(const T& value) {
     RST_DCHECK(was_checked_);
-
-    if (was_constructed_)
-      Destruct();
 
     status_ = Status::OK();
 
@@ -101,9 +91,6 @@ class [[nodiscard]] StatusOr {
   StatusOr& operator=(T&& value) {
     RST_DCHECK(was_checked_);
 
-    if (was_constructed_)
-      Destruct();
-
     status_ = Status::OK();
 
     Construct(std::move(value));
@@ -116,9 +103,6 @@ class [[nodiscard]] StatusOr {
   StatusOr& operator=(Status status) {
     RST_DCHECK(was_checked_);
     RST_DCHECK(status.error_info_ != nullptr);
-
-    if (was_constructed_)
-      Destruct();
 
     status_ = std::move(status);
     set_was_checked(false);
@@ -135,16 +119,16 @@ class [[nodiscard]] StatusOr {
 
   T& operator*() {
     RST_DCHECK(was_checked_);
-    RST_DCHECK(was_constructed_);
+    RST_DCHECK(value_.has_value());
 
-    return value_;
+    return *value_;
   }
 
   T* operator->() {
     RST_DCHECK(was_checked_);
-    RST_DCHECK(was_constructed_);
+    RST_DCHECK(value_.has_value());
 
-    return &value_;
+    return &*value_;
   }
 
   Status& status() {
@@ -167,23 +151,9 @@ class [[nodiscard]] StatusOr {
   }
 
  private:
-  void Construct(const T& value) {
-    RST_DCHECK(!was_constructed_);
-    new (&value_) T(value);
-    was_constructed_ = true;
-  }
+  void Construct(const T& value) { value_.emplace(value); }
 
-  void Construct(T && value) {
-    RST_DCHECK(!was_constructed_);
-    new (&value_) T(std::move(value));
-    was_constructed_ = true;
-  }
-
-  void Destruct() {
-    RST_DCHECK(was_constructed_);
-    value_.~T();
-    was_constructed_ = false;
-  }
+  void Construct(T && value) { value_.emplace(std::move(value)); }
 
 #ifndef NDEBUG
   void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
@@ -192,10 +162,7 @@ class [[nodiscard]] StatusOr {
 #endif  // NDEBUG
 
   Status status_;
-  union {
-    T value_;
-  };
-  bool was_constructed_ = false;
+  std::optional<T> value_;
 
 #ifndef NDEBUG
   bool was_checked_ = false;
