@@ -77,4 +77,4 @@ rst/STL/AlgorithmTest.cpp
 
 TARGET_LINK_LIBRARIES(rst_tests rst pthread gtest gmock)
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -std=c++17 -g -fsanitize=address -pthread -fno-exceptions -fno-rtti -Wno-exit-time-destructors")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -std=c++17 -g -fsanitize=address -pthread -fno-exceptions -fno-rtti -Wexit-time-destructors")
