@@ -65,6 +65,9 @@ class [[nodiscard]] StatusOr {
     if (this == &rhs)
       return *this;
 
+    if (value_.has_value())
+      Destruct();
+
     status_ = std::move(rhs.status_);
 
     if (rhs.value_.has_value())
@@ -79,6 +82,9 @@ class [[nodiscard]] StatusOr {
   StatusOr& operator=(const T& value) {
     RST_DCHECK(was_checked_);
 
+    if (value_.has_value())
+      Destruct();
+
     status_ = Status::OK();
 
     Construct(value);
@@ -90,6 +96,9 @@ class [[nodiscard]] StatusOr {
 
   StatusOr& operator=(T&& value) {
     RST_DCHECK(was_checked_);
+
+    if (value_.has_value())
+      Destruct();
 
     status_ = Status::OK();
 
@@ -103,6 +112,9 @@ class [[nodiscard]] StatusOr {
   StatusOr& operator=(Status status) {
     RST_DCHECK(was_checked_);
     RST_DCHECK(status.error_info_ != nullptr);
+
+    if (value_.has_value())
+      Destruct();
 
     status_ = std::move(status);
     set_was_checked(false);
@@ -154,6 +166,8 @@ class [[nodiscard]] StatusOr {
   void Construct(const T& value) { value_.emplace(value); }
 
   void Construct(T && value) { value_.emplace(std::move(value)); }
+
+  void Destruct() { value_.reset(); }
 
 #ifndef NDEBUG
   void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
