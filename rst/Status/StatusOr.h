@@ -41,11 +41,9 @@ namespace rst {
 template <class T>
 class [[nodiscard]] StatusOr {
  public:
-  StatusOr(StatusOr&& rhs) : status_(std::move(rhs.status_)) {
-    if (rhs.value_.has_value()) {
-      RST_DCHECK(status_.error_info_ == nullptr);
-      Construct(std::move(*rhs.value_));
-    }
+  StatusOr(StatusOr&& rhs)
+      : status_(std::move(rhs.status_)), value_(std::move(rhs.value_)) {
+    RST_DCHECK(value_.has_value() ? (status_.error_info_ == nullptr) : true);
     rhs.set_was_checked(true);
   }
 
@@ -65,13 +63,8 @@ class [[nodiscard]] StatusOr {
     if (this == &rhs)
       return *this;
 
-    if (value_.has_value())
-      Destruct();
-
     status_ = std::move(rhs.status_);
-
-    if (rhs.value_.has_value())
-      Construct(std::move(*rhs.value_));
+    value_ = std::move(rhs.value_);
 
     set_was_checked(false);
     rhs.set_was_checked(true);
@@ -82,11 +75,7 @@ class [[nodiscard]] StatusOr {
   StatusOr& operator=(const T& value) {
     RST_DCHECK(was_checked_);
 
-    if (value_.has_value())
-      Destruct();
-
     status_ = Status::OK();
-
     Construct(value);
 
     set_was_checked(false);
@@ -97,11 +86,7 @@ class [[nodiscard]] StatusOr {
   StatusOr& operator=(T&& value) {
     RST_DCHECK(was_checked_);
 
-    if (value_.has_value())
-      Destruct();
-
     status_ = Status::OK();
-
     Construct(std::move(value));
 
     set_was_checked(false);
@@ -113,10 +98,8 @@ class [[nodiscard]] StatusOr {
     RST_DCHECK(was_checked_);
     RST_DCHECK(status.error_info_ != nullptr);
 
-    if (value_.has_value())
-      Destruct();
-
     status_ = std::move(status);
+    value_.reset();
     set_was_checked(false);
 
     return *this;
@@ -164,10 +147,7 @@ class [[nodiscard]] StatusOr {
 
  private:
   void Construct(const T& value) { value_.emplace(value); }
-
-  void Construct(T && value) { value_.emplace(std::move(value)); }
-
-  void Destruct() { value_.reset(); }
+  void Construct(T&& value) { value_.emplace(std::move(value)); }
 
 #ifndef NDEBUG
   void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
