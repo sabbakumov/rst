@@ -16,6 +16,9 @@ Now the library contains the following components:
   A Go-like (also a Microsoft GSL finally-like) method of deferring the action
   execution at the end of the function.
 
+## GUID
+  GUID generation.
+
 ## Format
   A Python-like string format library
 

@@ -15,6 +15,9 @@ rst/Format/Format.h
 rst/Format/Writer.cpp
 rst/Format/Writer.h
 
+rst/GUID/GUID.cpp
+rst/GUID/GUID.h
+
 rst/HiddenString/HiddenString.h
 
 rst/Legacy/Memory.h
@@ -55,6 +58,8 @@ rst/Test.cpp
 rst/Defer/DeferTest.cpp
 
 rst/Format/FormatTest.cpp
+
+rst/GUID/GUIDTest.cpp
 
 rst/HiddenString/HiddenStringTest.cpp
 
