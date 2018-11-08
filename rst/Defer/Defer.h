@@ -40,7 +40,6 @@
       ::rst::internal::Defer(f)
 
 namespace rst {
-
 namespace internal {
 
 template <class F>
@@ -64,7 +63,6 @@ inline DeferredAction<F> Defer(F&& f) {
 }
 
 }  // namespace internal
-
 }  // namespace rst
 
 #endif  // RST_DEFER_DEFER_H_

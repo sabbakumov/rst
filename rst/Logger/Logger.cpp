@@ -37,7 +37,6 @@
 using namespace rst::literals;
 
 namespace rst {
-
 namespace {
 
 Logger* g_logger = nullptr;

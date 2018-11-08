@@ -34,11 +34,9 @@
 #include <gtest/gtest.h>
 
 namespace rst {
-
 namespace {
 
 constexpr auto kStringValue = "String value for testing StatusOr";
-
 constexpr auto kDomain = "Domain";
 
 class DtorHelper {

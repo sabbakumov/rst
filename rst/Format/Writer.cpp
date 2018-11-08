@@ -32,7 +32,6 @@
 #include <limits>
 
 namespace rst {
-
 namespace internal {
 
 Writer::Writer() { RST_DCHECK(std::size(static_buffer_) >= 2); }
@@ -143,5 +142,4 @@ std::string Writer::CopyString() const {
 }
 
 }  // namespace internal
-
 }  // namespace rst

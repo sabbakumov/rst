@@ -28,9 +28,7 @@
 #include "rst/Format/Format.h"
 
 namespace rst {
-
 namespace internal {
-
 namespace {
 
 void WriteShort(Writer* writer, const void* ptr) {
@@ -241,7 +239,7 @@ void Value::Write(Writer* writer) const {
   RST_DCHECK(writer != nullptr);
 
   using WriteFunction = void(Writer * writer, const void* ptr);
-  static constexpr WriteFunction* funcs[] = {
+  static constexpr WriteFunction* kFuncs[] = {
       &WriteInt,
       &WriteDouble,
       &WriteString,
@@ -259,9 +257,9 @@ void Value::Write(Writer* writer) const {
   };
 
   const auto index = static_cast<size_t>(type_);
-  RST_DCHECK(index < std::size(funcs));
+  RST_DCHECK(index < std::size(kFuncs));
 
-  const auto func = funcs[index];
+  const auto func = kFuncs[index];
   func(writer, &short_val_);
 }
 

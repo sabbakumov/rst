@@ -69,10 +69,10 @@ void FileNameSink::Log(const std::string& message) {
   std::unique_lock<std::mutex> lock(mutex_);
 
   auto val = std::fprintf(log_file_.get(), "%s\n", message.c_str());
-  RST_CHECK(val >= 0);
+  RST_DCHECK(val >= 0);
 
   val = std::fflush(log_file_.get());
-  RST_CHECK(val >= 0);
+  RST_DCHECK(val >= 0);
 }
 
 }  // namespace rst

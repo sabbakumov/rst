@@ -37,7 +37,6 @@
 #include "rst/Macros/Macros.h"
 
 namespace rst {
-
 namespace internal {
 
 // The class for writing values. It has a static and dynamic buffer. By default
@@ -121,7 +120,6 @@ class Writer {
 };
 
 }  // namespace internal
-
 }  // namespace rst
 
 #endif  // RST_FORMAT_WRITER_H_

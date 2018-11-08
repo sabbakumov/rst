@@ -32,7 +32,6 @@
 #include <gtest/gtest.h>
 
 namespace rst {
-
 namespace {
 
 auto g_int = 0;

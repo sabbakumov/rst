@@ -51,7 +51,6 @@
 using testing::_;
 
 namespace rst {
-
 namespace {
 
 constexpr auto kFilename = "filename";

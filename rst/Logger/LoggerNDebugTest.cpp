@@ -39,7 +39,6 @@
 using testing::_;
 
 namespace rst {
-
 namespace {
 
 class SinkMock : public ISink {

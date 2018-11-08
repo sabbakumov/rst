@@ -38,7 +38,6 @@
 // https://stackoverflow.com/questions/7270473/compile-time-string-encryption.
 
 namespace rst {
-
 namespace internal {
 
 constexpr uint64_t GetSeed() {
@@ -118,7 +117,6 @@ class HiddenString<IndexList<Index...>> {
       var(str)
 
 }  // namespace internal
-
 }  // namespace rst
 
 #endif  // RST_HIDDENSTRING_HIDDENSTRING_H_

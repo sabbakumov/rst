@@ -32,7 +32,6 @@
 #include <gtest/gtest.h>
 
 namespace rst {
-
 namespace {
 
 constexpr auto kDomain = "Domain";

@@ -37,7 +37,6 @@
 #include "rst/Macros/Macros.h"
 
 namespace rst {
-
 namespace internal {
 
 // Handles character c in the string s. Returns false if there's {} in s.

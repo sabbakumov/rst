@@ -34,7 +34,6 @@
 #include "gtest/gtest.h"
 
 namespace rst {
-
 namespace {
 
 class DtorHelper {

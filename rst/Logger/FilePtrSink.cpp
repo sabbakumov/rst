@@ -47,10 +47,10 @@ void FilePtrSink::Log(const std::string& message) {
   std::unique_lock<std::mutex> lock(mutex_);
 
   auto val = std::fprintf(file_, "%s\n", message.c_str());
-  RST_CHECK(val >= 0);
+  RST_DCHECK(val >= 0);
 
   val = std::fflush(file_);
-  RST_CHECK(val >= 0);
+  RST_DCHECK(val >= 0);
 }
 
 }  // namespace rst
