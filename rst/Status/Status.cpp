@@ -27,37 +27,19 @@
 
 #include "rst/Status/Status.h"
 
-#include <utility>
-
-#include "rst/Check/Check.h"
-
 namespace rst {
 
-// Information about the error.
-struct Status::ErrorInfo {
-  // Error domain.
-  const char* error_domain = nullptr;
-  // Error code.
-  int error_code = 0;
-  // Error message.
-  std::string error_message;
-};
+char ErrorInfoBase::id_ = 0;
 
 Status::Status() = default;
 
-Status::Status(const char* error_domain, const int error_code,
-               std::string error_message)
-    : error_info_(std::make_unique<ErrorInfo>()) {
-  RST_DCHECK(error_domain != nullptr);
-  RST_DCHECK(error_code != 0);
-
-  error_info_->error_domain = error_domain;
-  error_info_->error_code = error_code;
-  error_info_->error_message = std::move(error_message);
+Status::Status(std::unique_ptr<ErrorInfoBase> error)
+    : error_(std::move(error)) {
+  RST_DCHECK(error_ != nullptr);
 }
 
 Status::Status(Status&& rhs) {
-  error_info_ = std::move(rhs.error_info_);
+  error_ = std::move(rhs.error_);
   rhs.set_was_checked(true);
 }
 
@@ -68,7 +50,7 @@ Status& Status::operator=(Status&& rhs) {
     return *this;
 
   set_was_checked(false);
-  error_info_ = std::move(rhs.error_info_);
+  error_ = std::move(rhs.error_);
 
   rhs.set_was_checked(true);
 
@@ -77,22 +59,10 @@ Status& Status::operator=(Status&& rhs) {
 
 Status::~Status() { RST_DCHECK(was_checked_); }
 
-const char* Status::error_domain() const {
+const ErrorInfoBase& Status::GetError() const {
   RST_DCHECK(was_checked_);
-  RST_DCHECK(error_info_ != nullptr);
-  return error_info_->error_domain;
-}
-
-int Status::error_code() const {
-  RST_DCHECK(was_checked_);
-  RST_DCHECK(error_info_ != nullptr);
-  return error_info_->error_code;
-}
-
-const std::string& Status::error_message() const {
-  RST_DCHECK(was_checked_);
-  RST_DCHECK(error_info_ != nullptr);
-  return error_info_->error_message;
+  RST_DCHECK(error_ != nullptr);
+  return *error_;
 }
 
 StatusAsOutParameter::StatusAsOutParameter(Status* status) : status_(status) {

@@ -27,8 +27,14 @@
 
 #include "rst/Logger/LogError.h"
 
+#include <utility>
+
 namespace rst {
 
-const char* const kLoggerErrorDomain = "LoggerErrorDomain";
+char LogError::id_ = 0;
+
+LogError::LogError(std::string message) : message_(std::move(message)) {}
+
+const std::string& LogError::AsString() const { return message_; }
 
 }  // namespace rst

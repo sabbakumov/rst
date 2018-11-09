@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Sergey Abbakumov
+// Copyright (c) 2018, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,30 +25,32 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_LOGGER_LOGERROR_H_
-#define RST_LOGGER_LOGERROR_H_
+#ifndef RST_RTTI_RTTI_H_
+#define RST_RTTI_RTTI_H_
 
-#include <string>
+#include "rst/Check/Check.h"
 
-#include "rst/Macros/Macros.h"
-#include "rst/Status/Status.h"
-
+// LLVM-based RTTI.
 namespace rst {
 
-class LogError : public ErrorInfo<LogError> {
- public:
-  explicit LogError(std::string message);
+template <class T, class U>
+T* dyn_cast(U* ptr) {
+  RST_DCHECK(ptr != nullptr);
 
-  const std::string& AsString() const override;
+  if (ptr->template IsA<T>())
+    return static_cast<T*>(ptr);
+  return nullptr;
+}
 
-  static char id_;
+template <class T, class U>
+const T* dyn_cast(const U* ptr) {
+  RST_DCHECK(ptr != nullptr);
 
- private:
-  std::string message_;
-
-  RST_DISALLOW_COPY_AND_ASSIGN(LogError);
-};
+  if (ptr->template IsA<T>())
+    return static_cast<const T*>(ptr);
+  return nullptr;
+}
 
 }  // namespace rst
 
-#endif  // RST_LOGGER_LOGERROR_H_
+#endif  // RST_RTTI_RTTI_H_

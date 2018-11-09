@@ -33,11 +33,30 @@
 
 #include <gtest/gtest.h>
 
+#include "rst/Macros/Macros.h"
+
 namespace rst {
 namespace {
 
 constexpr auto kStringValue = "String value for testing StatusOr";
-constexpr auto kDomain = "Domain";
+
+constexpr auto kError = "Error";
+
+class Error : public ErrorInfo<Error> {
+ public:
+  Error() = default;
+
+  const std::string& AsString() const override { return message_; }
+
+  static char id_;
+
+ private:
+  const std::string message_ = kError;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(Error);
+};
+
+char Error::id_ = 0;
 
 class DtorHelper {
  public:
@@ -85,7 +104,7 @@ TEST(StatusOr, ValueCtor) {
   }
 
   {
-    StatusOr<int> status_or = Status(kDomain, -1, std::string());
+    StatusOr<int> status_or = MakeStatus<Error>();
     EXPECT_FALSE(status_or.ok());
     EXPECT_TRUE(status_or.err());
 
@@ -112,7 +131,7 @@ TEST(StatusOr, MoveCtor) {
   }
 
   {
-    StatusOr<int> status_or = Status(kDomain, -1, std::string());
+    StatusOr<int> status_or = MakeStatus<Error>();
     StatusOr<int> status_or2 = std::move(status_or);
     EXPECT_FALSE(status_or2.ok());
     EXPECT_TRUE(status_or2.err());
@@ -170,16 +189,14 @@ TEST(StatusOr, OperatorEquals) {
   EXPECT_EQ(DtorHelper::counter(), 0);
 
   {
-    StatusOr<int> status_or = Status("", -10, std::string());
+    StatusOr<int> status_or = MakeStatus<Error>();
     status_or.Ignore();
-    status_or = Status(kDomain, -1, "Message");
+    status_or = MakeStatus<Error>();
     ASSERT_FALSE(status_or.ok());
     ASSERT_TRUE(status_or.err());
-    EXPECT_EQ(status_or.status().error_domain(), kDomain);
-    EXPECT_EQ(status_or.status().error_code(), -1);
-    EXPECT_EQ(status_or.status().error_message(), "Message");
+    EXPECT_EQ(status_or.status().GetError().AsString(), kError);
 
-    StatusOr<DtorHelper> status_or2 = Status(kDomain, -1, std::string());
+    StatusOr<DtorHelper> status_or2 = MakeStatus<Error>();
     status_or2.Ignore();
     status_or2 = DtorHelper();
     status_or2.Ignore();
@@ -302,7 +319,7 @@ TEST(StatusOr, OperatorArrow) {
   }
 
   {
-    StatusOr<ArrowHelper> r = Status(kDomain, -1, std::string());
+    StatusOr<ArrowHelper> r = MakeStatus<Error>();
     ASSERT_FALSE(r.ok());
     ASSERT_TRUE(r.err());
     r.Ignore();
@@ -324,24 +341,22 @@ TEST(StatusOr, Status) {
   }
 
   {
-    StatusOr<int> status_or = Status(kDomain, -1, "Message");
+    StatusOr<int> status_or = MakeStatus<Error>();
     status_or.Ignore();
     const auto& status = status_or.status();
-    EXPECT_EQ(status.error_domain(), kDomain);
-    EXPECT_EQ(status.error_code(), -1);
-    EXPECT_EQ(status.error_message(), "Message");
+    EXPECT_EQ(status.GetError().AsString(), kError);
   }
 }
 
 TEST(Status, StatusOrFromAnother) {
-  StatusOr<std::string> status_or = Status(kDomain, -1, "Message");
+  StatusOr<std::string> status_or = MakeStatus<Error>();
   EXPECT_FALSE(status_or.ok());
   StatusOr<std::string> status_or2 = std::move(status_or.status());
   EXPECT_FALSE(status_or2.ok());
 }
 
 TEST(Status, StatusOrFromAnotherMove) {
-  StatusOr<std::string> status_or = Status(kDomain, -1, "Message");
+  StatusOr<std::string> status_or = MakeStatus<Error>();
   EXPECT_FALSE(status_or.ok());
   StatusOr<std::string> status_or2(std::move(status_or));
   EXPECT_FALSE(status_or2.ok());

@@ -40,6 +40,9 @@ Now the library contains the following components:
 ## Memory
   A set of memory related utility classes like WeakPtr.
 
+## RTTI
+  LLVM-like custom RTTI support.
+
 ## Status
   A Google-like _Status_ class for recoverable error handling with small
   improvements. It's impossible now to ignore an error.

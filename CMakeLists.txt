@@ -37,6 +37,8 @@ rst/Macros/Macros.h
 
 rst/Memory/WeakPtr.h
 
+rst/RTTI/RTTI.h
+
 rst/Status/Status.cpp
 rst/Status/Status.h
 rst/Status/StatusOr.h
@@ -72,6 +74,8 @@ rst/Logger/LoggerTest.cpp
 rst/Macros/MacrosTest.cpp
 
 rst/Memory/WeakPtrTest.cpp
+
+rst/RTTI/RTTITest.cpp
 
 rst/Status/StatusOrTest.cpp
 rst/Status/StatusTest.cpp

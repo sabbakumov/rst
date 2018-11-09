@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Sergey Abbakumov
+// Copyright (c) 2018, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,20 +25,20 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_STATUS_STATUS_H_
-#define RST_STATUS_STATUS_H_
+#include "rst/RTTI/RTTI.h"
 
-#include <memory>
 #include <string>
-#include <utility>
+
+#include <gtest/gtest.h>
 
 #include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
-#include "rst/Status/Status.h"
 
 namespace rst {
+namespace {
 
-class StatusAsOutParameter;
+constexpr auto kError1 = "Error 1";
+constexpr auto kError2 = "Error 2";
 
 class ErrorInfoBase {
  public:
@@ -66,6 +66,8 @@ class ErrorInfoBase {
   RST_DISALLOW_COPY_AND_ASSIGN(ErrorInfoBase);
 };
 
+char ErrorInfoBase::id_ = 0;
+
 template <class T>
 class ErrorInfo : public ErrorInfoBase {
  public:
@@ -84,80 +86,79 @@ class ErrorInfo : public ErrorInfoBase {
   RST_DISALLOW_COPY_AND_ASSIGN(ErrorInfo);
 };
 
-// A Google-like Status class for error handling.
-class [[nodiscard]] Status {
+class Error1 : public ErrorInfo<Error1> {
  public:
-  static Status OK() { return Status(); }
+  Error1() = default;
 
-  // Sets the object not checked by default and to be the error object.
-  Status(std::unique_ptr<ErrorInfoBase> error);
+  const std::string& AsString() const override { return message_; }
 
-  // Sets the object not checked by default and moves rhs content.
-  Status(Status&& rhs);
-
-  ~Status();
-
-  // Sets the object not checked by default and moves rhs content.
-  Status& operator=(Status&& rhs);
-
-  // Sets the object to be checked and returns whether the object is OK object.
-  bool ok() { return !err(); }
-
-  // Sets the object to be checked and returns whether the object is error
-  // object.
-  bool err() {
-    set_was_checked(true);
-    return error_ != nullptr;
-  }
-
-  const ErrorInfoBase& GetError() const;
-
-  // Sets the object to be checked.
-  void Ignore() { set_was_checked(true); }
+  static char id_;
 
  private:
-  friend class StatusAsOutParameter;
+  std::string message_ = kError1;
 
-  template <class T>
-  friend class StatusOr;
-
-  // Sets the object not checked by default and to be OK.
-  Status();
-
-#ifndef NDEBUG
-  void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
-#else   // NDEBUG
-  void set_was_checked(bool) {}
-#endif  // NDEBUG
-
-  // Information about the error. nullptr if the object is OK.
-  std::unique_ptr<ErrorInfoBase> error_;
-
-#ifndef NDEBUG
-  // Whether the object was checked.
-  bool was_checked_ = false;
-#endif  // NDEBUG
-
-  RST_DISALLOW_COPY_AND_ASSIGN(Status);
+  RST_DISALLOW_COPY_AND_ASSIGN(Error1);
 };
 
-template <class Err, class... Args>
-Status MakeStatus(Args&&... args) {
-  return Status(std::make_unique<Err>(std::forward<Args>(args)...));
+char Error1::id_ = 0;
+
+class Error2 : public ErrorInfo<Error2> {
+ public:
+  Error2() = default;
+
+  const std::string& AsString() const override { return message_; }
+
+  static char id_;
+
+ private:
+  std::string message_ = kError2;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(Error2);
+};
+
+char Error2::id_ = 0;
+
+}  // namespace
+
+TEST(RTTI, Nullptr) {
+  ErrorInfoBase* base = nullptr;
+  EXPECT_DEATH(dyn_cast<Error1>(base), "");
 }
 
-// A helper for Status used as out-parameters.
-class StatusAsOutParameter {
- public:
-  explicit StatusAsOutParameter(Status* status);
-  ~StatusAsOutParameter();
+TEST(RTTI, Check) {
+  Error1 error1;
+  ErrorInfoBase* base1 = &error1;
 
- private:
-  Status* status_ = nullptr;
+  Error2 error2;
+  ErrorInfoBase* base2 = &error2;
 
-  RST_DISALLOW_COPY_AND_ASSIGN(StatusAsOutParameter);
-};
+  Error1* cast1 = dyn_cast<Error1>(base1);
+  ASSERT_NE(cast1, nullptr);
+  ASSERT_EQ(dyn_cast<Error2>(base1), nullptr);
+  EXPECT_EQ(cast1->AsString(), kError1);
+
+  Error2* cast2 = dyn_cast<Error2>(base2);
+  ASSERT_NE(cast2, nullptr);
+  ASSERT_EQ(dyn_cast<Error1>(base2), nullptr);
+  EXPECT_EQ(cast2->AsString(), kError2);
+}
+
+TEST(RTTI, ConstCheck) {
+  const Error1 error1;
+  const ErrorInfoBase* base1 = &error1;
+
+  const Error2 error2;
+  const ErrorInfoBase* base2 = &error2;
+
+  const Error1* cast1 = dyn_cast<Error1>(base1);
+  ASSERT_NE(cast1, nullptr);
+  ASSERT_EQ(dyn_cast<Error2>(base1), nullptr);
+  EXPECT_EQ(cast1->AsString(), kError1);
+
+  const Error2* cast2 = dyn_cast<Error2>(base2);
+  ASSERT_NE(cast2, nullptr);
+  ASSERT_EQ(dyn_cast<Error1>(base2), nullptr);
+  EXPECT_EQ(cast2->AsString(), kError2);
+}
 
 }  // namespace rst
-
-#endif  // RST_STATUS_STATUS_H_

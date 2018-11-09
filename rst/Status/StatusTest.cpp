@@ -28,13 +28,32 @@
 #include "rst/Status/Status.h"
 
 #include <memory>
+#include <string>
 
 #include <gtest/gtest.h>
+
+#include "rst/Macros/Macros.h"
 
 namespace rst {
 namespace {
 
-constexpr auto kDomain = "Domain";
+constexpr auto kError = "Error";
+
+class Error : public ErrorInfo<Error> {
+ public:
+  Error() = default;
+
+  const std::string& AsString() const override { return message_; }
+
+  static char id_;
+
+ private:
+  const std::string message_ = kError;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(Error);
+};
+
+char Error::id_ = 0;
 
 }  // namespace
 
@@ -51,58 +70,47 @@ TEST(Status, Err) {
 }
 
 TEST(Status, Ctor) {
-  Status status(kDomain, -1, "Message");
+  Status status(std::make_unique<Error>());
   ASSERT_FALSE(status.ok());
   ASSERT_TRUE(status.err());
-  EXPECT_EQ(status.error_domain(), kDomain);
-  EXPECT_EQ(status.error_code(), -1);
-  EXPECT_EQ(status.error_message(), "Message");
+  EXPECT_EQ(status.GetError().AsString(), kError);
 
-  EXPECT_DEATH((Status(nullptr, -1, "Message")), "");
-  EXPECT_DEATH((Status(kDomain, 0, "Message")), "");
+  EXPECT_DEATH((Status(nullptr)), "");
 }
 
 TEST(Status, MoveCtor) {
-  Status status(kDomain, -1, "Message");
+  Status status(std::make_unique<Error>());
   Status status2(std::move(status));
   ASSERT_FALSE(status2.ok());
   ASSERT_TRUE(status2.err());
-  EXPECT_EQ(status2.error_domain(), kDomain);
-  EXPECT_EQ(status2.error_code(), -1);
-  EXPECT_EQ(status2.error_message(), "Message");
+  EXPECT_EQ(status2.GetError().AsString(), kError);
 }
 
 TEST(Status, MoveAssignment) {
-  Status status(kDomain, -1, "Message");
+  Status status(std::make_unique<Error>());
   auto status2 = Status::OK();
   status2.Ignore();
   status2 = std::move(status);
   ASSERT_FALSE(status2.ok());
   ASSERT_TRUE(status2.err());
-  EXPECT_EQ(status2.error_domain(), kDomain);
-  EXPECT_EQ(status2.error_code(), -1);
-  EXPECT_EQ(status2.error_message(), "Message");
+  EXPECT_EQ(status2.GetError().AsString(), kError);
 
-  status2 = Status(kDomain, -1, "Message");
+  status2 = Status(std::make_unique<Error>());
   EXPECT_DEATH(status2 = std::move(status), "");
   status2.Ignore();
 }
 
-TEST(Status, Dtor) { EXPECT_DEATH((Status(kDomain, -1, "Message")), ""); }
+TEST(Status, Dtor) { EXPECT_DEATH((Status(std::make_unique<Error>())), ""); }
 
 TEST(Status, ErrorInfo) {
   auto status = Status::OK();
-  EXPECT_DEATH(status.error_domain(), "");
-  EXPECT_DEATH(status.error_code(), "");
-  EXPECT_DEATH(status.error_message(), "");
+  EXPECT_DEATH(status.GetError(), "");
   status.Ignore();
 
   auto status2 = Status::OK();
   EXPECT_TRUE(status2.ok());
   EXPECT_FALSE(status2.err());
-  EXPECT_DEATH(status.error_domain(), "");
-  EXPECT_DEATH(status.error_code(), "");
-  EXPECT_DEATH(status.error_message(), "");
+  EXPECT_DEATH(status.GetError(), "");
 }
 
 TEST(StatusAsOutParameter, Test) {
@@ -114,6 +122,14 @@ TEST(StatusAsOutParameter, Test) {
 
   EXPECT_TRUE(status.ok());
   EXPECT_FALSE(status.err());
+}
+
+TEST(Status, MakeStatus) {
+  auto status = MakeStatus<Error>();
+
+  ASSERT_FALSE(status.ok());
+  ASSERT_TRUE(status.err());
+  EXPECT_EQ(status.GetError().AsString(), kError);
 }
 
 }  // namespace rst

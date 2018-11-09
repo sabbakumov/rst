@@ -43,7 +43,7 @@ class [[nodiscard]] StatusOr {
  public:
   StatusOr(StatusOr&& rhs)
       : status_(std::move(rhs.status_)), value_(std::move(rhs.value_)) {
-    RST_DCHECK(value_.has_value() ? (status_.error_info_ == nullptr) : true);
+    RST_DCHECK(value_.has_value() ? (status_.error_ == nullptr) : true);
     rhs.set_was_checked(true);
   }
 
@@ -52,7 +52,7 @@ class [[nodiscard]] StatusOr {
   StatusOr(T&& value) { Construct(std::move(value)); }
 
   StatusOr(Status status) : status_(std::move(status)) {
-    RST_DCHECK(status_.error_info_ != nullptr);
+    RST_DCHECK(status_.error_ != nullptr);
   }
 
   ~StatusOr() { RST_DCHECK(was_checked_); }
@@ -96,7 +96,7 @@ class [[nodiscard]] StatusOr {
 
   StatusOr& operator=(Status status) {
     RST_DCHECK(was_checked_);
-    RST_DCHECK(status.error_info_ != nullptr);
+    RST_DCHECK(status.error_ != nullptr);
 
     status_ = std::move(status);
     value_.reset();
@@ -128,14 +128,14 @@ class [[nodiscard]] StatusOr {
 
   Status& status() {
     RST_DCHECK(was_checked_);
-    RST_DCHECK(status_.error_info_ != nullptr);
+    RST_DCHECK(status_.error_ != nullptr);
 
     return status_;
   }
 
   const Status& status() const {
     RST_DCHECK(was_checked_);
-    RST_DCHECK(status_.error_info_ != nullptr);
+    RST_DCHECK(status_.error_ != nullptr);
 
     return status_;
   }

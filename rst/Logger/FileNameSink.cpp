@@ -45,8 +45,7 @@ FileNameSink::FileNameSink(const std::string& filename, Status* status) {
   log_file_.reset(std::fopen(filename.c_str(), "w"));
 
   if (log_file_ == nullptr) {
-    *status = Status(kLoggerErrorDomain, LoggerErrorCode::kOpenFileFailed,
-                     "Can't open file {}"_format(filename));
+    *status = MakeStatus<LogError>("Can't open file {}"_format(filename));
     return;
   }
 
