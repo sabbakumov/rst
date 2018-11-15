@@ -30,6 +30,7 @@
 #include <iterator>
 #include <limits>
 #include <string>
+#include <string_view>
 
 #include <gtest/gtest.h>
 
@@ -118,6 +119,7 @@ TEST(FormatTest, Strings) {
   EXPECT_EQ("{}"_format(s), "string");
   EXPECT_EQ("{}{}"_format(s, s), "stringstring");
   EXPECT_EQ("{}"_format(std::string("temp")), "temp");
+  EXPECT_EQ("{}"_format(std::string_view("temp")), "temp");
 }
 
 TEST(Literals, Common) {
@@ -292,6 +294,13 @@ TEST(Writer, NormalStdString) {
 TEST(Writer, NormalCharPtr) {
   Writer writer;
   static constexpr auto str = "Normal";
+  writer.Write(str);
+  EXPECT_EQ(writer.CopyString(), "Normal");
+}
+
+TEST(Writer, StringView) {
+  Writer writer;
+  const std::string_view str = "Normal";
   writer.Write(str);
   EXPECT_EQ(writer.CopyString(), "Normal");
 }

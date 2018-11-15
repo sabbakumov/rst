@@ -30,6 +30,7 @@
 
 #include <iterator>
 #include <string>
+#include <string_view>
 #include <utility>
 
 #include "rst/Check/Check.h"
@@ -58,8 +59,7 @@ class Value {
   Value(float float_val);
   Value(double double_val);
   Value(long double long_double_val);
-  Value(const std::string& string_val);
-  Value(const char* char_ptr_val);
+  Value(std::string_view string_view_val);
   Value(char char_val);
 
   void Write(Writer* writer) const;
@@ -68,8 +68,7 @@ class Value {
   enum class Type : unsigned int {
     kInt,
     kDouble,
-    kString,
-    kCharPtr,
+    kStringView,
     kChar,
     kShort,
     kFloat,
@@ -96,8 +95,7 @@ class Value {
     float float_val_;
     double double_val_;
     long double long_double_val_;
-    const std::string* string_val_;
-    const char* char_ptr_val_;
+    const std::string_view string_view_val_;
     char char_val_;
   };
 
@@ -110,7 +108,7 @@ inline void Format(Writer* writer, const char* s, Args&&... args) {
   RST_DCHECK(writer != nullptr);
   RST_DCHECK(s != nullptr);
 
-  const Value values[] = {std::forward<Args>(args)...};
+  const Value values[] = {Value(std::forward<Args>(args))...};
 
   size_t arg_idx = 0;
   for (auto c = '\0'; (c = *s) != '\0'; s++) {

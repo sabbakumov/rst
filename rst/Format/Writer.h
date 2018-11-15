@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
 #include "rst/Check/Check.h"
@@ -75,8 +76,7 @@ class Writer {
   void Write(float val);
   void Write(double val);
   void Write(long double val);
-  void Write(const std::string& val);
-  void Write(const char* val);
+  void Write(std::string_view val);
   void Write(char val);
 
   // Writes len bytes from val to the static buffer by default. When the

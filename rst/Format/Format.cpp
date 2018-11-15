@@ -119,19 +119,11 @@ void WriteLongDouble(Writer* writer, const void* ptr) {
   writer->Write(val);
 }
 
-void WriteString(Writer* writer, const void* ptr) {
+void WriteStringView(Writer* writer, const void* ptr) {
   RST_DCHECK(writer != nullptr);
   RST_DCHECK(ptr != nullptr);
 
-  const auto& val = **static_cast<const std::string* const*>(ptr);
-  writer->Write(val);
-}
-
-void WriteCharPtr(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const char* const*>(ptr);
+  const auto val = *static_cast<const std::string_view*>(ptr);
   writer->Write(val);
 }
 
@@ -225,13 +217,8 @@ Value::Value(const double double_val)
 Value::Value(const long double long_double_val)
     : type_(Type::kLongDouble), long_double_val_(long_double_val) {}
 
-Value::Value(const std::string& string_val)
-    : type_(Type::kString), string_val_(&string_val) {}
-
-Value::Value(const char* char_ptr_val)
-    : type_(Type::kCharPtr), char_ptr_val_(char_ptr_val) {
-  RST_DCHECK(char_ptr_val != nullptr);
-}
+Value::Value(const std::string_view string_view_val)
+    : type_(Type::kStringView), string_view_val_(string_view_val) {}
 
 Value::Value(const char char_val) : type_(Type::kChar), char_val_(char_val) {}
 
@@ -242,8 +229,7 @@ void Value::Write(Writer* writer) const {
   static constexpr WriteFunction* kFuncs[] = {
       &WriteInt,
       &WriteDouble,
-      &WriteString,
-      &WriteCharPtr,
+      &WriteStringView,
       &WriteChar,
       &WriteShort,
       &WriteFloat,

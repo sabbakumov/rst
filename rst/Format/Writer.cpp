@@ -27,7 +27,6 @@
 
 #include "rst/Format/Writer.h"
 
-#include <cstring>
 #include <iterator>
 #include <limits>
 
@@ -91,12 +90,8 @@ void Writer::Write(const long double val) {
   FormatAndWrite(buffer, std::size(buffer), "%Lf", val);
 }
 
-void Writer::Write(const std::string& val) { Write(val.c_str(), val.size()); }
-
-void Writer::Write(const char* val) {
-  RST_DCHECK(val != nullptr);
-
-  Write(val, std::strlen(val));
+void Writer::Write(const std::string_view val) {
+  Write(val.data(), val.size());
 }
 
 void Writer::Write(const char val) { Write(&val, 1); }
