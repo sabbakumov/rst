@@ -42,18 +42,15 @@ class StatusAsOutParameter;
 
 class ErrorInfoBase {
  public:
-  ErrorInfoBase() = default;
-  virtual ~ErrorInfoBase() = default;
+  ErrorInfoBase();
+  virtual ~ErrorInfoBase();
 
   static const void* GetClassID() { return &id_; }
 
   virtual const std::string& AsString() const = 0;
   virtual const void* GetDynamicClassID() const = 0;
 
-  virtual bool IsA(const void* class_id) const {
-    RST_DCHECK(class_id != nullptr);
-    return class_id == GetClassID();
-  }
+  virtual bool IsA(const void* class_id) const;
 
   template <class ErrorInfoT>
   bool IsA() const {

@@ -43,6 +43,8 @@ FilePtrSink::FilePtrSink(std::FILE* file, const bool should_close) {
   }
 }
 
+FilePtrSink::~FilePtrSink() = default;
+
 void FilePtrSink::Log(const std::string& message) {
   std::unique_lock<std::mutex> lock(mutex_);
 

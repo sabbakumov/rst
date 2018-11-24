@@ -35,6 +35,8 @@ namespace internal {
 
 Writer::Writer() { RST_DCHECK(std::size(static_buffer_) >= 2); }
 
+Writer::~Writer() = default;
+
 void Writer::Write(const short val) {
   char buffer[4 * sizeof val];
   FormatAndWrite(buffer, std::size(buffer), "%hd", val);

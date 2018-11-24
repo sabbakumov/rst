@@ -95,6 +95,7 @@ class Logger {
   };
 
   explicit Logger(std::unique_ptr<ISink> sink);
+  ~Logger();
 
   // Logs a message. If the level is less than level_ nothing gets logged.
   static void Log(Level level, const char* filename, int line,

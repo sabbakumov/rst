@@ -137,6 +137,12 @@ void WriteChar(Writer* writer, const void* ptr) {
 
 }  // namespace
 
+Formatter::Formatter(const char* str) : str_(str) {
+  RST_DCHECK(str_ != nullptr);
+}
+
+Formatter::~Formatter() = default;
+
 bool HandleCharacter(const char c, const char** s) {
   RST_DCHECK(s != nullptr);
   const char*& s_ref = *s;
@@ -220,6 +226,8 @@ Value::Value(const std::string_view string_view_val)
     : type_(Type::kStringView), string_view_val_(string_view_val) {}
 
 Value::Value(const char char_val) : type_(Type::kChar), char_val_(char_val) {}
+
+Value::~Value() = default;
 
 void Value::Write(Writer* writer) const {
   RST_DCHECK(writer != nullptr);

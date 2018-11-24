@@ -43,6 +43,7 @@ class FilePtrSink : public ISink {
   // Saves the FILE pointer. If should_close is not set, doesn't close the FILE
   // pointer (e.g. stdout, stderr).
   FilePtrSink(std::FILE* file, bool should_close = true);
+  ~FilePtrSink();
 
   // Thread safe logging function.
   void Log(const std::string& message) final;

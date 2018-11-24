@@ -48,6 +48,7 @@ class Writer {
   static constexpr size_t kStaticBufferSize = 1024;
 
   Writer();
+  ~Writer();
 
   // Writes val like std::snprintf.
   template <class T>

@@ -35,7 +35,8 @@ namespace rst {
 // The interface for the logger sink.
 class ISink {
  public:
-  virtual ~ISink() = default;
+  virtual ~ISink();
+
   virtual void Log(const std::string& message) = 0;
 };
 

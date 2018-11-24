@@ -62,6 +62,8 @@ class Value {
   Value(std::string_view string_view_val);
   Value(char char_val);
 
+  ~Value();
+
   void Write(Writer* writer) const;
 
  private:
@@ -142,9 +144,8 @@ namespace internal {
 // Used in user defined literals.
 class Formatter {
  public:
-  explicit Formatter(const char* str) : str_(str) {
-    RST_DCHECK(str_ != nullptr);
-  }
+  explicit Formatter(const char* str);
+  ~Formatter();
 
   template <class... Args>
   std::string operator()(Args&&... args) const {

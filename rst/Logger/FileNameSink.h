@@ -46,6 +46,8 @@ class FileNameSink : public ISink {
   static StatusOr<std::unique_ptr<FileNameSink>> Create(
       const std::string& filename);
 
+  ~FileNameSink();
+
   // Thread safe logging function.
   void Log(const std::string& message) final;
 

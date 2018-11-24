@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Sergey Abbakumov
+// Copyright (c) 2018, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,18 +25,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Logger/LogError.h"
-
-#include <utility>
+#include "rst/Logger/ISink.h"
 
 namespace rst {
 
-char LogError::id_ = 0;
-
-LogError::LogError(std::string message) : message_(std::move(message)) {}
-
-LogError::~LogError() = default;
-
-const std::string& LogError::AsString() const { return message_; }
+ISink::~ISink() = default;
 
 }  // namespace rst

@@ -47,6 +47,8 @@ Logger::Logger(std::unique_ptr<ISink> sink) : sink_(std::move(sink)) {
   RST_DCHECK(sink_ != nullptr);
 }
 
+Logger::~Logger() = default;
+
 // static
 void Logger::Log(const Level level, const char* filename, const int line,
                  const std::string& message) {

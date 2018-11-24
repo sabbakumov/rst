@@ -53,6 +53,8 @@ FileNameSink::FileNameSink(const std::string& filename, Status* status) {
   *status = Status::OK();
 }
 
+FileNameSink::~FileNameSink() = default;
+
 // static
 StatusOr<std::unique_ptr<FileNameSink>> FileNameSink::Create(
     const std::string& filename) {

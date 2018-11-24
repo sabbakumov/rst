@@ -31,6 +31,14 @@ namespace rst {
 
 char ErrorInfoBase::id_ = 0;
 
+ErrorInfoBase::ErrorInfoBase() = default;
+ErrorInfoBase::~ErrorInfoBase() = default;
+
+bool ErrorInfoBase::IsA(const void* class_id) const {
+  RST_DCHECK(class_id != nullptr);
+  return class_id == GetClassID();
+}
+
 Status::Status() = default;
 
 Status::Status(std::unique_ptr<ErrorInfoBase> error)

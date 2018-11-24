@@ -27,6 +27,7 @@ rst/Logger/FileNameSink.cpp
 rst/Logger/FileNameSink.h
 rst/Logger/FilePtrSink.cpp
 rst/Logger/FilePtrSink.h
+rst/Logger/ISink.cpp
 rst/Logger/ISink.h
 rst/Logger/LogError.cpp
 rst/Logger/LogError.h
