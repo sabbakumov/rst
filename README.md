@@ -38,7 +38,7 @@ Now the library contains the following components:
   A Google-like RST_DISALLOW_COPY_AND_ASSIGN macros.
 
 ## Memory
-  A set of memory related utility classes like WeakPtr.
+  A set of memory related utilities like WeakPtr, WrapUnique.
 
 ## NoDestructor
   A Chromium-like static storage duration support.

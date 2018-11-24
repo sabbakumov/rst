@@ -37,6 +37,7 @@ rst/Macros/Macros.h
 
 rst/NoDestructor/NoDestructor.h
 
+rst/Memory/Memory.h
 rst/Memory/WeakPtr.h
 
 rst/RTTI/RTTI.h
@@ -77,6 +78,7 @@ rst/Macros/MacrosTest.cpp
 
 rst/NoDestructor/NoDestructorTest.cpp
 
+rst/Memory/MemoryTest.cpp
 rst/Memory/WeakPtrTest.cpp
 
 rst/RTTI/RTTITest.cpp

@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Sergey Abbakumov
+// Copyright (c) 2018, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,54 +25,22 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Logger/FileNameSink.h"
+#ifndef RST_MEMORY_MEMORY_H_
+#define RST_MEMORY_MEMORY_H_
 
-#include <utility>
+#include <memory>
 
 #include "rst/Check/Check.h"
-#include "rst/Format/Format.h"
-#include "rst/Logger/LogError.h"
-#include "rst/Memory/Memory.h"
-
-using namespace rst::literals;
 
 namespace rst {
 
-FileNameSink::FileNameSink(const std::string& filename, Status* status) {
-  RST_DCHECK(status != nullptr);
-
-  StatusAsOutParameter sao(status);
-
-  log_file_.reset(std::fopen(filename.c_str(), "w"));
-
-  if (log_file_ == nullptr) {
-    *status = MakeStatus<LogError>("Can't open file {}"_format(filename));
-    return;
-  }
-
-  *status = Status::OK();
-}
-
-// static
-StatusOr<std::unique_ptr<FileNameSink>> FileNameSink::Create(
-    const std::string& filename) {
-  auto status = Status::OK();
-  auto sink = WrapUnique(new FileNameSink(filename, &status));
-
-  if (status.err())
-    return std::move(status);
-
-  return sink;
-}
-
-void FileNameSink::Log(const std::string& message) {
-  std::unique_lock<std::mutex> lock(mutex_);
-
-  auto val = std::fprintf(log_file_.get(), "%s\n", message.c_str());
-  RST_DCHECK(val >= 0);
-
-  val = std::fflush(log_file_.get());
-  RST_DCHECK(val >= 0);
+// Chromium-like WrapUnique.
+template <class T>
+std::unique_ptr<T> WrapUnique(T* ptr) {
+  RST_DCHECK(ptr != nullptr);
+  return std::unique_ptr<T>(ptr);
 }
 
 }  // namespace rst
+
+#endif  // RST_MEMORY_MEMORY_H_

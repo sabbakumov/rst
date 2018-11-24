@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Sergey Abbakumov
+// Copyright (c) 2018, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,54 +25,41 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Logger/FileNameSink.h"
-
-#include <utility>
-
-#include "rst/Check/Check.h"
-#include "rst/Format/Format.h"
-#include "rst/Logger/LogError.h"
 #include "rst/Memory/Memory.h"
 
-using namespace rst::literals;
+#include <cstddef>
+
+#include <gtest/gtest.h>
 
 namespace rst {
+namespace {
 
-FileNameSink::FileNameSink(const std::string& filename, Status* status) {
-  RST_DCHECK(status != nullptr);
+class DeleteCounter {
+ public:
+  DeleteCounter() { count_++; }
+  ~DeleteCounter() { count_--; }
 
-  StatusAsOutParameter sao(status);
+  static size_t count() { return count_; }
 
-  log_file_.reset(std::fopen(filename.c_str(), "w"));
+ private:
+  static size_t count_;
+};
 
-  if (log_file_ == nullptr) {
-    *status = MakeStatus<LogError>("Can't open file {}"_format(filename));
-    return;
-  }
+size_t DeleteCounter::count_ = 0;
 
-  *status = Status::OK();
-}
+}  // namespace
 
-// static
-StatusOr<std::unique_ptr<FileNameSink>> FileNameSink::Create(
-    const std::string& filename) {
-  auto status = Status::OK();
-  auto sink = WrapUnique(new FileNameSink(filename, &status));
+TEST(Memory, WrapUnique) {
+  EXPECT_EQ(DeleteCounter::count(), 0);
 
-  if (status.err())
-    return std::move(status);
+  auto counter = new DeleteCounter;
+  EXPECT_EQ(DeleteCounter::count(), 1);
 
-  return sink;
-}
+  std::unique_ptr<DeleteCounter> owned_counter = WrapUnique(counter);
+  EXPECT_EQ(DeleteCounter::count(), 1);
 
-void FileNameSink::Log(const std::string& message) {
-  std::unique_lock<std::mutex> lock(mutex_);
-
-  auto val = std::fprintf(log_file_.get(), "%s\n", message.c_str());
-  RST_DCHECK(val >= 0);
-
-  val = std::fflush(log_file_.get());
-  RST_DCHECK(val >= 0);
+  owned_counter.reset();
+  EXPECT_EQ(DeleteCounter::count(), 0);
 }
 
 }  // namespace rst
