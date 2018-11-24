@@ -47,14 +47,14 @@ class [[nodiscard]] optional {
   // Allows implicit conversion from T.
   optional(const T& value) : value_(value), is_valid_(true) {}
   // Allows implicit conversion from T.
-  optional(T && value) : value_(std::move(value)), is_valid_(true) {}
+  optional(T&& value) : value_(std::move(value)), is_valid_(true) {}
 
   optional(const optional& rhs) : is_valid_(rhs.is_valid_) {
     if (is_valid_)
       Construct(rhs.value_);
   }
 
-  optional(optional && rhs) : is_valid_(rhs.is_valid_) {
+  optional(optional&& rhs) : is_valid_(rhs.is_valid_) {
     if (is_valid_)
       Construct(std::move(rhs.value_));
   }
@@ -172,14 +172,14 @@ class [[nodiscard]] optional {
   }
 
   template <class U>
-  T value_or(U && default_value) const {
+  T value_or(U&& default_value) const {
     if (is_valid_)
       return value_;
     return static_cast<T>(std::forward<U>(default_value));
   }
 
   template <class... Args>
-  T& emplace(Args && ... args) {
+  T& emplace(Args&& ... args) {
     if (is_valid_)
       Destruct();
 
@@ -193,7 +193,7 @@ class [[nodiscard]] optional {
  private:
   void Construct(const T& value) { new (&value_) T(value); }
 
-  void Construct(T && value) { new (&value_) T(std::move(value)); }
+  void Construct(T&& value) { new (&value_) T(std::move(value)); }
 
   void Destruct() { value_.~T(); }
 

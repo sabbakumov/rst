@@ -30,13 +30,14 @@
 #include <cstdint>
 #include <limits>
 #include <string>
+#include <string_view>
 
 #include <gtest/gtest.h>
 
 namespace rst {
 namespace {
 
-bool IsGUIDv4(const std::string& guid) {
+bool IsGUIDv4(const std::string_view guid) {
   return IsValidGUID(guid) && guid[14] == '4' &&
          (guid[19] == '8' || guid[19] == '9' || guid[19] == 'A' ||
           guid[19] == 'a' || guid[19] == 'B' || guid[19] == 'b');
@@ -50,7 +51,7 @@ char ToUpperASCII(const char c) {
   return (c >= 'a' && c <= 'z') ? (c + ('A' - 'a')) : c;
 }
 
-std::string ToLowerASCII(const std::string& str) {
+std::string ToLowerASCII(const std::string_view str) {
   std::string ret;
   ret.reserve(str.size());
   for (size_t i = 0; i < str.size(); i++)
@@ -58,7 +59,7 @@ std::string ToLowerASCII(const std::string& str) {
   return ret;
 }
 
-std::string ToUpperASCII(const std::string& str) {
+std::string ToUpperASCII(const std::string_view str) {
   std::string ret;
   ret.reserve(str.size());
   for (size_t i = 0; i < str.size(); i++)
@@ -68,19 +69,19 @@ std::string ToUpperASCII(const std::string& str) {
 
 }  // namespace
 
-TEST(GUIDTest, GUIDGeneratesAllZeroes) {
+TEST(GUID, GUIDGeneratesAllZeroes) {
   const uint64_t bytes[] = {0, 0};
   const auto clientid = RandomDataToGUIDString(bytes);
   EXPECT_EQ(clientid, "00000000-0000-0000-0000-000000000000");
 }
 
-TEST(GUIDTest, GUIDGeneratesCorrectly) {
+TEST(GUID, GUIDGeneratesCorrectly) {
   const uint64_t bytes[] = {0x0123456789ABCDEFULL, 0xFEDCBA9876543210ULL};
   const auto clientid = RandomDataToGUIDString(bytes);
   EXPECT_EQ(clientid, "01234567-89ab-cdef-fedc-ba9876543210");
 }
 
-TEST(GUIDTest, GUIDCorrectlyFormatted) {
+TEST(GUID, GUIDCorrectlyFormatted) {
   for (auto i = 0; i < 10; i++) {
     const auto guid = GenerateGUID();
     EXPECT_TRUE(IsValidGUID(guid));
@@ -90,7 +91,7 @@ TEST(GUIDTest, GUIDCorrectlyFormatted) {
   }
 }
 
-TEST(GUIDTest, GUIDBasicUniqueness) {
+TEST(GUID, GUIDBasicUniqueness) {
   for (auto i = 0; i < 10; i++) {
     const auto guid1 = GenerateGUID();
     const auto guid2 = GenerateGUID();

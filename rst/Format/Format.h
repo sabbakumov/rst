@@ -95,7 +95,7 @@ class Value {
     float float_val_;
     double double_val_;
     long double long_double_val_;
-    const std::string_view string_view_val_;
+    std::string_view string_view_val_;
     char char_val_;
   };
 

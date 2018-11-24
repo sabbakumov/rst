@@ -40,6 +40,9 @@ Now the library contains the following components:
 ## Memory
   A set of memory related utility classes like WeakPtr.
 
+## NoDestructor
+  A Chromium-like static storage duration support.
+
 ## RTTI
   LLVM-like custom RTTI support.
 

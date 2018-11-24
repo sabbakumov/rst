@@ -32,6 +32,7 @@
 #include <random>
 
 #include "rst/Check/Check.h"
+#include "rst/NoDestructor/NoDestructor.h"
 
 namespace chrono = std::chrono;
 
@@ -40,12 +41,12 @@ namespace {
 
 constexpr size_t kGUIDLength = 36;
 
-bool IsHexDigit(char c) {
+bool IsHexDigit(const char c) {
   return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
          (c >= 'A' && c <= 'F');
 }
 
-bool IsLowerHexDigit(char c) {
+bool IsLowerHexDigit(const char c) {
   return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
 }
 
@@ -70,13 +71,13 @@ bool IsValidGUIDInternal(const std::string_view guid, const bool strict) {
 }  // namespace
 
 std::string GenerateGUID() {
-  std::default_random_engine generator(
+  static NoDestructor<std::default_random_engine> generator(
       static_cast<std::default_random_engine::result_type>(
           chrono::system_clock::now().time_since_epoch().count()));
-  std::uniform_int_distribution<uint64_t> distribution;
 
-  uint64_t sixteen_bytes[2] = {distribution(generator),
-                               distribution(generator)};
+  std::uniform_int_distribution<uint64_t> distribution;
+  uint64_t sixteen_bytes[2] = {distribution(*generator),
+                               distribution(*generator)};
 
   // Clear the version bits and set the version to 4:
   sixteen_bytes[0] &= 0xffffffff'ffff0fffULL;

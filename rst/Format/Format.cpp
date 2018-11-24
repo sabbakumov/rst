@@ -180,7 +180,6 @@ void Format(Writer* writer, const char* s) {
   for (auto c = '\0'; (c = *s) != '\0'; s++) {
     const auto result = HandleCharacter(c, &s);
     RST_DCHECK(result && "Argument index out of range");
-    (void)result;
     writer->Write(c);
   }
 }
