@@ -46,7 +46,7 @@ class FilePtrSink : public ISink {
   ~FilePtrSink();
 
   // Thread safe logging function.
-  void Log(const std::string& message) final;
+  void Log(std::string_view message) final;
 
  private:
   // A RAII-wrapper around std::FILE.

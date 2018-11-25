@@ -27,6 +27,8 @@
 
 #include "rst/Logger/FilePtrSink.h"
 
+#include <limits>
+
 #include "rst/Check/Check.h"
 
 namespace rst {
@@ -45,10 +47,12 @@ FilePtrSink::FilePtrSink(std::FILE* file, const bool should_close) {
 
 FilePtrSink::~FilePtrSink() = default;
 
-void FilePtrSink::Log(const std::string& message) {
+void FilePtrSink::Log(const std::string_view message) {
   std::unique_lock<std::mutex> lock(mutex_);
 
-  auto val = std::fprintf(file_, "%s\n", message.c_str());
+  RST_DCHECK(message.size() <= std::numeric_limits<int>::max());
+  auto val = std::fprintf(file_, "%.*s\n", static_cast<int>(message.size()),
+                          message.data());
   RST_DCHECK(val >= 0);
 
   val = std::fflush(file_);

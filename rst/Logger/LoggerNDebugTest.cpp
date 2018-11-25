@@ -43,7 +43,7 @@ namespace {
 
 class SinkMock : public ISink {
  public:
-  MOCK_METHOD1(Log, void(const std::string& message));
+  MOCK_METHOD1(Log, void(std::string_view message));
 };
 
 }  // namespace

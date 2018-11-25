@@ -34,6 +34,9 @@ char ErrorInfoBase::id_ = 0;
 ErrorInfoBase::ErrorInfoBase() = default;
 ErrorInfoBase::~ErrorInfoBase() = default;
 
+// static
+const void* ErrorInfoBase::GetClassID() { return &id_; }
+
 bool ErrorInfoBase::IsA(const void* class_id) const {
   RST_DCHECK(class_id != nullptr);
   return class_id == GetClassID();

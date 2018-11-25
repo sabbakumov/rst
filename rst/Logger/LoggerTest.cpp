@@ -38,6 +38,7 @@
 #include <iterator>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -48,6 +49,7 @@
 #include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
 
+using testing::Eq;
 using testing::_;
 
 namespace rst {
@@ -74,7 +76,7 @@ class File {
 
 class SinkMock : public ISink {
  public:
-  MOCK_METHOD1(Log, void(const std::string& message));
+  MOCK_METHOD1(Log, void(std::string_view message));
 };
 
 }  // namespace
@@ -84,8 +86,8 @@ TEST(Logger, ConstructorNullSink) { EXPECT_DEATH(Logger(nullptr), ""); }
 TEST(Logger, Log) {
   auto sink = std::make_unique<SinkMock>();
 
-  EXPECT_CALL(*sink, Log(std::string("[") + kLevelStr + ":" + kFilename + "(" +
-                         kLineStr + ")] " + kMessage));
+  EXPECT_CALL(*sink, Log(Eq(std::string("[") + kLevelStr + ":" + kFilename +
+                            "(" + kLineStr + ")] " + kMessage)));
 
   Logger logger(std::move(sink));
   Logger::SetLogger(&logger);
@@ -158,14 +160,14 @@ TEST(Logger, LogEnumToString) {
 
   testing::InSequence seq;
 
-  EXPECT_CALL(*sink, Log(std::string("[") + "DEBUG" + ":" + kFilename + "(" +
-                         kLineStr + ")] " + kMessage));
-  EXPECT_CALL(*sink, Log(std::string("[") + "INFO" + ":" + kFilename + "(" +
-                         kLineStr + ")] " + kMessage));
-  EXPECT_CALL(*sink, Log(std::string("[") + "WARNING" + ":" + kFilename + "(" +
-                         kLineStr + ")] " + kMessage));
-  EXPECT_CALL(*sink, Log(std::string("[") + "ERROR" + ":" + kFilename + "(" +
-                         kLineStr + ")] " + kMessage));
+  EXPECT_CALL(*sink, Log(Eq(std::string("[") + "DEBUG" + ":" + kFilename + "(" +
+                            kLineStr + ")] " + kMessage)));
+  EXPECT_CALL(*sink, Log(Eq(std::string("[") + "INFO" + ":" + kFilename + "(" +
+                            kLineStr + ")] " + kMessage)));
+  EXPECT_CALL(*sink, Log(Eq(std::string("[") + "WARNING" + ":" + kFilename +
+                            "(" + kLineStr + ")] " + kMessage)));
+  EXPECT_CALL(*sink, Log(Eq(std::string("[") + "ERROR" + ":" + kFilename + "(" +
+                            kLineStr + ")] " + kMessage)));
 
   Logger logger(std::move(sink));
   Logger::SetLogger(&logger);

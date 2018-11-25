@@ -45,7 +45,7 @@ class ErrorInfoBase {
   ErrorInfoBase();
   virtual ~ErrorInfoBase();
 
-  static const void* GetClassID() { return &id_; }
+  static const void* GetClassID();
 
   virtual const std::string& AsString() const = 0;
   virtual const void* GetDynamicClassID() const = 0;

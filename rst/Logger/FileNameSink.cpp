@@ -27,6 +27,7 @@
 
 #include "rst/Logger/FileNameSink.h"
 
+#include <limits>
 #include <utility>
 
 #include "rst/Check/Check.h"
@@ -67,10 +68,12 @@ StatusOr<std::unique_ptr<FileNameSink>> FileNameSink::Create(
   return sink;
 }
 
-void FileNameSink::Log(const std::string& message) {
+void FileNameSink::Log(const std::string_view message) {
   std::unique_lock<std::mutex> lock(mutex_);
 
-  auto val = std::fprintf(log_file_.get(), "%s\n", message.c_str());
+  RST_DCHECK(message.size() <= std::numeric_limits<int>::max());
+  auto val = std::fprintf(log_file_.get(), "%.*s\n",
+                          static_cast<int>(message.size()), message.data());
   RST_DCHECK(val >= 0);
 
   val = std::fflush(log_file_.get());

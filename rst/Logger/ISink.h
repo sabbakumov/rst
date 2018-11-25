@@ -28,7 +28,7 @@
 #ifndef RST_LOGGER_ISINK_H_
 #define RST_LOGGER_ISINK_H_
 
-#include <string>
+#include <string_view>
 
 namespace rst {
 
@@ -37,7 +37,7 @@ class ISink {
  public:
   virtual ~ISink();
 
-  virtual void Log(const std::string& message) = 0;
+  virtual void Log(std::string_view message) = 0;
 };
 
 }  // namespace rst

@@ -49,7 +49,7 @@ class FileNameSink : public ISink {
   ~FileNameSink();
 
   // Thread safe logging function.
-  void Log(const std::string& message) final;
+  void Log(std::string_view message) final;
 
  private:
   // Opens a filename for writing.
