@@ -103,7 +103,7 @@ void Writer::Write(const char* val, const size_t len) {
   if (len == 0)
     return;
 
-  if (is_static_buffer_) {
+  if (dynamic_buffer_.empty()) {
     if (len < std::size(static_buffer_) - size_) {
       std::copy(val, val + len, static_buffer_ + size_);
       size_ += len;
@@ -112,7 +112,6 @@ void Writer::Write(const char* val, const size_t len) {
       dynamic_buffer_.reserve(size_ + len + 1);
       dynamic_buffer_.assign(static_buffer_, size_);
       dynamic_buffer_.append(val, len);
-      is_static_buffer_ = false;
     }
   } else {
     dynamic_buffer_.append(val, len);
@@ -122,7 +121,7 @@ void Writer::Write(const char* val, const size_t len) {
 std::string Writer::TakeString() {
   RST_DCHECK(!moved_ && "String has been already moved");
 
-  if (is_static_buffer_) {
+  if (dynamic_buffer_.empty()) {
     std::string val(static_buffer_, size_);
     set_moved();
     return val;
@@ -133,7 +132,7 @@ std::string Writer::TakeString() {
 }
 
 std::string Writer::CopyString() const {
-  if (is_static_buffer_)
+  if (dynamic_buffer_.empty())
     return std::string(static_buffer_, size_);
   return dynamic_buffer_;
 }

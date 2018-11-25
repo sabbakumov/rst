@@ -105,9 +105,8 @@ class Logger {
   void set_level(Level level) { level_ = level; }
 
  private:
-  Level level_ = Level::kAll;
-
   std::unique_ptr<ISink> sink_;
+  Level level_ = Level::kAll;
 
   RST_DISALLOW_COPY_AND_ASSIGN(Logger);
 };

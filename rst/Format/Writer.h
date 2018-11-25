@@ -104,9 +104,6 @@ class Writer {
   void set_moved() {}
 #endif  // NDEBUG
 
-  // Buffer on the stack to prevent dynamic allocation.
-  char static_buffer_[kStaticBufferSize];
-
   // Dynamic buffer in case of the static buffer gets full or the input is too
   // long for the static buffer.
   std::string dynamic_buffer_;
@@ -114,8 +111,8 @@ class Writer {
   // The current size of the static_buffer_.
   size_t size_ = 0;
 
-  // Whether we use static or dynamic buffer.
-  bool is_static_buffer_ = true;
+  // Buffer on the stack to prevent dynamic allocation.
+  char static_buffer_[kStaticBufferSize];
 
   RST_DISALLOW_COPY_AND_ASSIGN(Writer);
 };

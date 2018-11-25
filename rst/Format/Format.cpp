@@ -191,41 +191,41 @@ void Format(Writer* writer, const char* s) {
 }
 
 Value::Value(const short short_val)
-    : type_(Type::kShort), short_val_(short_val) {}
+    : short_val_(short_val), type_(Type::kShort) {}
 
 Value::Value(const unsigned short unsigned_short_val)
-    : type_(Type::kUnsignedShort), unsigned_short_val_(unsigned_short_val) {}
+    : unsigned_short_val_(unsigned_short_val), type_(Type::kUnsignedShort) {}
 
-Value::Value(const int int_val) : type_(Type::kInt), int_val_(int_val) {}
+Value::Value(const int int_val) : int_val_(int_val), type_(Type::kInt) {}
 
 Value::Value(const unsigned int unsigned_int_val)
-    : type_(Type::kUnsignedInt), unsigned_int_val_(unsigned_int_val) {}
+    : unsigned_int_val_(unsigned_int_val), type_(Type::kUnsignedInt) {}
 
-Value::Value(const long long_val) : type_(Type::kLong), long_val_(long_val) {}
+Value::Value(const long long_val) : long_val_(long_val), type_(Type::kLong) {}
 
 Value::Value(const unsigned long unsigned_long_val)
-    : type_(Type::kUnsignedLong), unsigned_long_val_(unsigned_long_val) {}
+    : unsigned_long_val_(unsigned_long_val), type_(Type::kUnsignedLong) {}
 
 Value::Value(const long long long_long_val)
-    : type_(Type::kLongLong), long_long_val_(long_long_val) {}
+    : long_long_val_(long_long_val), type_(Type::kLongLong) {}
 
 Value::Value(const unsigned long long unsigned_long_long_val)
-    : type_(Type::kUnsignedLongLong),
-      unsigned_long_long_val_(unsigned_long_long_val) {}
+    : unsigned_long_long_val_(unsigned_long_long_val),
+      type_(Type::kUnsignedLongLong) {}
 
 Value::Value(const float float_val)
-    : type_(Type::kFloat), float_val_(float_val) {}
+    : float_val_(float_val), type_(Type::kFloat) {}
 
 Value::Value(const double double_val)
-    : type_(Type::kDouble), double_val_(double_val) {}
+    : double_val_(double_val), type_(Type::kDouble) {}
 
 Value::Value(const long double long_double_val)
-    : type_(Type::kLongDouble), long_double_val_(long_double_val) {}
+    : long_double_val_(long_double_val), type_(Type::kLongDouble) {}
 
 Value::Value(const std::string_view string_view_val)
-    : type_(Type::kStringView), string_view_val_(string_view_val) {}
+    : string_view_val_(string_view_val), type_(Type::kStringView) {}
 
-Value::Value(const char char_val) : type_(Type::kChar), char_val_(char_val) {}
+Value::Value(const char char_val) : char_val_(char_val), type_(Type::kChar) {}
 
 Value::~Value() = default;
 
@@ -233,6 +233,7 @@ void Value::Write(Writer* writer) const {
   RST_DCHECK(writer != nullptr);
 
   using WriteFunction = void(Writer * writer, const void* ptr);
+  // clang-format off
   static constexpr WriteFunction* kFuncs[] = {
       &WriteInt,
       &WriteDouble,
@@ -248,6 +249,7 @@ void Value::Write(Writer* writer) const {
       &WriteUnsignedLongLong,
       &WriteLongDouble,
   };
+  // clang-format on
 
   const auto index = static_cast<size_t>(type_);
   RST_DCHECK(index < std::size(kFuncs));

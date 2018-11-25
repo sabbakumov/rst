@@ -83,8 +83,6 @@ class Value {
     kLongDouble,
   };
 
-  Type type_;
-
   union {
     short short_val_;
     unsigned short unsigned_short_val_;
@@ -100,6 +98,7 @@ class Value {
     std::string_view string_view_val_;
     char char_val_;
   };
+  Type type_;
 
   RST_DISALLOW_IMPLICIT_CONSTRUCTORS(Value);
 };
