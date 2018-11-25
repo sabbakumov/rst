@@ -25,11 +25,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Logger/Logger.h"
 #include "rst/Logger/FileNameSink.h"
 #include "rst/Logger/FilePtrSink.h"
 #include "rst/Logger/ISink.h"
 #include "rst/Logger/LogError.h"
+#include "rst/Logger/Logger.h"
 
 #include <algorithm>
 #include <cstdarg>
@@ -49,8 +49,8 @@
 #include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
 
-using testing::Eq;
 using testing::_;
+using testing::Eq;
 
 namespace rst {
 namespace {

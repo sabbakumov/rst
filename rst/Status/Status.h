@@ -90,7 +90,7 @@ class [[nodiscard]] Status {
   Status(std::unique_ptr<ErrorInfoBase> error);
 
   // Sets the object not checked by default and moves rhs content.
-  Status(Status&& rhs);
+  Status(Status && rhs);
 
   ~Status();
 

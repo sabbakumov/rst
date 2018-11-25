@@ -41,7 +41,7 @@ namespace rst {
 template <class T>
 class [[nodiscard]] StatusOr {
  public:
-  StatusOr(StatusOr&& rhs)
+  StatusOr(StatusOr && rhs)
       : status_(std::move(rhs.status_)), value_(std::move(rhs.value_)) {
     RST_DCHECK(value_.has_value() ? (status_.error_ == nullptr) : true);
     rhs.set_was_checked(true);
@@ -49,7 +49,7 @@ class [[nodiscard]] StatusOr {
 
   StatusOr(const T& value) { Construct(value); }
 
-  StatusOr(T&& value) { Construct(std::move(value)); }
+  StatusOr(T && value) { Construct(std::move(value)); }
 
   StatusOr(Status status) : status_(std::move(status)) {
     RST_DCHECK(status_.error_ != nullptr);
@@ -147,7 +147,7 @@ class [[nodiscard]] StatusOr {
 
  private:
   void Construct(const T& value) { value_.emplace(value); }
-  void Construct(T&& value) { value_.emplace(std::move(value)); }
+  void Construct(T && value) { value_.emplace(std::move(value)); }
 
 #ifndef NDEBUG
   void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
