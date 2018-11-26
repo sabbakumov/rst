@@ -288,18 +288,18 @@ TEST(Optional, Emplace) {
   EXPECT_TRUE(o == false);
   o.emplace("test");
   EXPECT_TRUE(o == true);
-  EXPECT_TRUE(*o == "test");
+  EXPECT_EQ(*o, "test");
 }
 
 TEST(Optional, Comparison) {
   optional<std::string> o;
   optional<std::string> o2("data");
 
-  EXPECT_FALSE(o == "data");
-  EXPECT_FALSE("data" == o);
+  EXPECT_NE(o, "data");
+  EXPECT_NE(o, "data");
 
-  EXPECT_TRUE(o2 == "data");
-  EXPECT_TRUE("data" == o2);
+  EXPECT_EQ(o2, "data");
+  EXPECT_EQ("data", o2);
 }
 
 }  // namespace rst

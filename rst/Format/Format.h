@@ -48,19 +48,19 @@ void Format(Writer* writer, const char* s);
 
 class Value {
  public:
-  Value(short short_val);
-  Value(unsigned short unsigned_short_val);
-  Value(int int_val);
-  Value(unsigned int unsigned_int_val);
-  Value(long long_val);
-  Value(unsigned long unsigned_long_val);
-  Value(long long long_long_val);
-  Value(unsigned long long unsigned_long_long_val);
-  Value(float float_val);
-  Value(double double_val);
-  Value(long double long_double_val);
-  Value(std::string_view string_view_val);
-  Value(char char_val);
+  explicit Value(short short_val);
+  explicit Value(unsigned short unsigned_short_val);
+  explicit Value(int int_val);
+  explicit Value(unsigned int unsigned_int_val);
+  explicit Value(long long_val);
+  explicit Value(unsigned long unsigned_long_val);
+  explicit Value(long long long_long_val);
+  explicit Value(unsigned long long unsigned_long_long_val);
+  explicit Value(float float_val);
+  explicit Value(double double_val);
+  explicit Value(long double long_double_val);
+  explicit Value(std::string_view string_view_val);
+  explicit Value(char char_val);
 
   ~Value();
 

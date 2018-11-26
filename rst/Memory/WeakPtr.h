@@ -48,9 +48,9 @@ template <class T>
 class WeakPtr {
  public:
   WeakPtr() = default;
-  WeakPtr(std::nullptr_t) {}
+  explicit WeakPtr(std::nullptr_t) {}
 
-  explicit WeakPtr(std::weak_ptr<internal::Flag> flag, T* ptr)
+  WeakPtr(std::weak_ptr<internal::Flag> flag, T* ptr)
       : flag_(std::move(flag)), ptr_(ptr) {
     RST_DCHECK(ptr != nullptr);
   }

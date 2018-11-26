@@ -29,6 +29,7 @@
 #define RST_LEGACY_MEMORY_H_
 
 #include <memory>
+#include <utility>
 
 namespace rst {
 

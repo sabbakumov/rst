@@ -36,50 +36,50 @@ namespace rst {
 
 TEST(Sort, Vector) {
   std::vector<int> vec = {-1, 400, 10, 0, 3, -5};
-  Sort(vec);
+  Sort(&vec);
   EXPECT_TRUE(std::is_sorted(std::cbegin(vec), std::cend(vec)));
 }
 
 TEST(Sort, Array) {
   int arr[] = {-1, 4, 10, 400, 3, -5};
-  Sort(arr);
+  Sort(&arr);
   EXPECT_TRUE(std::is_sorted(std::cbegin(arr), std::cend(arr)));
 }
 
 TEST(StableSort, Vector) {
   std::vector<int> vec = {-1, 400, 10, 0, 3, -5};
-  StableSort(vec);
+  StableSort(&vec);
   EXPECT_TRUE(std::is_sorted(std::cbegin(vec), std::cend(vec)));
 }
 
 TEST(StableSort, Array) {
   int arr[] = {-1, 4, 10, 400, 3, -5};
-  StableSort(arr);
+  StableSort(&arr);
   EXPECT_TRUE(std::is_sorted(std::cbegin(arr), std::cend(arr)));
 }
 
 TEST(FindIf, Vector) {
   std::vector<int> vec = {-1, 400, 10, 0, 3, -5};
-  const auto it = FindIf(vec, [](const int val) -> bool { return val == -1; });
+  const auto it = FindIf(&vec, [](const int val) -> bool { return val == -1; });
   ASSERT_NE(it, std::cend(vec));
   EXPECT_EQ(*it, -1);
 
   const std::vector<int> const_vec = {-1, 400, 10, 0, 3, -5};
   const auto const_it =
-      FindIf(const_vec, [](const int val) -> bool { return val == -1; });
+      FindIf(&const_vec, [](const int val) -> bool { return val == -1; });
   ASSERT_NE(const_it, std::cend(const_vec));
   EXPECT_EQ(*const_it, -1);
 }
 
 TEST(FindIf, Array) {
   int arr[] = {-1, 400, 10, 0, 3, -5};
-  const auto it = FindIf(arr, [](const int val) -> bool { return val == -1; });
+  const auto it = FindIf(&arr, [](const int val) -> bool { return val == -1; });
   ASSERT_NE(it, std::cend(arr));
   EXPECT_EQ(*it, -1);
 
   const int const_arr[] = {-1, 400, 10, 0, 3, -5};
   const auto const_it =
-      FindIf(const_arr, [](const int val) -> bool { return val == -1; });
+      FindIf(&const_arr, [](const int val) -> bool { return val == -1; });
   ASSERT_NE(const_it, std::cend(const_arr));
   EXPECT_EQ(*const_it, -1);
 }

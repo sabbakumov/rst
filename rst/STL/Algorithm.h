@@ -32,6 +32,8 @@
 #include <iterator>
 #include <utility>
 
+#include "rst/Check/Check.h"
+
 namespace rst {
 namespace internal {
 
@@ -41,28 +43,33 @@ using ContainerIter = decltype(std::begin(std::declval<C&>()));
 }  // namespace internal
 
 template <class C>
-void Sort(C& c) {
-  std::sort(std::begin(c), std::end(c));
+void Sort(C* c) {
+  RST_DCHECK(c != nullptr);
+  std::sort(std::begin(*c), std::end(*c));
 }
 
 template <class C, class Compare>
-void Sort(C& c, Compare&& comp) {
-  std::sort(std::begin(c), std::end(c), std::forward<Compare>(comp));
+void Sort(C* c, Compare&& comp) {
+  RST_DCHECK(c != nullptr);
+  std::sort(std::begin(*c), std::end(*c), std::forward<Compare>(comp));
 }
 
 template <class C>
-void StableSort(C& c) {
-  std::stable_sort(std::begin(c), std::end(c));
+void StableSort(C* c) {
+  RST_DCHECK(c != nullptr);
+  std::stable_sort(std::begin(*c), std::end(*c));
 }
 
 template <class C, class Compare>
-void StableSort(C& c, Compare&& comp) {
-  std::stable_sort(std::begin(c), std::end(c), std::forward<Compare>(comp));
+void StableSort(C* c, Compare&& comp) {
+  RST_DCHECK(c != nullptr);
+  std::stable_sort(std::begin(*c), std::end(*c), std::forward<Compare>(comp));
 }
 
 template <class C, class UnaryPredicate>
-internal::ContainerIter<C> FindIf(C& c, UnaryPredicate&& pred) {
-  return std::find_if(std::begin(c), std::end(c),
+internal::ContainerIter<C> FindIf(C* c, UnaryPredicate&& pred) {
+  RST_DCHECK(c != nullptr);
+  return std::find_if(std::begin(*c), std::end(*c),
                       std::forward<UnaryPredicate>(pred));
 }
 

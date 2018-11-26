@@ -31,6 +31,7 @@
 #include <cstdio>
 #include <memory>
 #include <mutex>
+#include <string>
 
 #include "rst/Logger/ISink.h"
 #include "rst/Macros/Macros.h"

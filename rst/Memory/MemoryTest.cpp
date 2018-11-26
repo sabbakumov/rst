@@ -28,6 +28,7 @@
 #include "rst/Memory/Memory.h"
 
 #include <cstddef>
+#include <memory>
 
 #include <gtest/gtest.h>
 

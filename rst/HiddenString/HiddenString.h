@@ -95,7 +95,7 @@ class HiddenString;
 template <size_t... Index>
 class HiddenString<IndexList<Index...>> {
  public:
-  constexpr HiddenString(const char* str)
+  explicit constexpr HiddenString(const char* str)
       : str_{EncryptCharacter(str[Index], Index)...} {}
 
   std::string Decrypt() const {

@@ -29,6 +29,7 @@
 
 #include <iterator>
 #include <limits>
+#include <utility>
 
 namespace rst {
 namespace internal {
