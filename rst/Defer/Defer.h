@@ -49,6 +49,8 @@ class DeferredAction {
   explicit DeferredAction(F&& action) : action_(std::forward<F>(action)) {}
   DeferredAction(DeferredAction&&) = default;
 
+  DeferredAction& operator=(DeferredAction&&) = delete;
+
   ~DeferredAction() { action_(); }
 
  private:
