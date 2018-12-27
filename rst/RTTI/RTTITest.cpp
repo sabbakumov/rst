@@ -31,7 +31,6 @@
 
 #include <gtest/gtest.h>
 
-#include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
 
 namespace rst {
@@ -51,7 +50,6 @@ class ErrorInfoBase {
   virtual const void* GetDynamicClassID() const = 0;
 
   virtual bool IsA(const void* class_id) const {
-    RST_DCHECK(class_id != nullptr);
     return class_id == GetClassID();
   }
 
@@ -78,7 +76,6 @@ class ErrorInfo : public ErrorInfoBase {
   const void* GetDynamicClassID() const override { return &T::id_; }
 
   bool IsA(const void* class_id) const override {
-    RST_DCHECK(class_id != nullptr);
     return class_id == GetClassID() || ErrorInfoBase::IsA(class_id);
   }
 

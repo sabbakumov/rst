@@ -51,9 +51,7 @@ class WeakPtr {
   explicit WeakPtr(std::nullptr_t) {}
 
   WeakPtr(std::weak_ptr<internal::Flag> flag, T* ptr)
-      : flag_(std::move(flag)), ptr_(ptr) {
-    RST_DCHECK(ptr != nullptr);
-  }
+      : flag_(std::move(flag)), ptr_(ptr) {}
 
   template <typename U>
   WeakPtr(const WeakPtr<U>& rhs) : flag_(rhs.flag_) {
@@ -112,7 +110,7 @@ bool operator!=(std::nullptr_t, const WeakPtr<T>& weak_ptr) {
 template <class T>
 class WeakPtrFactory {
  public:
-  explicit WeakPtrFactory(T* ptr) : ptr_(ptr) { RST_DCHECK(ptr != nullptr); }
+  explicit WeakPtrFactory(T* ptr) : ptr_(ptr) {}
 
   WeakPtrFactory(WeakPtrFactory&&) = delete;
   WeakPtrFactory& operator=(WeakPtrFactory&&) = delete;
