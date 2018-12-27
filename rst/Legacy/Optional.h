@@ -218,39 +218,19 @@ bool operator==(const optional<T>& opt, const U& value) {
   return opt.has_value() ? *opt == value : false;
 }
 
-template <class T>
-bool operator==(const optional<T>& opt, const bool value) {
-  return opt.has_value() == value;
-}
-
 template <class T, class U>
 bool operator==(const U& value, const optional<T>& opt) {
-  return opt.has_value() ? value == *opt : false;
-}
-
-template <class T>
-bool operator==(const bool value, const optional<T>& opt) {
-  return opt.has_value() == value;
+  return opt == value;
 }
 
 template <class T, class U>
 bool operator!=(const optional<T>& opt, const U& value) {
-  return opt.has_value() ? *opt != value : true;
-}
-
-template <class T>
-bool operator!=(const optional<T>& opt, const bool value) {
-  return opt.has_value() == value;
+  return !(opt == value);
 }
 
 template <class T, class U>
 bool operator!=(const U& value, const optional<T>& opt) {
-  return opt.has_value() ? value != *opt : true;
-}
-
-template <class T>
-bool operator!=(const bool value, const optional<T>& opt) {
-  return opt.has_value() == value;
+  return !(value == opt);
 }
 
 }  // namespace rst

@@ -64,51 +64,51 @@ optional<T> ReturnOptional(const T& val) {
 
 TEST(Optional, ValueCtor) {
   optional<int> oi = 0;
-  EXPECT_TRUE(oi == true);
+  EXPECT_TRUE(oi.has_value());
 
   optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
-  EXPECT_TRUE(ocmplx == true);
+  EXPECT_TRUE(ocmplx.has_value());
 
   std::string s = "Test string";
   optional<std::string> os = s;
-  EXPECT_TRUE(os == true);
+  EXPECT_TRUE(os.has_value());
 
   optional<std::string> os2 = std::move(s);
-  EXPECT_TRUE(os2 == true);
+  EXPECT_TRUE(os2.has_value());
 
   optional<int> ni(nullopt);
-  EXPECT_TRUE(ni == false);
+  EXPECT_FALSE(ni.has_value());
 }
 
 TEST(Optional, DefaultCtor) {
   optional<int> oi;
-  EXPECT_TRUE(oi == false);
+  EXPECT_FALSE(oi.has_value());
 
   optional<std::complex<double>> ocmplx;
-  EXPECT_TRUE(ocmplx == false);
+  EXPECT_FALSE(ocmplx.has_value());
 }
 
 TEST(Optional, CopyCtor) {
   {
     optional<int> oi = 0;
     optional<int> oi2(oi);
-    ASSERT_TRUE(oi2 == true);
+    ASSERT_TRUE(oi2.has_value());
     EXPECT_EQ(*oi2, 0);
 
     optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
     optional<std::complex<double>> ocmplx2(ocmplx);
-    ASSERT_TRUE(ocmplx2 == true);
+    ASSERT_TRUE(ocmplx2.has_value());
     EXPECT_EQ(*ocmplx2, std::complex(0.0, 0.0));
   }
 
   {
     optional<int> oi;
     optional<int> oi2(oi);
-    EXPECT_TRUE(oi2 == false);
+    EXPECT_FALSE(oi2.has_value());
 
     optional<std::complex<double>> ocmplx;
     optional<std::complex<double>> ocmplx2(ocmplx);
-    EXPECT_TRUE(ocmplx2 == false);
+    EXPECT_FALSE(ocmplx2.has_value());
   }
 }
 
@@ -143,14 +143,14 @@ TEST(Optional, OperatorEquals) {
 
   optional<int> oi;
   oi = nullopt;
-  EXPECT_TRUE(oi == false);
+  EXPECT_FALSE(oi.has_value());
 }
 
 TEST(Optional, CopyOperatorEquals) {
   {
     optional<int> oi = 0;
     oi = oi;
-    ASSERT_TRUE(oi == true);
+    ASSERT_TRUE(oi.has_value());
     EXPECT_EQ(*oi, 0);
   }
 
@@ -158,13 +158,13 @@ TEST(Optional, CopyOperatorEquals) {
     optional<int> oi = 0;
     optional<int> oi2;
     oi2 = oi;
-    ASSERT_TRUE(oi2 == true);
+    ASSERT_TRUE(oi2.has_value());
     EXPECT_EQ(*oi2, 0);
 
     optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
     optional<std::complex<double>> ocmplx2;
     ocmplx2 = ocmplx;
-    ASSERT_TRUE(ocmplx2 == true);
+    ASSERT_TRUE(ocmplx2.has_value());
     EXPECT_EQ(*ocmplx2, std::complex(0.0, 0.0));
   }
 
@@ -172,24 +172,24 @@ TEST(Optional, CopyOperatorEquals) {
     optional<int> oi;
     optional<int> oi2;
     oi2 = oi;
-    EXPECT_TRUE(oi2 == false);
+    EXPECT_FALSE(oi2.has_value());
 
     optional<std::complex<double>> ocmplx;
     optional<std::complex<double>> ocmplx2;
     ocmplx2 = ocmplx;
-    EXPECT_TRUE(ocmplx2 == false);
+    EXPECT_FALSE(ocmplx2.has_value());
   }
 }
 
 TEST(Optional, OperatorBool) {
   optional<int> o;
-  EXPECT_TRUE(o == false);
+  EXPECT_FALSE(o.has_value());
   {
     optional<int> oi = 0;
-    EXPECT_TRUE(oi == true);
+    EXPECT_TRUE(oi.has_value());
 
     optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
-    EXPECT_TRUE(ocmplx == true);
+    EXPECT_TRUE(ocmplx.has_value());
   }
 }
 
@@ -208,26 +208,26 @@ TEST(Optional, HasValue) {
 TEST(Optional, OperatorStar) {
   {
     optional<int> oi = 0;
-    ASSERT_TRUE(oi == true);
+    ASSERT_TRUE(oi.has_value());
     EXPECT_EQ(*oi, 0);
     *oi = 1;
-    ASSERT_TRUE(oi == true);
+    ASSERT_TRUE(oi.has_value());
     EXPECT_EQ(*oi, 1);
 
     optional<std::complex<double>> ocmplx = std::complex(0.0, 0.0);
-    ASSERT_TRUE(ocmplx == true);
+    ASSERT_TRUE(ocmplx.has_value());
     EXPECT_EQ(*ocmplx, std::complex(0.0, 0.0));
     *ocmplx = std::complex(1.0, 1.0);
-    ASSERT_TRUE(ocmplx == true);
+    ASSERT_TRUE(ocmplx.has_value());
     EXPECT_EQ(*ocmplx, std::complex(1.0, 1.0));
 
     std::string s = "Test string";
     optional<std::string> os = s;
-    ASSERT_TRUE(os == true);
+    ASSERT_TRUE(os.has_value());
     EXPECT_EQ(*os, "Test string");
 
     optional<std::string> os2 = std::move(s);
-    ASSERT_TRUE(os2 == true);
+    ASSERT_TRUE(os2.has_value());
     EXPECT_EQ(*os2, "Test string");
   }
   {
@@ -242,19 +242,19 @@ TEST(Optional, OperatorStar) {
     EXPECT_DEATH(*oi, "");
 
     optional<int> ni(nullopt);
-    EXPECT_TRUE(ni == false);
+    EXPECT_FALSE(ni.has_value());
     EXPECT_DEATH(*ni, "");
   }
 }
 
 TEST(Optional, ReturnByValue) {
   optional<int> oi = ReturnOptional(10);
-  ASSERT_TRUE(oi == true);
+  ASSERT_TRUE(oi.has_value());
   EXPECT_EQ(*oi, 10);
 
   optional<std::complex<double>> ocmplx =
       ReturnOptional(std::complex(1.0, 1.0));
-  ASSERT_TRUE(ocmplx == true);
+  ASSERT_TRUE(ocmplx.has_value());
   EXPECT_EQ(*ocmplx, std::complex(1.0, 1.0));
 }
 
@@ -262,7 +262,7 @@ TEST(Optional, OperatorArrow) {
   {
     optional<ArrowHelper> o = ArrowHelper();
 
-    EXPECT_TRUE(o == true);
+    EXPECT_TRUE(o.has_value());
     o->Foo();
   }
   {
@@ -270,7 +270,7 @@ TEST(Optional, OperatorArrow) {
     EXPECT_DEATH(o->Foo(), "");
 
     optional<ArrowHelper> ni(nullopt);
-    EXPECT_TRUE(ni == false);
+    EXPECT_FALSE(ni.has_value());
     EXPECT_DEATH(ni->Foo(), "");
   }
 }
@@ -285,9 +285,9 @@ TEST(Optional, ValueOr) {
 
 TEST(Optional, Emplace) {
   optional<std::string> o;
-  EXPECT_TRUE(o == false);
+  EXPECT_FALSE(o.has_value());
   o.emplace("test");
-  EXPECT_TRUE(o == true);
+  EXPECT_TRUE(o.has_value());
   EXPECT_EQ(*o, "test");
 }
 

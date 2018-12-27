@@ -120,8 +120,7 @@ TEST(WeakPtrTest, Dereference) {
 TEST(WeakPtrTest, UpCast) {
   Derived data;
   const WeakPtrFactory<Derived> factory(&data);
-  auto ptr = factory.GetWeakPtr();
-  ptr = factory.GetWeakPtr();
+  WeakPtr<Base> ptr = factory.GetWeakPtr();
   EXPECT_EQ(ptr.get(), &data);
 }
 
