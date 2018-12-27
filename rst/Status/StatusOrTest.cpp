@@ -351,7 +351,7 @@ TEST(StatusOr, Status) {
 TEST(Status, StatusOrFromAnother) {
   StatusOr<std::string> status_or = MakeStatus<Error>();
   EXPECT_FALSE(status_or.ok());
-  StatusOr<std::string> status_or2 = std::move(status_or.status());
+  StatusOr<std::string> status_or2 = status_or.TakeStatus();
   EXPECT_FALSE(status_or2.ok());
 }
 

@@ -126,11 +126,11 @@ class [[nodiscard]] StatusOr {
     return &*value_;
   }
 
-  Status& status() {
+  Status TakeStatus() {
     RST_DCHECK(was_checked_);
     RST_DCHECK(status_.error_ != nullptr);
 
-    return status_;
+    return std::move(status_);
   }
 
   const Status& status() const {
