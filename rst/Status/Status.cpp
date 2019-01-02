@@ -30,6 +30,7 @@
 #include "rst/Check/Check.h"
 
 namespace rst {
+namespace internal {
 
 char ErrorInfoBase::id_ = 0;
 
@@ -43,9 +44,11 @@ bool ErrorInfoBase::IsA(const void* class_id) const {
   return class_id == GetClassID();
 }
 
+}  // namespace internal
+
 Status::Status() = default;
 
-Status::Status(std::unique_ptr<ErrorInfoBase> error)
+Status::Status(std::unique_ptr<internal::ErrorInfoBase> error)
     : error_(std::move(error)) {
   RST_DCHECK(error_ != nullptr);
 }
@@ -71,7 +74,7 @@ Status& Status::operator=(Status&& rhs) {
 
 Status::~Status() { RST_DCHECK(was_checked_); }
 
-const ErrorInfoBase& Status::GetError() const {
+const internal::ErrorInfoBase& Status::GetError() const {
   RST_DCHECK(was_checked_);
   RST_DCHECK(error_ != nullptr);
   return *error_;

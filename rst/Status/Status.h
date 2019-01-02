@@ -39,6 +39,8 @@ namespace rst {
 
 class StatusAsOutParameter;
 
+namespace internal {
+
 class ErrorInfoBase {
  public:
   ErrorInfoBase();
@@ -62,10 +64,12 @@ class ErrorInfoBase {
   RST_DISALLOW_COPY_AND_ASSIGN(ErrorInfoBase);
 };
 
+}  // namespace internal
+
 template <class T>
-class ErrorInfo : public ErrorInfoBase {
+class ErrorInfo : public internal::ErrorInfoBase {
  public:
-  using ErrorInfoBase::ErrorInfoBase;
+  using internal::ErrorInfoBase::ErrorInfoBase;
 
   static const void* GetClassID() { return &T::id_; }
 
@@ -85,7 +89,7 @@ class [[nodiscard]] Status {
   static Status OK() { return Status(); }
 
   // Sets the object not checked by default and to be the error object.
-  Status(std::unique_ptr<ErrorInfoBase> error);
+  Status(std::unique_ptr<internal::ErrorInfoBase> error);
 
   // Sets the object not checked by default and moves rhs content.
   Status(Status && rhs);
@@ -105,7 +109,7 @@ class [[nodiscard]] Status {
     return error_ != nullptr;
   }
 
-  const ErrorInfoBase& GetError() const;
+  const internal::ErrorInfoBase& GetError() const;
 
   // Sets the object to be checked.
   void Ignore() { set_was_checked(true); }
@@ -126,7 +130,7 @@ class [[nodiscard]] Status {
 #endif  // NDEBUG
 
   // Information about the error. nullptr if the object is OK.
-  std::unique_ptr<ErrorInfoBase> error_;
+  std::unique_ptr<internal::ErrorInfoBase> error_;
 
 #ifndef NDEBUG
   // Whether the object was checked.

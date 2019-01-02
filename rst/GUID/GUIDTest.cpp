@@ -71,13 +71,13 @@ std::string ToUpperASCII(const std::string_view str) {
 
 TEST(GUID, GUIDGeneratesAllZeroes) {
   const uint64_t bytes[] = {0, 0};
-  const auto clientid = RandomDataToGUIDString(bytes);
+  const auto clientid = internal::RandomDataToGUIDString(bytes);
   EXPECT_EQ(clientid, "00000000-0000-0000-0000-000000000000");
 }
 
 TEST(GUID, GUIDGeneratesCorrectly) {
   const uint64_t bytes[] = {0x0123456789ABCDEFULL, 0xFEDCBA9876543210ULL};
-  const auto clientid = RandomDataToGUIDString(bytes);
+  const auto clientid = internal::RandomDataToGUIDString(bytes);
   EXPECT_EQ(clientid, "01234567-89ab-cdef-fedc-ba9876543210");
 }
 

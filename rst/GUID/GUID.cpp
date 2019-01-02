@@ -88,7 +88,7 @@ std::string GenerateGUID() {
   sixteen_bytes[1] &= 0x3fffffff'ffffffffULL;
   sixteen_bytes[1] |= 0x80000000'00000000ULL;
 
-  return RandomDataToGUIDString(sixteen_bytes);
+  return internal::RandomDataToGUIDString(sixteen_bytes);
 }
 
 bool IsValidGUID(const std::string_view guid) {
@@ -98,6 +98,8 @@ bool IsValidGUID(const std::string_view guid) {
 bool IsValidGUIDOutputString(const std::string_view guid) {
   return IsValidGUIDInternal(guid, true);
 }
+
+namespace internal {
 
 std::string RandomDataToGUIDString(const uint64_t bytes[2]) {
   char buffer[kGUIDLength + 1];
@@ -111,5 +113,7 @@ std::string RandomDataToGUIDString(const uint64_t bytes[2]) {
   RST_DCHECK(ret == kGUIDLength);
   return buffer;
 }
+
+}  // namespace internal
 
 }  // namespace rst

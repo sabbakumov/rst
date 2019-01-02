@@ -54,7 +54,11 @@ bool IsValidGUID(std::string_view guid);
 // case characters.
 bool IsValidGUIDOutputString(std::string_view guid);
 
+namespace internal {
+
 std::string RandomDataToGUIDString(const uint64_t bytes[2]);
+
+}  // namespace internal
 
 }  // namespace rst
 
