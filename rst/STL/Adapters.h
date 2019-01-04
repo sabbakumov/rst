@@ -59,7 +59,6 @@ class ReversedAdapter {
 
 template <class T>
 internal::ReversedAdapter<T> Reversed(T* t) {
-  RST_DCHECK(t != nullptr);
   return internal::ReversedAdapter<T>(t);
 }
 

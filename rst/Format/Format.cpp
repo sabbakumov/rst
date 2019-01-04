@@ -137,9 +137,7 @@ void WriteChar(Writer* writer, const void* ptr) {
 
 }  // namespace
 
-Formatter::Formatter(const char* str) : str_(str) {
-  RST_DCHECK(str_ != nullptr);
-}
+Formatter::Formatter(const char* str) : str_(str) {}
 
 Formatter::~Formatter() = default;
 
@@ -230,8 +228,6 @@ Value::Value(const char char_val) : char_val_(char_val), type_(Type::kChar) {}
 Value::~Value() = default;
 
 void Value::Write(Writer* writer) const {
-  RST_DCHECK(writer != nullptr);
-
   using WriteFunction = void(Writer * writer, const void* ptr);
   // clang-format off
   static constexpr WriteFunction* kFuncs[] = {
