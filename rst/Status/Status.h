@@ -32,6 +32,7 @@
 #include <string>
 #include <utility>
 
+#include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
 #include "rst/Status/Status.h"
 
@@ -76,6 +77,7 @@ class ErrorInfo : public internal::ErrorInfoBase {
   const void* GetDynamicClassID() const override { return &T::id_; }
 
   bool IsA(const void* class_id) const override {
+    RST_DCHECK(class_id != nullptr);
     return class_id == GetClassID() || ErrorInfoBase::IsA(class_id);
   }
 

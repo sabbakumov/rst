@@ -40,6 +40,8 @@ using namespace rst::literals;
 namespace rst {
 
 FileNameSink::FileNameSink(const std::string& filename, Status* status) {
+  RST_DCHECK(status != nullptr);
+
   StatusAsOutParameter sao(status);
 
   log_file_.reset(std::fopen(filename.c_str(), "w"));

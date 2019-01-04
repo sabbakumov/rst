@@ -27,8 +27,6 @@
 
 #include "rst/Status/Status.h"
 
-#include "rst/Check/Check.h"
-
 namespace rst {
 namespace internal {
 
@@ -41,6 +39,7 @@ ErrorInfoBase::~ErrorInfoBase() = default;
 const void* ErrorInfoBase::GetClassID() { return &id_; }
 
 bool ErrorInfoBase::IsA(const void* class_id) const {
+  RST_DCHECK(class_id != nullptr);
   return class_id == GetClassID();
 }
 
@@ -81,6 +80,7 @@ const internal::ErrorInfoBase& Status::GetError() const {
 }
 
 StatusAsOutParameter::StatusAsOutParameter(Status* status) : status_(status) {
+  RST_DCHECK(status_ != nullptr);
   RST_DCHECK(!status_->was_checked_);
   status_->set_was_checked(true);
 }

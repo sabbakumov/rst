@@ -106,6 +106,9 @@ class Value {
 // Writes s to the writer. "{{" -> "{", "}}" -> "}".
 template <class... Args>
 inline void Format(Writer* writer, const char* s, Args&&... args) {
+  RST_DCHECK(writer != nullptr);
+  RST_DCHECK(s != nullptr);
+
   const Value values[] = {Value(std::forward<Args>(args))...};
 
   size_t arg_idx = 0;
@@ -129,6 +132,7 @@ inline void Format(Writer* writer, const char* s, Args&&... args) {
 // A wrapper around Format recursive functions.
 template <class... Args>
 inline std::string format(const char* s, Args&&... args) {
+  RST_DCHECK(s != nullptr);
   internal::Writer writer;
   Format(&writer, s, std::forward<Args>(args)...);
   return writer.TakeString();
@@ -159,6 +163,7 @@ namespace literals {
 
 // User defined literals.
 inline internal::Formatter operator"" _format(const char* s, size_t) {
+  RST_DCHECK(s != nullptr);
   return internal::Formatter(s);
 }
 

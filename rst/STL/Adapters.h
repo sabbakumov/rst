@@ -30,6 +30,7 @@
 
 #include <iterator>
 
+#include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
 
 namespace rst {
@@ -40,8 +41,10 @@ class ReversedAdapter {
  public:
   using Iterator = decltype(std::rbegin(*static_cast<T*>(nullptr)));
 
-  explicit ReversedAdapter(T* t) : t_(t) {}
-  ReversedAdapter(const ReversedAdapter& ra) : t_(ra.t_) {}
+  explicit ReversedAdapter(T* t) : t_(t) { RST_DCHECK(t != nullptr); }
+  ReversedAdapter(const ReversedAdapter& ra) : t_(ra.t_) {
+    RST_DCHECK(ra.t != nullptr);
+  }
 
   Iterator begin() const { return std::rbegin(*t_); }
   Iterator end() const { return std::rend(*t_); }
@@ -56,6 +59,7 @@ class ReversedAdapter {
 
 template <class T>
 internal::ReversedAdapter<T> Reversed(T* t) {
+  RST_DCHECK(t != nullptr);
   return internal::ReversedAdapter<T>(t);
 }
 

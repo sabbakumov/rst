@@ -142,4 +142,9 @@ TEST(WeakPtrTest, ComparisonToNull) {
   EXPECT_EQ(nullptr, null_ptr);
 }
 
+TEST(WeakPtrTest, Null) {
+  EXPECT_DEATH(WeakPtr<int>(std::make_shared<internal::Flag>(), nullptr), "");
+  EXPECT_DEATH(WeakPtrFactory<int>(nullptr), "");
+}
+
 }  // namespace rst

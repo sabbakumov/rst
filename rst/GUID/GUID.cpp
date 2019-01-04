@@ -102,6 +102,8 @@ bool IsValidGUIDOutputString(const std::string_view guid) {
 namespace internal {
 
 std::string RandomDataToGUIDString(const uint64_t bytes[2]) {
+  RST_DCHECK(bytes != nullptr);
+
   char buffer[kGUIDLength + 1];
   const auto ret =
       std::sprintf(buffer, "%08x-%04x-%04x-%04x-%012llx",

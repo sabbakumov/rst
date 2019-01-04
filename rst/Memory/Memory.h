@@ -30,11 +30,14 @@
 
 #include <memory>
 
+#include "rst/Check/Check.h"
+
 namespace rst {
 
 // Chromium-like WrapUnique.
 template <class T>
 std::unique_ptr<T> WrapUnique(T* ptr) {
+  RST_DCHECK(ptr != nullptr);
   return std::unique_ptr<T>(ptr);
 }
 

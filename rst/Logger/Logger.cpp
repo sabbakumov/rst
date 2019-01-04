@@ -43,7 +43,9 @@ Logger* g_logger = nullptr;
 
 }  // namespace
 
-Logger::Logger(std::unique_ptr<ISink> sink) : sink_(std::move(sink)) {}
+Logger::Logger(std::unique_ptr<ISink> sink) : sink_(std::move(sink)) {
+  RST_DCHECK(sink_ != nullptr);
+}
 
 Logger::~Logger() = default;
 
@@ -51,6 +53,8 @@ Logger::~Logger() = default;
 void Logger::Log(const Level level, const char* filename, const int line,
                  const std::string& message) {
   RST_DCHECK(g_logger != nullptr);
+  RST_DCHECK(filename != nullptr);
+  RST_DCHECK(line > 0);
 
   if (static_cast<int>(level) < static_cast<int>(g_logger->level_))
     return;

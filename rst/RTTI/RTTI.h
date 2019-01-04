@@ -28,11 +28,15 @@
 #ifndef RST_RTTI_RTTI_H_
 #define RST_RTTI_RTTI_H_
 
+#include "rst/Check/Check.h"
+
 // LLVM-based RTTI.
 namespace rst {
 
 template <class T, class U>
 T* dyn_cast(U* ptr) {
+  RST_DCHECK(ptr != nullptr);
+
   if (ptr->template IsA<T>())
     return static_cast<T*>(ptr);
   return nullptr;
@@ -40,6 +44,8 @@ T* dyn_cast(U* ptr) {
 
 template <class T, class U>
 const T* dyn_cast(const U* ptr) {
+  RST_DCHECK(ptr != nullptr);
+
   if (ptr->template IsA<T>())
     return static_cast<const T*>(ptr);
   return nullptr;

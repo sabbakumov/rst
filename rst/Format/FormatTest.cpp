@@ -439,6 +439,8 @@ TEST(HandleCharacter, CaseCloseOther) {
   EXPECT_DEATH(HandleCharacter(*s, &s), "");
 }
 
+TEST(Format, WriterNullPtr) { EXPECT_DEATH(Format(nullptr, ""), ""); }
+
 TEST(Format, SNullPtr) {
   Writer writer;
   EXPECT_DEATH(Format(&writer, nullptr), "");
