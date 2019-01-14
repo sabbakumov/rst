@@ -32,6 +32,7 @@
 
 #include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
 
 namespace rst {
 namespace internal {
@@ -41,16 +42,14 @@ class ReversedAdapter {
  public:
   using Iterator = decltype(std::rbegin(*static_cast<T*>(nullptr)));
 
-  explicit ReversedAdapter(T* t) : t_(t) { RST_DCHECK(t != nullptr); }
-  ReversedAdapter(const ReversedAdapter& ra) : t_(ra.t_) {
-    RST_DCHECK(ra.t != nullptr);
-  }
+  explicit ReversedAdapter(const NotNull<T*> t) : t_(t) {}
+  ReversedAdapter(const ReversedAdapter&) = default;
 
   Iterator begin() const { return std::rbegin(*t_); }
   Iterator end() const { return std::rend(*t_); }
 
  private:
-  T* t_ = nullptr;
+  const NotNull<T*> t_;
 
   RST_DISALLOW_ASSIGN(ReversedAdapter);
 };
@@ -58,7 +57,7 @@ class ReversedAdapter {
 }  // namespace internal
 
 template <class T>
-internal::ReversedAdapter<T> Reversed(T* t) {
+internal::ReversedAdapter<T> Reversed(const NotNull<T*> t) {
   return internal::ReversedAdapter<T>(t);
 }
 

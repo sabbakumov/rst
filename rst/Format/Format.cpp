@@ -31,118 +31,78 @@ namespace rst {
 namespace internal {
 namespace {
 
-void WriteShort(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const short*>(ptr);
+void WriteShort(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const short*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteUnsignedShort(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const unsigned short*>(ptr);
+void WriteUnsignedShort(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const unsigned short*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteInt(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const int*>(ptr);
+void WriteInt(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const int*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteUnsignedInt(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const unsigned int*>(ptr);
+void WriteUnsignedInt(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const unsigned int*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteLong(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const long*>(ptr);
+void WriteLong(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const long*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteUnsignedLong(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const unsigned long*>(ptr);
+void WriteUnsignedLong(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const unsigned long*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteLongLong(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const long long*>(ptr);
+void WriteLongLong(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const long long*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteUnsignedLongLong(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const unsigned long long*>(ptr);
+void WriteUnsignedLongLong(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const unsigned long long*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteFloat(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const float*>(ptr);
+void WriteFloat(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const float*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteDouble(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const double*>(ptr);
+void WriteDouble(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const double*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteLongDouble(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const long double*>(ptr);
+void WriteLongDouble(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const long double*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteStringView(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const std::string_view*>(ptr);
+void WriteStringView(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const std::string_view*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteChar(Writer* writer, const void* ptr) {
-  RST_DCHECK(writer != nullptr);
-  RST_DCHECK(ptr != nullptr);
-
-  const auto val = *static_cast<const char*>(ptr);
+void WriteChar(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+  const auto val = *static_cast<const char*>(ptr.get());
   writer->Write(val);
 }
 
 }  // namespace
 
-Formatter::Formatter(const char* str) : str_(str) {}
+Formatter::Formatter(const NotNull<const char*> str) : str_(str) {}
 
 Formatter::~Formatter() = default;
 
-bool HandleCharacter(const char c, const char** s) {
-  RST_DCHECK(s != nullptr);
+bool HandleCharacter(const char c, const NotNull<const char**> s) {
   const char*& s_ref = *s;
   RST_DCHECK(s_ref != nullptr);
   RST_DCHECK(c == *s_ref);
@@ -177,8 +137,7 @@ bool HandleCharacter(const char c, const char** s) {
   return true;
 }
 
-void Format(Writer* writer, const char* s) {
-  RST_DCHECK(writer != nullptr);
+void Format(const NotNull<Writer*> writer, const char* s) {
   RST_DCHECK(s != nullptr);
 
   for (auto c = '\0'; (c = *s) != '\0'; s++) {
@@ -227,8 +186,8 @@ Value::Value(const char char_val) : char_val_(char_val), type_(Type::kChar) {}
 
 Value::~Value() = default;
 
-void Value::Write(Writer* writer) const {
-  using WriteFunction = void(Writer * writer, const void* ptr);
+void Value::Write(const NotNull<Writer*> writer) const {
+  using WriteFunction = void(const NotNull<Writer*> writer, const NotNull<const void*> ptr);
   // clang-format off
   static constexpr WriteFunction* kFuncs[] = {
       &WriteInt,
@@ -255,5 +214,4 @@ void Value::Write(Writer* writer) const {
 }
 
 }  // namespace internal
-
 }  // namespace rst

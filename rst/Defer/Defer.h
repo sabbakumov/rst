@@ -54,7 +54,7 @@ class DeferredAction {
   ~DeferredAction() { action_(); }
 
  private:
-  F action_;
+  const F action_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(DeferredAction);
 };

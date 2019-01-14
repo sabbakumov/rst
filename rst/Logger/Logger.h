@@ -33,6 +33,7 @@
 
 #include "rst/Logger/ISink.h"
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
 
 #define LOG_DEBUG(message) \
   ::rst::Logger::Log(::rst::Logger::Level::kDebug, __FILE__, __LINE__, message)
@@ -94,18 +95,18 @@ class Logger {
     kOff,
   };
 
-  explicit Logger(std::unique_ptr<ISink> sink);
+  explicit Logger(NotNull<std::unique_ptr<ISink>> sink);
   ~Logger();
 
   // Logs a message. If the level is less than level_ nothing gets logged.
-  static void Log(Level level, const char* filename, int line,
+  static void Log(Level level, NotNull<const char*> filename, int line,
                   const std::string& message);
-  static void SetLogger(Logger* logger);
+  static void SetLogger(NotNull<Logger*> logger);
 
   void set_level(Level level) { level_ = level; }
 
  private:
-  std::unique_ptr<ISink> sink_;
+  const NotNull<std::unique_ptr<ISink>> sink_;
   Level level_ = Level::kAll;
 
   RST_DISALLOW_COPY_AND_ASSIGN(Logger);

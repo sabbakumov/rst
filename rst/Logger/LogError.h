@@ -45,7 +45,7 @@ class LogError : public ErrorInfo<LogError> {
   static char id_;
 
  private:
-  std::string message_;
+  const std::string message_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(LogError);
 };

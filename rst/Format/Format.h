@@ -36,15 +36,16 @@
 #include "rst/Check/Check.h"
 #include "rst/Format/Writer.h"
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
 
 namespace rst {
 namespace internal {
 
 // Handles character c in the string s. Returns false if there's {} in s.
-bool HandleCharacter(char c, const char** s);
+bool HandleCharacter(char c, NotNull<const char**> s);
 
 // Writes s to the writer. "{{" -> "{", "}}" -> "}".
-void Format(Writer* writer, const char* s);
+void Format(NotNull<Writer*> writer, const char* s);
 
 class Value {
  public:
@@ -64,7 +65,7 @@ class Value {
 
   ~Value();
 
-  void Write(Writer* writer) const;
+  void Write(NotNull<Writer*> writer) const;
 
  private:
   enum class Type : unsigned int {
@@ -84,29 +85,28 @@ class Value {
   };
 
   union {
-    short short_val_;
-    unsigned short unsigned_short_val_;
-    int int_val_;
-    unsigned int unsigned_int_val_;
-    long long_val_;
-    unsigned long unsigned_long_val_;
-    long long long_long_val_;
-    unsigned long long unsigned_long_long_val_;
-    float float_val_;
-    double double_val_;
-    long double long_double_val_;
-    std::string_view string_view_val_;
-    char char_val_;
+    const short short_val_;
+    const unsigned short unsigned_short_val_;
+    const int int_val_;
+    const unsigned int unsigned_int_val_;
+    const long long_val_;
+    const unsigned long unsigned_long_val_;
+    const long long long_long_val_;
+    const unsigned long long unsigned_long_long_val_;
+    const float float_val_;
+    const double double_val_;
+    const long double long_double_val_;
+    const std::string_view string_view_val_;
+    const char char_val_;
   };
-  Type type_;
+  const Type type_;
 
   RST_DISALLOW_IMPLICIT_CONSTRUCTORS(Value);
 };
 
 // Writes s to the writer. "{{" -> "{", "}}" -> "}".
 template <class... Args>
-inline void Format(Writer* writer, const char* s, Args&&... args) {
-  RST_DCHECK(writer != nullptr);
+inline void Format(const NotNull<Writer*> writer, const char* s, Args&&... args) {
   RST_DCHECK(s != nullptr);
 
   const Value values[] = {Value(std::forward<Args>(args))...};
@@ -131,9 +131,9 @@ inline void Format(Writer* writer, const char* s, Args&&... args) {
 
 // A wrapper around Format recursive functions.
 template <class... Args>
-inline std::string format(const char* s, Args&&... args) {
+inline std::string DoFormat(const NotNull<const char*> s, Args&&... args) {
   internal::Writer writer;
-  Format(&writer, s, std::forward<Args>(args)...);
+  Format(&writer, s.get(), std::forward<Args>(args)...);
   return writer.TakeString();
 }
 
@@ -142,16 +142,16 @@ namespace internal {
 // Used in user defined literals.
 class Formatter {
  public:
-  explicit Formatter(const char* str);
+  explicit Formatter(NotNull<const char*> str);
   ~Formatter();
 
   template <class... Args>
   std::string operator()(Args&&... args) const {
-    return format(str_, std::forward<Args>(args)...);
+    return DoFormat(str_, std::forward<Args>(args)...);
   }
 
  private:
-  const char* str_ = nullptr;
+  const NotNull<const char*> str_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(Formatter);
 };
@@ -166,7 +166,6 @@ inline internal::Formatter operator"" _format(const char* s, size_t) {
 }
 
 }  // namespace literals
-
 }  // namespace rst
 
 #endif  // RST_FORMAT_FORMAT_H_

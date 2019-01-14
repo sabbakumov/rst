@@ -71,16 +71,14 @@ TEST(Status, Err) {
 }
 
 TEST(Status, Ctor) {
-  Status status(std::make_unique<Error>());
+  Status status = MakeStatus<Error>();
   ASSERT_FALSE(status.ok());
   ASSERT_TRUE(status.err());
   EXPECT_EQ(status.GetError().AsString(), kError);
-
-  EXPECT_DEATH((Status(nullptr)), "");
 }
 
 TEST(Status, MoveCtor) {
-  Status status(std::make_unique<Error>());
+  Status status = MakeStatus<Error>();
   Status status2(std::move(status));
   ASSERT_FALSE(status2.ok());
   ASSERT_TRUE(status2.err());
@@ -88,7 +86,7 @@ TEST(Status, MoveCtor) {
 }
 
 TEST(Status, MoveAssignment) {
-  Status status(std::make_unique<Error>());
+  Status status = MakeStatus<Error>();
   auto status2 = Status::OK();
   status2.Ignore();
   status2 = std::move(status);
@@ -96,12 +94,14 @@ TEST(Status, MoveAssignment) {
   ASSERT_TRUE(status2.err());
   EXPECT_EQ(status2.GetError().AsString(), kError);
 
-  status2 = Status(std::make_unique<Error>());
+  status2 = MakeStatus<Error>();
   EXPECT_DEATH(status2 = std::move(status), "");
   status2.Ignore();
 }
 
-TEST(Status, Dtor) { EXPECT_DEATH((Status(std::make_unique<Error>())), ""); }
+TEST(Status, Dtor) {
+  EXPECT_DEATH({ const auto status = MakeStatus<Error>(); }, "");
+}
 
 TEST(Status, ErrorInfo) {
   auto status = Status::OK();

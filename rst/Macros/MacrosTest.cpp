@@ -101,4 +101,23 @@ TEST(NonCopyable, NonConstructible) {
   EXPECT_FALSE(std::is_move_assignable<T>::value);
 }
 
+#define RST_BUILDFLAG_FOO() (true)
+#define RST_BUILDFLAG_BAR() (false)
+
+TEST(BuildFlag, TurnOn) {
+#if RST_BUILDFLAG(FOO)
+  SUCCEED();
+#else   // RST_BUILDFLAG(FOO)
+  FAIL();
+#endif  // RST_BUILDFLAG(FOO)
+}
+
+TEST(BuildFlag, TurnOff) {
+#if !RST_BUILDFLAG(BAR)
+  SUCCEED();
+#else   // !RST_BUILDFLAG(BAR)
+  FAIL();
+#endif  // !RST_BUILDFLAG(BAR)
+}
+
 }  // namespace rst

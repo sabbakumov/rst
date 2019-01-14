@@ -64,7 +64,7 @@ constexpr uint64_t RandomNumber(const uint64_t min, const uint64_t max) {
 template <size_t... Pack>
 struct IndexList {};
 
-template <typename IndexList, size_t Right>
+template <class IndexList, size_t Right>
 struct Append;
 
 template <size_t... Left, size_t Right>
@@ -89,7 +89,7 @@ constexpr char EncryptCharacter(const char c, const size_t i) {
   return c ^ static_cast<char>(kXorKey + i);
 }
 
-template <typename IndexList>
+template <class IndexList>
 class HiddenString;
 
 template <size_t... Index>

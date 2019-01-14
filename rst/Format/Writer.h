@@ -36,6 +36,7 @@
 
 #include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
 
 namespace rst {
 namespace internal {
@@ -52,18 +53,18 @@ class Writer {
 
   // Writes val like std::snprintf.
   template <class T>
-  void FormatAndWrite(char* str, const size_t size, const char* format,
-                      const T val) {
+  void FormatAndWrite(const NotNull<char*> str, const size_t size,
+                      const NotNull<const char*> format, const T val) {
     static_assert(std::is_arithmetic<T>::value, "Not an arithmetic type");
-    RST_DCHECK(str != nullptr);
-    RST_DCHECK(format != nullptr);
     if (size <= 1)
       return;
 
-    const auto bytes_written = std::snprintf(str, size, format, val);
+    const auto bytes_written =
+        std::snprintf(str.get(), size, format.get(), val);
     RST_DCHECK(bytes_written >= 0);
 
-    Write(str, std::min(static_cast<size_t>(bytes_written), size - 1));
+    Write(std::string_view(
+        str.get(), std::min(static_cast<size_t>(bytes_written), size - 1)));
   }
 
   void Write(short val);
@@ -77,14 +78,13 @@ class Writer {
   void Write(float val);
   void Write(double val);
   void Write(long double val);
-  void Write(std::string_view val);
   void Write(char val);
 
-  // Writes len bytes from val to the static buffer by default. When the
-  // buffer on the stack gets full or the range is too long for the static
-  // buffer, allocates a dynamic buffer, copies existing content to the dynamic
-  // buffer and writes current and all next ranges to the dynamic buffer.
-  void Write(const char* val, size_t len);
+  // Writes to the static buffer by default. When the buffer on the stack gets
+  // full or the range is too long for the static buffer, allocates a dynamic
+  // buffer, copies existing content to the dynamic buffer and writes current
+  // and all next ranges to the dynamic buffer.
+  void Write(std::string_view str);
 
   // Returns a string of either static or dynamic buffer. If it's dynamic buffer
   // performs a move operation, so it's no longer valid to write to the Writer.

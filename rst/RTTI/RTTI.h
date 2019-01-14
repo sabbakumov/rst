@@ -29,25 +29,22 @@
 #define RST_RTTI_RTTI_H_
 
 #include "rst/Check/Check.h"
+#include "rst/NotNull/NotNull.h"
 
 // LLVM-based RTTI.
 namespace rst {
 
 template <class T, class U>
-T* dyn_cast(U* ptr) {
-  RST_DCHECK(ptr != nullptr);
-
+Nullable<T*> dyn_cast(const NotNull<U*> ptr) {
   if (ptr->template IsA<T>())
-    return static_cast<T*>(ptr);
+    return static_cast<T*>(ptr.get());
   return nullptr;
 }
 
 template <class T, class U>
-const T* dyn_cast(const U* ptr) {
-  RST_DCHECK(ptr != nullptr);
-
+Nullable<const T*> dyn_cast(const NotNull<const U*> ptr) {
   if (ptr->template IsA<T>())
-    return static_cast<const T*>(ptr);
+    return static_cast<const T*>(ptr.get());
   return nullptr;
 }
 

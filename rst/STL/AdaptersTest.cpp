@@ -37,13 +37,13 @@ namespace rst {
 TEST(Reversed, Vector) {
   const std::vector<int> vec = {1, 2, 3, 4};
   std::string str;
-  for (const auto i : Reversed(&vec))
+  for (const auto i : Reversed(NotNull(&vec)))
     str += std::to_string(i);
   EXPECT_EQ(str, "4321");
 
   std::vector<int> vec2 = {1, 2, 3, 4};
   str.clear();
-  for (const auto i : Reversed(&vec2))
+  for (const auto i : Reversed(NotNull(&vec2)))
     str += std::to_string(i);
   EXPECT_EQ(str, "4321");
 }
@@ -51,13 +51,13 @@ TEST(Reversed, Vector) {
 TEST(Reversed, Array) {
   const int arr[] = {1, 2, 3, 4};
   std::string str;
-  for (const auto i : Reversed(&arr))
+  for (const auto i : Reversed(NotNull(&arr)))
     str += std::to_string(i);
   EXPECT_EQ(str, "4321");
 
   int arr2[] = {1, 2, 3, 4};
   str.clear();
-  for (const auto i : Reversed(&arr2))
+  for (const auto i : Reversed(NotNull(&arr2)))
     str += std::to_string(i);
   EXPECT_EQ(str, "4321");
 }

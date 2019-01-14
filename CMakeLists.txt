@@ -4,8 +4,6 @@ include_directories(.)
 
 add_library(rst
 
-rst/BuildFlag/BuildFlag.h
-
 rst/Check/Check.h
 
 rst/Defer/Defer.h
@@ -38,6 +36,8 @@ rst/Macros/Macros.h
 
 rst/NoDestructor/NoDestructor.h
 
+rst/NotNull/NotNull.h
+
 rst/Memory/Memory.h
 rst/Memory/WeakPtr.h
 
@@ -53,8 +53,6 @@ rst/STL/Algorithm.h
 )
 
 add_executable(rst_tests
-
-rst/BuildFlag/BuildFlagTest.cpp
 
 rst/Check/CheckTest.cpp
 rst/Check/CheckNDebugTest.cpp
@@ -78,6 +76,8 @@ rst/Logger/LoggerTest.cpp
 rst/Macros/MacrosTest.cpp
 
 rst/NoDestructor/NoDestructorTest.cpp
+
+rst/NotNull/NotNullTest.cpp
 
 rst/Memory/MemoryTest.cpp
 rst/Memory/WeakPtrTest.cpp

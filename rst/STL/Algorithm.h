@@ -33,42 +33,38 @@
 #include <utility>
 
 #include "rst/Check/Check.h"
+#include "rst/NotNull/NotNull.h"
 
 namespace rst {
 namespace internal {
 
-template <typename C>
+template <class C>
 using ContainerIter = decltype(std::begin(std::declval<C&>()));
 
 }  // namespace internal
 
 template <class C>
-void Sort(C* c) {
-  RST_DCHECK(c != nullptr);
+void Sort(const NotNull<C*> c) {
   std::sort(std::begin(*c), std::end(*c));
 }
 
 template <class C, class Compare>
-void Sort(C* c, Compare&& comp) {
-  RST_DCHECK(c != nullptr);
+void Sort(const NotNull<C*> c, Compare&& comp) {
   std::sort(std::begin(*c), std::end(*c), std::forward<Compare>(comp));
 }
 
 template <class C>
-void StableSort(C* c) {
-  RST_DCHECK(c != nullptr);
+void StableSort(const NotNull<C*> c) {
   std::stable_sort(std::begin(*c), std::end(*c));
 }
 
 template <class C, class Compare>
-void StableSort(C* c, Compare&& comp) {
-  RST_DCHECK(c != nullptr);
+void StableSort(const NotNull<C*> c, Compare&& comp) {
   std::stable_sort(std::begin(*c), std::end(*c), std::forward<Compare>(comp));
 }
 
 template <class C, class UnaryPredicate>
-internal::ContainerIter<C> FindIf(C* c, UnaryPredicate&& pred) {
-  RST_DCHECK(c != nullptr);
+internal::ContainerIter<C> FindIf(const NotNull<C*> c, UnaryPredicate&& pred) {
   return std::find_if(std::begin(*c), std::end(*c),
                       std::forward<UnaryPredicate>(pred));
 }

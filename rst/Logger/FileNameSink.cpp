@@ -39,13 +39,11 @@ using namespace rst::literals;
 
 namespace rst {
 
-FileNameSink::FileNameSink(const std::string& filename, Status* status) {
-  RST_DCHECK(status != nullptr);
-
+FileNameSink::FileNameSink(const std::string& filename,
+                           const NotNull<Status*> status) {
   StatusAsOutParameter sao(status);
 
   log_file_.reset(std::fopen(filename.c_str(), "w"));
-
   if (log_file_ == nullptr) {
     *status = MakeStatus<LogError>("Can't open file {}"_format(filename));
     return;
@@ -57,10 +55,10 @@ FileNameSink::FileNameSink(const std::string& filename, Status* status) {
 FileNameSink::~FileNameSink() = default;
 
 // static
-StatusOr<std::unique_ptr<FileNameSink>> FileNameSink::Create(
+StatusOr<NotNull<std::unique_ptr<FileNameSink>>> FileNameSink::Create(
     const std::string& filename) {
   auto status = Status::OK();
-  auto sink = WrapUnique(new FileNameSink(filename, &status));
+  auto sink = WrapUnique(NotNull(new FileNameSink(filename, &status)));
 
   if (status.err())
     return std::move(status);

@@ -93,29 +93,25 @@ void Writer::Write(const long double val) {
   FormatAndWrite(buffer, std::size(buffer), "%Lf", val);
 }
 
-void Writer::Write(const std::string_view val) {
-  Write(val.data(), val.size());
-}
+void Writer::Write(const char val) { Write(std::string_view(&val, 1)); }
 
-void Writer::Write(const char val) { Write(&val, 1); }
-
-void Writer::Write(const char* val, const size_t len) {
-  RST_DCHECK(val != nullptr);
-  if (len == 0)
+void Writer::Write(const std::string_view str) {
+  if (str.empty())
     return;
 
+  const auto len = str.size();
   if (dynamic_buffer_.empty()) {
     if (len < std::size(static_buffer_) - size_) {
-      std::copy(val, val + len, static_buffer_ + size_);
+      std::copy(str.data(), str.data() + len, static_buffer_ + size_);
       size_ += len;
       static_buffer_[size_] = '\0';
     } else {
       dynamic_buffer_.reserve(size_ + len + 1);
       dynamic_buffer_.assign(static_buffer_, size_);
-      dynamic_buffer_.append(val, len);
+      dynamic_buffer_.append(str);
     }
   } else {
-    dynamic_buffer_.append(val, len);
+    dynamic_buffer_.append(str);
   }
 }
 

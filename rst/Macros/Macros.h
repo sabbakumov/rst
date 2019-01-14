@@ -42,4 +42,9 @@
   Class() = delete;                               \
   RST_DISALLOW_COPY_AND_ASSIGN(Class)
 
+#define RST_BUILDFLAG_INTERNAL_CAT2(x, y) x##y
+#define RST_BUILDFLAG_INTERNAL_CAT(x, y) RST_BUILDFLAG_INTERNAL_CAT2(x, y)
+
+#define RST_BUILDFLAG(flag) (RST_BUILDFLAG_INTERNAL_CAT(RST_BUILDFLAG_, flag)())
+
 #endif  // RST_MACROS_MACROS_H_
