@@ -36,7 +36,8 @@ void WriteShort(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
   writer->Write(val);
 }
 
-void WriteUnsignedShort(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+void WriteUnsignedShort(const NotNull<Writer*> writer,
+                        const NotNull<const void*> ptr) {
   const auto val = *static_cast<const unsigned short*>(ptr.get());
   writer->Write(val);
 }
@@ -46,7 +47,8 @@ void WriteInt(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
   writer->Write(val);
 }
 
-void WriteUnsignedInt(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+void WriteUnsignedInt(const NotNull<Writer*> writer,
+                      const NotNull<const void*> ptr) {
   const auto val = *static_cast<const unsigned int*>(ptr.get());
   writer->Write(val);
 }
@@ -56,17 +58,20 @@ void WriteLong(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
   writer->Write(val);
 }
 
-void WriteUnsignedLong(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+void WriteUnsignedLong(const NotNull<Writer*> writer,
+                       const NotNull<const void*> ptr) {
   const auto val = *static_cast<const unsigned long*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteLongLong(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+void WriteLongLong(const NotNull<Writer*> writer,
+                   const NotNull<const void*> ptr) {
   const auto val = *static_cast<const long long*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteUnsignedLongLong(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+void WriteUnsignedLongLong(const NotNull<Writer*> writer,
+                           const NotNull<const void*> ptr) {
   const auto val = *static_cast<const unsigned long long*>(ptr.get());
   writer->Write(val);
 }
@@ -76,17 +81,20 @@ void WriteFloat(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
   writer->Write(val);
 }
 
-void WriteDouble(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+void WriteDouble(const NotNull<Writer*> writer,
+                 const NotNull<const void*> ptr) {
   const auto val = *static_cast<const double*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteLongDouble(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+void WriteLongDouble(const NotNull<Writer*> writer,
+                     const NotNull<const void*> ptr) {
   const auto val = *static_cast<const long double*>(ptr.get());
   writer->Write(val);
 }
 
-void WriteStringView(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
+void WriteStringView(const NotNull<Writer*> writer,
+                     const NotNull<const void*> ptr) {
   const auto val = *static_cast<const std::string_view*>(ptr.get());
   writer->Write(val);
 }
@@ -187,7 +195,8 @@ Value::Value(const char char_val) : char_val_(char_val), type_(Type::kChar) {}
 Value::~Value() = default;
 
 void Value::Write(const NotNull<Writer*> writer) const {
-  using WriteFunction = void(const NotNull<Writer*> writer, const NotNull<const void*> ptr);
+  using WriteFunction =
+      void(const NotNull<Writer*> writer, const NotNull<const void*> ptr);
   // clang-format off
   static constexpr WriteFunction* kFuncs[] = {
       &WriteInt,

@@ -56,14 +56,12 @@ class WeakPtr {
 
   template <class U>
   WeakPtr(const WeakPtr<U>& rhs) : flag_(rhs.flag_) {
-    T* t = static_cast<U*>(rhs.ptr_);
-    ptr_ = t;
+    ptr_ = static_cast<T*>(rhs.ptr_);
   }
 
   template <class U>
   WeakPtr(WeakPtr<U>&& rhs) : flag_(std::move(rhs.flag_)) {
-    T* t = static_cast<U*>(rhs.ptr_);
-    ptr_ = t;
+    ptr_ = static_cast<T*>(rhs.ptr_);
   }
 
   T* get() const { return IsValid() ? ptr_ : nullptr; }

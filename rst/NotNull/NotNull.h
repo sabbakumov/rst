@@ -46,9 +46,7 @@ class NotNull {
  public:
   NotNull() = delete;
 
-  NotNull(T ptr) : ptr_(ptr) {
-    RST_DCHECK(ptr_ != nullptr);
-  }
+  NotNull(T ptr) : ptr_(ptr) { RST_DCHECK(ptr_ != nullptr); }
 
   template <class U>
   NotNull(const NotNull<U>& rhs) : NotNull(rhs.get()) {}

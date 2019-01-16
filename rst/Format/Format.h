@@ -106,7 +106,8 @@ class Value {
 
 // Writes s to the writer. "{{" -> "{", "}}" -> "}".
 template <class... Args>
-inline void Format(const NotNull<Writer*> writer, const char* s, Args&&... args) {
+inline void Format(const NotNull<Writer*> writer, const char* s,
+                   Args&&... args) {
   RST_DCHECK(s != nullptr);
 
   const Value values[] = {Value(std::forward<Args>(args))...};

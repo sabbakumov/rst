@@ -33,7 +33,8 @@
 
 namespace rst {
 
-FilePtrSink::FilePtrSink(const NotNull<std::FILE*> file, const bool should_close)
+FilePtrSink::FilePtrSink(const NotNull<std::FILE*> file,
+                         const bool should_close)
     : file_(file) {
   if (should_close)
     log_file_.reset(file.get());
@@ -45,8 +46,8 @@ void FilePtrSink::Log(const std::string_view message) {
   std::unique_lock<std::mutex> lock(mutex_);
 
   RST_DCHECK(message.size() <= std::numeric_limits<int>::max());
-  auto val = std::fprintf(file_.get(), "%.*s\n", static_cast<int>(message.size()),
-                          message.data());
+  auto val = std::fprintf(file_.get(), "%.*s\n",
+                          static_cast<int>(message.size()), message.data());
   RST_DCHECK(val >= 0);
 
   val = std::fflush(file_.get());

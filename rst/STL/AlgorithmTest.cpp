@@ -60,26 +60,28 @@ TEST(StableSort, Array) {
 
 TEST(FindIf, Vector) {
   std::vector<int> vec = {-1, 400, 10, 0, 3, -5};
-  const auto it = FindIf(NotNull(&vec), [](const int val) -> bool { return val == -1; });
+  const auto it =
+      FindIf(NotNull(&vec), [](const int val) -> bool { return val == -1; });
   ASSERT_NE(it, std::cend(vec));
   EXPECT_EQ(*it, -1);
 
   const std::vector<int> const_vec = {-1, 400, 10, 0, 3, -5};
-  const auto const_it =
-      FindIf(NotNull(&const_vec), [](const int val) -> bool { return val == -1; });
+  const auto const_it = FindIf(NotNull(&const_vec),
+                               [](const int val) -> bool { return val == -1; });
   ASSERT_NE(const_it, std::cend(const_vec));
   EXPECT_EQ(*const_it, -1);
 }
 
 TEST(FindIf, Array) {
   int arr[] = {-1, 400, 10, 0, 3, -5};
-  const auto it = FindIf(NotNull(&arr), [](const int val) -> bool { return val == -1; });
+  const auto it =
+      FindIf(NotNull(&arr), [](const int val) -> bool { return val == -1; });
   ASSERT_NE(it, std::cend(arr));
   EXPECT_EQ(*it, -1);
 
   const int const_arr[] = {-1, 400, 10, 0, 3, -5};
-  const auto const_it =
-      FindIf(NotNull(&const_arr), [](const int val) -> bool { return val == -1; });
+  const auto const_it = FindIf(NotNull(&const_arr),
+                               [](const int val) -> bool { return val == -1; });
   ASSERT_NE(const_it, std::cend(const_arr));
   EXPECT_EQ(*const_it, -1);
 }
