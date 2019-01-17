@@ -53,21 +53,11 @@
 
 #ifndef NDEBUG
 
-#define DLOG_DEBUG(message) \
-  ::rst::Logger::Log(::rst::Logger::Level::kDebug, __FILE__, __LINE__, message)
-
-#define DLOG_INFO(message) \
-  ::rst::Logger::Log(::rst::Logger::Level::kInfo, __FILE__, __LINE__, message)
-
-#define DLOG_WARNING(message)                                            \
-  ::rst::Logger::Log(::rst::Logger::Level::kWarning, __FILE__, __LINE__, \
-                     message)
-
-#define DLOG_ERROR(message) \
-  ::rst::Logger::Log(::rst::Logger::Level::kError, __FILE__, __LINE__, message)
-
-#define DLOG_FATAL(message) \
-  ::rst::Logger::Log(::rst::Logger::Level::kFatal, __FILE__, __LINE__, message)
+#define DLOG_DEBUG(message) LOG_DEBUG(message)
+#define DLOG_INFO(message) LOG_INFO(message)
+#define DLOG_WARNING(message) LOG_WARNING(message)
+#define DLOG_ERROR(message) LOG_ERROR(message)
+#define DLOG_FATAL(message) LOG_FATAL(message)
 
 #else  // NDEBUG
 

@@ -207,6 +207,19 @@ TEST(NotNull, Operators) {
 
     *str_ptr = "2";
     EXPECT_EQ(*str_ptr, "2");
+
+    int array[] = {0, 1, 2};
+    NotNull<int*> int_ptr(array);
+    EXPECT_EQ(int_ptr[0], array[0]);
+    EXPECT_EQ(int_ptr[1], array[1]);
+    EXPECT_EQ(int_ptr[2], array[2]);
+
+    int_ptr[0] = 3;
+    int_ptr[1] = 4;
+    int_ptr[2] = 5;
+    EXPECT_EQ(int_ptr[0], array[0]);
+    EXPECT_EQ(int_ptr[1], array[1]);
+    EXPECT_EQ(int_ptr[2], array[2]);
   }
 
   {
@@ -217,6 +230,19 @@ TEST(NotNull, Operators) {
 
     *str_ptr = "2";
     EXPECT_EQ(*str_ptr, "2");
+
+    int array[] = {0, 1, 2};
+    const NotNull<int*> int_ptr(array);
+    EXPECT_EQ(int_ptr[0], array[0]);
+    EXPECT_EQ(int_ptr[1], array[1]);
+    EXPECT_EQ(int_ptr[2], array[2]);
+
+    int_ptr[0] = 3;
+    int_ptr[1] = 4;
+    int_ptr[2] = 5;
+    EXPECT_EQ(int_ptr[0], array[0]);
+    EXPECT_EQ(int_ptr[1], array[1]);
+    EXPECT_EQ(int_ptr[2], array[2]);
   }
 }
 

@@ -27,6 +27,8 @@
 
 #include "rst/Format/Format.h"
 
+#include "rst/Check/Check.h"
+
 namespace rst {
 namespace internal {
 namespace {
@@ -155,6 +157,25 @@ void Format(const NotNull<Writer*> writer, const char* s) {
   }
 }
 
+void Format(const NotNull<Writer*> writer, const char* s,
+            const NotNull<const Value*> values, const size_t size) {
+  RST_DCHECK(s != nullptr);
+
+  size_t arg_idx = 0;
+  for (auto c = '\0'; (c = *s) != '\0'; s++) {
+    if (!HandleCharacter(c, &s)) {
+      RST_DCHECK(arg_idx < size && "Extra arguments");
+      values[arg_idx].Write(writer);
+      s++;
+      arg_idx++;
+      continue;
+    }
+    writer->Write(c);
+  }
+
+  RST_DCHECK(arg_idx == size && "Numbers of parameters should match");
+}
+
 Value::Value(const short short_val)
     : short_val_(short_val), type_(Type::kShort) {}
 
@@ -223,4 +244,11 @@ void Value::Write(const NotNull<Writer*> writer) const {
 }
 
 }  // namespace internal
+
+std::string Format(const NotNull<const char*> s) {
+  internal::Writer writer;
+  internal::Format(&writer, s.get());
+  return writer.TakeString();
+}
+
 }  // namespace rst

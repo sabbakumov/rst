@@ -33,19 +33,12 @@
 #include <string_view>
 #include <utility>
 
-#include "rst/Check/Check.h"
 #include "rst/Format/Writer.h"
 #include "rst/Macros/Macros.h"
 #include "rst/NotNull/NotNull.h"
 
 namespace rst {
 namespace internal {
-
-// Handles character c in the string s. Returns false if there's {} in s.
-bool HandleCharacter(char c, NotNull<const char**> s);
-
-// Writes s to the writer. "{{" -> "{", "}}" -> "}".
-void Format(NotNull<Writer*> writer, const char* s);
 
 class Value {
  public:
@@ -104,37 +97,26 @@ class Value {
   RST_DISALLOW_IMPLICIT_CONSTRUCTORS(Value);
 };
 
+// Handles character c in the string s. Returns false if there's {} in s.
+bool HandleCharacter(char c, NotNull<const char**> s);
+
+// Writes s to the writer.
+void Format(NotNull<Writer*> writer, const char* s);
 // Writes s to the writer. "{{" -> "{", "}}" -> "}".
-template <class... Args>
-inline void Format(const NotNull<Writer*> writer, const char* s,
-                   Args&&... args) {
-  RST_DCHECK(s != nullptr);
-
-  const Value values[] = {Value(std::forward<Args>(args))...};
-
-  size_t arg_idx = 0;
-  for (auto c = '\0'; (c = *s) != '\0'; s++) {
-    if (!HandleCharacter(c, &s)) {
-      RST_DCHECK(arg_idx < std::size(values) && "Extra arguments");
-      values[arg_idx].Write(writer);
-      s++;
-      arg_idx++;
-      continue;
-    }
-    writer->Write(c);
-  }
-
-  RST_DCHECK(arg_idx == std::size(values) &&
-             "Numbers of parameters should match");
-}
+void Format(NotNull<Writer*> writer, const char* s,
+            NotNull<const Value*> values, size_t size);
 
 }  // namespace internal
 
-// A wrapper around Format recursive functions.
+// A wrapper around Format functions.
+std::string Format(NotNull<const char*> s);
+
 template <class... Args>
-inline std::string DoFormat(const NotNull<const char*> s, Args&&... args) {
+inline std::string Format(const NotNull<const char*> s, Args&&... args) {
   internal::Writer writer;
-  Format(&writer, s.get(), std::forward<Args>(args)...);
+  const internal::Value values[] = {
+      internal::Value(std::forward<Args>(args))...};
+  internal::Format(&writer, s.get(), values, std::size(values));
   return writer.TakeString();
 }
 
@@ -148,7 +130,7 @@ class Formatter {
 
   template <class... Args>
   std::string operator()(Args&&... args) const {
-    return DoFormat(str_, std::forward<Args>(args)...);
+    return Format(str_, std::forward<Args>(args)...);
   }
 
  private:

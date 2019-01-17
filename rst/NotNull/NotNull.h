@@ -85,7 +85,12 @@ class NotNull {
   }
 
   T operator->() const { return get(); }
-  auto& operator*() const { return *ptr_; }
+  auto& operator*() const { return *get(); }
+  auto& operator[](const size_t i) const {
+    const auto ptr = get() + i;
+    RST_DCHECK(ptr != nullptr);
+    return *ptr;
+  }
 
  private:
   T ptr_;
@@ -130,7 +135,7 @@ class NotNull<std::unique_ptr<T>> {
   }
 
   T* operator->() const { return get(); }
-  auto& operator*() const { return *ptr_; }
+  auto& operator*() const { return *get(); }
 
   std::unique_ptr<T> Take() {
     RST_DCHECK(ptr_ != nullptr);
@@ -191,7 +196,7 @@ class NotNull<std::shared_ptr<T>> {
   }
 
   T* operator->() const { return get(); }
-  auto& operator*() const { return *ptr_; }
+  auto& operator*() const { return *get(); }
 
   std::shared_ptr<T> Take() {
     RST_DCHECK(ptr_ != nullptr);

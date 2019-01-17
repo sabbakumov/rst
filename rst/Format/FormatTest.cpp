@@ -40,78 +40,78 @@ using namespace literals;
 using namespace internal;
 
 TEST(FormatterTest, Escape) {
-  EXPECT_EQ(DoFormat("{{"), "{");
-  EXPECT_EQ(DoFormat("before {{"), "before {");
-  EXPECT_EQ(DoFormat("{{ after"), "{ after");
-  EXPECT_EQ(DoFormat("before {{ after"), "before { after");
+  EXPECT_EQ(Format("{{"), "{");
+  EXPECT_EQ(Format("before {{"), "before {");
+  EXPECT_EQ(Format("{{ after"), "{ after");
+  EXPECT_EQ(Format("before {{ after"), "before { after");
 
-  EXPECT_EQ(DoFormat("}}"), "}");
-  EXPECT_EQ(DoFormat("before }}"), "before }");
-  EXPECT_EQ(DoFormat("}} after"), "} after");
-  EXPECT_EQ(DoFormat("before }} after"), "before } after");
+  EXPECT_EQ(Format("}}"), "}");
+  EXPECT_EQ(Format("before }}"), "before }");
+  EXPECT_EQ(Format("}} after"), "} after");
+  EXPECT_EQ(Format("before }} after"), "before } after");
 
-  EXPECT_EQ(DoFormat("{{}}"), "{}");
-  EXPECT_EQ(DoFormat("{{{}}}", 42), "{42}");
+  EXPECT_EQ(Format("{{}}"), "{}");
+  EXPECT_EQ(Format("{{{}}}", 42), "{42}");
 }
 
 TEST(FormatterTest, UnmatchedBraces) {
-  EXPECT_DEATH(DoFormat("{"), "");
+  EXPECT_DEATH(Format("{"), "");
 
-  EXPECT_DEATH(DoFormat("}"), "");
+  EXPECT_DEATH(Format("}"), "");
 
-  EXPECT_DEATH(DoFormat("{0{}"), "");
+  EXPECT_DEATH(Format("{0{}"), "");
 }
 
 TEST(FormatterTest, UnmatchedBracesWithArgs) {
-  EXPECT_DEATH(DoFormat("{", 1), "");
+  EXPECT_DEATH(Format("{", 1), "");
 
-  EXPECT_DEATH(DoFormat("}", 1), "");
+  EXPECT_DEATH(Format("}", 1), "");
 
-  EXPECT_DEATH(DoFormat("{0{}", 1), "");
+  EXPECT_DEATH(Format("{0{}", 1), "");
 }
 
-TEST(FormatterTest, NoArgs) { EXPECT_EQ(DoFormat("test"), "test"); }
+TEST(FormatterTest, NoArgs) { EXPECT_EQ(Format("test"), "test"); }
 
 TEST(FormatterTest, ArgsInDifferentPositions) {
-  EXPECT_EQ(DoFormat("{}", 42), "42");
-  EXPECT_EQ(DoFormat("before {}", 42), "before 42");
-  EXPECT_EQ(DoFormat("{} after", 42), "42 after");
-  EXPECT_EQ(DoFormat("before {} after", 42), "before 42 after");
-  EXPECT_EQ(DoFormat("{} = {}", "answer", 42), "answer = 42");
-  EXPECT_EQ(DoFormat("{} is the {}", 42, "answer"), "42 is the answer");
-  EXPECT_EQ(DoFormat("{}{}{}", "abra", "cad", "abra"), "abracadabra");
+  EXPECT_EQ(Format("{}", 42), "42");
+  EXPECT_EQ(Format("before {}", 42), "before 42");
+  EXPECT_EQ(Format("{} after", 42), "42 after");
+  EXPECT_EQ(Format("before {} after", 42), "before 42 after");
+  EXPECT_EQ(Format("{} = {}", "answer", 42), "answer = 42");
+  EXPECT_EQ(Format("{} is the {}", 42, "answer"), "42 is the answer");
+  EXPECT_EQ(Format("{}{}{}", "abra", "cad", "abra"), "abracadabra");
 }
 
 TEST(FormatterTest, ArgErrors) {
-  EXPECT_DEATH(DoFormat("{"), "");
+  EXPECT_DEATH(Format("{"), "");
 
-  EXPECT_DEATH(DoFormat("{?}"), "");
+  EXPECT_DEATH(Format("{?}"), "");
 
-  EXPECT_DEATH(DoFormat("{0"), "");
+  EXPECT_DEATH(Format("{0"), "");
 
-  EXPECT_DEATH(DoFormat("{}"), "");
+  EXPECT_DEATH(Format("{}"), "");
 }
 
 TEST(FormatterTest, ArgErrorsWithArgs) {
-  EXPECT_DEATH(DoFormat("{", 1), "");
+  EXPECT_DEATH(Format("{", 1), "");
 
-  EXPECT_DEATH(DoFormat("{?}", 1), "");
+  EXPECT_DEATH(Format("{?}", 1), "");
 
-  EXPECT_DEATH(DoFormat("{0", 1), "");
+  EXPECT_DEATH(Format("{0", 1), "");
 }
 
-TEST(FormatTest, Variadic) { EXPECT_EQ(DoFormat("{}c{}", "ab", 1), "abc1"); }
+TEST(FormatTest, Variadic) { EXPECT_EQ(Format("{}c{}", "ab", 1), "abc1"); }
 
 TEST(FormatTest, MaxArgs) {
-  EXPECT_EQ(DoFormat("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", 0, 1, 2, 3, 4, 5, 6,
-                     7, 8, 9, 'a', 'b', 'c', 'd', 'e', 1.23, 1.23f),
+  EXPECT_EQ(Format("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", 0, 1, 2, 3, 4, 5, 6, 7,
+                   8, 9, 'a', 'b', 'c', 'd', 'e', 1.23, 1.23f),
             "0123456789abcde1.2300001.230000");
 }
 
 TEST(FormatTest, ExtraArgument) {
-  EXPECT_DEATH(DoFormat("", 1), "");
-  EXPECT_DEATH(DoFormat("string", 1), "");
-  EXPECT_DEATH(DoFormat("string{}{}", 1), "");
+  EXPECT_DEATH(Format("", 1), "");
+  EXPECT_DEATH(Format("string", 1), "");
+  EXPECT_DEATH(Format("string{}{}", 1), "");
 }
 
 TEST(FormatTest, Strings) {
@@ -171,7 +171,7 @@ TEST(Writer, FormatAndWriteThreeSizeNotFull) {
 
 TEST(FormatTemplate, SNullPtr) {
   Writer writer;
-  EXPECT_DEATH(Format(&writer, nullptr, 0), "");
+  EXPECT_DEATH(Format(&writer, nullptr), "");
 }
 
 TEST(Writer, Numbers) {
