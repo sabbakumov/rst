@@ -35,6 +35,7 @@
 
 #include "rst/Logger/ISink.h"
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
 #include "rst/Status/Status.h"
 #include "rst/Status/StatusOr.h"
 
@@ -44,7 +45,7 @@ namespace rst {
 class FileNameSink : public ISink {
  public:
   // Opens a filename for writing.
-  static StatusOr<std::unique_ptr<FileNameSink>> Create(
+  static StatusOr<NotNull<std::unique_ptr<FileNameSink>>> Create(
       const std::string& filename);
 
   ~FileNameSink();
@@ -54,7 +55,7 @@ class FileNameSink : public ISink {
 
  private:
   // Opens a filename for writing.
-  FileNameSink(const std::string& filename, Status* status);
+  FileNameSink(const std::string& filename, NotNull<Status*> status);
 
   // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{

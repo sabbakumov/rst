@@ -120,11 +120,6 @@ char Error2::id_ = 0;
 
 }  // namespace
 
-TEST(RTTI, Nullptr) {
-  ErrorInfoBase* base = nullptr;
-  EXPECT_DEATH(dyn_cast<Error1>(base), "");
-}
-
 TEST(RTTI, Check) {
   Error1 error1;
   ErrorInfoBase* base1 = &error1;
@@ -132,14 +127,14 @@ TEST(RTTI, Check) {
   Error2 error2;
   ErrorInfoBase* base2 = &error2;
 
-  Error1* cast1 = dyn_cast<Error1>(base1);
+  Error1* cast1 = dyn_cast<Error1>(NotNull(base1));
   ASSERT_NE(cast1, nullptr);
-  ASSERT_EQ(dyn_cast<Error2>(base1), nullptr);
+  ASSERT_EQ(dyn_cast<Error2>(NotNull(base1)), nullptr);
   EXPECT_EQ(cast1->AsString(), kError1);
 
-  Error2* cast2 = dyn_cast<Error2>(base2);
+  Error2* cast2 = dyn_cast<Error2>(NotNull(base2));
   ASSERT_NE(cast2, nullptr);
-  ASSERT_EQ(dyn_cast<Error1>(base2), nullptr);
+  ASSERT_EQ(dyn_cast<Error1>(NotNull(base2)), nullptr);
   EXPECT_EQ(cast2->AsString(), kError2);
 }
 
@@ -150,14 +145,14 @@ TEST(RTTI, ConstCheck) {
   const Error2 error2;
   const ErrorInfoBase* base2 = &error2;
 
-  const Error1* cast1 = dyn_cast<Error1>(base1);
+  const Error1* cast1 = dyn_cast<Error1>(NotNull(base1));
   ASSERT_NE(cast1, nullptr);
-  ASSERT_EQ(dyn_cast<Error2>(base1), nullptr);
+  ASSERT_EQ(dyn_cast<Error2>(NotNull(base1)), nullptr);
   EXPECT_EQ(cast1->AsString(), kError1);
 
-  const Error2* cast2 = dyn_cast<Error2>(base2);
+  const Error2* cast2 = dyn_cast<Error2>(NotNull(base2));
   ASSERT_NE(cast2, nullptr);
-  ASSERT_EQ(dyn_cast<Error1>(base2), nullptr);
+  ASSERT_EQ(dyn_cast<Error1>(NotNull(base2)), nullptr);
   EXPECT_EQ(cast2->AsString(), kError2);
 }
 

@@ -30,15 +30,14 @@
 
 #include <memory>
 
-#include "rst/Check/Check.h"
+#include "rst/NotNull/NotNull.h"
 
 namespace rst {
 
 // Chromium-like WrapUnique.
 template <class T>
-std::unique_ptr<T> WrapUnique(T* ptr) {
-  RST_DCHECK(ptr != nullptr);
-  return std::unique_ptr<T>(ptr);
+NotNull<std::unique_ptr<T>> WrapUnique(const NotNull<T*> ptr) {
+  return std::unique_ptr<T>(ptr.get());
 }
 
 }  // namespace rst

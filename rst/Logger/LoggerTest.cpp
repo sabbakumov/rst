@@ -81,8 +81,6 @@ class SinkMock : public ISink {
 
 }  // namespace
 
-TEST(Logger, ConstructorNullSink) { EXPECT_DEATH(Logger(nullptr), ""); }
-
 TEST(Logger, Log) {
   auto sink = std::make_unique<SinkMock>();
 
@@ -222,18 +220,6 @@ TEST(Logger, DebugMacros) {
   EXPECT_DEATH(DLOG_FATAL(kMessage), "");
 }
 
-TEST(Logger, SetNullLogger) { EXPECT_DEATH(Logger::SetLogger(nullptr), ""); }
-
-TEST(Logger, NullFilename) {
-  auto sink = std::make_unique<SinkMock>();
-
-  Logger logger(std::move(sink));
-  Logger::SetLogger(&logger);
-
-  EXPECT_DEATH(Logger::Log(Logger::Level::kDebug, nullptr, kLine, kMessage),
-               "");
-}
-
 TEST(Logger, ZeroLine) {
   auto sink = std::make_unique<SinkMock>();
 
@@ -306,10 +292,6 @@ TEST(FileNameSink, LogThreadSafe) {
   std::sort(strings.begin(), strings.end());
 
   EXPECT_EQ(strings, messages);
-}
-
-TEST(FilePtrSink, ConstructorNullFile) {
-  EXPECT_DEATH(FilePtrSink(nullptr), "");
 }
 
 TEST(FilePtrSink, Log) {

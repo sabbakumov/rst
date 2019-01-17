@@ -34,6 +34,7 @@
 
 #include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
 #include "rst/Status/Status.h"
 
 namespace rst {
@@ -119,7 +120,7 @@ class [[nodiscard]] StatusOr {
     return *value_;
   }
 
-  T* operator->() {
+  NotNull<T*> operator->() {
     RST_DCHECK(was_checked_);
     RST_DCHECK(value_.has_value());
 

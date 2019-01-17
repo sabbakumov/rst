@@ -35,6 +35,7 @@
 
 #include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
 
 // Chromium-based WeakPtr.
 namespace rst {
@@ -50,21 +51,17 @@ class WeakPtr {
   WeakPtr() = default;
   explicit WeakPtr(std::nullptr_t) {}
 
-  WeakPtr(std::weak_ptr<internal::Flag> flag, T* ptr)
-      : flag_(std::move(flag)), ptr_(ptr) {
-    RST_DCHECK(ptr != nullptr);
-  }
+  WeakPtr(std::weak_ptr<internal::Flag> flag, const NotNull<T*> ptr)
+      : flag_(std::move(flag)), ptr_(ptr.get()) {}
 
-  template <typename U>
+  template <class U>
   WeakPtr(const WeakPtr<U>& rhs) : flag_(rhs.flag_) {
-    T* t = static_cast<U*>(rhs.ptr_);
-    ptr_ = t;
+    ptr_ = static_cast<T*>(rhs.ptr_);
   }
 
-  template <typename U>
+  template <class U>
   WeakPtr(WeakPtr<U>&& rhs) : flag_(std::move(rhs.flag_)) {
-    T* t = static_cast<U*>(rhs.ptr_);
-    ptr_ = t;
+    ptr_ = static_cast<T*>(rhs.ptr_);
   }
 
   T* get() const { return IsValid() ? ptr_ : nullptr; }
@@ -74,13 +71,13 @@ class WeakPtr {
     return *get();
   }
 
-  T* operator->() const {
+  NotNull<T*> operator->() const {
     RST_DCHECK(get() != nullptr);
     return get();
   }
 
  private:
-  template <typename U>
+  template <class U>
   friend class WeakPtr;
 
   bool IsValid() const { return !flag_.expired(); }
@@ -112,7 +109,7 @@ bool operator!=(std::nullptr_t, const WeakPtr<T>& weak_ptr) {
 template <class T>
 class WeakPtrFactory {
  public:
-  explicit WeakPtrFactory(T* ptr) : ptr_(ptr) { RST_DCHECK(ptr != nullptr); }
+  explicit WeakPtrFactory(const NotNull<T*> ptr) : ptr_(ptr) {}
 
   WeakPtrFactory(WeakPtrFactory&&) = delete;
   WeakPtrFactory& operator=(WeakPtrFactory&&) = delete;
@@ -120,8 +117,9 @@ class WeakPtrFactory {
   WeakPtr<T> GetWeakPtr() const { return WeakPtr<T>(flag_, ptr_); }
 
  private:
-  std::shared_ptr<internal::Flag> flag_ = std::make_shared<internal::Flag>();
-  T* ptr_ = nullptr;
+  const std::shared_ptr<internal::Flag> flag_ =
+      std::make_shared<internal::Flag>();
+  const NotNull<T*> ptr_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(WeakPtrFactory);
 };

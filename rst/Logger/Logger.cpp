@@ -43,17 +43,14 @@ Logger* g_logger = nullptr;
 
 }  // namespace
 
-Logger::Logger(std::unique_ptr<ISink> sink) : sink_(std::move(sink)) {
-  RST_DCHECK(sink_ != nullptr);
-}
+Logger::Logger(NotNull<std::unique_ptr<ISink>> sink) : sink_(std::move(sink)) {}
 
 Logger::~Logger() = default;
 
 // static
-void Logger::Log(const Level level, const char* filename, const int line,
-                 const std::string& message) {
+void Logger::Log(const Level level, const NotNull<const char*> filename,
+                 const int line, const std::string& message) {
   RST_DCHECK(g_logger != nullptr);
-  RST_DCHECK(filename != nullptr);
   RST_DCHECK(line > 0);
 
   if (static_cast<int>(level) < static_cast<int>(g_logger->level_))
@@ -86,18 +83,15 @@ void Logger::Log(const Level level, const char* filename, const int line,
   RST_DCHECK(level_str != nullptr);
 
   g_logger->sink_->Log(
-      "[{}:{}({})] {}"_format(level_str, filename, line, message));
+      "[{}:{}({})] {}"_format(level_str, filename.get(), line, message));
 
-  if (level == Level::kFatal) {
-    g_logger->sink_.reset();
+  if (level == Level::kFatal)
     std::abort();
-  }
 }
 
 // static
-void Logger::SetLogger(Logger* logger) {
-  RST_DCHECK(logger != nullptr);
-  g_logger = logger;
+void Logger::SetLogger(const NotNull<Logger*> logger) {
+  g_logger = logger.get();
 }
 
 }  // namespace rst

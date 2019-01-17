@@ -7,22 +7,6 @@ It is licensed under the _Simplified BSD License_.
 
 Now the library contains the following components:
 
-## BuildFlag
-  A Chromium-like build-flag support.
-
-```cpp
-#define RST_BUILDFLAG_FOO() (true)
-#define RST_BUILDFLAG_BAR() (false)
-
-#if RST_BUILDFLAG(FOO)
-// These lines compile.
-#endif  // RST_BUILDFLAG(FOO)
-
-#if RST_BUILDFLAG(BAR)
-// These lines are not included to the build.
-#endif  // RST_BUILDFLAG(BAR)
-```
-
 ## Check
   A set of macros for better programming error handling.
 
@@ -104,6 +88,20 @@ class Foo {
   RST_DISALLOW_COPY_AND_ASSIGN(Foo);
   RST_DISALLOW_IMPLICIT_CONSTRUCTORS(Foo);
 };
+```
+  A Chromium-like build-flag support.
+
+```cpp
+#define RST_BUILDFLAG_FOO() (true)
+#define RST_BUILDFLAG_BAR() (false)
+
+#if RST_BUILDFLAG(FOO)
+// These lines compile.
+#endif  // RST_BUILDFLAG(FOO)
+
+#if RST_BUILDFLAG(BAR)
+// These lines are not included to the build.
+#endif  // RST_BUILDFLAG(BAR)
 ```
 
 ## Memory

@@ -40,78 +40,78 @@ using namespace literals;
 using namespace internal;
 
 TEST(FormatterTest, Escape) {
-  EXPECT_EQ(format("{{"), "{");
-  EXPECT_EQ(format("before {{"), "before {");
-  EXPECT_EQ(format("{{ after"), "{ after");
-  EXPECT_EQ(format("before {{ after"), "before { after");
+  EXPECT_EQ(Format("{{"), "{");
+  EXPECT_EQ(Format("before {{"), "before {");
+  EXPECT_EQ(Format("{{ after"), "{ after");
+  EXPECT_EQ(Format("before {{ after"), "before { after");
 
-  EXPECT_EQ(format("}}"), "}");
-  EXPECT_EQ(format("before }}"), "before }");
-  EXPECT_EQ(format("}} after"), "} after");
-  EXPECT_EQ(format("before }} after"), "before } after");
+  EXPECT_EQ(Format("}}"), "}");
+  EXPECT_EQ(Format("before }}"), "before }");
+  EXPECT_EQ(Format("}} after"), "} after");
+  EXPECT_EQ(Format("before }} after"), "before } after");
 
-  EXPECT_EQ(format("{{}}"), "{}");
-  EXPECT_EQ(format("{{{}}}", 42), "{42}");
+  EXPECT_EQ(Format("{{}}"), "{}");
+  EXPECT_EQ(Format("{{{}}}", 42), "{42}");
 }
 
 TEST(FormatterTest, UnmatchedBraces) {
-  EXPECT_DEATH(format("{"), "");
+  EXPECT_DEATH(Format("{"), "");
 
-  EXPECT_DEATH(format("}"), "");
+  EXPECT_DEATH(Format("}"), "");
 
-  EXPECT_DEATH(format("{0{}"), "");
+  EXPECT_DEATH(Format("{0{}"), "");
 }
 
 TEST(FormatterTest, UnmatchedBracesWithArgs) {
-  EXPECT_DEATH(format("{", 1), "");
+  EXPECT_DEATH(Format("{", 1), "");
 
-  EXPECT_DEATH(format("}", 1), "");
+  EXPECT_DEATH(Format("}", 1), "");
 
-  EXPECT_DEATH(format("{0{}", 1), "");
+  EXPECT_DEATH(Format("{0{}", 1), "");
 }
 
-TEST(FormatterTest, NoArgs) { EXPECT_EQ(format("test"), "test"); }
+TEST(FormatterTest, NoArgs) { EXPECT_EQ(Format("test"), "test"); }
 
 TEST(FormatterTest, ArgsInDifferentPositions) {
-  EXPECT_EQ(format("{}", 42), "42");
-  EXPECT_EQ(format("before {}", 42), "before 42");
-  EXPECT_EQ(format("{} after", 42), "42 after");
-  EXPECT_EQ(format("before {} after", 42), "before 42 after");
-  EXPECT_EQ(format("{} = {}", "answer", 42), "answer = 42");
-  EXPECT_EQ(format("{} is the {}", 42, "answer"), "42 is the answer");
-  EXPECT_EQ(format("{}{}{}", "abra", "cad", "abra"), "abracadabra");
+  EXPECT_EQ(Format("{}", 42), "42");
+  EXPECT_EQ(Format("before {}", 42), "before 42");
+  EXPECT_EQ(Format("{} after", 42), "42 after");
+  EXPECT_EQ(Format("before {} after", 42), "before 42 after");
+  EXPECT_EQ(Format("{} = {}", "answer", 42), "answer = 42");
+  EXPECT_EQ(Format("{} is the {}", 42, "answer"), "42 is the answer");
+  EXPECT_EQ(Format("{}{}{}", "abra", "cad", "abra"), "abracadabra");
 }
 
 TEST(FormatterTest, ArgErrors) {
-  EXPECT_DEATH(format("{"), "");
+  EXPECT_DEATH(Format("{"), "");
 
-  EXPECT_DEATH(format("{?}"), "");
+  EXPECT_DEATH(Format("{?}"), "");
 
-  EXPECT_DEATH(format("{0"), "");
+  EXPECT_DEATH(Format("{0"), "");
 
-  EXPECT_DEATH(format("{}"), "");
+  EXPECT_DEATH(Format("{}"), "");
 }
 
 TEST(FormatterTest, ArgErrorsWithArgs) {
-  EXPECT_DEATH(format("{", 1), "");
+  EXPECT_DEATH(Format("{", 1), "");
 
-  EXPECT_DEATH(format("{?}", 1), "");
+  EXPECT_DEATH(Format("{?}", 1), "");
 
-  EXPECT_DEATH(format("{0", 1), "");
+  EXPECT_DEATH(Format("{0", 1), "");
 }
 
-TEST(FormatTest, Variadic) { EXPECT_EQ(format("{}c{}", "ab", 1), "abc1"); }
+TEST(FormatTest, Variadic) { EXPECT_EQ(Format("{}c{}", "ab", 1), "abc1"); }
 
 TEST(FormatTest, MaxArgs) {
-  EXPECT_EQ(format("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", 0, 1, 2, 3, 4, 5, 6, 7,
+  EXPECT_EQ(Format("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", 0, 1, 2, 3, 4, 5, 6, 7,
                    8, 9, 'a', 'b', 'c', 'd', 'e', 1.23, 1.23f),
             "0123456789abcde1.2300001.230000");
 }
 
 TEST(FormatTest, ExtraArgument) {
-  EXPECT_DEATH(format("", 1), "");
-  EXPECT_DEATH(format("string", 1), "");
-  EXPECT_DEATH(format("string{}{}", 1), "");
+  EXPECT_DEATH(Format("", 1), "");
+  EXPECT_DEATH(Format("string", 1), "");
+  EXPECT_DEATH(Format("string{}{}", 1), "");
 }
 
 TEST(FormatTest, Strings) {
@@ -132,17 +132,6 @@ TEST(Writer, DefaultCtor) {
   Writer writer;
   EXPECT_EQ(writer.CopyString(), std::string());
   EXPECT_EQ(writer.TakeString(), std::string());
-}
-
-TEST(Writer, FormatAndWriteNullStr) {
-  Writer writer;
-  EXPECT_DEATH(writer.FormatAndWrite(nullptr, 10, "format", 0), "");
-}
-
-TEST(Writer, FormatAndWriteNullFormat) {
-  Writer writer;
-  char str[10];
-  EXPECT_DEATH(writer.FormatAndWrite(str, std::size(str), nullptr, 0), "");
 }
 
 TEST(Writer, FormatAndWriteZeroSize) {
@@ -182,7 +171,7 @@ TEST(Writer, FormatAndWriteThreeSizeNotFull) {
 
 TEST(FormatTemplate, SNullPtr) {
   Writer writer;
-  EXPECT_DEATH(Format(&writer, nullptr, 0), "");
+  EXPECT_DEATH(Format(&writer, nullptr), "");
 }
 
 TEST(Writer, Numbers) {
@@ -279,11 +268,6 @@ TEST(Writer, EmptyCharPtr) {
   EXPECT_EQ(writer.CopyString(), std::string());
 }
 
-TEST(Writer, NullCharPtr) {
-  Writer writer;
-  EXPECT_DEATH(writer.Write(nullptr), "");
-}
-
 TEST(Writer, NormalStdString) {
   Writer writer;
   const std::string str = "Normal";
@@ -355,15 +339,10 @@ TEST(Writer, AppendBigChar) {
   EXPECT_EQ(writer.CopyString(), str + c);
 }
 
-TEST(Writer, WriteNullPtr) {
-  Writer writer;
-  EXPECT_DEATH(writer.Write(nullptr, 10), "");
-}
-
 TEST(Writer, WriteZeroSize) {
   Writer writer;
   static constexpr auto str = "Initial";
-  writer.Write(str, 0);
+  writer.Write(std::string_view(str, 0));
   EXPECT_EQ(writer.CopyString(), std::string());
 }
 
@@ -395,10 +374,6 @@ TEST(Writer, CopyStringDynamic) {
   writer.Write(str);
   EXPECT_EQ(writer.CopyString(), str);
   EXPECT_EQ(writer.CopyString(), str);
-}
-
-TEST(HandleCharacter, SNullPtr) {
-  EXPECT_DEATH(HandleCharacter('a', nullptr), "");
 }
 
 TEST(HandleCharacter, SRefNullPtr) {
@@ -438,8 +413,6 @@ TEST(HandleCharacter, CaseCloseOther) {
   auto s = "}o";
   EXPECT_DEATH(HandleCharacter(*s, &s), "");
 }
-
-TEST(Format, WriterNullPtr) { EXPECT_DEATH(Format(nullptr, ""), ""); }
 
 TEST(Format, SNullPtr) {
   Writer writer;

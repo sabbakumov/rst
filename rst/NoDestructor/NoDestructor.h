@@ -32,6 +32,7 @@
 #include <utility>
 
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
 
 namespace rst {
 
@@ -52,11 +53,11 @@ class NoDestructor {
   const T& operator*() const { return *get(); }
   T& operator*() { return *get(); }
 
-  const T* operator->() const { return get(); }
-  T* operator->() { return get(); }
+  NotNull<const T*> operator->() const { return get(); }
+  NotNull<T*> operator->() { return get(); }
 
-  const T* get() const { return reinterpret_cast<const T*>(storage_); }
-  T* get() { return reinterpret_cast<T*>(storage_); }
+  NotNull<const T*> get() const { return reinterpret_cast<const T*>(storage_); }
+  NotNull<T*> get() { return reinterpret_cast<T*>(storage_); }
 
  private:
   alignas(T) char storage_[sizeof(T)];

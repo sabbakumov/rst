@@ -56,10 +56,12 @@ TEST(Memory, WrapUnique) {
   auto counter = new DeleteCounter;
   EXPECT_EQ(DeleteCounter::count(), 1);
 
-  std::unique_ptr<DeleteCounter> owned_counter = WrapUnique(counter);
-  EXPECT_EQ(DeleteCounter::count(), 1);
+  {
+    const NotNull<std::unique_ptr<DeleteCounter>> owned_counter =
+        WrapUnique(NotNull(counter));
+    EXPECT_EQ(DeleteCounter::count(), 1);
+  }
 
-  owned_counter.reset();
   EXPECT_EQ(DeleteCounter::count(), 0);
 }
 

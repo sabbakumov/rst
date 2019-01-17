@@ -34,6 +34,7 @@
 
 #include "rst/Logger/ISink.h"
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
 
 namespace rst {
 
@@ -42,7 +43,7 @@ class FilePtrSink : public ISink {
  public:
   // Saves the FILE pointer. If should_close is not set, doesn't close the FILE
   // pointer (e.g. stdout, stderr).
-  explicit FilePtrSink(std::FILE* file, bool should_close = true);
+  explicit FilePtrSink(NotNull<std::FILE*> file, bool should_close = true);
   ~FilePtrSink();
 
   // Thread safe logging function.
@@ -55,13 +56,8 @@ class FilePtrSink : public ISink {
         if (f != nullptr)
           std::fclose(f);
       }};
-  // A non closing RAII-wrapper around std::FILE.
-  std::unique_ptr<std::FILE, void (*)(std::FILE*)> non_closing_log_file_{
-      nullptr, [](std::FILE * /*f*/) -> void {}};
 
-  // A pointer to either log_file_ or non_closing_log_file depending whether
-  // should_close is set on construction.
-  std::FILE* file_ = nullptr;
+  const NotNull<std::FILE*> file_;
 
   // Mutex for thread-safe Log function.
   std::mutex mutex_;

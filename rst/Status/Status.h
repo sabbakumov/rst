@@ -32,14 +32,11 @@
 #include <string>
 #include <utility>
 
-#include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
 #include "rst/Status/Status.h"
 
 namespace rst {
-
-class StatusAsOutParameter;
-
 namespace internal {
 
 class ErrorInfoBase {
@@ -47,12 +44,12 @@ class ErrorInfoBase {
   ErrorInfoBase();
   virtual ~ErrorInfoBase();
 
-  static const void* GetClassID();
+  static NotNull<const void*> GetClassID();
 
   virtual const std::string& AsString() const = 0;
-  virtual const void* GetDynamicClassID() const = 0;
+  virtual NotNull<const void*> GetDynamicClassID() const = 0;
 
-  virtual bool IsA(const void* class_id) const;
+  virtual bool IsA(NotNull<const void*> class_id) const;
 
   template <class ErrorInfoT>
   bool IsA() const {
@@ -72,12 +69,11 @@ class ErrorInfo : public internal::ErrorInfoBase {
  public:
   using internal::ErrorInfoBase::ErrorInfoBase;
 
-  static const void* GetClassID() { return &T::id_; }
+  static NotNull<const void*> GetClassID() { return &T::id_; }
 
-  const void* GetDynamicClassID() const override { return &T::id_; }
+  NotNull<const void*> GetDynamicClassID() const override { return &T::id_; }
 
-  bool IsA(const void* class_id) const override {
-    RST_DCHECK(class_id != nullptr);
+  bool IsA(const NotNull<const void*> class_id) const override {
     return class_id == GetClassID() || ErrorInfoBase::IsA(class_id);
   }
 
@@ -89,9 +85,6 @@ class ErrorInfo : public internal::ErrorInfoBase {
 class [[nodiscard]] Status {
  public:
   static Status OK() { return Status(); }
-
-  // Sets the object not checked by default and to be the error object.
-  Status(std::unique_ptr<internal::ErrorInfoBase> error);
 
   // Sets the object not checked by default and moves rhs content.
   Status(Status && rhs);
@@ -122,8 +115,14 @@ class [[nodiscard]] Status {
   template <class T>
   friend class StatusOr;
 
+  template <class Err, class... Args>
+  friend Status MakeStatus(Args && ... args);
+
   // Sets the object not checked by default and to be OK.
   Status();
+
+  // Sets the object not checked by default and to be the error object.
+  Status(NotNull<std::unique_ptr<internal::ErrorInfoBase>> error);
 
 #ifndef NDEBUG
   void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
@@ -132,7 +131,7 @@ class [[nodiscard]] Status {
 #endif  // NDEBUG
 
   // Information about the error. nullptr if the object is OK.
-  std::unique_ptr<internal::ErrorInfoBase> error_;
+  Nullable<std::unique_ptr<internal::ErrorInfoBase>> error_;
 
 #ifndef NDEBUG
   // Whether the object was checked.
@@ -150,11 +149,11 @@ Status MakeStatus(Args&&... args) {
 // A helper for Status used as out-parameters.
 class StatusAsOutParameter {
  public:
-  explicit StatusAsOutParameter(Status* status);
+  explicit StatusAsOutParameter(NotNull<Status*> status);
   ~StatusAsOutParameter();
 
  private:
-  Status* status_ = nullptr;
+  const NotNull<Status*> status_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(StatusAsOutParameter);
 };
