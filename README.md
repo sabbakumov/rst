@@ -140,6 +140,22 @@ const std::string& GetString() {
 }
 ```
 
+## NotNull
+  Microsoft GSL-like NotNull class that restricts a pointer or smart pointer to
+  only hold non-null values.
+
+```cpp
+void Foo(NotNul<int*>) {
+}
+
+int i = 0;
+Foo(&i);  // OK.
+Foo(nullptr);  // Compilation error.
+
+int* ptr = nullptr;
+Foo(ptr);  // Debug assert.
+```
+
 ## RTTI
   LLVM-like custom RTTI support.
 
