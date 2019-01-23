@@ -37,7 +37,7 @@
 namespace rst {
 namespace {
 
-Logger* g_logger = nullptr;
+rst::Nullable<Logger*> g_logger = nullptr;
 
 }  // namespace
 
