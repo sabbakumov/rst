@@ -29,7 +29,7 @@
 #define RST_LOGGER_LOGGER_H_
 
 #include <memory>
-#include <string>
+#include <string_view>
 
 #include "rst/Logger/ISink.h"
 #include "rst/Macros/Macros.h"
@@ -90,7 +90,7 @@ class Logger {
 
   // Logs a message. If the level is less than level_ nothing gets logged.
   static void Log(Level level, NotNull<const char*> filename, int line,
-                  const std::string& message);
+                  std::string_view message);
   static void SetLogger(NotNull<Logger*> logger);
 
   void set_level(Level level) { level_ = level; }

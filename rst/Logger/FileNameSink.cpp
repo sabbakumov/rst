@@ -35,8 +35,6 @@
 #include "rst/Logger/LogError.h"
 #include "rst/Memory/Memory.h"
 
-using namespace rst::literals;
-
 namespace rst {
 
 FileNameSink::FileNameSink(const std::string& filename,
@@ -45,7 +43,7 @@ FileNameSink::FileNameSink(const std::string& filename,
 
   log_file_.reset(std::fopen(filename.c_str(), "w"));
   if (log_file_ == nullptr) {
-    *status = MakeStatus<LogError>("Can't open file {}"_format(filename));
+    *status = MakeStatus<LogError>(Format("Can't open file {}", filename));
     return;
   }
 

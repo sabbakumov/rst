@@ -36,7 +36,6 @@
 
 namespace rst {
 
-using namespace literals;
 using namespace internal;
 
 TEST(FormatterTest, Escape) {
@@ -116,15 +115,15 @@ TEST(FormatTest, ExtraArgument) {
 
 TEST(FormatTest, Strings) {
   const std::string s = "string";
-  EXPECT_EQ("{}"_format(s), "string");
-  EXPECT_EQ("{}{}"_format(s, s), "stringstring");
-  EXPECT_EQ("{}"_format(std::string("temp")), "temp");
-  EXPECT_EQ("{}"_format(std::string_view("temp")), "temp");
+  EXPECT_EQ(Format("{}", s), "string");
+  EXPECT_EQ(Format("{}{}", s, s), "stringstring");
+  EXPECT_EQ(Format("{}", std::string("temp")), "temp");
+  EXPECT_EQ(Format("{}", std::string_view("temp")), "temp");
 }
 
 TEST(Literals, Common) {
-  EXPECT_EQ(""_format(), std::string());
-  EXPECT_EQ("{} {}, {}{}{}"_format(1234, "Hello", "wor", 'l', 'd'),
+  EXPECT_EQ(Format(""), std::string());
+  EXPECT_EQ(Format("{} {}, {}{}{}", 1234, "Hello", "wor", 'l', 'd'),
             "1234 Hello, world");
 }
 
@@ -378,40 +377,35 @@ TEST(Writer, CopyStringDynamic) {
 
 TEST(HandleCharacter, SRefNullPtr) {
   const char* s = nullptr;
-  EXPECT_DEATH(HandleCharacter('a', &s), "");
-}
-
-TEST(HandleCharacter, AnotherString) {
-  auto s = "abc";
-  EXPECT_DEATH(HandleCharacter('d', &s), "");
+  EXPECT_DEATH(HandleCharacter(&s), "");
 }
 
 TEST(HandleCharacter, CaseOpenOpen) {
   auto s = "{{";
-  EXPECT_TRUE(HandleCharacter(*s, &s));
+  EXPECT_TRUE(HandleCharacter(&s));
   EXPECT_STREQ(s, "{");
 }
 
 TEST(HandleCharacter, CaseOpenClose) {
   auto s = "{}";
-  EXPECT_FALSE(HandleCharacter(*s, &s));
+  EXPECT_FALSE(HandleCharacter(&s));
   EXPECT_STREQ(s, "{}");
 }
 
 TEST(HandleCharacter, CaseOpenOther) {
   auto s = "{o";
-  EXPECT_DEATH(HandleCharacter(*s, &s), "");
+  EXPECT_DEATH(HandleCharacter(&s), "");
 }
 
 TEST(HandleCharacter, CaseCloseClose) {
   auto s = "}}";
-  EXPECT_TRUE(HandleCharacter(*s, &s));
+  EXPECT_TRUE(HandleCharacter(&s));
   EXPECT_STREQ(s, "}");
 }
 
 TEST(HandleCharacter, CaseCloseOther) {
   auto s = "}o";
-  EXPECT_DEATH(HandleCharacter(*s, &s), "");
+  EXPECT_DEATH(HandleCharacter(&s), "");
 }
 
 TEST(Format, SNullPtr) {

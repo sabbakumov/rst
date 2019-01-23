@@ -34,8 +34,6 @@
 #include "rst/Format/Format.h"
 #include "rst/Logger/LogError.h"
 
-using namespace rst::literals;
-
 namespace rst {
 namespace {
 
@@ -49,7 +47,7 @@ Logger::~Logger() = default;
 
 // static
 void Logger::Log(const Level level, const NotNull<const char*> filename,
-                 const int line, const std::string& message) {
+                 const int line, const std::string_view message) {
   RST_DCHECK(g_logger != nullptr);
   RST_DCHECK(line > 0);
 
@@ -83,7 +81,7 @@ void Logger::Log(const Level level, const NotNull<const char*> filename,
   RST_DCHECK(level_str != nullptr);
 
   g_logger->sink_->Log(
-      "[{}:{}({})] {}"_format(level_str, filename.get(), line, message));
+      Format("[{}:{}({})] {}", level_str, filename.get(), line, message));
 
   if (level == Level::kFatal)
     std::abort();

@@ -98,7 +98,7 @@ class Value {
 };
 
 // Handles character c in the string s. Returns false if there's {} in s.
-bool HandleCharacter(char c, NotNull<const char**> s);
+bool HandleCharacter(NotNull<const char**> s);
 
 // Writes s to the writer.
 void Format(NotNull<Writer*> writer, const char* s);
@@ -120,35 +120,6 @@ inline std::string Format(const NotNull<const char*> s, Args&&... args) {
   return writer.TakeString();
 }
 
-namespace internal {
-
-// Used in user defined literals.
-class Formatter {
- public:
-  explicit Formatter(NotNull<const char*> str);
-  ~Formatter();
-
-  template <class... Args>
-  std::string operator()(Args&&... args) const {
-    return Format(str_, std::forward<Args>(args)...);
-  }
-
- private:
-  const NotNull<const char*> str_;
-
-  RST_DISALLOW_COPY_AND_ASSIGN(Formatter);
-};
-
-}  // namespace internal
-
-namespace literals {
-
-// User defined literals.
-inline internal::Formatter operator"" _format(const char* s, size_t) {
-  return internal::Formatter(s);
-}
-
-}  // namespace literals
 }  // namespace rst
 
 #endif  // RST_FORMAT_FORMAT_H_

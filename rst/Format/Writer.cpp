@@ -96,9 +96,6 @@ void Writer::Write(const long double val) {
 void Writer::Write(const char val) { Write(std::string_view(&val, 1)); }
 
 void Writer::Write(const std::string_view str) {
-  if (str.empty())
-    return;
-
   const auto len = str.size();
   if (dynamic_buffer_.empty()) {
     if (len < std::size(static_buffer_) - size_) {

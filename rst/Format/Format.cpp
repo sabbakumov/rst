@@ -108,15 +108,11 @@ void WriteChar(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
 
 }  // namespace
 
-Formatter::Formatter(const NotNull<const char*> str) : str_(str) {}
-
-Formatter::~Formatter() = default;
-
-bool HandleCharacter(const char c, const NotNull<const char**> s) {
+bool HandleCharacter(const NotNull<const char**> s) {
   const char*& s_ref = *s;
   RST_DCHECK(s_ref != nullptr);
-  RST_DCHECK(c == *s_ref);
 
+  const auto c = *s_ref;
   switch (c) {
     case '{': {
       const auto s_1 = *(s_ref + 1);
@@ -151,7 +147,7 @@ void Format(const NotNull<Writer*> writer, const char* s) {
   RST_DCHECK(s != nullptr);
 
   for (auto c = '\0'; (c = *s) != '\0'; s++) {
-    const auto result = HandleCharacter(c, &s);
+    const auto result = HandleCharacter(&s);
     RST_DCHECK(result && "Argument index out of range");
     writer->Write(c);
   }
@@ -163,7 +159,7 @@ void Format(const NotNull<Writer*> writer, const char* s,
 
   size_t arg_idx = 0;
   for (auto c = '\0'; (c = *s) != '\0'; s++) {
-    if (!HandleCharacter(c, &s)) {
+    if (!HandleCharacter(&s)) {
       RST_DCHECK(arg_idx < size && "Extra arguments");
       values[arg_idx].Write(writer);
       s++;
