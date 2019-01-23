@@ -27,6 +27,7 @@
 
 #include "rst/NotNull/NotNull.h"
 
+#include <map>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -243,6 +244,13 @@ TEST(NotNull, Operators) {
     EXPECT_EQ(int_ptr[0], array[0]);
     EXPECT_EQ(int_ptr[1], array[1]);
     EXPECT_EQ(int_ptr[2], array[2]);
+  }
+
+  {
+    std::map<NotNull<std::string*>, bool> map;
+    std::string s1, s2;
+    map.emplace(&s1, true);
+    map.emplace(&s2, true);
   }
 }
 

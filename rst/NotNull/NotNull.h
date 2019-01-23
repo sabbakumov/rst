@@ -220,6 +220,11 @@ bool operator!=(const NotNull<T>& lhs, const NotNull<U>& rhs) {
   return !(lhs == rhs);
 }
 
+template <class T, class U>
+bool operator<(const NotNull<T>& lhs, const NotNull<U>& rhs) {
+  return lhs.get() < rhs.get();
+}
+
 }  // namespace rst
 
 #endif  // RST_NOTNULL_NOTNULL_H_
