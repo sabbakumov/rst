@@ -388,10 +388,443 @@ TEST(NotNull, SharedPtrBaseDerived) {
   }
 }
 
-TEST(Nullable, Test) {
-  static_assert(std::is_same<std::string*, Nullable<std::string*>>::value);
-  static_assert(
-      std::is_same<const std::string*, Nullable<const std::string*>>::value);
+TEST(Nullable, VoidPtr) {
+  std::string str;
+  Nullable<void*> void_ptr(&str);
+  ASSERT_NE(void_ptr, nullptr);
+  EXPECT_EQ(void_ptr.get(), &str);
+
+  Nullable<void*> copy_ptr(void_ptr);
+  ASSERT_NE(copy_ptr, nullptr);
+  EXPECT_EQ(copy_ptr.get(), void_ptr.get());
+
+  Nullable<void*> move_ptr(std::move(copy_ptr));
+  ASSERT_NE(move_ptr, nullptr);
+  EXPECT_EQ(move_ptr.get(), void_ptr.get());
+
+  std::string str2;
+  Nullable<void*> void_ptr2(&str2);
+  ASSERT_NE(void_ptr2, nullptr);
+  EXPECT_NE(void_ptr2.get(), move_ptr.get());
+
+  void_ptr2 = move_ptr;
+  ASSERT_NE(void_ptr2, nullptr);
+  EXPECT_EQ(void_ptr2.get(), move_ptr.get());
+
+  Nullable<void*> void_ptr3(&str2);
+  ASSERT_NE(void_ptr3, nullptr);
+  EXPECT_NE(void_ptr3.get(), void_ptr.get());
+
+  void_ptr3 = std::move(move_ptr);
+  ASSERT_NE(void_ptr3, nullptr);
+  EXPECT_EQ(void_ptr3.get(), void_ptr.get());
+
+  Nullable<void*> void_ptr4(&str);
+  ASSERT_NE(void_ptr4, nullptr);
+  EXPECT_NE(void_ptr4.get(), &str2);
+
+  void_ptr4 = &str2;
+  ASSERT_NE(void_ptr4, nullptr);
+  EXPECT_EQ(void_ptr4.get(), &str2);
+}
+
+TEST(Nullable, PlainPtr) {
+  std::string str;
+  Nullable<std::string*> str_ptr(&str);
+  ASSERT_NE(str_ptr, nullptr);
+  str_ptr->append("PlainPtr");
+  EXPECT_EQ(*str_ptr, "PlainPtr");
+
+  Nullable<std::string*> copy_ptr(str_ptr);
+  ASSERT_NE(copy_ptr, nullptr);
+  EXPECT_EQ(*copy_ptr, "PlainPtr");
+
+  Nullable<std::string*> move_ptr(std::move(copy_ptr));
+  ASSERT_NE(move_ptr, nullptr);
+  EXPECT_EQ(*move_ptr, "PlainPtr");
+
+  Derived d;
+  Nullable<Base*> base_ptr(&d);
+  ASSERT_NE(base_ptr, nullptr);
+  EXPECT_EQ(base_ptr->GetName(), "Derived");
+
+  Nullable<Base*> base_copy_ptr(base_ptr);
+  ASSERT_NE(base_copy_ptr, nullptr);
+  EXPECT_EQ(base_copy_ptr->GetName(), "Derived");
+
+  Base b;
+  Nullable<Base*> base_ptr2(&b);
+  ASSERT_NE(base_ptr2, nullptr);
+  EXPECT_EQ(base_ptr2->GetName(), "Base");
+
+  base_ptr2 = base_ptr;
+  ASSERT_NE(base_ptr2, nullptr);
+  EXPECT_EQ(base_ptr2->GetName(), "Derived");
+
+  Nullable<Base*> base_ptr3(&b);
+  ASSERT_NE(base_ptr3, nullptr);
+  EXPECT_EQ(base_ptr3->GetName(), "Base");
+
+  base_ptr3 = std::move(base_ptr);
+  ASSERT_NE(base_ptr3, nullptr);
+  EXPECT_EQ(base_ptr3->GetName(), "Derived");
+
+  Nullable<void*> null_ptr;
+  ASSERT_EQ(null_ptr, nullptr);
+
+  Nullable<void*> null_ptr2(nullptr);
+  ASSERT_EQ(null_ptr2, nullptr);
+
+  null_ptr2 = nullptr;
+  ASSERT_EQ(null_ptr2, nullptr);
+}
+
+TEST(Nullable, PlainPtrBaseDerived) {
+  const auto foo_base = [](Nullable<Base*> b) -> void {
+    ASSERT_NE(b, nullptr);
+    EXPECT_EQ(b->GetName(), "Base");
+  };
+  const auto foo_derived = [](Nullable<Base*> b) -> void {
+    ASSERT_NE(b, nullptr);
+    EXPECT_EQ(b->GetName(), "Derived");
+  };
+  class C {
+   public:
+    C(Nullable<Base*>) {}
+  };
+
+  Base b;
+  foo_base(&b);
+  { C c(&b); }
+
+  Derived d;
+  foo_derived(&d);
+  { C c(&d); }
+
+  {
+    Nullable<Derived*> derived_ptr(&d);
+    Nullable<Base*> base_ptr(derived_ptr);
+    ASSERT_NE(base_ptr, nullptr);
+    EXPECT_EQ(base_ptr->GetName(), "Derived");
+  }
+
+  {
+    Nullable<Derived*> derived_ptr(&d);
+    Nullable<Base*> base_ptr(&b);
+    ASSERT_NE(base_ptr, nullptr);
+    EXPECT_EQ(base_ptr->GetName(), "Base");
+    base_ptr = derived_ptr;
+    ASSERT_NE(base_ptr, nullptr);
+    EXPECT_EQ(base_ptr->GetName(), "Derived");
+  }
+}
+
+TEST(Nullable, Crash) {
+  {
+    std::string array[] = {"a", "b", "c"};
+    Nullable<std::string*> ptr(array);
+
+    EXPECT_DEATH((ptr.get()), "");
+    EXPECT_DEATH((ptr->size()), "");
+    EXPECT_DEATH((*ptr), "");
+    EXPECT_DEATH((ptr[0]), "");
+    EXPECT_DEATH((ptr[1]), "");
+
+    ptr = nullptr;
+    ASSERT_EQ(ptr, nullptr);
+
+    EXPECT_NO_FATAL_FAILURE(ptr.get());
+    EXPECT_DEATH((ptr->size()), "");
+    EXPECT_DEATH((*ptr), "");
+    EXPECT_DEATH((ptr[0]), "");
+    EXPECT_DEATH((ptr[1]), "");
+  }
+
+  {
+    auto str = std::make_unique<std::string>("a");
+    Nullable<std::unique_ptr<std::string>> ptr(std::move(str));
+
+    EXPECT_DEATH((ptr.get()), "");
+    EXPECT_DEATH((ptr->size()), "");
+    EXPECT_DEATH((*ptr), "");
+
+    ptr = nullptr;
+    ASSERT_EQ(ptr, nullptr);
+
+    EXPECT_NO_FATAL_FAILURE(ptr.get());
+    EXPECT_DEATH((ptr->size()), "");
+    EXPECT_DEATH((*ptr), "");
+  }
+
+  {
+    auto str = std::make_shared<std::string>("a");
+    Nullable<std::shared_ptr<std::string>> ptr(std::move(str));
+
+    EXPECT_DEATH((ptr.get()), "");
+    EXPECT_DEATH((ptr->size()), "");
+    EXPECT_DEATH((*ptr), "");
+
+    ptr = nullptr;
+    ASSERT_EQ(ptr, nullptr);
+
+    EXPECT_NO_FATAL_FAILURE(ptr.get());
+    EXPECT_DEATH((ptr->size()), "");
+    EXPECT_DEATH((*ptr), "");
+  }
+}
+
+TEST(Nullable, Take) {
+  {
+    Nullable<std::unique_ptr<std::string>> str_ptr(
+        std::make_unique<std::string>("UniquePtr"));
+    const std::unique_ptr<std::string> str = str_ptr.Take();
+    EXPECT_EQ(*str, "UniquePtr");
+  }
+
+  {
+    Nullable<std::shared_ptr<std::string>> str_ptr(
+        std::make_shared<std::string>("SharedPtr"));
+    const std::shared_ptr<std::string> str = str_ptr.Take();
+    EXPECT_EQ(*str, "SharedPtr");
+  }
+}
+
+TEST(Nullable, Operators) {
+  {
+    std::string str;
+    Nullable<std::string*> str_ptr(&str);
+    ASSERT_NE(str_ptr, nullptr);
+    str_ptr->append("1");
+    EXPECT_EQ(*str_ptr, "1");
+
+    *str_ptr = "2";
+    EXPECT_EQ(*str_ptr, "2");
+
+    int array[] = {0, 1, 2};
+    Nullable<int*> int_ptr(array);
+    ASSERT_NE(int_ptr, nullptr);
+    EXPECT_EQ(int_ptr[0], array[0]);
+    EXPECT_EQ(int_ptr[1], array[1]);
+    EXPECT_EQ(int_ptr[2], array[2]);
+
+    int_ptr[0] = 3;
+    int_ptr[1] = 4;
+    int_ptr[2] = 5;
+    EXPECT_EQ(int_ptr[0], array[0]);
+    EXPECT_EQ(int_ptr[1], array[1]);
+    EXPECT_EQ(int_ptr[2], array[2]);
+  }
+
+  {
+    std::string str;
+    const Nullable<std::string*> str_ptr(&str);
+    ASSERT_NE(str_ptr, nullptr);
+    str_ptr->append("1");
+    EXPECT_EQ(*str_ptr, "1");
+
+    *str_ptr = "2";
+    EXPECT_EQ(*str_ptr, "2");
+
+    int array[] = {0, 1, 2};
+    const Nullable<int*> int_ptr(array);
+    ASSERT_NE(int_ptr, nullptr);
+    EXPECT_EQ(int_ptr[0], array[0]);
+    EXPECT_EQ(int_ptr[1], array[1]);
+    EXPECT_EQ(int_ptr[2], array[2]);
+
+    int_ptr[0] = 3;
+    int_ptr[1] = 4;
+    int_ptr[2] = 5;
+    EXPECT_EQ(int_ptr[0], array[0]);
+    EXPECT_EQ(int_ptr[1], array[1]);
+    EXPECT_EQ(int_ptr[2], array[2]);
+  }
+
+  {
+    std::map<Nullable<std::string*>, bool> map;
+    std::string s1, s2;
+    map.emplace(&s1, true);
+    map.emplace(&s2, true);
+  }
+}
+
+TEST(Nullable, UniquePtr) {
+  auto str = std::make_unique<std::string>();
+  Nullable<std::unique_ptr<std::string>> str_ptr(std::move(str));
+  ASSERT_NE(str_ptr, nullptr);
+  str_ptr->append("UniquePtr");
+  EXPECT_EQ(*str_ptr, "UniquePtr");
+
+  Nullable<std::unique_ptr<std::string>> move_ptr(std::move(str_ptr));
+  ASSERT_NE(move_ptr, nullptr);
+  EXPECT_EQ(*move_ptr, "UniquePtr");
+
+  auto d = std::make_unique<Derived>();
+  Nullable<std::unique_ptr<Base>> base_ptr(std::move(d));
+  ASSERT_NE(base_ptr, nullptr);
+  EXPECT_EQ(base_ptr->GetName(), "Derived");
+
+  auto b = std::make_unique<Base>();
+  Nullable<std::unique_ptr<Base>> base_ptr3(std::move(b));
+  ASSERT_NE(base_ptr3, nullptr);
+  EXPECT_EQ(base_ptr3->GetName(), "Base");
+
+  base_ptr3 = std::move(base_ptr);
+  ASSERT_NE(base_ptr3, nullptr);
+  EXPECT_EQ(base_ptr3->GetName(), "Derived");
+
+  Nullable<std::unique_ptr<std::string>> null_ptr;
+  ASSERT_EQ(null_ptr, nullptr);
+
+  Nullable<std::unique_ptr<std::string>> null_ptr2(nullptr);
+  ASSERT_EQ(null_ptr2, nullptr);
+
+  null_ptr2 = nullptr;
+  ASSERT_EQ(null_ptr2, nullptr);
+}
+
+TEST(Nullable, UniquePtrBaseDerived) {
+  const auto foo_base = [](Nullable<std::unique_ptr<Base>> b) -> void {
+    ASSERT_NE(b, nullptr);
+    EXPECT_EQ(b->GetName(), "Base");
+  };
+  const auto foo_derived = [](Nullable<std::unique_ptr<Base>> b) -> void {
+    ASSERT_NE(b, nullptr);
+    EXPECT_EQ(b->GetName(), "Derived");
+  };
+  class C {
+   public:
+    C(Nullable<std::unique_ptr<Base>>) {}
+  };
+
+  foo_base(std::make_unique<Base>());
+  { C c(std::make_unique<Base>()); }
+
+  foo_derived(std::make_unique<Derived>());
+  { C c(std::make_unique<Derived>()); }
+
+  {
+    Nullable<std::unique_ptr<Derived>> derived_ptr(std::make_unique<Derived>());
+    Nullable<std::unique_ptr<Base>> base_ptr(std::move(derived_ptr));
+    ASSERT_NE(base_ptr, nullptr);
+    EXPECT_EQ(base_ptr->GetName(), "Derived");
+  }
+
+  {
+    Nullable<std::unique_ptr<Derived>> derived_ptr(std::make_unique<Derived>());
+    Nullable<std::unique_ptr<Base>> base_ptr(std::make_unique<Base>());
+    ASSERT_NE(base_ptr, nullptr);
+    EXPECT_EQ(base_ptr->GetName(), "Base");
+    base_ptr = std::move(derived_ptr);
+    ASSERT_NE(base_ptr, nullptr);
+    EXPECT_EQ(base_ptr->GetName(), "Derived");
+  }
+}
+
+TEST(Nullable, SharedPtr) {
+  auto str = std::make_shared<std::string>();
+  Nullable<std::shared_ptr<std::string>> str_ptr(std::move(str));
+  ASSERT_NE(str_ptr, nullptr);
+  str_ptr->append("SharedPtr");
+  EXPECT_EQ(*str_ptr, "SharedPtr");
+
+  Nullable<std::shared_ptr<std::string>> copy_ptr(str_ptr);
+  ASSERT_NE(copy_ptr, nullptr);
+  EXPECT_EQ(*copy_ptr, "SharedPtr");
+
+  Nullable<std::shared_ptr<std::string>> move_ptr(std::move(copy_ptr));
+  ASSERT_NE(move_ptr, nullptr);
+  EXPECT_EQ(*move_ptr, "SharedPtr");
+
+  auto d = std::make_shared<Derived>();
+  Nullable<std::shared_ptr<Base>> base_ptr(std::move(d));
+  ASSERT_NE(base_ptr, nullptr);
+  EXPECT_EQ(base_ptr->GetName(), "Derived");
+
+  Nullable<std::shared_ptr<Base>> base_copy_ptr(base_ptr);
+  ASSERT_NE(base_copy_ptr, nullptr);
+  EXPECT_EQ(base_copy_ptr->GetName(), "Derived");
+
+  auto b = std::make_shared<Base>();
+  Nullable<std::shared_ptr<Base>> base_ptr2(b);
+  ASSERT_NE(base_ptr2, nullptr);
+  EXPECT_EQ(base_ptr2->GetName(), "Base");
+
+  base_ptr2 = base_ptr;
+  ASSERT_NE(base_ptr2, nullptr);
+  EXPECT_EQ(base_ptr2->GetName(), "Derived");
+
+  Nullable<std::shared_ptr<Base>> base_ptr3(b);
+  ASSERT_NE(base_ptr3, nullptr);
+  EXPECT_EQ(base_ptr3->GetName(), "Base");
+
+  base_ptr3 = std::move(base_ptr);
+  ASSERT_NE(base_ptr3, nullptr);
+  EXPECT_EQ(base_ptr3->GetName(), "Derived");
+
+  Nullable<std::shared_ptr<std::string>> null_ptr;
+  ASSERT_EQ(null_ptr, nullptr);
+
+  Nullable<std::shared_ptr<std::string>> null_ptr2(nullptr);
+  ASSERT_EQ(null_ptr2, nullptr);
+
+  null_ptr2 = nullptr;
+  ASSERT_EQ(null_ptr2, nullptr);
+}
+
+TEST(Nullable, SharedPtrBaseDerived) {
+  const auto foo_base = [](Nullable<std::shared_ptr<Base>> b) -> void {
+    ASSERT_NE(b, nullptr);
+    EXPECT_EQ(b->GetName(), "Base");
+  };
+  const auto foo_derived = [](Nullable<std::shared_ptr<Base>> b) -> void {
+    ASSERT_NE(b, nullptr);
+    EXPECT_EQ(b->GetName(), "Derived");
+  };
+  class C {
+   public:
+    C(Nullable<std::shared_ptr<Base>>) {}
+  };
+
+  foo_base(std::make_shared<Base>());
+  { C c(std::make_shared<Base>()); }
+
+  foo_derived(std::make_shared<Derived>());
+  { C c(std::make_shared<Derived>()); }
+
+  {
+    Nullable<std::shared_ptr<Derived>> derived_ptr(std::make_shared<Derived>());
+    Nullable<std::shared_ptr<Base>> base_ptr(derived_ptr);
+    ASSERT_NE(base_ptr, nullptr);
+    EXPECT_EQ(base_ptr->GetName(), "Derived");
+  }
+
+  {
+    Nullable<std::shared_ptr<Derived>> derived_ptr(std::make_shared<Derived>());
+    Nullable<std::shared_ptr<Base>> base_ptr(std::make_shared<Base>());
+    ASSERT_NE(base_ptr, nullptr);
+    EXPECT_EQ(base_ptr->GetName(), "Base");
+    base_ptr = derived_ptr;
+    ASSERT_NE(base_ptr, nullptr);
+    EXPECT_EQ(base_ptr->GetName(), "Derived");
+  }
+
+  {
+    Nullable<std::shared_ptr<Derived>> derived_ptr(std::make_shared<Derived>());
+    Nullable<std::shared_ptr<Base>> base_ptr(std::move(derived_ptr));
+    ASSERT_NE(base_ptr, nullptr);
+    EXPECT_EQ(base_ptr->GetName(), "Derived");
+  }
+
+  {
+    Nullable<std::shared_ptr<Derived>> derived_ptr(std::make_shared<Derived>());
+    Nullable<std::shared_ptr<Base>> base_ptr(std::make_shared<Base>());
+    ASSERT_NE(base_ptr, nullptr);
+    EXPECT_EQ(base_ptr->GetName(), "Base");
+    base_ptr = std::move(derived_ptr);
+    ASSERT_NE(base_ptr, nullptr);
+    EXPECT_EQ(base_ptr->GetName(), "Derived");
+  }
 }
 
 }  // namespace rst

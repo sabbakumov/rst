@@ -156,6 +156,19 @@ int* ptr = nullptr;
 Foo(ptr);  // Debug assert.
 ```
 
+Nullable class that permits a pointer or smart pointer to be nullptr. Must be
+checked for null in order to dereference.
+```cpp
+void Foo(Nullable<int*> ptr) {
+  if (ptr != nullptr)
+    *ptr = 0;  // OK.
+}
+
+void Bar(Nullable<int*> ptr) {
+  *ptr = 0;  // Debug assert.
+}
+```
+
 ## RTTI
   LLVM-like custom RTTI support.
 

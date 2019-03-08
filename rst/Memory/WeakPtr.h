@@ -62,7 +62,7 @@ class WeakPtr {
   WeakPtr(WeakPtr<U>&& rhs)
       : flag_(std::move(rhs.flag_)), ptr_(static_cast<T*>(rhs.ptr_)) {}
 
-  Nullable<T*> get() const { return IsValid() ? ptr_ : nullptr; }
+  T* get() const { return IsValid() ? ptr_ : nullptr; }
 
   T& operator*() const {
     RST_DCHECK(get() != nullptr);
@@ -81,7 +81,7 @@ class WeakPtr {
   bool IsValid() const { return !flag_.expired(); }
 
   std::weak_ptr<internal::Flag> flag_;
-  Nullable<T*> ptr_ = nullptr;
+  T* ptr_ = nullptr;
 };
 
 template <class T>
