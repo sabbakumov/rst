@@ -27,14 +27,11 @@
 
 #include "rst/GUID/GUID.h"
 
-#include <chrono>
 #include <cstddef>
 #include <random>
 
 #include "rst/Check/Check.h"
 #include "rst/NoDestructor/NoDestructor.h"
-
-namespace chrono = std::chrono;
 
 namespace rst {
 namespace {
@@ -71,13 +68,11 @@ bool IsValidGUIDInternal(const std::string_view guid, const bool strict) {
 }  // namespace
 
 std::string GenerateGUID() {
-  static NoDestructor<std::default_random_engine> generator(
-      static_cast<std::default_random_engine::result_type>(
-          chrono::system_clock::now().time_since_epoch().count()));
+  static rst::NoDestructor<std::random_device> random_device;
 
   std::uniform_int_distribution<uint64_t> distribution;
-  uint64_t sixteen_bytes[2] = {distribution(*generator),
-                               distribution(*generator)};
+  uint64_t sixteen_bytes[2] = {distribution(*random_device),
+                               distribution(*random_device)};
 
   // Clear the version bits and set the version to 4:
   sixteen_bytes[0] &= 0xffffffff'ffff0fffULL;
