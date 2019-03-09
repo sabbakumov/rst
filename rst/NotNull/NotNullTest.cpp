@@ -391,40 +391,31 @@ TEST(NotNull, SharedPtrBaseDerived) {
 TEST(Nullable, VoidPtr) {
   std::string str;
   Nullable<void*> void_ptr(&str);
-  ASSERT_NE(void_ptr, nullptr);
   EXPECT_EQ(void_ptr.get(), &str);
 
   Nullable<void*> copy_ptr(void_ptr);
-  ASSERT_NE(copy_ptr, nullptr);
   EXPECT_EQ(copy_ptr.get(), void_ptr.get());
 
   Nullable<void*> move_ptr(std::move(copy_ptr));
-  ASSERT_NE(move_ptr, nullptr);
   EXPECT_EQ(move_ptr.get(), void_ptr.get());
 
   std::string str2;
   Nullable<void*> void_ptr2(&str2);
-  ASSERT_NE(void_ptr2, nullptr);
   EXPECT_NE(void_ptr2.get(), move_ptr.get());
 
   void_ptr2 = move_ptr;
-  ASSERT_NE(void_ptr2, nullptr);
   EXPECT_EQ(void_ptr2.get(), move_ptr.get());
 
   Nullable<void*> void_ptr3(&str2);
-  ASSERT_NE(void_ptr3, nullptr);
   EXPECT_NE(void_ptr3.get(), void_ptr.get());
 
   void_ptr3 = std::move(move_ptr);
-  ASSERT_NE(void_ptr3, nullptr);
   EXPECT_EQ(void_ptr3.get(), void_ptr.get());
 
   Nullable<void*> void_ptr4(&str);
-  ASSERT_NE(void_ptr4, nullptr);
   EXPECT_NE(void_ptr4.get(), &str2);
 
   void_ptr4 = &str2;
-  ASSERT_NE(void_ptr4, nullptr);
   EXPECT_EQ(void_ptr4.get(), &str2);
 }
 
@@ -470,13 +461,13 @@ TEST(Nullable, PlainPtr) {
   EXPECT_EQ(base_ptr3->GetName(), "Derived");
 
   Nullable<void*> null_ptr;
-  ASSERT_EQ(null_ptr, nullptr);
+  EXPECT_EQ(null_ptr, nullptr);
 
   Nullable<void*> null_ptr2(nullptr);
-  ASSERT_EQ(null_ptr2, nullptr);
+  EXPECT_EQ(null_ptr2, nullptr);
 
   null_ptr2 = nullptr;
-  ASSERT_EQ(null_ptr2, nullptr);
+  EXPECT_EQ(null_ptr2, nullptr);
 }
 
 TEST(Nullable, PlainPtrBaseDerived) {
@@ -524,14 +515,14 @@ TEST(Nullable, Crash) {
     std::string array[] = {"a", "b", "c"};
     Nullable<std::string*> ptr(array);
 
-    EXPECT_DEATH((ptr.get()), "");
+    EXPECT_NO_FATAL_FAILURE(ptr.get());
     EXPECT_DEATH((ptr->size()), "");
     EXPECT_DEATH((*ptr), "");
     EXPECT_DEATH((ptr[0]), "");
     EXPECT_DEATH((ptr[1]), "");
 
     ptr = nullptr;
-    ASSERT_EQ(ptr, nullptr);
+    EXPECT_EQ(ptr, nullptr);
 
     EXPECT_NO_FATAL_FAILURE(ptr.get());
     EXPECT_DEATH((ptr->size()), "");
@@ -544,12 +535,12 @@ TEST(Nullable, Crash) {
     auto str = std::make_unique<std::string>("a");
     Nullable<std::unique_ptr<std::string>> ptr(std::move(str));
 
-    EXPECT_DEATH((ptr.get()), "");
+    EXPECT_NO_FATAL_FAILURE(ptr.get());
     EXPECT_DEATH((ptr->size()), "");
     EXPECT_DEATH((*ptr), "");
 
     ptr = nullptr;
-    ASSERT_EQ(ptr, nullptr);
+    EXPECT_EQ(ptr, nullptr);
 
     EXPECT_NO_FATAL_FAILURE(ptr.get());
     EXPECT_DEATH((ptr->size()), "");
@@ -560,12 +551,12 @@ TEST(Nullable, Crash) {
     auto str = std::make_shared<std::string>("a");
     Nullable<std::shared_ptr<std::string>> ptr(std::move(str));
 
-    EXPECT_DEATH((ptr.get()), "");
+    EXPECT_NO_FATAL_FAILURE(ptr.get());
     EXPECT_DEATH((ptr->size()), "");
     EXPECT_DEATH((*ptr), "");
 
     ptr = nullptr;
-    ASSERT_EQ(ptr, nullptr);
+    EXPECT_EQ(ptr, nullptr);
 
     EXPECT_NO_FATAL_FAILURE(ptr.get());
     EXPECT_DEATH((ptr->size()), "");
@@ -674,13 +665,13 @@ TEST(Nullable, UniquePtr) {
   EXPECT_EQ(base_ptr3->GetName(), "Derived");
 
   Nullable<std::unique_ptr<std::string>> null_ptr;
-  ASSERT_EQ(null_ptr, nullptr);
+  EXPECT_EQ(null_ptr, nullptr);
 
   Nullable<std::unique_ptr<std::string>> null_ptr2(nullptr);
-  ASSERT_EQ(null_ptr2, nullptr);
+  EXPECT_EQ(null_ptr2, nullptr);
 
   null_ptr2 = nullptr;
-  ASSERT_EQ(null_ptr2, nullptr);
+  EXPECT_EQ(null_ptr2, nullptr);
 }
 
 TEST(Nullable, UniquePtrBaseDerived) {
@@ -763,13 +754,13 @@ TEST(Nullable, SharedPtr) {
   EXPECT_EQ(base_ptr3->GetName(), "Derived");
 
   Nullable<std::shared_ptr<std::string>> null_ptr;
-  ASSERT_EQ(null_ptr, nullptr);
+  EXPECT_EQ(null_ptr, nullptr);
 
   Nullable<std::shared_ptr<std::string>> null_ptr2(nullptr);
-  ASSERT_EQ(null_ptr2, nullptr);
+  EXPECT_EQ(null_ptr2, nullptr);
 
   null_ptr2 = nullptr;
-  ASSERT_EQ(null_ptr2, nullptr);
+  EXPECT_EQ(null_ptr2, nullptr);
 }
 
 TEST(Nullable, SharedPtrBaseDerived) {

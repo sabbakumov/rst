@@ -36,6 +36,9 @@
 
 namespace rst {
 
+template <class T>
+class Nullable;
+
 // Microsoft GSL-like NotNull class that restricts a pointer or smart pointer to
 // only hold non-null values.
 template <class T>
@@ -50,6 +53,14 @@ class NotNull {
 
   template <class U>
   NotNull(NotNull<U>&& rhs) : NotNull(rhs) {}
+
+  template <class U>
+  NotNull(const Nullable<U>& rhs) : NotNull(rhs.get()) {
+    RST_DCHECK(rhs.was_checked_);
+  }
+
+  template <class U>
+  NotNull(Nullable<U>&& rhs) : NotNull(rhs) {}
 
   NotNull(std::nullptr_t) = delete;
 
@@ -71,6 +82,19 @@ class NotNull {
 
   template <class U>
   NotNull& operator=(NotNull<U>&& rhs) {
+    return *this = rhs;
+  }
+
+  template <class U>
+  NotNull& operator=(const Nullable<U>& rhs) {
+    ptr_ = rhs.get();
+    RST_DCHECK(rhs.was_checked_);
+    RST_DCHECK(ptr_ != nullptr);
+    return *this;
+  }
+
+  template <class U>
+  NotNull& operator=(Nullable<U>&& rhs) {
     return *this = rhs;
   }
 
@@ -106,6 +130,14 @@ class Nullable {
   template <class U>
   Nullable(Nullable<U>&& rhs) : Nullable(rhs) {}
 
+  template <class U>
+  Nullable(const NotNull<U>& rhs) : Nullable(rhs.ptr_) {
+    set_was_checked(true);
+  }
+
+  template <class U>
+  Nullable(NotNull<U>&& rhs) : Nullable(rhs) {}
+
   Nullable(std::nullptr_t) {}
 
   ~Nullable() = default;
@@ -129,29 +161,41 @@ class Nullable {
     return *this = rhs;
   }
 
+  template <class U>
+  Nullable& operator=(const NotNull<U>& rhs) {
+    ptr_ = rhs.ptr_;
+    set_was_checked(true);
+    return *this;
+  }
+
+  template <class U>
+  Nullable& operator=(NotNull<U>&& rhs) {
+    return *this = rhs;
+  }
+
   Nullable& operator=(std::nullptr_t) {
     ptr_ = nullptr;
     set_was_checked(false);
     return *this;
   }
 
-  T get() const {
-    RST_DCHECK(was_checked_);
-    return ptr_;
-  }
+  T get() const { return ptr_; }
 
   T operator->() const {
     const auto p = get();
+    RST_DCHECK(was_checked_);
     RST_DCHECK(p != nullptr);
     return p;
   }
   auto& operator*() const {
     const auto p = get();
+    RST_DCHECK(was_checked_);
     RST_DCHECK(p != nullptr);
     return *p;
   }
   auto& operator[](const size_t i) const {
     const auto p = get();
+    RST_DCHECK(was_checked_);
     RST_DCHECK(p != nullptr);
     const auto ptr = p + i;
     return *ptr;
@@ -162,6 +206,9 @@ class Nullable {
   friend class Nullable;
 
   template <class U>
+  friend class NotNull;
+
+  template <class U>
   friend bool operator==(const Nullable<U>& lhs, std::nullptr_t);
 
   template <class U, class V>
@@ -169,6 +216,9 @@ class Nullable {
 
   template <class U, class V>
   friend bool operator<(const Nullable<U>& lhs, const Nullable<V>& rhs);
+
+  template <class U, class V>
+  friend bool operator==(const Nullable<U>& lhs, V* rhs);
 
 #ifndef NDEBUG
   void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
@@ -195,6 +245,11 @@ class NotNull<std::unique_ptr<T>> {
   template <class U>
   NotNull(NotNull<U>&& rhs) : NotNull(rhs.Take()) {}
 
+  template <class U>
+  NotNull(Nullable<U>&& rhs) : NotNull(rhs.Take()) {
+    RST_DCHECK(rhs.was_checked_);
+  }
+
   NotNull(std::nullptr_t) = delete;
 
   ~NotNull() = default;
@@ -208,6 +263,13 @@ class NotNull<std::unique_ptr<T>> {
 
   template <class U>
   NotNull& operator=(NotNull<U>&& rhs) {
+    ptr_ = rhs.Take();
+    RST_DCHECK(ptr_ != nullptr);
+    return *this;
+  }
+
+  template <class U>
+  NotNull& operator=(Nullable<U>&& rhs) {
     ptr_ = rhs.Take();
     RST_DCHECK(ptr_ != nullptr);
     return *this;
@@ -243,6 +305,11 @@ class Nullable<std::unique_ptr<T>> {
   template <class U>
   Nullable(Nullable<U>&& rhs) : Nullable(rhs.Take()) {}
 
+  template <class U>
+  Nullable(NotNull<U>&& rhs) : Nullable(rhs.Take()) {
+    set_was_checked(true);
+  }
+
   Nullable(std::nullptr_t) {}
 
   ~Nullable() = default;
@@ -261,24 +328,30 @@ class Nullable<std::unique_ptr<T>> {
     return *this;
   }
 
+  template <class U>
+  Nullable& operator=(NotNull<U>&& rhs) {
+    ptr_ = rhs.Take();
+    set_was_checked(true);
+    return *this;
+  }
+
   Nullable& operator=(std::nullptr_t) {
     ptr_ = nullptr;
     set_was_checked(false);
     return *this;
   }
 
-  T* get() const {
-    RST_DCHECK(was_checked_);
-    return ptr_.get();
-  }
+  T* get() const { return ptr_.get(); }
 
   T* operator->() const {
     const auto p = get();
+    RST_DCHECK(was_checked_);
     RST_DCHECK(p != nullptr);
     return p;
   }
   auto& operator*() const {
     const auto p = get();
+    RST_DCHECK(was_checked_);
     RST_DCHECK(p != nullptr);
     return *p;
   }
@@ -287,6 +360,9 @@ class Nullable<std::unique_ptr<T>> {
 
  private:
   template <class U>
+  friend class NotNull;
+
+  template <class U>
   friend bool operator==(const Nullable<U>& lhs, std::nullptr_t);
 
   template <class U, class V>
@@ -294,6 +370,9 @@ class Nullable<std::unique_ptr<T>> {
 
   template <class U, class V>
   friend bool operator<(const Nullable<U>& lhs, const Nullable<V>& rhs);
+
+  template <class U, class V>
+  friend bool operator==(const Nullable<U>& lhs, V* rhs);
 
 #ifndef NDEBUG
   void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
@@ -325,6 +404,17 @@ class NotNull<std::shared_ptr<T>> {
   template <class U>
   NotNull(NotNull<U>&& rhs) : NotNull(rhs.Take()) {}
 
+  template <class U>
+  NotNull(const Nullable<U>& rhs) : ptr_(rhs.ptr_) {
+    RST_DCHECK(rhs.was_checked_);
+    RST_DCHECK(ptr_ != nullptr);
+  }
+
+  template <class U>
+  NotNull(Nullable<U>&& rhs) : NotNull(rhs.Take()) {
+    RST_DCHECK(rhs.was_checked_);
+  }
+
   NotNull(std::nullptr_t) = delete;
 
   ~NotNull() = default;
@@ -346,6 +436,21 @@ class NotNull<std::shared_ptr<T>> {
   template <class U>
   NotNull& operator=(NotNull<U>&& rhs) {
     ptr_ = rhs.Take();
+    RST_DCHECK(ptr_ != nullptr);
+    return *this;
+  }
+
+  template <class U>
+  NotNull& operator=(const Nullable<U>& rhs) {
+    ptr_ = rhs.ptr_;
+    RST_DCHECK(ptr_ != nullptr);
+    return *this;
+  }
+
+  template <class U>
+  NotNull& operator=(Nullable<U>&& rhs) {
+    ptr_ = rhs.Take();
+    RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
 
@@ -385,6 +490,16 @@ class Nullable<std::shared_ptr<T>> {
   template <class U>
   Nullable(Nullable<U>&& rhs) : Nullable(rhs.Take()) {}
 
+  template <class U>
+  Nullable(const NotNull<U>& rhs) : ptr_(rhs.ptr_) {
+    set_was_checked(true);
+  }
+
+  template <class U>
+  Nullable(NotNull<U>&& rhs) : Nullable(rhs.Take()) {
+    set_was_checked(true);
+  }
+
   Nullable(std::nullptr_t) {}
 
   ~Nullable() = default;
@@ -416,18 +531,17 @@ class Nullable<std::shared_ptr<T>> {
     return *this;
   }
 
-  T* get() const {
-    RST_DCHECK(was_checked_);
-    return ptr_.get();
-  }
+  T* get() const { return ptr_.get(); }
 
   T* operator->() const {
     const auto p = get();
+    RST_DCHECK(was_checked_);
     RST_DCHECK(p != nullptr);
     return p;
   }
   auto& operator*() const {
     const auto p = get();
+    RST_DCHECK(was_checked_);
     RST_DCHECK(p != nullptr);
     return *p;
   }
@@ -439,6 +553,9 @@ class Nullable<std::shared_ptr<T>> {
   friend class Nullable;
 
   template <class U>
+  friend class NotNull;
+
+  template <class U>
   friend bool operator==(const Nullable<U>& lhs, std::nullptr_t);
 
   template <class U, class V>
@@ -446,6 +563,9 @@ class Nullable<std::shared_ptr<T>> {
 
   template <class U, class V>
   friend bool operator<(const Nullable<U>& lhs, const Nullable<V>& rhs);
+
+  template <class U, class V>
+  friend bool operator==(const Nullable<U>& lhs, V* rhs);
 
 #ifndef NDEBUG
   void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
@@ -510,6 +630,26 @@ bool operator!=(const Nullable<T>& lhs, const Nullable<U>& rhs) {
 template <class T, class U>
 bool operator<(const Nullable<T>& lhs, const Nullable<U>& rhs) {
   return lhs.ptr_ < rhs.ptr_;
+}
+
+template <class T, class U>
+bool operator==(const Nullable<T>& lhs, U* rhs) {
+  return lhs.ptr_ == rhs;
+}
+
+template <class T, class U>
+bool operator==(U* lhs, const Nullable<T>& rhs) {
+  return rhs == lhs;
+}
+
+template <class T, class U>
+bool operator!=(const Nullable<T>& lhs, U* rhs) {
+  return !(lhs == rhs);
+}
+
+template <class T, class U>
+bool operator!=(U* lhs, const Nullable<T>& rhs) {
+  return !(rhs == lhs);
 }
 
 }  // namespace rst

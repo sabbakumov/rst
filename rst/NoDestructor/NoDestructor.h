@@ -61,6 +61,9 @@ class NoDestructor {
 
  private:
   alignas(T) char storage_[sizeof(T)];
+#if defined(__has_feature) && __has_feature(address_sanitizer)
+  const T* storage_ptr_ = reinterpret_cast<const T*>(storage_);
+#endif  // defined(__has_feature) && __has_feature(address_sanitizer)
 
   RST_DISALLOW_COPY_AND_ASSIGN(NoDestructor);
 };
