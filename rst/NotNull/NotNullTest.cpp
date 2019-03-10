@@ -303,6 +303,15 @@ TEST(NotNull, Operators) {
     EXPECT_EQ(int_ptr[0], array[0]);
     EXPECT_EQ(int_ptr[1], array[1]);
     EXPECT_EQ(int_ptr[2], array[2]);
+
+    std::string str2;
+    NotNull<std::string*> str_ptr2(&str2);
+    EXPECT_NE(str_ptr, str_ptr2);
+    EXPECT_NE(str_ptr2, str_ptr);
+
+    NotNull<std::string*> str_ptr3(&str);
+    EXPECT_EQ(str_ptr, str_ptr3);
+    EXPECT_EQ(str_ptr3, str_ptr);
   }
 
   {
@@ -326,6 +335,15 @@ TEST(NotNull, Operators) {
     EXPECT_EQ(int_ptr[0], array[0]);
     EXPECT_EQ(int_ptr[1], array[1]);
     EXPECT_EQ(int_ptr[2], array[2]);
+
+    std::string str2;
+    const NotNull<std::string*> str_ptr2(&str2);
+    EXPECT_NE(str_ptr, str_ptr2);
+    EXPECT_NE(str_ptr2, str_ptr);
+
+    const NotNull<std::string*> str_ptr3(&str);
+    EXPECT_EQ(str_ptr, str_ptr3);
+    EXPECT_EQ(str_ptr3, str_ptr);
   }
 
   {
@@ -758,6 +776,27 @@ TEST(Nullable, Operators) {
     EXPECT_EQ(int_ptr[0], array[0]);
     EXPECT_EQ(int_ptr[1], array[1]);
     EXPECT_EQ(int_ptr[2], array[2]);
+
+    EXPECT_NE(str_ptr, nullptr);
+    EXPECT_NE(nullptr, str_ptr);
+
+    Nullable<std::string*> str_ptr2;
+    EXPECT_EQ(str_ptr2, nullptr);
+    EXPECT_EQ(nullptr, str_ptr2);
+
+    Nullable<std::string*> str_ptr3(&str);
+    EXPECT_EQ(str_ptr, str_ptr3);
+    EXPECT_EQ(str_ptr3, str_ptr);
+
+    EXPECT_NE(str_ptr2, str_ptr3);
+    EXPECT_NE(str_ptr3, str_ptr2);
+
+    std::string str2;
+    EXPECT_EQ(str_ptr, &str);
+    EXPECT_EQ(&str, str_ptr);
+
+    EXPECT_NE(str_ptr, &str2);
+    EXPECT_NE(&str2, str_ptr);
   }
 
   {
@@ -783,6 +822,27 @@ TEST(Nullable, Operators) {
     EXPECT_EQ(int_ptr[0], array[0]);
     EXPECT_EQ(int_ptr[1], array[1]);
     EXPECT_EQ(int_ptr[2], array[2]);
+
+    EXPECT_NE(str_ptr, nullptr);
+    EXPECT_NE(nullptr, str_ptr);
+
+    const Nullable<std::string*> str_ptr2;
+    EXPECT_EQ(str_ptr2, nullptr);
+    EXPECT_EQ(nullptr, str_ptr2);
+
+    const Nullable<std::string*> str_ptr3(&str);
+    EXPECT_EQ(str_ptr, str_ptr3);
+    EXPECT_EQ(str_ptr3, str_ptr);
+
+    EXPECT_NE(str_ptr2, str_ptr3);
+    EXPECT_NE(str_ptr3, str_ptr2);
+
+    std::string str2;
+    EXPECT_EQ(str_ptr, &str);
+    EXPECT_EQ(&str, str_ptr);
+
+    EXPECT_NE(str_ptr, &str2);
+    EXPECT_NE(&str2, str_ptr);
   }
 
   {
