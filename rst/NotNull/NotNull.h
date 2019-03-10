@@ -120,12 +120,6 @@ class NotNull {
   template <class U>
   friend class Nullable;
 
-  template <class U, class V>
-  friend bool operator==(const NotNull<U>& lhs, const NotNull<V>& rhs);
-
-  template <class U, class V>
-  friend bool operator<(const NotNull<U>& lhs, const NotNull<V>& rhs);
-
   T ptr_;
 };
 
@@ -222,15 +216,6 @@ class Nullable {
 
   template <class U>
   friend bool operator==(const Nullable<U>& lhs, std::nullptr_t);
-
-  template <class U, class V>
-  friend bool operator==(const Nullable<U>& lhs, const Nullable<V>& rhs);
-
-  template <class U, class V>
-  friend bool operator<(const Nullable<U>& lhs, const Nullable<V>& rhs);
-
-  template <class U, class V>
-  friend bool operator==(const Nullable<U>& lhs, V* rhs);
 
 #ifndef NDEBUG
   void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
@@ -377,15 +362,6 @@ class Nullable<std::unique_ptr<T>> {
 
   template <class U>
   friend bool operator==(const Nullable<U>& lhs, std::nullptr_t);
-
-  template <class U, class V>
-  friend bool operator==(const Nullable<U>& lhs, const Nullable<V>& rhs);
-
-  template <class U, class V>
-  friend bool operator<(const Nullable<U>& lhs, const Nullable<V>& rhs);
-
-  template <class U, class V>
-  friend bool operator==(const Nullable<U>& lhs, V* rhs);
 
 #ifndef NDEBUG
   void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
@@ -573,15 +549,6 @@ class Nullable<std::shared_ptr<T>> {
   template <class U>
   friend bool operator==(const Nullable<U>& lhs, std::nullptr_t);
 
-  template <class U, class V>
-  friend bool operator==(const Nullable<U>& lhs, const Nullable<V>& rhs);
-
-  template <class U, class V>
-  friend bool operator<(const Nullable<U>& lhs, const Nullable<V>& rhs);
-
-  template <class U, class V>
-  friend bool operator==(const Nullable<U>& lhs, V* rhs);
-
 #ifndef NDEBUG
   void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
 #else   // NDEBUG
@@ -596,7 +563,7 @@ class Nullable<std::shared_ptr<T>> {
 
 template <class T, class U>
 bool operator==(const NotNull<T>& lhs, const NotNull<U>& rhs) {
-  return lhs.ptr_ == rhs.ptr_;
+  return lhs.get() == rhs.get();
 }
 
 template <class T, class U>
@@ -606,7 +573,7 @@ bool operator!=(const NotNull<T>& lhs, const NotNull<U>& rhs) {
 
 template <class T, class U>
 bool operator<(const NotNull<T>& lhs, const NotNull<U>& rhs) {
-  return lhs.ptr_ < rhs.ptr_;
+  return lhs.get() < rhs.get();
 }
 
 template <class T>
@@ -634,7 +601,7 @@ bool operator!=(std::nullptr_t, const Nullable<T>& rhs) {
 
 template <class T, class U>
 bool operator==(const Nullable<T>& lhs, const Nullable<U>& rhs) {
-  return lhs.ptr_ == rhs.ptr_;
+  return lhs.get() == rhs.get();
 }
 
 template <class T, class U>
@@ -644,12 +611,12 @@ bool operator!=(const Nullable<T>& lhs, const Nullable<U>& rhs) {
 
 template <class T, class U>
 bool operator<(const Nullable<T>& lhs, const Nullable<U>& rhs) {
-  return lhs.ptr_ < rhs.ptr_;
+  return lhs.get() < rhs.get();
 }
 
 template <class T, class U>
 bool operator==(const Nullable<T>& lhs, U* rhs) {
-  return lhs.ptr_ == rhs;
+  return lhs.get() == rhs;
 }
 
 template <class T, class U>
