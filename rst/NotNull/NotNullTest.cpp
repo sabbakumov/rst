@@ -116,6 +116,34 @@ TEST(NotNull, PlainPtr) {
   EXPECT_EQ(base_ptr3->GetName(), "Derived");
 }
 
+TEST(NotNull, PlainPtrNullable) {
+  std::string str;
+  std::string str2;
+
+  Nullable<std::string*> nullable(&str);
+  EXPECT_NE(nullable, nullptr);
+
+  Nullable<std::string*> nullable2(&str2);
+  EXPECT_NE(nullable2, nullptr);
+
+  {
+    NotNull<std::string*> ptr(nullable);
+    EXPECT_EQ(ptr.get(), nullable.get());
+
+    ptr = nullable2;
+    EXPECT_EQ(ptr.get(), nullable2.get());
+  }
+  {
+    const auto prev_ptr = nullable.get();
+    NotNull<std::string*> ptr(std::move(nullable));
+    EXPECT_EQ(ptr.get(), prev_ptr);
+
+    const auto prev_ptr2 = nullable2.get();
+    ptr = std::move(nullable2);
+    EXPECT_EQ(ptr.get(), prev_ptr2);
+  }
+}
+
 TEST(NotNull, PlainPtrBaseDerived) {
   const auto foo_base = [](NotNull<Base*> b) -> void {
     EXPECT_EQ(b->GetName(), "Base");
@@ -160,6 +188,22 @@ TEST(NotNull, Crash) {
 
     NotNull<std::string*> str_ptr(&str);
     EXPECT_DEATH(str_ptr = p, "");
+
+    Nullable<std::string*> nullable(&str);
+    EXPECT_DEATH((NotNull<std::string*>(nullable)), "");
+    EXPECT_DEATH((str_ptr = nullable), "");
+    EXPECT_DEATH((NotNull<std::string*>(std::move(nullable))), "");
+    Nullable<std::string*> nullable1(&str);
+    EXPECT_DEATH((str_ptr = std::move(nullable1)), "");
+
+    Nullable<std::string*> nullable2;
+    EXPECT_EQ(nullable2, nullptr);
+    EXPECT_DEATH((NotNull<std::string*>(nullable)), "");
+    EXPECT_DEATH((str_ptr = nullable2), "");
+    EXPECT_DEATH((NotNull<std::string*>(std::move(nullable))), "");
+    Nullable<std::string*> nullable3;
+    EXPECT_EQ(nullable3, nullptr);
+    EXPECT_DEATH((str_ptr = std::move(nullable3)), "");
   }
 
   {
@@ -170,6 +214,24 @@ TEST(NotNull, Crash) {
 
     NotNull<std::unique_ptr<std::string>> str_ptr(std::move(str));
     EXPECT_DEATH(str_ptr = std::move(p), "");
+
+    Nullable<std::unique_ptr<std::string>> nullable(
+        std::make_unique<std::string>());
+    EXPECT_DEATH((NotNull<std::unique_ptr<std::string>>(std::move(nullable))),
+                 "");
+
+    Nullable<std::unique_ptr<std::string>> nullable2(
+        std::make_unique<std::string>());
+    EXPECT_DEATH((str_ptr = std::move(nullable2)), "");
+
+    Nullable<std::unique_ptr<std::string>> nullable3;
+    EXPECT_EQ(nullable3, nullptr);
+    EXPECT_DEATH((NotNull<std::unique_ptr<std::string>>(std::move(nullable3))),
+                 "");
+
+    Nullable<std::unique_ptr<std::string>> nullable4;
+    EXPECT_EQ(nullable4, nullptr);
+    EXPECT_DEATH((str_ptr = std::move(nullable4)), "");
   }
 
   {
@@ -180,6 +242,26 @@ TEST(NotNull, Crash) {
 
     NotNull<std::shared_ptr<std::string>> str_ptr(std::move(str));
     EXPECT_DEATH(str_ptr = std::move(p), "");
+
+    Nullable<std::shared_ptr<std::string>> nullable(
+        std::make_shared<std::string>());
+    EXPECT_DEATH((NotNull<std::shared_ptr<std::string>>(nullable)), "");
+    EXPECT_DEATH((str_ptr = nullable), "");
+    EXPECT_DEATH((NotNull<std::shared_ptr<std::string>>(std::move(nullable))),
+                 "");
+    Nullable<std::shared_ptr<std::string>> nullable1(
+        std::make_shared<std::string>());
+    EXPECT_DEATH((str_ptr = std::move(nullable1)), "");
+
+    Nullable<std::shared_ptr<std::string>> nullable2;
+    EXPECT_EQ(nullable2, nullptr);
+    EXPECT_DEATH((NotNull<std::shared_ptr<std::string>>(nullable)), "");
+    EXPECT_DEATH((str_ptr = nullable2), "");
+    EXPECT_DEATH((NotNull<std::shared_ptr<std::string>>(std::move(nullable))),
+                 "");
+    Nullable<std::shared_ptr<std::string>> nullable3;
+    EXPECT_EQ(nullable3, nullptr);
+    EXPECT_DEATH((str_ptr = std::move(nullable3)), "");
   }
 }
 
@@ -275,6 +357,26 @@ TEST(NotNull, UniquePtr) {
   EXPECT_EQ(base_ptr3->GetName(), "Derived");
 }
 
+TEST(NotNull, UniquePtrNullable) {
+  Nullable<std::unique_ptr<std::string>> nullable(
+      std::make_unique<std::string>());
+  EXPECT_NE(nullable, nullptr);
+
+  Nullable<std::unique_ptr<std::string>> nullable2(
+      std::make_unique<std::string>());
+  EXPECT_NE(nullable2, nullptr);
+
+  {
+    const auto prev_ptr = nullable.get();
+    NotNull<std::unique_ptr<std::string>> ptr(std::move(nullable));
+    EXPECT_EQ(ptr.get(), prev_ptr);
+
+    const auto prev_ptr2 = nullable2.get();
+    ptr = std::move(nullable2);
+    EXPECT_EQ(ptr.get(), prev_ptr2);
+  }
+}
+
 TEST(NotNull, UniquePtrBaseDerived) {
   const auto foo_base = [](NotNull<std::unique_ptr<Base>> b) -> void {
     EXPECT_EQ(b->GetName(), "Base");
@@ -339,6 +441,33 @@ TEST(NotNull, SharedPtr) {
 
   base_ptr3 = std::move(base_ptr);
   EXPECT_EQ(base_ptr3->GetName(), "Derived");
+}
+
+TEST(NotNull, SharedPtrNullable) {
+  Nullable<std::shared_ptr<std::string>> nullable(
+      std::make_shared<std::string>());
+  EXPECT_NE(nullable, nullptr);
+
+  Nullable<std::shared_ptr<std::string>> nullable2(
+      std::make_shared<std::string>());
+  EXPECT_NE(nullable2, nullptr);
+
+  {
+    NotNull<std::shared_ptr<std::string>> ptr(nullable);
+    EXPECT_EQ(ptr.get(), nullable.get());
+
+    ptr = nullable2;
+    EXPECT_EQ(ptr.get(), nullable2.get());
+  }
+  {
+    const auto prev_ptr = nullable.get();
+    NotNull<std::shared_ptr<std::string>> ptr(std::move(nullable));
+    EXPECT_EQ(ptr.get(), prev_ptr);
+
+    const auto prev_ptr2 = nullable2.get();
+    ptr = std::move(nullable2);
+    EXPECT_EQ(ptr.get(), prev_ptr2);
+  }
 }
 
 TEST(NotNull, SharedPtrBaseDerived) {
@@ -468,6 +597,31 @@ TEST(Nullable, PlainPtr) {
 
   null_ptr2 = nullptr;
   EXPECT_EQ(null_ptr2, nullptr);
+}
+
+TEST(Nullable, PlainPtrNotNull) {
+  std::string str;
+  std::string str2;
+
+  NotNull<std::string*> not_null(&str);
+  NotNull<std::string*> not_null2(&str2);
+
+  {
+    Nullable<std::string*> ptr(not_null);
+    EXPECT_EQ(ptr.get(), not_null.get());
+
+    ptr = not_null2;
+    EXPECT_EQ(ptr.get(), not_null2.get());
+  }
+  {
+    const auto prev_ptr = not_null.get();
+    Nullable<std::string*> ptr(std::move(not_null));
+    EXPECT_EQ(ptr.get(), prev_ptr);
+
+    const auto prev_ptr2 = not_null2.get();
+    ptr = std::move(not_null2);
+    EXPECT_EQ(ptr.get(), prev_ptr2);
+  }
 }
 
 TEST(Nullable, PlainPtrBaseDerived) {
@@ -674,6 +828,23 @@ TEST(Nullable, UniquePtr) {
   EXPECT_EQ(null_ptr2, nullptr);
 }
 
+TEST(Nullable, UniquePtrNotNull) {
+  NotNull<std::unique_ptr<std::string>> not_null(
+      std::make_unique<std::string>());
+  NotNull<std::unique_ptr<std::string>> not_null2(
+      std::make_unique<std::string>());
+
+  {
+    const auto prev_ptr = not_null.get();
+    Nullable<std::unique_ptr<std::string>> ptr(std::move(not_null));
+    EXPECT_EQ(ptr.get(), prev_ptr);
+
+    const auto prev_ptr2 = not_null2.get();
+    ptr = std::move(not_null2);
+    EXPECT_EQ(ptr.get(), prev_ptr2);
+  }
+}
+
 TEST(Nullable, UniquePtrBaseDerived) {
   const auto foo_base = [](Nullable<std::unique_ptr<Base>> b) -> void {
     ASSERT_NE(b, nullptr);
@@ -761,6 +932,30 @@ TEST(Nullable, SharedPtr) {
 
   null_ptr2 = nullptr;
   EXPECT_EQ(null_ptr2, nullptr);
+}
+
+TEST(Nullable, SharedPtrNotNull) {
+  NotNull<std::shared_ptr<std::string>> not_null(
+      std::make_shared<std::string>());
+  NotNull<std::shared_ptr<std::string>> not_null2(
+      std::make_shared<std::string>());
+
+  {
+    Nullable<std::shared_ptr<std::string>> ptr(not_null);
+    EXPECT_EQ(ptr.get(), not_null.get());
+
+    ptr = not_null2;
+    EXPECT_EQ(ptr.get(), not_null2.get());
+  }
+  {
+    const auto prev_ptr = not_null.get();
+    Nullable<std::shared_ptr<std::string>> ptr(std::move(not_null));
+    EXPECT_EQ(ptr.get(), prev_ptr);
+
+    const auto prev_ptr2 = not_null2.get();
+    ptr = std::move(not_null2);
+    EXPECT_EQ(ptr.get(), prev_ptr2);
+  }
 }
 
 TEST(Nullable, SharedPtrBaseDerived) {

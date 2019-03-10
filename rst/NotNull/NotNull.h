@@ -49,13 +49,13 @@ class NotNull {
   NotNull(T ptr) : ptr_(ptr) { RST_DCHECK(ptr_ != nullptr); }
 
   template <class U>
-  NotNull(const NotNull<U>& rhs) : NotNull(rhs.get()) {}
+  NotNull(const NotNull<U>& rhs) : NotNull(rhs.ptr_) {}
 
   template <class U>
   NotNull(NotNull<U>&& rhs) : NotNull(rhs) {}
 
   template <class U>
-  NotNull(const Nullable<U>& rhs) : NotNull(rhs.get()) {
+  NotNull(const Nullable<U>& rhs) : NotNull(rhs.ptr_) {
     RST_DCHECK(rhs.was_checked_);
   }
 
@@ -75,7 +75,7 @@ class NotNull {
 
   template <class U>
   NotNull& operator=(const NotNull<U>& rhs) {
-    ptr_ = rhs.get();
+    ptr_ = rhs.ptr_;
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
@@ -87,7 +87,7 @@ class NotNull {
 
   template <class U>
   NotNull& operator=(const Nullable<U>& rhs) {
-    ptr_ = rhs.get();
+    ptr_ = rhs.ptr_;
     RST_DCHECK(rhs.was_checked_);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
@@ -114,6 +114,18 @@ class NotNull {
   }
 
  private:
+  template <class U>
+  friend class NotNull;
+
+  template <class U>
+  friend class Nullable;
+
+  template <class U, class V>
+  friend bool operator==(const NotNull<U>& lhs, const NotNull<V>& rhs);
+
+  template <class U, class V>
+  friend bool operator<(const NotNull<U>& lhs, const NotNull<V>& rhs);
+
   T ptr_;
 };
 
@@ -271,6 +283,7 @@ class NotNull<std::unique_ptr<T>> {
   template <class U>
   NotNull& operator=(Nullable<U>&& rhs) {
     ptr_ = rhs.Take();
+    RST_DCHECK(rhs.was_checked_);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
@@ -397,17 +410,14 @@ class NotNull<std::shared_ptr<T>> {
   }
 
   template <class U>
-  NotNull(const NotNull<U>& rhs) : ptr_(rhs.ptr_) {
-    RST_DCHECK(ptr_ != nullptr);
-  }
+  NotNull(const NotNull<U>& rhs) : NotNull(rhs.ptr_) {}
 
   template <class U>
   NotNull(NotNull<U>&& rhs) : NotNull(rhs.Take()) {}
 
   template <class U>
-  NotNull(const Nullable<U>& rhs) : ptr_(rhs.ptr_) {
+  NotNull(const Nullable<U>& rhs) : NotNull(rhs.ptr_) {
     RST_DCHECK(rhs.was_checked_);
-    RST_DCHECK(ptr_ != nullptr);
   }
 
   template <class U>
@@ -443,6 +453,7 @@ class NotNull<std::shared_ptr<T>> {
   template <class U>
   NotNull& operator=(const Nullable<U>& rhs) {
     ptr_ = rhs.ptr_;
+    RST_DCHECK(rhs.was_checked_);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
@@ -450,6 +461,7 @@ class NotNull<std::shared_ptr<T>> {
   template <class U>
   NotNull& operator=(Nullable<U>&& rhs) {
     ptr_ = rhs.Take();
+    RST_DCHECK(rhs.was_checked_);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
@@ -472,6 +484,9 @@ class NotNull<std::shared_ptr<T>> {
  private:
   template <class U>
   friend class NotNull;
+
+  template <class U>
+  friend class Nullable;
 
   std::shared_ptr<T> ptr_;
 };
@@ -581,7 +596,7 @@ class Nullable<std::shared_ptr<T>> {
 
 template <class T, class U>
 bool operator==(const NotNull<T>& lhs, const NotNull<U>& rhs) {
-  return lhs.get() == rhs.get();
+  return lhs.ptr_ == rhs.ptr_;
 }
 
 template <class T, class U>
@@ -591,7 +606,7 @@ bool operator!=(const NotNull<T>& lhs, const NotNull<U>& rhs) {
 
 template <class T, class U>
 bool operator<(const NotNull<T>& lhs, const NotNull<U>& rhs) {
-  return lhs.get() < rhs.get();
+  return lhs.ptr_ < rhs.ptr_;
 }
 
 template <class T>
