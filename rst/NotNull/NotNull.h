@@ -49,18 +49,18 @@ class NotNull {
   NotNull(T ptr) : ptr_(ptr) { RST_DCHECK(ptr_ != nullptr); }
 
   template <class U>
-  NotNull(const NotNull<U>& rhs) : NotNull(rhs.ptr_) {}
+  NotNull(const NotNull<U>& other) : NotNull(other.ptr_) {}
 
   template <class U>
-  NotNull(NotNull<U>&& rhs) : NotNull(rhs) {}
+  NotNull(NotNull<U>&& other) : NotNull(other) {}
 
   template <class U>
-  NotNull(const Nullable<U>& rhs) : NotNull(rhs.ptr_) {
-    RST_DCHECK(rhs.was_checked_);
+  NotNull(const Nullable<U>& nullable) : NotNull(nullable.ptr_) {
+    RST_DCHECK(nullable.was_checked_);
   }
 
   template <class U>
-  NotNull(Nullable<U>&& rhs) : NotNull(rhs) {}
+  NotNull(Nullable<U>&& nullable) : NotNull(nullable) {}
 
   NotNull(std::nullptr_t) = delete;
 
@@ -86,16 +86,16 @@ class NotNull {
   }
 
   template <class U>
-  NotNull& operator=(const Nullable<U>& rhs) {
-    ptr_ = rhs.ptr_;
-    RST_DCHECK(rhs.was_checked_);
+  NotNull& operator=(const Nullable<U>& nullable) {
+    ptr_ = nullable.ptr_;
+    RST_DCHECK(nullable.was_checked_);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
 
   template <class U>
-  NotNull& operator=(Nullable<U>&& rhs) {
-    return *this = rhs;
+  NotNull& operator=(Nullable<U>&& nullable) {
+    return *this = nullable;
   }
 
   NotNull& operator=(std::nullptr_t) = delete;
@@ -131,18 +131,18 @@ class Nullable {
   Nullable(T ptr) : ptr_(ptr) {}
 
   template <class U>
-  Nullable(const Nullable<U>& rhs) : Nullable(rhs.ptr_) {}
+  Nullable(const Nullable<U>& other) : Nullable(other.ptr_) {}
 
   template <class U>
-  Nullable(Nullable<U>&& rhs) : Nullable(rhs) {}
+  Nullable(Nullable<U>&& other) : Nullable(other) {}
 
   template <class U>
-  Nullable(const NotNull<U>& rhs) : Nullable(rhs.ptr_) {
+  Nullable(const NotNull<U>& not_null) : Nullable(not_null.ptr_) {
     set_was_checked(true);
   }
 
   template <class U>
-  Nullable(NotNull<U>&& rhs) : Nullable(rhs) {}
+  Nullable(NotNull<U>&& not_null) : Nullable(not_null) {}
 
   Nullable(std::nullptr_t) {}
 
@@ -168,15 +168,15 @@ class Nullable {
   }
 
   template <class U>
-  Nullable& operator=(const NotNull<U>& rhs) {
-    ptr_ = rhs.ptr_;
+  Nullable& operator=(const NotNull<U>& not_null) {
+    ptr_ = not_null.ptr_;
     set_was_checked(true);
     return *this;
   }
 
   template <class U>
-  Nullable& operator=(NotNull<U>&& rhs) {
-    return *this = rhs;
+  Nullable& operator=(NotNull<U>&& not_null) {
+    return *this = not_null;
   }
 
   Nullable& operator=(std::nullptr_t) {
@@ -240,11 +240,11 @@ class NotNull<std::unique_ptr<T>> {
   }
 
   template <class U>
-  NotNull(NotNull<U>&& rhs) : NotNull(rhs.Take()) {}
+  NotNull(NotNull<U>&& other) : NotNull(other.Take()) {}
 
   template <class U>
-  NotNull(Nullable<U>&& rhs) : NotNull(rhs.Take()) {
-    RST_DCHECK(rhs.was_checked_);
+  NotNull(Nullable<U>&& nullable) : NotNull(nullable.Take()) {
+    RST_DCHECK(nullable.was_checked_);
   }
 
   NotNull(std::nullptr_t) = delete;
@@ -266,9 +266,9 @@ class NotNull<std::unique_ptr<T>> {
   }
 
   template <class U>
-  NotNull& operator=(Nullable<U>&& rhs) {
-    ptr_ = rhs.Take();
-    RST_DCHECK(rhs.was_checked_);
+  NotNull& operator=(Nullable<U>&& nullable) {
+    ptr_ = nullable.Take();
+    RST_DCHECK(nullable.was_checked_);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
@@ -301,10 +301,10 @@ class Nullable<std::unique_ptr<T>> {
   Nullable(std::unique_ptr<U> ptr) : ptr_(std::move(ptr)) {}
 
   template <class U>
-  Nullable(Nullable<U>&& rhs) : Nullable(rhs.Take()) {}
+  Nullable(Nullable<U>&& other) : Nullable(other.Take()) {}
 
   template <class U>
-  Nullable(NotNull<U>&& rhs) : Nullable(rhs.Take()) {
+  Nullable(NotNull<U>&& not_null) : Nullable(not_null.Take()) {
     set_was_checked(true);
   }
 
@@ -327,8 +327,8 @@ class Nullable<std::unique_ptr<T>> {
   }
 
   template <class U>
-  Nullable& operator=(NotNull<U>&& rhs) {
-    ptr_ = rhs.Take();
+  Nullable& operator=(NotNull<U>&& not_null) {
+    ptr_ = not_null.Take();
     set_was_checked(true);
     return *this;
   }
@@ -386,19 +386,19 @@ class NotNull<std::shared_ptr<T>> {
   }
 
   template <class U>
-  NotNull(const NotNull<U>& rhs) : NotNull(rhs.ptr_) {}
+  NotNull(const NotNull<U>& other) : NotNull(other.ptr_) {}
 
   template <class U>
-  NotNull(NotNull<U>&& rhs) : NotNull(rhs.Take()) {}
+  NotNull(NotNull<U>&& other) : NotNull(other.Take()) {}
 
   template <class U>
-  NotNull(const Nullable<U>& rhs) : NotNull(rhs.ptr_) {
-    RST_DCHECK(rhs.was_checked_);
+  NotNull(const Nullable<U>& nullable) : NotNull(nullable.ptr_) {
+    RST_DCHECK(nullable.was_checked_);
   }
 
   template <class U>
-  NotNull(Nullable<U>&& rhs) : NotNull(rhs.Take()) {
-    RST_DCHECK(rhs.was_checked_);
+  NotNull(Nullable<U>&& nullable) : NotNull(nullable.Take()) {
+    RST_DCHECK(nullable.was_checked_);
   }
 
   NotNull(std::nullptr_t) = delete;
@@ -427,17 +427,17 @@ class NotNull<std::shared_ptr<T>> {
   }
 
   template <class U>
-  NotNull& operator=(const Nullable<U>& rhs) {
-    ptr_ = rhs.ptr_;
-    RST_DCHECK(rhs.was_checked_);
+  NotNull& operator=(const Nullable<U>& nullable) {
+    ptr_ = nullable.ptr_;
+    RST_DCHECK(nullable.was_checked_);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
 
   template <class U>
-  NotNull& operator=(Nullable<U>&& rhs) {
-    ptr_ = rhs.Take();
-    RST_DCHECK(rhs.was_checked_);
+  NotNull& operator=(Nullable<U>&& nullable) {
+    ptr_ = nullable.Take();
+    RST_DCHECK(nullable.was_checked_);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
@@ -476,18 +476,18 @@ class Nullable<std::shared_ptr<T>> {
   Nullable(std::shared_ptr<U> ptr) : ptr_(std::move(ptr)) {}
 
   template <class U>
-  Nullable(const Nullable<U>& rhs) : ptr_(rhs.ptr_) {}
+  Nullable(const Nullable<U>& other) : ptr_(other.ptr_) {}
 
   template <class U>
-  Nullable(Nullable<U>&& rhs) : Nullable(rhs.Take()) {}
+  Nullable(Nullable<U>&& other) : Nullable(other.Take()) {}
 
   template <class U>
-  Nullable(const NotNull<U>& rhs) : ptr_(rhs.ptr_) {
+  Nullable(const NotNull<U>& not_null) : ptr_(not_null.ptr_) {
     set_was_checked(true);
   }
 
   template <class U>
-  Nullable(NotNull<U>&& rhs) : Nullable(rhs.Take()) {
+  Nullable(NotNull<U>&& not_null) : Nullable(not_null.Take()) {
     set_was_checked(true);
   }
 

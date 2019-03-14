@@ -42,10 +42,10 @@ namespace rst {
 template <class T>
 class [[nodiscard]] StatusOr {
  public:
-  StatusOr(StatusOr && rhs)
-      : status_(std::move(rhs.status_)), value_(std::move(rhs.value_)) {
+  StatusOr(StatusOr && other)
+      : status_(std::move(other.status_)), value_(std::move(other.value_)) {
     RST_DCHECK(value_.has_value() ? (status_.error_ == nullptr) : true);
-    rhs.set_was_checked(true);
+    other.set_was_checked(true);
   }
 
   StatusOr(const T& value) { Construct(value); }

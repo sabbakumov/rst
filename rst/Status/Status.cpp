@@ -53,9 +53,9 @@ Status::Status(NotNull<std::unique_ptr<internal::ErrorInfoBase>> error)
   RST_DCHECK(error_ != nullptr);
 }
 
-Status::Status(Status&& rhs) {
-  error_ = std::move(rhs.error_);
-  rhs.set_was_checked(true);
+Status::Status(Status&& other) {
+  error_ = std::move(other.error_);
+  other.set_was_checked(true);
 }
 
 Status& Status::operator=(Status&& rhs) {

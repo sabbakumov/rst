@@ -49,14 +49,14 @@ class [[nodiscard]] optional {
   // Allows implicit conversion from T.
   optional(T && value) : value_(std::move(value)), is_valid_(true) {}
 
-  optional(const optional& rhs) : is_valid_(rhs.is_valid_) {
+  optional(const optional& other) : is_valid_(other.is_valid_) {
     if (is_valid_)
-      Construct(rhs.value_);
+      Construct(other.value_);
   }
 
-  optional(optional && rhs) : is_valid_(rhs.is_valid_) {
+  optional(optional && other) : is_valid_(other.is_valid_) {
     if (is_valid_)
-      Construct(std::move(rhs.value_));
+      Construct(std::move(other.value_));
   }
 
   // Allows implicit conversion from nullopt_t.
