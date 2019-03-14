@@ -75,6 +75,9 @@ class NotNull {
 
   template <class U>
   NotNull& operator=(const NotNull<U>& rhs) {
+    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
+      return *this;
+
     ptr_ = rhs.ptr_;
     RST_DCHECK(ptr_ != nullptr);
     return *this;
@@ -157,6 +160,9 @@ class Nullable {
 
   template <class U>
   Nullable& operator=(const Nullable<U>& rhs) {
+    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
+      return *this;
+
     ptr_ = rhs.ptr_;
     set_was_checked(false);
     return *this;
@@ -260,6 +266,9 @@ class NotNull<std::unique_ptr<T>> {
 
   template <class U>
   NotNull& operator=(NotNull<U>&& rhs) {
+    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
+      return *this;
+
     ptr_ = rhs.Take();
     RST_DCHECK(ptr_ != nullptr);
     return *this;
@@ -321,6 +330,9 @@ class Nullable<std::unique_ptr<T>> {
 
   template <class U>
   Nullable& operator=(Nullable<U>&& rhs) {
+    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
+      return *this;
+
     ptr_ = rhs.Take();
     set_was_checked(false);
     return *this;
@@ -414,6 +426,9 @@ class NotNull<std::shared_ptr<T>> {
 
   template <class U>
   NotNull& operator=(const NotNull<U>& rhs) {
+    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
+      return *this;
+
     ptr_ = rhs.ptr_;
     RST_DCHECK(ptr_ != nullptr);
     return *this;
@@ -421,6 +436,9 @@ class NotNull<std::shared_ptr<T>> {
 
   template <class U>
   NotNull& operator=(NotNull<U>&& rhs) {
+    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
+      return *this;
+
     ptr_ = rhs.Take();
     RST_DCHECK(ptr_ != nullptr);
     return *this;
@@ -504,6 +522,9 @@ class Nullable<std::shared_ptr<T>> {
 
   template <class U>
   Nullable& operator=(const Nullable<U>& rhs) {
+    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
+      return *this;
+
     ptr_ = rhs.ptr_;
     set_was_checked(false);
     return *this;
@@ -511,6 +532,9 @@ class Nullable<std::shared_ptr<T>> {
 
   template <class U>
   Nullable& operator=(Nullable<U>&& rhs) {
+    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
+      return *this;
+
     ptr_ = rhs.Take();
     set_was_checked(false);
     return *this;
