@@ -86,12 +86,12 @@ class [[nodiscard]] Status {
  public:
   static Status OK() { return Status(); }
 
-  // Sets the object not checked by default and moves other content.
+  // Sets the object not checked by default and moves |other content.
   Status(Status && other);
 
   ~Status();
 
-  // Sets the object not checked by default and moves rhs content.
+  // Sets the object not checked by default and moves |rhs| content.
   Status& operator=(Status&& rhs);
 
   // Sets the object to be checked and returns whether the object is OK object.

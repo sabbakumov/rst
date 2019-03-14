@@ -97,12 +97,12 @@ class Value {
   RST_DISALLOW_IMPLICIT_CONSTRUCTORS(Value);
 };
 
-// Handles character c in the string s. Returns false if there's {} in s.
+// Handles character in the string |s|. Returns false if there's {} in |s|.
 bool HandleCharacter(NotNull<const char**> s);
 
-// Writes s to the writer.
+// Writes |s| to the |writer|.
 void Format(NotNull<Writer*> writer, const char* s);
-// Writes s to the writer. "{{" -> "{", "}}" -> "}".
+// Writes |s| to the |writer|. "{{" -> "{", "}}" -> "}".
 void Format(NotNull<Writer*> writer, const char* s,
             NotNull<const Value*> values, size_t size);
 

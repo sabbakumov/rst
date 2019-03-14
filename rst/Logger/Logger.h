@@ -88,7 +88,7 @@ class Logger {
   explicit Logger(NotNull<std::unique_ptr<ISink>> sink);
   ~Logger();
 
-  // Logs a message. If the level is less than level_ nothing gets logged.
+  // Logs a message. If the |level| is less than |level_| nothing gets logged.
   static void Log(Level level, NotNull<const char*> filename, int line,
                   std::string_view message);
   static void SetLogger(NotNull<Logger*> logger);

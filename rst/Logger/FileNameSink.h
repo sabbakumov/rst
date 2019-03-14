@@ -44,7 +44,7 @@ namespace rst {
 // The class for sinking to a file by its filename.
 class FileNameSink : public ISink {
  public:
-  // Opens a filename for writing.
+  // Opens a |filename| for writing.
   static StatusOr<NotNull<std::unique_ptr<FileNameSink>>> Create(
       const std::string& filename);
 
@@ -54,7 +54,7 @@ class FileNameSink : public ISink {
   void Log(std::string_view message) final;
 
  private:
-  // Opens a filename for writing.
+  // Opens a |filename| for writing.
   FileNameSink(const std::string& filename, NotNull<Status*> status);
 
   // A RAII-wrapper around std::FILE.

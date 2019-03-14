@@ -104,11 +104,11 @@ class Writer {
   void set_moved() {}
 #endif  // NDEBUG
 
-  // Dynamic buffer in case of the static buffer gets full or the input is too
-  // long for the static buffer.
+  // Dynamic buffer in case of the |static_buffer_| gets full or the input is
+  // too long for the |static_buffer_|.
   std::string dynamic_buffer_;
 
-  // The current size of the static_buffer_.
+  // The current size of the |static_buffer_|.
   size_t size_ = 0;
 
   // Buffer on the stack to prevent dynamic allocation.
