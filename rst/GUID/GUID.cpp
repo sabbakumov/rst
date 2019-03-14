@@ -68,7 +68,7 @@ bool IsValidGUIDInternal(const std::string_view guid, const bool strict) {
 }  // namespace
 
 std::string GenerateGUID() {
-  static rst::NoDestructor<std::random_device> random_device;
+  static NoDestructor<std::random_device> random_device;
 
   std::uniform_int_distribution<uint64_t> distribution;
   uint64_t sixteen_bytes[2] = {distribution(*random_device),
