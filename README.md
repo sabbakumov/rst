@@ -191,3 +191,6 @@ EXPECT_TRUE(std::is_sorted(std::cbegin(vec), std::cend(vec)));
 ## Status
   A Google-like _Status_ class for recoverable error handling with small
   improvements. It's impossible now to ignore an error.
+
+## Value
+  A Chromium-like _Value_ class for representing JSON values in a program.
