@@ -33,7 +33,7 @@ namespace rst {
 
 char LogError::id_ = 0;
 
-LogError::LogError(std::string message) : message_(std::move(message)) {}
+LogError::LogError(std::string&& message) : message_(std::move(message)) {}
 
 LogError::~LogError() = default;
 

@@ -89,18 +89,7 @@ Value::Value(const std::string_view value) : Value(String(value)) {}
 Value::Value(String&& value)
     : type_(Type::kString), string_(std::move(value)) {}
 
-Value::Value(const Array& value) : type_(Type::kArray), array_() {
-  array_.reserve(value.size());
-  for (const auto& val : value)
-    array_.emplace_back(val.Clone());
-}
-
 Value::Value(Array&& value) : type_(Type::kArray), array_(std::move(value)) {}
-
-Value::Value(const Object& value) : type_(Type::kObject), object_() {
-  for (const auto& pair : value)
-    object_.try_emplace(object_.cend(), pair.first, pair.second.Clone());
-}
 
 Value::Value(Object&& value)
     : type_(Type::kObject), object_(std::move(value)) {}
@@ -134,10 +123,27 @@ Value Value::Clone() const {
     case Type::kString:
       return Value(string_);
     case Type::kArray:
-      return Value(array_);
+      return Value(Clone(array_));
     case Type::kObject:
-      return Value(object_);
+      return Value(Clone(object_));
   }
+}
+
+// static
+Value::Array Value::Clone(const Array& array) {
+  Array result;
+  result.reserve(array.size());
+  for (const auto& val : array)
+    result.emplace_back(val.Clone());
+  return result;
+}
+
+// static
+Value::Object Value::Clone(const Object& object) {
+  Object result;
+  for (const auto& pair : object)
+    result.try_emplace(result.cend(), pair.first, pair.second.Clone());
+  return result;
 }
 
 bool Value::IsInt64() const {

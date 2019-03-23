@@ -72,9 +72,7 @@ class Value {
   explicit Value(const char* value);
   explicit Value(std::string_view value);
   explicit Value(String&& value);
-  explicit Value(const Array& value);
   explicit Value(Array&& value);
-  explicit Value(const Object& value);
   explicit Value(Object&& value);
 
   // Prevents Value(pointer) from accidentally producing a bool.
@@ -87,6 +85,9 @@ class Value {
   Value& operator=(Value&& rhs);
 
   Value Clone() const;
+
+  static Array Clone(const Array& array);
+  static Object Clone(const Object& object);
 
   Type type() const { return type_; }
 

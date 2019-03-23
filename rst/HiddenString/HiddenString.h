@@ -37,6 +37,11 @@
 // Compile time encrypted string modified implementation originally taken from
 // https://stackoverflow.com/questions/7270473/compile-time-string-encryption.
 
+#define RST_HIDDEN_STRING(var, str)                                 \
+  static constexpr ::rst::internal::HiddenString<                   \
+      ::rst::internal::ConstructIndexList<sizeof(str) - 1>::Result> \
+      var(str)
+
 namespace rst {
 namespace internal {
 
@@ -110,11 +115,6 @@ class HiddenString<IndexList<Index...>> {
 
   RST_DISALLOW_COPY_AND_ASSIGN(HiddenString);
 };
-
-#define RST_HIDDEN_STRING(var, str)                                 \
-  static constexpr ::rst::internal::HiddenString<                   \
-      ::rst::internal::ConstructIndexList<sizeof(str) - 1>::Result> \
-      var(str)
 
 }  // namespace internal
 }  // namespace rst

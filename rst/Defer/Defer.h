@@ -32,11 +32,8 @@
 
 #include "rst/Macros/Macros.h"
 
-#define RST_DEFER_INTERNAL_CAT2(x, y) x##y
-#define RST_DEFER_INTERNAL_CAT(x, y) RST_DEFER_INTERNAL_CAT2(x, y)
-
-#define RST_DEFER(f)                                                         \
-  const auto RST_DEFER_INTERNAL_CAT(RST_DEFER_INTERNAL_VAR_NAME, __LINE__) = \
+#define RST_DEFER(f)                                                   \
+  const auto RST_INTERNAL_CAT(RST_DEFER_INTERNAL_VAR_NAME, __LINE__) = \
       ::rst::internal::Defer(f)
 
 namespace rst {

@@ -30,6 +30,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <type_traits>
 #include <utility>
 
 #include "rst/Check/Check.h"
@@ -44,23 +45,31 @@ class Nullable;
 template <class T>
 class NotNull {
  public:
+  static_assert(std::is_pointer<T>::value);
+
   NotNull() = delete;
 
   NotNull(T ptr) : ptr_(ptr) { RST_DCHECK(ptr_ != nullptr); }
 
   template <class U>
-  NotNull(const NotNull<U>& other) : NotNull(other.ptr_) {}
-
-  template <class U>
-  NotNull(NotNull<U>&& other) : NotNull(other) {}
-
-  template <class U>
-  NotNull(const Nullable<U>& nullable) : NotNull(nullable.ptr_) {
-    RST_DCHECK(nullable.was_checked_);
+  NotNull(const NotNull<U>& other) : NotNull(other.ptr_) {
+    static_assert(std::is_pointer<U>::value);
   }
 
   template <class U>
-  NotNull(Nullable<U>&& nullable) : NotNull(nullable) {}
+  NotNull(NotNull<U>&& other) : NotNull(other) {
+    static_assert(std::is_pointer<U>::value);
+  }
+
+  template <class U>
+  NotNull(const Nullable<U>& nullable) : NotNull(nullable.ptr_) {
+    static_assert(std::is_pointer<U>::value);
+  }
+
+  template <class U>
+  NotNull(Nullable<U>&& nullable) : NotNull(nullable) {
+    static_assert(std::is_pointer<U>::value);
+  }
 
   NotNull(std::nullptr_t) = delete;
 
@@ -68,6 +77,7 @@ class NotNull {
 
   template <class U>
   NotNull& operator=(U ptr) {
+    static_assert(std::is_pointer<U>::value);
     ptr_ = ptr;
     RST_DCHECK(ptr_ != nullptr);
     return *this;
@@ -75,6 +85,7 @@ class NotNull {
 
   template <class U>
   NotNull& operator=(const NotNull<U>& rhs) {
+    static_assert(std::is_pointer<U>::value);
     if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
       return *this;
 
@@ -85,19 +96,21 @@ class NotNull {
 
   template <class U>
   NotNull& operator=(NotNull<U>&& rhs) {
+    static_assert(std::is_pointer<U>::value);
     return *this = rhs;
   }
 
   template <class U>
   NotNull& operator=(const Nullable<U>& nullable) {
+    static_assert(std::is_pointer<U>::value);
     ptr_ = nullable.ptr_;
-    RST_DCHECK(nullable.was_checked_);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
 
   template <class U>
   NotNull& operator=(Nullable<U>&& nullable) {
+    static_assert(std::is_pointer<U>::value);
     return *this = nullable;
   }
 
@@ -129,23 +142,32 @@ class NotNull {
 template <class T>
 class Nullable {
  public:
+  static_assert(std::is_pointer<T>::value);
+
   Nullable() = default;
 
   Nullable(T ptr) : ptr_(ptr) {}
 
   template <class U>
-  Nullable(const Nullable<U>& other) : Nullable(other.ptr_) {}
+  Nullable(const Nullable<U>& other) : Nullable(other.ptr_) {
+    static_assert(std::is_pointer<U>::value);
+  }
 
   template <class U>
-  Nullable(Nullable<U>&& other) : Nullable(other) {}
+  Nullable(Nullable<U>&& other) : Nullable(other) {
+    static_assert(std::is_pointer<U>::value);
+  }
 
   template <class U>
   Nullable(const NotNull<U>& not_null) : Nullable(not_null.ptr_) {
+    static_assert(std::is_pointer<U>::value);
     set_was_checked(true);
   }
 
   template <class U>
-  Nullable(NotNull<U>&& not_null) : Nullable(not_null) {}
+  Nullable(NotNull<U>&& not_null) : Nullable(not_null) {
+    static_assert(std::is_pointer<U>::value);
+  }
 
   Nullable(std::nullptr_t) {}
 
@@ -153,6 +175,7 @@ class Nullable {
 
   template <class U>
   Nullable& operator=(U ptr) {
+    static_assert(std::is_pointer<U>::value);
     ptr_ = ptr;
     set_was_checked(false);
     return *this;
@@ -160,6 +183,7 @@ class Nullable {
 
   template <class U>
   Nullable& operator=(const Nullable<U>& rhs) {
+    static_assert(std::is_pointer<U>::value);
     if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
       return *this;
 
@@ -170,11 +194,13 @@ class Nullable {
 
   template <class U>
   Nullable& operator=(Nullable<U>&& rhs) {
+    static_assert(std::is_pointer<U>::value);
     return *this = rhs;
   }
 
   template <class U>
   Nullable& operator=(const NotNull<U>& not_null) {
+    static_assert(std::is_pointer<U>::value);
     ptr_ = not_null.ptr_;
     set_was_checked(true);
     return *this;
@@ -182,6 +208,7 @@ class Nullable {
 
   template <class U>
   Nullable& operator=(NotNull<U>&& not_null) {
+    static_assert(std::is_pointer<U>::value);
     return *this = not_null;
   }
 
@@ -249,9 +276,7 @@ class NotNull<std::unique_ptr<T>> {
   NotNull(NotNull<U>&& other) : NotNull(other.Take()) {}
 
   template <class U>
-  NotNull(Nullable<U>&& nullable) : NotNull(nullable.Take()) {
-    RST_DCHECK(nullable.was_checked_);
-  }
+  NotNull(Nullable<U>&& nullable) : NotNull(nullable.Take()) {}
 
   NotNull(std::nullptr_t) = delete;
 
@@ -277,7 +302,6 @@ class NotNull<std::unique_ptr<T>> {
   template <class U>
   NotNull& operator=(Nullable<U>&& nullable) {
     ptr_ = nullable.Take();
-    RST_DCHECK(nullable.was_checked_);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
@@ -393,32 +417,29 @@ class NotNull<std::shared_ptr<T>> {
   NotNull() = delete;
 
   template <class U>
-  NotNull(std::shared_ptr<U> ptr) : ptr_(std::move(ptr)) {
+  NotNull(std::shared_ptr<U>&& ptr) : ptr_(std::move(ptr)) {
     RST_DCHECK(ptr_ != nullptr);
   }
 
   template <class U>
-  NotNull(const NotNull<U>& other) : NotNull(other.ptr_) {}
+  NotNull(const NotNull<U>& other) : NotNull(std::shared_ptr(other.ptr_)) {}
 
   template <class U>
   NotNull(NotNull<U>&& other) : NotNull(other.Take()) {}
 
   template <class U>
-  NotNull(const Nullable<U>& nullable) : NotNull(nullable.ptr_) {
-    RST_DCHECK(nullable.was_checked_);
-  }
+  NotNull(const Nullable<U>& nullable)
+      : NotNull(std::shared_ptr(nullable.ptr_)) {}
 
   template <class U>
-  NotNull(Nullable<U>&& nullable) : NotNull(nullable.Take()) {
-    RST_DCHECK(nullable.was_checked_);
-  }
+  NotNull(Nullable<U>&& nullable) : NotNull(nullable.Take()) {}
 
   NotNull(std::nullptr_t) = delete;
 
   ~NotNull() = default;
 
   template <class U>
-  NotNull& operator=(std::shared_ptr<U> ptr) {
+  NotNull& operator=(std::shared_ptr<U>&& ptr) {
     ptr_ = std::move(ptr);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
@@ -447,7 +468,6 @@ class NotNull<std::shared_ptr<T>> {
   template <class U>
   NotNull& operator=(const Nullable<U>& nullable) {
     ptr_ = nullable.ptr_;
-    RST_DCHECK(nullable.was_checked_);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
@@ -455,7 +475,6 @@ class NotNull<std::shared_ptr<T>> {
   template <class U>
   NotNull& operator=(Nullable<U>&& nullable) {
     ptr_ = nullable.Take();
-    RST_DCHECK(nullable.was_checked_);
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
@@ -491,7 +510,7 @@ class Nullable<std::shared_ptr<T>> {
   Nullable() = default;
 
   template <class U>
-  Nullable(std::shared_ptr<U> ptr) : ptr_(std::move(ptr)) {}
+  Nullable(std::shared_ptr<U>&& ptr) : ptr_(std::move(ptr)) {}
 
   template <class U>
   Nullable(const Nullable<U>& other) : ptr_(other.ptr_) {}
@@ -514,7 +533,7 @@ class Nullable<std::shared_ptr<T>> {
   ~Nullable() = default;
 
   template <class U>
-  Nullable& operator=(std::shared_ptr<U> ptr) {
+  Nullable& operator=(std::shared_ptr<U>&& ptr) {
     ptr_ = std::move(ptr);
     set_was_checked(false);
     return *this;
@@ -537,6 +556,13 @@ class Nullable<std::shared_ptr<T>> {
 
     ptr_ = rhs.Take();
     set_was_checked(false);
+    return *this;
+  }
+
+  template <class U>
+  Nullable& operator=(NotNull<U>&& not_null) {
+    ptr_ = not_null.Take();
+    set_was_checked(true);
     return *this;
   }
 

@@ -51,7 +51,7 @@ class WeakPtr {
   WeakPtr() = default;
   explicit WeakPtr(std::nullptr_t) {}
 
-  WeakPtr(std::weak_ptr<internal::Flag> flag, const NotNull<T*> ptr)
+  WeakPtr(std::weak_ptr<internal::Flag>&& flag, const NotNull<T*> ptr)
       : flag_(std::move(flag)), ptr_(ptr.get()) {}
 
   template <class U>

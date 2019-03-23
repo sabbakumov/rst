@@ -235,7 +235,7 @@ TEST(ValuesTest, ConstructArray) {
   Value::Array storage;
   storage.emplace_back("foo");
   {
-    Value value(storage);
+    Value value(Value::Clone(storage));
     ASSERT_EQ(value.type(), Value::Type::kArray);
     ASSERT_EQ(value.GetArray().size(), 1);
     ASSERT_EQ(value.GetArray()[0].type(), Value::Type::kString);
@@ -256,7 +256,7 @@ TEST(ValuesTest, ConstructObject) {
   Value::Object storage;
   storage.emplace("foo", "bar");
   {
-    Value value(storage);
+    Value value(Value::Clone(storage));
     ASSERT_EQ(value.type(), Value::Type::kObject);
     const auto key = value.FindKey("foo");
     ASSERT_NE(key, nullptr);
@@ -478,7 +478,7 @@ TEST(ValuesTest, MoveString) {
 TEST(ValuesTest, MoveArray) {
   Value::Array storage;
   storage.emplace_back(123);
-  Value value(storage);
+  Value value(Value::Clone(storage));
   Value moved_value(std::move(value));
   ASSERT_EQ(moved_value.type(), Value::Type::kArray);
   EXPECT_EQ(moved_value.GetArray().back().GetInt64(), 123);
