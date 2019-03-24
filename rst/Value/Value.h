@@ -70,7 +70,6 @@ class Value {
   // Provides const char* overload since otherwise it will be implicitly
   // converted to bool.
   explicit Value(const char* value);
-  explicit Value(std::string_view value);
   explicit Value(String&& value);
   explicit Value(Array&& value);
   explicit Value(Object&& value);
@@ -124,9 +123,6 @@ class Value {
   Nullable<const String*> FindStringKey(std::string_view key) const;
 
   void SetKey(std::string&& key, Value&& value);
-  void SetKey(std::string_view key, Value&& value);
-  // Avoids ambiguity for const char* arguments.
-  void SetKey(const char* key, Value&& value);
 
   bool RemoveKey(const std::string& key);
 

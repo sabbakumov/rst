@@ -84,8 +84,6 @@ Value::Value(const char* value) : Value(String(value)) {
   RST_DCHECK(value != nullptr);
 }
 
-Value::Value(const std::string_view value) : Value(String(value)) {}
-
 Value::Value(String&& value)
     : type_(Type::kString), string_(std::move(value)) {}
 
@@ -121,7 +119,7 @@ Value Value::Clone() const {
     case Type::kNumber:
       return Value(number_);
     case Type::kString:
-      return Value(string_);
+      return Value(String(string_));
     case Type::kArray:
       return Value(Clone(array_));
     case Type::kObject:
@@ -280,15 +278,6 @@ Nullable<const Value::String*> Value::FindStringKey(
 void Value::SetKey(std::string&& key, Value&& value) {
   RST_DCHECK(IsObject());
   object_.insert_or_assign(std::move(key), std::move(value));
-}
-
-void Value::SetKey(const std::string_view key, Value&& value) {
-  SetKey(std::string(key), std::move(value));
-}
-
-void Value::SetKey(const char* key, Value&& value) {
-  RST_DCHECK(key != nullptr);
-  SetKey(std::string(key), std::move(value));
 }
 
 bool Value::RemoveKey(const std::string& key) {

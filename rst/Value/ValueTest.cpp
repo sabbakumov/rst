@@ -220,7 +220,7 @@ TEST(ValueTest, ConstructStringFromConstCharPtr) {
 }
 
 TEST(ValueTest, ConstructStringFromStringView) {
-  Value value(std::string_view("foobar"));
+  Value value(Value::String(std::string_view("foobar")));
   ASSERT_EQ(value.type(), Value::Type::kString);
   EXPECT_EQ(value.GetString(), "foobar");
 }
@@ -779,8 +779,8 @@ TEST(ValueTest, SetKey) {
   storage.emplace("dict", Value::Type::kObject);
 
   Value dict(Value::Type::kObject);
-  dict.SetKey(std::string_view("null"), Value(Value::Type::kNull));
-  dict.SetKey(std::string_view("bool"), Value(Value::Type::kBool));
+  dict.SetKey(std::string(std::string_view("null")), Value(Value::Type::kNull));
+  dict.SetKey(std::string(std::string_view("bool")), Value(Value::Type::kBool));
   dict.SetKey(std::string("number"), Value(Value::Type::kNumber));
   dict.SetKey(std::string("string"), Value(Value::Type::kString));
   dict.SetKey("array", Value(Value::Type::kArray));
@@ -790,7 +790,8 @@ TEST(ValueTest, SetKey) {
 
   Value null;
   EXPECT_DEATH(null.SetKey(std::string("number"), Value()), "");
-  EXPECT_DEATH(null.SetKey(std::string_view("number"), Value()), "");
+  EXPECT_DEATH(null.SetKey(std::string(std::string_view("number")), Value()),
+               "");
   EXPECT_DEATH(null.SetKey("number", Value()), "");
 }
 

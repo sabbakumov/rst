@@ -169,6 +169,9 @@ void Bar(Nullable<int*> ptr) {
 }
 ```
 
+## Preferences
+  Chromium-like preferences.
+
 ## RTTI
   LLVM-like custom RTTI support.
 

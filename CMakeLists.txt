@@ -38,6 +38,11 @@ rst/NoDestructor/NoDestructor.h
 
 rst/NotNull/NotNull.h
 
+rst/Preferences/IPreferencesStore.cpp
+rst/Preferences/IPreferencesStore.h
+rst/Preferences/Preferences.cpp
+rst/Preferences/Preferences.h
+
 rst/Memory/Memory.h
 rst/Memory/WeakPtr.h
 
@@ -80,6 +85,8 @@ rst/Macros/MacrosTest.cpp
 rst/NoDestructor/NoDestructorTest.cpp
 
 rst/NotNull/NotNullTest.cpp
+
+rst/Preferences/PreferencesTest.cpp
 
 rst/Memory/MemoryTest.cpp
 rst/Memory/WeakPtrTest.cpp
