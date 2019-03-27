@@ -617,7 +617,7 @@ TEST(ValueTest, FindKeyOfTypeConst) {
   storage.emplace("array", Value::Type::kArray);
   storage.emplace("dict", Value::Type::kObject);
 
-  Value dict(std::move(storage));
+  const Value dict(std::move(storage));
   EXPECT_NE(dict.FindKeyOfType("null", Value::Type::kNull), nullptr);
   EXPECT_EQ(dict.FindKeyOfType("null", Value::Type::kBool), nullptr);
   EXPECT_EQ(dict.FindKeyOfType("null", Value::Type::kNumber), nullptr);
@@ -769,6 +769,48 @@ TEST(ValueTest, FindStringKey) {
   EXPECT_DEATH(null.FindStringKey("dict"), "");
 }
 
+TEST(ValueTest, FindArrayKey) {
+  Value::Object storage;
+  storage.emplace("null", Value::Type::kNull);
+  storage.emplace("bool", Value::Type::kBool);
+  storage.emplace("number", Value::Type::kNumber);
+  storage.emplace("string", Value::Type::kString);
+  storage.emplace("array", Value::Type::kArray);
+  storage.emplace("dict", Value::Type::kObject);
+
+  const Value dict(std::move(storage));
+  EXPECT_EQ(dict.FindArrayKey("null"), nullptr);
+  EXPECT_EQ(dict.FindArrayKey("bool"), nullptr);
+  EXPECT_EQ(dict.FindArrayKey("number"), nullptr);
+  EXPECT_EQ(dict.FindArrayKey("string"), nullptr);
+  EXPECT_NE(dict.FindArrayKey("array"), nullptr);
+  EXPECT_EQ(dict.FindArrayKey("dict"), nullptr);
+
+  const Value null;
+  EXPECT_DEATH(null.FindArrayKey("dict"), "");
+}
+
+TEST(ValueTest, FindObjectKey) {
+  Value::Object storage;
+  storage.emplace("null", Value::Type::kNull);
+  storage.emplace("bool", Value::Type::kBool);
+  storage.emplace("number", Value::Type::kNumber);
+  storage.emplace("string", Value::Type::kString);
+  storage.emplace("array", Value::Type::kArray);
+  storage.emplace("dict", Value::Type::kObject);
+
+  const Value dict(std::move(storage));
+  EXPECT_EQ(dict.FindObjectKey("null"), nullptr);
+  EXPECT_EQ(dict.FindObjectKey("bool"), nullptr);
+  EXPECT_EQ(dict.FindObjectKey("number"), nullptr);
+  EXPECT_EQ(dict.FindObjectKey("string"), nullptr);
+  EXPECT_EQ(dict.FindObjectKey("array"), nullptr);
+  EXPECT_NE(dict.FindObjectKey("dict"), nullptr);
+
+  const Value null;
+  EXPECT_DEATH(null.FindObjectKey("dict"), "");
+}
+
 TEST(ValueTest, SetKey) {
   Value::Object storage;
   storage.emplace("null", Value::Type::kNull);
@@ -793,6 +835,37 @@ TEST(ValueTest, SetKey) {
   EXPECT_DEATH(null.SetKey(std::string(std::string_view("number")), Value()),
                "");
   EXPECT_DEATH(null.SetKey("number", Value()), "");
+}
+
+TEST(ValueTest, SetKeyReturns) {
+  Value root(Value::Type::kObject);
+
+  const auto null_weak = root.SetKey("null", Value());
+  EXPECT_EQ(*null_weak, Value());
+
+  const auto bool_weak = root.SetKey("bool", Value(true));
+  EXPECT_EQ(*bool_weak, Value(true));
+
+  const auto int_weak = root.SetKey("int", Value(42));
+  EXPECT_EQ(*int_weak, Value(42));
+
+  const auto double_weak = root.SetKey("double", Value(3.14));
+  EXPECT_EQ(*double_weak, Value(3.14));
+
+  const auto string_weak = root.SetKey("string", Value("hello"));
+  EXPECT_EQ(*string_weak, Value("hello"));
+
+  Value::Array array;
+  array.emplace_back(0);
+  array.emplace_back(1);
+  const auto array_weak = root.SetKey("array", Value(Value::Clone(array)));
+  EXPECT_EQ(*array_weak, Value(std::move(array)));
+
+  Value::Object object;
+  object.emplace("first", "first");
+  object.emplace("second", "second");
+  const auto object_weak = root.SetKey("object", Value(Value::Clone(object)));
+  EXPECT_EQ(*object_weak, Value(std::move(object)));
 }
 
 TEST(ValueTest, RemoveKey) {
@@ -916,6 +989,69 @@ TEST(ValueTest, SelfSwap) {
   Value test(1);
   std::swap(test, test);
   EXPECT_EQ(test.GetInt64(), 1);
+}
+
+TEST(ValueTest, SetPathOnlyForObject) {
+  EXPECT_DEATH(Value(Value::Type::kNull).SetPath("key", Value()), "");
+  EXPECT_DEATH(Value(Value::Type::kBool).SetPath("key", Value()), "");
+  EXPECT_DEATH(Value(Value::Type::kNumber).SetPath("key", Value()), "");
+  EXPECT_DEATH(Value(Value::Type::kString).SetPath("key", Value()), "");
+  EXPECT_DEATH(Value(Value::Type::kArray).SetPath("key", Value()), "");
+  EXPECT_NO_FATAL_FAILURE(Value(Value::Type::kObject).SetPath("key", Value()));
+}
+
+TEST(ValueTest, SetPathLevel1) {
+  Value object(Value::Type::kObject);
+
+  auto value = object.SetPath("key", Value(1));
+  EXPECT_EQ(*value, Value(1));
+  EXPECT_EQ(object.FindIntKey("key"), 1);
+
+  value = object.SetPath("key", Value(2));
+  EXPECT_EQ(*value, Value(2));
+  EXPECT_EQ(object.FindIntKey("key"), 2);
+}
+
+TEST(ValueTest, SetPathLevel2) {
+  Value object(Value::Type::kObject);
+
+  auto value = object.SetPath("key1.key2", Value(1));
+  EXPECT_EQ(*value, Value(1));
+
+  auto key1 = object.FindObjectKey("key1");
+  ASSERT_NE(key1, nullptr);
+  EXPECT_EQ(key1->FindIntKey("key2"), 1);
+
+  value = object.SetPath("key1.key2", Value(2));
+  EXPECT_EQ(*value, Value(2));
+
+  key1 = object.FindObjectKey("key1");
+  ASSERT_NE(key1, nullptr);
+  EXPECT_EQ(key1->FindIntKey("key2"), 2);
+}
+
+TEST(ValueTest, SetPathLevel3) {
+  Value object(Value::Type::kObject);
+
+  auto value = object.SetPath("key1.key2.key3", Value(1));
+  EXPECT_EQ(*value, Value(1));
+
+  auto key1 = object.FindObjectKey("key1");
+  ASSERT_NE(key1, nullptr);
+
+  auto key2 = key1->FindObjectKey("key2");
+  ASSERT_NE(key2, nullptr);
+  EXPECT_EQ(key2->FindIntKey("key3"), 1);
+
+  value = object.SetPath("key1.key2.key3", Value(2));
+  EXPECT_EQ(*value, Value(2));
+
+  key1 = object.FindObjectKey("key1");
+  ASSERT_NE(key1, nullptr);
+
+  key2 = key1->FindObjectKey("key2");
+  ASSERT_NE(key2, nullptr);
+  EXPECT_EQ(key2->FindIntKey("key3"), 2);
 }
 
 }  // namespace rst

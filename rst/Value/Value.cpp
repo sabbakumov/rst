@@ -231,6 +231,18 @@ Nullable<const Value*> Value::FindKeyOfType(const std::string_view key,
   return result;
 }
 
+Nullable<Value*> Value::FindKeyOfType(const std::string_view key,
+                                      const Type type) {
+  const auto result = FindKey(key);
+  if (result == nullptr)
+    return nullptr;
+
+  if (result->type_ != type)
+    return nullptr;
+
+  return result;
+}
+
 std::optional<bool> Value::FindBoolKey(const std::string_view key) const {
   const auto result = FindKeyOfType(key, Type::kBool);
   if (result == nullptr)
@@ -275,14 +287,45 @@ Nullable<const Value::String*> Value::FindStringKey(
   return &result->string_;
 }
 
-void Value::SetKey(std::string&& key, Value&& value) {
+Nullable<const Value*> Value::FindArrayKey(const std::string_view key) const {
+  return FindKeyOfType(key, Type::kArray);
+}
+
+Nullable<const Value*> Value::FindObjectKey(const std::string_view key) const {
+  return FindKeyOfType(key, Type::kObject);
+}
+
+NotNull<Value*> Value::SetKey(std::string&& key, Value&& value) {
   RST_DCHECK(IsObject());
-  object_.insert_or_assign(std::move(key), std::move(value));
+  auto ret = object_.insert_or_assign(std::move(key), std::move(value));
+  return &ret.first->second;
 }
 
 bool Value::RemoveKey(const std::string& key) {
   RST_DCHECK(IsObject());
   return object_.erase(key) != 0;
+}
+
+NotNull<Value*> Value::SetPath(const std::string_view path, Value&& value) {
+  RST_DCHECK(IsObject());
+
+  auto current_path = path;
+  NotNull<Value*> current_object = this;
+  for (auto delimiter_position = current_path.find('.');
+       delimiter_position != std::string_view::npos;
+       delimiter_position = current_path.find('.')) {
+    const auto key = current_path.substr(0, delimiter_position);
+    auto child_object = current_object->FindKeyOfType(key, Type::kObject);
+    if (child_object == nullptr) {
+      child_object =
+          current_object->SetKey(std::string(key), Value(Type::kObject));
+    }
+
+    current_object = child_object;
+    current_path = current_path.substr(delimiter_position + 1);
+  }
+
+  return current_object->SetKey(std::string(current_path), std::move(value));
 }
 
 void Value::MoveConstruct(Value&& rhs) {

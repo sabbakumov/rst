@@ -114,6 +114,7 @@ class Value {
   Nullable<Value*> FindKey(std::string_view key);
 
   Nullable<const Value*> FindKeyOfType(std::string_view key, Type type) const;
+  Nullable<Value*> FindKeyOfType(std::string_view key, Type type);
 
   std::optional<bool> FindBoolKey(std::string_view key) const;
   std::optional<int64_t> FindInt64Key(std::string_view key) const;
@@ -121,10 +122,20 @@ class Value {
   std::optional<double> FindDoubleKey(std::string_view key) const;
 
   Nullable<const String*> FindStringKey(std::string_view key) const;
+  Nullable<const Value*> FindArrayKey(std::string_view key) const;
+  Nullable<const Value*> FindObjectKey(std::string_view key) const;
 
-  void SetKey(std::string&& key, Value&& value);
+  NotNull<Value*> SetKey(std::string&& key, Value&& value);
 
   bool RemoveKey(const std::string& key);
+
+  // Sets the |value| associated with the given |path| starting from this
+  // object. A |path| has the form "<key>" or "<key>.<key>.[...]", where "."
+  // indexes into the next Value down. Obviously, "." can't be used within a
+  // key, but there are no other restrictions on keys. If the key at any step
+  // of the way doesn't exist, or exists but isn't an Object, a new Value will
+  // be created and attached to the path in that location.
+  NotNull<Value*> SetPath(std::string_view path, Value&& value);
 
  private:
   friend bool operator==(const Value& lhs, const Value& rhs);
