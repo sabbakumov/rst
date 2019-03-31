@@ -32,6 +32,7 @@
 #include <utility>
 
 #include "rst/Check/Check.h"
+#include "rst/Macros/Macros.h"
 
 namespace rst {
 
@@ -75,7 +76,9 @@ class [[nodiscard]] optional {
 
     Construct(value);
     is_valid_ = true;
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     return *this;
   }
@@ -86,7 +89,9 @@ class [[nodiscard]] optional {
 
     Construct(std::move(value));
     is_valid_ = true;
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     return *this;
   }
@@ -104,7 +109,9 @@ class [[nodiscard]] optional {
     } else {
       is_valid_ = false;
     }
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     return *this;
   }
@@ -122,7 +129,9 @@ class [[nodiscard]] optional {
     } else {
       is_valid_ = false;
     }
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     return *this;
   }
@@ -132,7 +141,9 @@ class [[nodiscard]] optional {
       Destruct();
 
     is_valid_ = false;
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     return *this;
   }
@@ -162,12 +173,16 @@ class [[nodiscard]] optional {
   }
 
   explicit operator bool() const {
-    set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return is_valid_;
   }
 
   bool has_value() const {
-    set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return is_valid_;
   }
 
@@ -185,7 +200,9 @@ class [[nodiscard]] optional {
 
     Construct(T(std::forward<Args>(args)...));
     is_valid_ = true;
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     return value_;
   }
@@ -197,20 +214,14 @@ class [[nodiscard]] optional {
 
   void Destruct() { value_.~T(); }
 
-#ifndef NDEBUG
-  void set_was_checked(bool was_checked) const { was_checked_ = was_checked; }
-#else   // NDEBUG
-  void set_was_checked(bool) const {}
-#endif  // NDEBUG
-
   union {
     T value_;
   };
 
   bool is_valid_ = false;
-#ifndef NDEBUG
+#if RST_BUILDFLAG(DCHECK_IS_ON)
   mutable bool was_checked_ = false;
-#endif  // NDEBUG
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 };
 
 template <class T, class U>

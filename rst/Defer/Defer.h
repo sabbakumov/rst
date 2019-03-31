@@ -42,7 +42,6 @@ namespace internal {
 template <class F>
 class DeferredAction {
  public:
-  DeferredAction() = delete;
   explicit DeferredAction(F&& action) : action_(std::forward<F>(action)) {}
   DeferredAction(DeferredAction&&) = default;
 

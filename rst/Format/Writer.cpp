@@ -114,14 +114,15 @@ void Writer::Write(const std::string_view str) {
 
 std::string Writer::TakeString() {
   RST_DCHECK(!moved_ && "String has been already moved");
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  moved_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
   if (dynamic_buffer_.empty()) {
     std::string val(static_buffer_, size_);
-    set_moved();
     return val;
   }
 
-  set_moved();
   return std::move(dynamic_buffer_);
 }
 

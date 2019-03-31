@@ -27,8 +27,6 @@
 
 #include "rst/Status/Status.h"
 
-#include "rst/Check/Check.h"
-
 namespace rst {
 
 char ErrorInfoBase::id_ = 0;
@@ -52,7 +50,9 @@ Status::Status(NotNull<std::unique_ptr<ErrorInfoBase>> error)
 
 Status::Status(Status&& other) {
   error_ = std::move(other.error_);
-  other.set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  other.was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 }
 
 Status& Status::operator=(Status&& rhs) {
@@ -61,10 +61,11 @@ Status& Status::operator=(Status&& rhs) {
   if (this == &rhs)
     return *this;
 
-  set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  was_checked_ = false;
+  rhs.was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   error_ = std::move(rhs.error_);
-
-  rhs.set_was_checked(true);
 
   return *this;
 }
@@ -80,11 +81,15 @@ const ErrorInfoBase& Status::GetError() const {
 StatusAsOutParameter::StatusAsOutParameter(const NotNull<Status*> status)
     : status_(status) {
   RST_DCHECK(!status_->was_checked_);
-  status_->set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  status_->was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 }
 
 StatusAsOutParameter::~StatusAsOutParameter() {
-  status_->set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  status_->was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 }
 
 }  // namespace rst

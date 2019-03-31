@@ -94,7 +94,7 @@ class Value {
   };
   const Type type_;
 
-  RST_DISALLOW_IMPLICIT_CONSTRUCTORS(Value);
+  RST_DISALLOW_COPY_AND_ASSIGN(Value);
 };
 
 // Handles character in the string |s|. Returns false if there's {} in |s|.

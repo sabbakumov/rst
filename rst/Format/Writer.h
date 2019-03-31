@@ -95,14 +95,10 @@ class Writer {
   std::string CopyString() const;
 
  private:
-#ifndef NDEBUG
-  void set_moved() { moved_ = true; }
-
+#if RST_BUILDFLAG(DCHECK_IS_ON)
   // Whether we moved the writer via TakeString().
   bool moved_ = false;
-#else   // NDEBUG
-  void set_moved() {}
-#endif  // NDEBUG
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
   // Dynamic buffer in case of the |static_buffer_| gets full or the input is
   // too long for the |static_buffer_|.

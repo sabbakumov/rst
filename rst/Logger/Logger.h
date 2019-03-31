@@ -31,6 +31,7 @@
 #include <memory>
 #include <string_view>
 
+#include "rst/Check/Check.h"
 #include "rst/Logger/ISink.h"
 #include "rst/Macros/Macros.h"
 #include "rst/NotNull/NotNull.h"
@@ -51,23 +52,19 @@
 #define LOG_FATAL(message) \
   ::rst::Logger::Log(::rst::Logger::Level::kFatal, __FILE__, __LINE__, message)
 
-#ifndef NDEBUG
-
+#if RST_BUILDFLAG(DCHECK_IS_ON)
 #define DLOG_DEBUG(message) LOG_DEBUG(message)
 #define DLOG_INFO(message) LOG_INFO(message)
 #define DLOG_WARNING(message) LOG_WARNING(message)
 #define DLOG_ERROR(message) LOG_ERROR(message)
 #define DLOG_FATAL(message) LOG_FATAL(message)
-
-#else  // NDEBUG
-
+#else
 #define DLOG_DEBUG(message)
 #define DLOG_INFO(message)
 #define DLOG_WARNING(message)
 #define DLOG_ERROR(message)
 #define DLOG_FATAL(message)
-
-#endif  // NDEBUG
+#endif
 
 namespace rst {
 

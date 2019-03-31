@@ -37,13 +37,14 @@
 
 namespace rst {
 
-FileNameSink::FileNameSink(const std::string& filename,
+FileNameSink::FileNameSink(const NotNull<const char*> filename,
                            const NotNull<Status*> status) {
   StatusAsOutParameter sao(status);
 
-  log_file_.reset(std::fopen(filename.c_str(), "w"));
+  log_file_.reset(std::fopen(filename.get(), "w"));
   if (log_file_ == nullptr) {
-    *status = MakeStatus<LogError>(Format("Can't open file {}", filename));
+    *status =
+        MakeStatus<LogError>(Format("Can't open file {}", filename.get()));
     return;
   }
 
@@ -54,7 +55,7 @@ FileNameSink::~FileNameSink() = default;
 
 // static
 StatusOr<NotNull<std::unique_ptr<FileNameSink>>> FileNameSink::Create(
-    const std::string& filename) {
+    const NotNull<const char*> filename) {
   auto status = Status::OK();
   auto sink = WrapUnique(NotNull(new FileNameSink(filename, &status)));
 

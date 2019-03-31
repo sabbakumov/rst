@@ -31,7 +31,6 @@
 #include <cstdio>
 #include <memory>
 #include <mutex>
-#include <string>
 
 #include "rst/Logger/ISink.h"
 #include "rst/Macros/Macros.h"
@@ -46,7 +45,7 @@ class FileNameSink : public ISink {
  public:
   // Opens a |filename| for writing.
   static StatusOr<NotNull<std::unique_ptr<FileNameSink>>> Create(
-      const std::string& filename);
+      const NotNull<const char*> filename);
 
   ~FileNameSink();
 
@@ -55,7 +54,7 @@ class FileNameSink : public ISink {
 
  private:
   // Opens a |filename| for writing.
-  FileNameSink(const std::string& filename, NotNull<Status*> status);
+  FileNameSink(const NotNull<const char*> filename, NotNull<Status*> status);
 
   // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{

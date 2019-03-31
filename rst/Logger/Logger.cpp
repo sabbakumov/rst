@@ -30,7 +30,6 @@
 #include <cstdlib>
 #include <utility>
 
-#include "rst/Check/Check.h"
 #include "rst/Format/Format.h"
 #include "rst/Logger/LogError.h"
 #include "rst/NoDestructor/NoDestructor.h"

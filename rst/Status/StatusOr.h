@@ -45,7 +45,9 @@ class [[nodiscard]] StatusOr {
   StatusOr(StatusOr && other)
       : status_(std::move(other.status_)), value_(std::move(other.value_)) {
     RST_DCHECK(value_.has_value() ? (status_.error_ == nullptr) : true);
-    other.set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    other.was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
   StatusOr(const T& value) { Construct(value); }
@@ -67,8 +69,10 @@ class [[nodiscard]] StatusOr {
     status_ = std::move(rhs.status_);
     value_ = std::move(rhs.value_);
 
-    set_was_checked(false);
-    rhs.set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+    rhs.was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     return *this;
   }
@@ -79,7 +83,9 @@ class [[nodiscard]] StatusOr {
     status_ = Status::OK();
     Construct(value);
 
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     return *this;
   }
@@ -90,7 +96,9 @@ class [[nodiscard]] StatusOr {
     status_ = Status::OK();
     Construct(std::move(value));
 
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     return *this;
   }
@@ -101,7 +109,9 @@ class [[nodiscard]] StatusOr {
 
     status_ = std::move(status);
     value_.reset();
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     return *this;
   }
@@ -109,7 +119,9 @@ class [[nodiscard]] StatusOr {
   bool ok() { return !err(); }
 
   bool err() {
-    set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return status_.err();
   }
 
@@ -142,26 +154,22 @@ class [[nodiscard]] StatusOr {
   }
 
   void Ignore() {
-    set_was_checked(true);
-    status_.set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = true;
+    status_.was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
  private:
   void Construct(const T& value) { value_.emplace(value); }
   void Construct(T && value) { value_.emplace(std::move(value)); }
 
-#ifndef NDEBUG
-  void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
-#else   // NDEBUG
-  void set_was_checked(bool) {}
-#endif  // NDEBUG
-
   Status status_;
   std::optional<T> value_;
 
-#ifndef NDEBUG
+#if RST_BUILDFLAG(DCHECK_IS_ON)
   bool was_checked_ = false;
-#endif  // NDEBUG
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
   RST_DISALLOW_COPY_AND_ASSIGN(StatusOr);
 };

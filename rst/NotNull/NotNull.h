@@ -34,6 +34,7 @@
 #include <utility>
 
 #include "rst/Check/Check.h"
+#include "rst/Macros/Macros.h"
 
 namespace rst {
 
@@ -51,23 +52,15 @@ class NotNull {
 
   NotNull(T ptr) : ptr_(ptr) { RST_DCHECK(ptr_ != nullptr); }
 
+  NotNull(const NotNull& other) : NotNull(other.ptr_) {}
+
   template <class U>
   NotNull(const NotNull<U>& other) : NotNull(other.ptr_) {
     static_assert(std::is_pointer<U>::value);
   }
 
   template <class U>
-  NotNull(NotNull<U>&& other) : NotNull(other) {
-    static_assert(std::is_pointer<U>::value);
-  }
-
-  template <class U>
   NotNull(const Nullable<U>& nullable) : NotNull(nullable.ptr_) {
-    static_assert(std::is_pointer<U>::value);
-  }
-
-  template <class U>
-  NotNull(Nullable<U>&& nullable) : NotNull(nullable) {
     static_assert(std::is_pointer<U>::value);
   }
 
@@ -79,6 +72,15 @@ class NotNull {
   NotNull& operator=(U ptr) {
     static_assert(std::is_pointer<U>::value);
     ptr_ = ptr;
+    RST_DCHECK(ptr_ != nullptr);
+    return *this;
+  }
+
+  NotNull& operator=(const NotNull& rhs) {
+    if (this == &rhs)
+      return *this;
+
+    ptr_ = rhs.ptr_;
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
@@ -95,23 +97,11 @@ class NotNull {
   }
 
   template <class U>
-  NotNull& operator=(NotNull<U>&& rhs) {
-    static_assert(std::is_pointer<U>::value);
-    return *this = rhs;
-  }
-
-  template <class U>
   NotNull& operator=(const Nullable<U>& nullable) {
     static_assert(std::is_pointer<U>::value);
     ptr_ = nullable.ptr_;
     RST_DCHECK(ptr_ != nullptr);
     return *this;
-  }
-
-  template <class U>
-  NotNull& operator=(Nullable<U>&& nullable) {
-    static_assert(std::is_pointer<U>::value);
-    return *this = nullable;
   }
 
   NotNull& operator=(std::nullptr_t) = delete;
@@ -148,25 +138,19 @@ class Nullable {
 
   Nullable(T ptr) : ptr_(ptr) {}
 
+  Nullable(const Nullable& other) : Nullable(other.ptr_) {}
+
   template <class U>
   Nullable(const Nullable<U>& other) : Nullable(other.ptr_) {
     static_assert(std::is_pointer<U>::value);
   }
 
   template <class U>
-  Nullable(Nullable<U>&& other) : Nullable(other) {
-    static_assert(std::is_pointer<U>::value);
-  }
-
-  template <class U>
   Nullable(const NotNull<U>& not_null) : Nullable(not_null.ptr_) {
     static_assert(std::is_pointer<U>::value);
-    set_was_checked(true);
-  }
-
-  template <class U>
-  Nullable(NotNull<U>&& not_null) : Nullable(not_null) {
-    static_assert(std::is_pointer<U>::value);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
   Nullable(std::nullptr_t) {}
@@ -177,7 +161,20 @@ class Nullable {
   Nullable& operator=(U ptr) {
     static_assert(std::is_pointer<U>::value);
     ptr_ = ptr;
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    return *this;
+  }
+
+  Nullable& operator=(const Nullable& rhs) {
+    if (this == &rhs)
+      return *this;
+
+    ptr_ = rhs.ptr_;
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
   }
 
@@ -188,33 +185,27 @@ class Nullable {
       return *this;
 
     ptr_ = rhs.ptr_;
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
-  }
-
-  template <class U>
-  Nullable& operator=(Nullable<U>&& rhs) {
-    static_assert(std::is_pointer<U>::value);
-    return *this = rhs;
   }
 
   template <class U>
   Nullable& operator=(const NotNull<U>& not_null) {
     static_assert(std::is_pointer<U>::value);
     ptr_ = not_null.ptr_;
-    set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
-  }
-
-  template <class U>
-  Nullable& operator=(NotNull<U>&& not_null) {
-    static_assert(std::is_pointer<U>::value);
-    return *this = not_null;
   }
 
   Nullable& operator=(std::nullptr_t) {
     ptr_ = nullptr;
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
   }
 
@@ -250,16 +241,10 @@ class Nullable {
   template <class U>
   friend bool operator==(const Nullable<U>& lhs, std::nullptr_t);
 
-#ifndef NDEBUG
-  void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
-#else   // NDEBUG
-  void set_was_checked(bool) {}
-#endif  // NDEBUG
-
   T ptr_ = nullptr;
-#ifndef NDEBUG
+#if RST_BUILDFLAG(DCHECK_IS_ON)
   mutable bool was_checked_ = false;
-#endif  // NDEBUG
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 };
 
 template <class T>
@@ -271,6 +256,8 @@ class NotNull<std::unique_ptr<T>> {
   NotNull(std::unique_ptr<U> ptr) : ptr_(std::move(ptr)) {
     RST_DCHECK(ptr_ != nullptr);
   }
+
+  NotNull(NotNull&& other) : NotNull(other.Take()) {}
 
   template <class U>
   NotNull(NotNull<U>&& other) : NotNull(other.Take()) {}
@@ -285,6 +272,15 @@ class NotNull<std::unique_ptr<T>> {
   template <class U>
   NotNull& operator=(std::unique_ptr<U> ptr) {
     ptr_ = std::move(ptr);
+    RST_DCHECK(ptr_ != nullptr);
+    return *this;
+  }
+
+  NotNull& operator=(NotNull&& rhs) {
+    if (this == &rhs)
+      return *this;
+
+    ptr_ = rhs.Take();
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
@@ -333,12 +329,16 @@ class Nullable<std::unique_ptr<T>> {
   template <class U>
   Nullable(std::unique_ptr<U> ptr) : ptr_(std::move(ptr)) {}
 
+  Nullable(Nullable&& other) : Nullable(other.Take()) {}
+
   template <class U>
   Nullable(Nullable<U>&& other) : Nullable(other.Take()) {}
 
   template <class U>
   Nullable(NotNull<U>&& not_null) : Nullable(not_null.Take()) {
-    set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
   Nullable(std::nullptr_t) {}
@@ -348,7 +348,20 @@ class Nullable<std::unique_ptr<T>> {
   template <class U>
   Nullable& operator=(std::unique_ptr<U> ptr) {
     ptr_ = std::move(ptr);
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    return *this;
+  }
+
+  Nullable& operator=(Nullable&& rhs) {
+    if (this == &rhs)
+      return *this;
+
+    ptr_ = rhs.Take();
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
   }
 
@@ -358,20 +371,26 @@ class Nullable<std::unique_ptr<T>> {
       return *this;
 
     ptr_ = rhs.Take();
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
   }
 
   template <class U>
   Nullable& operator=(NotNull<U>&& not_null) {
     ptr_ = not_null.Take();
-    set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
   }
 
   Nullable& operator=(std::nullptr_t) {
     ptr_ = nullptr;
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
   }
 
@@ -399,16 +418,10 @@ class Nullable<std::unique_ptr<T>> {
   template <class U>
   friend bool operator==(const Nullable<U>& lhs, std::nullptr_t);
 
-#ifndef NDEBUG
-  void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
-#else   // NDEBUG
-  void set_was_checked(bool) {}
-#endif  // NDEBUG
-
   std::unique_ptr<T> ptr_;
-#ifndef NDEBUG
+#if RST_BUILDFLAG(DCHECK_IS_ON)
   mutable bool was_checked_ = false;
-#endif  // NDEBUG
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 };
 
 template <class T>
@@ -422,14 +435,15 @@ class NotNull<std::shared_ptr<T>> {
   }
 
   template <class U>
-  NotNull(const NotNull<U>& other) : NotNull(std::shared_ptr(other.ptr_)) {}
+  NotNull(const NotNull<U>&) = delete;
+
+  NotNull(NotNull&& other) : NotNull(other.Take()) {}
 
   template <class U>
   NotNull(NotNull<U>&& other) : NotNull(other.Take()) {}
 
   template <class U>
-  NotNull(const Nullable<U>& nullable)
-      : NotNull(std::shared_ptr(nullable.ptr_)) {}
+  NotNull(const Nullable<U>&) = delete;
 
   template <class U>
   NotNull(Nullable<U>&& nullable) : NotNull(nullable.Take()) {}
@@ -446,11 +460,13 @@ class NotNull<std::shared_ptr<T>> {
   }
 
   template <class U>
-  NotNull& operator=(const NotNull<U>& rhs) {
-    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
+  NotNull& operator=(const NotNull<U>&) = delete;
+
+  NotNull& operator=(NotNull&& rhs) {
+    if (this == &rhs)
       return *this;
 
-    ptr_ = rhs.ptr_;
+    ptr_ = rhs.Take();
     RST_DCHECK(ptr_ != nullptr);
     return *this;
   }
@@ -466,11 +482,7 @@ class NotNull<std::shared_ptr<T>> {
   }
 
   template <class U>
-  NotNull& operator=(const Nullable<U>& nullable) {
-    ptr_ = nullable.ptr_;
-    RST_DCHECK(ptr_ != nullptr);
-    return *this;
-  }
+  NotNull& operator=(const Nullable<U>&) = delete;
 
   template <class U>
   NotNull& operator=(Nullable<U>&& nullable) {
@@ -480,6 +492,8 @@ class NotNull<std::shared_ptr<T>> {
   }
 
   NotNull& operator=(std::nullptr_t) = delete;
+
+  NotNull Clone() const { return NotNull(std::shared_ptr(ptr_)); }
 
   T* get() const {
     RST_DCHECK(ptr_ != nullptr);
@@ -502,6 +516,8 @@ class NotNull<std::shared_ptr<T>> {
   friend class Nullable;
 
   std::shared_ptr<T> ptr_;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(NotNull);
 };
 
 template <class T>
@@ -513,19 +529,21 @@ class Nullable<std::shared_ptr<T>> {
   Nullable(std::shared_ptr<U>&& ptr) : ptr_(std::move(ptr)) {}
 
   template <class U>
-  Nullable(const Nullable<U>& other) : ptr_(other.ptr_) {}
+  Nullable(const Nullable<U>&) = delete;
+
+  Nullable(Nullable&& other) : Nullable(other.Take()) {}
 
   template <class U>
   Nullable(Nullable<U>&& other) : Nullable(other.Take()) {}
 
   template <class U>
-  Nullable(const NotNull<U>& not_null) : ptr_(not_null.ptr_) {
-    set_was_checked(true);
-  }
+  Nullable(const NotNull<U>&) = delete;
 
   template <class U>
   Nullable(NotNull<U>&& not_null) : Nullable(not_null.Take()) {
-    set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
   Nullable(std::nullptr_t) {}
@@ -535,17 +553,23 @@ class Nullable<std::shared_ptr<T>> {
   template <class U>
   Nullable& operator=(std::shared_ptr<U>&& ptr) {
     ptr_ = std::move(ptr);
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
   }
 
   template <class U>
-  Nullable& operator=(const Nullable<U>& rhs) {
-    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
+  Nullable& operator=(const Nullable<U>&) = delete;
+
+  Nullable& operator=(Nullable&& rhs) {
+    if (this == &rhs)
       return *this;
 
-    ptr_ = rhs.ptr_;
-    set_was_checked(false);
+    ptr_ = rhs.Take();
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
   }
 
@@ -555,22 +579,33 @@ class Nullable<std::shared_ptr<T>> {
       return *this;
 
     ptr_ = rhs.Take();
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
   }
 
   template <class U>
+  Nullable& operator=(const NotNull<U>&) = delete;
+
+  template <class U>
   Nullable& operator=(NotNull<U>&& not_null) {
     ptr_ = not_null.Take();
-    set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
   }
 
   Nullable& operator=(std::nullptr_t) {
     ptr_ = nullptr;
-    set_was_checked(false);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return *this;
   }
+
+  Nullable Clone() const { return Nullable(std::shared_ptr(ptr_)); }
 
   T* get() const { return ptr_.get(); }
 
@@ -599,16 +634,12 @@ class Nullable<std::shared_ptr<T>> {
   template <class U>
   friend bool operator==(const Nullable<U>& lhs, std::nullptr_t);
 
-#ifndef NDEBUG
-  void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
-#else   // NDEBUG
-  void set_was_checked(bool) {}
-#endif  // NDEBUG
-
   std::shared_ptr<T> ptr_;
-#ifndef NDEBUG
+#if RST_BUILDFLAG(DCHECK_IS_ON)
   mutable bool was_checked_ = false;
-#endif  // NDEBUG
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+
+  RST_DISALLOW_COPY_AND_ASSIGN(Nullable);
 };
 
 template <class T, class U>
@@ -628,9 +659,9 @@ bool operator<(const NotNull<T>& lhs, const NotNull<U>& rhs) {
 
 template <class T>
 bool operator==(const Nullable<T>& lhs, std::nullptr_t) {
-#ifndef NDEBUG
+#if RST_BUILDFLAG(DCHECK_IS_ON)
   lhs.was_checked_ = true;
-#endif  // NDEBUG
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   return lhs.ptr_ == nullptr;
 }
 

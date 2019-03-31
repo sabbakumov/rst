@@ -31,6 +31,12 @@
 #include <cassert>
 #include <cstdlib>
 
+#if defined(NDEBUG)
+#define RST_BUILDFLAG_DCHECK_IS_ON() (false)
+#else
+#define RST_BUILDFLAG_DCHECK_IS_ON() (true)
+#endif
+
 #define RST_DCHECK(condition) assert(condition)
 
 #define RST_NOTREACHED() RST_DCHECK(false)

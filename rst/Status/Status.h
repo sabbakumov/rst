@@ -32,6 +32,7 @@
 #include <string>
 #include <utility>
 
+#include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
 #include "rst/NotNull/NotNull.h"
 #include "rst/Status/Status.h"
@@ -97,14 +98,20 @@ class [[nodiscard]] Status {
   // Sets the object to be checked and returns whether the object is error
   // object.
   bool err() {
-    set_was_checked(true);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return error_ != nullptr;
   }
 
   const ErrorInfoBase& GetError() const;
 
   // Sets the object to be checked.
-  void Ignore() { set_was_checked(true); }
+  void Ignore() {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
 
  private:
   friend class StatusAsOutParameter;
@@ -121,19 +128,13 @@ class [[nodiscard]] Status {
   // Sets the object not checked by default and to be the error object.
   Status(NotNull<std::unique_ptr<ErrorInfoBase>> error);
 
-#ifndef NDEBUG
-  void set_was_checked(bool was_checked) { was_checked_ = was_checked; }
-#else   // NDEBUG
-  void set_was_checked(bool) {}
-#endif  // NDEBUG
-
   // Information about the error. nullptr if the object is OK.
   Nullable<std::unique_ptr<ErrorInfoBase>> error_;
 
-#ifndef NDEBUG
+#if RST_BUILDFLAG(DCHECK_IS_ON)
   // Whether the object was checked.
   bool was_checked_ = false;
-#endif  // NDEBUG
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
   RST_DISALLOW_COPY_AND_ASSIGN(Status);
 };
