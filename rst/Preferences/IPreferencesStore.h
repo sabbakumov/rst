@@ -39,8 +39,8 @@ class IPreferencesStore {
  public:
   virtual ~IPreferencesStore();
 
-  virtual Nullable<const Value*> GetValue(std::string_view key) const = 0;
-  virtual void SetValue(std::string_view key, Value&& value) = 0;
+  virtual Nullable<const Value*> GetValue(std::string_view path) const = 0;
+  virtual void SetValue(std::string_view path, Value&& value) = 0;
 };
 
 }  // namespace rst

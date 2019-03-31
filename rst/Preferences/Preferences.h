@@ -48,33 +48,34 @@ class Preferences {
       NotNull<std::unique_ptr<IPreferencesStore>> preferences_store);
   ~Preferences();
 
-  void RegisterBoolPreference(std::string&& key, bool default_value);
-  void RegisterIntPreference(std::string&& key, int default_value);
-  void RegisterDoublePreference(std::string&& key, double default_value);
-  void RegisterStringPreference(std::string&& key,
+  void RegisterBoolPreference(std::string&& path, bool default_value);
+  void RegisterIntPreference(std::string&& path, int default_value);
+  void RegisterDoublePreference(std::string&& path, double default_value);
+  void RegisterStringPreference(std::string&& path,
                                 Value::String&& default_value);
-  void RegisterArrayPreference(std::string&& key, Value::Array&& default_value);
-  void RegisterObjectPreference(std::string&& key,
+  void RegisterArrayPreference(std::string&& path,
+                               Value::Array&& default_value);
+  void RegisterObjectPreference(std::string&& path,
                                 Value::Object&& default_value);
 
-  bool GetBool(std::string_view key) const;
-  int GetInt(std::string_view key) const;
-  double GetDouble(std::string_view key) const;
-  const Value::String& GetString(std::string_view key) const;
-  const Value::Array& GetArray(std::string_view key) const;
-  const Value::Object& GetObject(std::string_view key) const;
+  bool GetBool(std::string_view path) const;
+  int GetInt(std::string_view path) const;
+  double GetDouble(std::string_view path) const;
+  const Value::String& GetString(std::string_view path) const;
+  const Value::Array& GetArray(std::string_view path) const;
+  const Value::Object& GetObject(std::string_view path) const;
 
-  void SetBool(std::string_view key, bool value);
-  void SetInt(std::string_view key, int value);
-  void SetDouble(std::string_view key, double value);
-  void SetString(std::string_view key, Value::String&& value);
-  void SetArray(std::string_view key, Value::Array&& value);
-  void SetObject(std::string_view key, Value::Object&& value);
+  void SetBool(std::string_view path, bool value);
+  void SetInt(std::string_view path, int value);
+  void SetDouble(std::string_view path, double value);
+  void SetString(std::string_view path, Value::String&& value);
+  void SetArray(std::string_view path, Value::Array&& value);
+  void SetObject(std::string_view path, Value::Object&& value);
 
  private:
-  void RegisterPreference(std::string&& key, Value&& default_value);
+  void RegisterPreference(std::string&& path, Value&& default_value);
 
-  void SetValue(std::string_view key, Value&& value);
+  void SetValue(std::string_view path, Value&& value);
 
   std::map<std::string, Value, std::less<>> defaults_;
   const NotNull<std::unique_ptr<IPreferencesStore>> preferences_store_;
