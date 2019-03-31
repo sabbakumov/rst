@@ -28,7 +28,6 @@
 #ifndef RST_PREFERENCES_IPREFERENCES_STORE_H_
 #define RST_PREFERENCES_IPREFERENCES_STORE_H_
 
-#include <string>
 #include <string_view>
 
 #include "rst/NotNull/NotNull.h"
@@ -41,7 +40,7 @@ class IPreferencesStore {
   virtual ~IPreferencesStore();
 
   virtual Nullable<const Value*> GetValue(std::string_view key) const = 0;
-  virtual void SetValue(std::string&& key, Value&& value) = 0;
+  virtual void SetValue(std::string_view key, Value&& value) = 0;
 };
 
 }  // namespace rst

@@ -137,6 +137,14 @@ class Value {
   // be created and attached to the path in that location.
   NotNull<Value*> SetPath(std::string_view path, Value&& value);
 
+  // Finds the value associated with the given |path| starting from this
+  // object. A |path| has the form "<key>" or "<key>.<key>.[...]", where "."
+  // indexes into the next Value down. If the |path| can be resolved
+  // successfully, the value for the last key in the |path| will be returned.
+  // Otherwise, it will return nullptr.
+  Nullable<const Value*> FindPath(std::string_view path) const;
+  Nullable<Value*> FindPath(std::string_view path);
+
  private:
   friend bool operator==(const Value& lhs, const Value& rhs);
   friend bool operator<(const Value& lhs, const Value& rhs);

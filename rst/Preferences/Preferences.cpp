@@ -147,28 +147,28 @@ const Value::Object& Preferences::GetObject(const std::string_view key) const {
   return stored_pref->GetObject();
 }
 
-void Preferences::SetBool(std::string&& key, const bool value) {
-  SetValue(std::move(key), Value(value));
+void Preferences::SetBool(const std::string_view key, const bool value) {
+  SetValue(key, Value(value));
 }
 
-void Preferences::SetInt(std::string&& key, const int value) {
-  SetValue(std::move(key), Value(value));
+void Preferences::SetInt(const std::string_view key, const int value) {
+  SetValue(key, Value(value));
 }
 
-void Preferences::SetDouble(std::string&& key, const double value) {
-  SetValue(std::move(key), Value(value));
+void Preferences::SetDouble(const std::string_view key, const double value) {
+  SetValue(key, Value(value));
 }
 
-void Preferences::SetString(std::string&& key, Value::String&& value) {
-  SetValue(std::move(key), Value(std::move(value)));
+void Preferences::SetString(const std::string_view key, Value::String&& value) {
+  SetValue(key, Value(std::move(value)));
 }
 
-void Preferences::SetArray(std::string&& key, Value::Array&& value) {
-  SetValue(std::move(key), Value(std::move(value)));
+void Preferences::SetArray(const std::string_view key, Value::Array&& value) {
+  SetValue(key, Value(std::move(value)));
 }
 
-void Preferences::SetObject(std::string&& key, Value::Object&& value) {
-  SetValue(std::move(key), Value(std::move(value)));
+void Preferences::SetObject(const std::string_view key, Value::Object&& value) {
+  SetValue(key, Value(std::move(value)));
 }
 
 void Preferences::RegisterPreference(std::string&& key, Value&& default_value) {
@@ -179,14 +179,14 @@ void Preferences::RegisterPreference(std::string&& key, Value&& default_value) {
   defaults_.emplace(std::move(key), std::move(default_value));
 }
 
-void Preferences::SetValue(std::string&& key, Value&& value) {
+void Preferences::SetValue(const std::string_view key, Value&& value) {
   RST_DCHECK(value.type() != Value::Type::kNull);
   RST_DCHECK((defaults_.find(key) != defaults_.cend()) &&
              "Trying to write an unregistered preference");
   RST_DCHECK((defaults_.find(key)->second.type() == value.type()) &&
              "Trying to write a preference of different type");
 
-  preferences_store_->SetValue(std::move(key), std::move(value));
+  preferences_store_->SetValue(key, std::move(value));
 }
 
 }  // namespace rst

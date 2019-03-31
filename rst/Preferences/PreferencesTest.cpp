@@ -46,7 +46,7 @@ class MockPreferencesStore : public IPreferencesStore {
  public:
   MOCK_CONST_METHOD1(GetValue, Nullable<const Value*>(std::string_view key));
 
-  MOCK_METHOD2(SetValue, void(std::string&& key, Value&& value));
+  MOCK_METHOD2(SetValue, void(std::string_view key, Value&& value));
 };
 
 }  // namespace
@@ -161,7 +161,7 @@ TEST_F(PreferencesTest, GetStoredValues) {
 
 TEST_F(PreferencesTest, SetValues) {
   EXPECT_CALL(*pref_store_, SetValue(_, _))
-      .WillOnce([](std::string&& key, Value&& value) {
+      .WillOnce([](const std::string_view key, Value&& value) {
         EXPECT_EQ(key, "bool");
         EXPECT_EQ(value, Value(false));
       });
@@ -169,7 +169,7 @@ TEST_F(PreferencesTest, SetValues) {
   testing::Mock::VerifyAndClearExpectations(pref_store_.get());
 
   EXPECT_CALL(*pref_store_, SetValue(_, _))
-      .WillOnce([](std::string&& key, Value&& value) {
+      .WillOnce([](const std::string_view key, Value&& value) {
         EXPECT_EQ(key, "int");
         EXPECT_EQ(value, Value(20));
       });
@@ -177,7 +177,7 @@ TEST_F(PreferencesTest, SetValues) {
   testing::Mock::VerifyAndClearExpectations(pref_store_.get());
 
   EXPECT_CALL(*pref_store_, SetValue(_, _))
-      .WillOnce([](std::string&& key, Value&& value) {
+      .WillOnce([](const std::string_view key, Value&& value) {
         EXPECT_EQ(key, "double");
         EXPECT_EQ(value, Value(60.0));
       });
@@ -185,7 +185,7 @@ TEST_F(PreferencesTest, SetValues) {
   testing::Mock::VerifyAndClearExpectations(pref_store_.get());
 
   EXPECT_CALL(*pref_store_, SetValue(_, _))
-      .WillOnce([](std::string&& key, Value&& value) {
+      .WillOnce([](const std::string_view key, Value&& value) {
         EXPECT_EQ(key, "string");
         EXPECT_EQ(value, Value("World"));
       });
@@ -196,7 +196,7 @@ TEST_F(PreferencesTest, SetValues) {
   array.emplace_back("b");
   array.emplace_back(2);
   EXPECT_CALL(*pref_store_, SetValue(_, _))
-      .WillOnce([&array](std::string&& key, Value&& value) {
+      .WillOnce([&array](const std::string_view key, Value&& value) {
         EXPECT_EQ(key, "array");
         EXPECT_EQ(value, Value(std::move(array)));
       });
@@ -207,7 +207,7 @@ TEST_F(PreferencesTest, SetValues) {
   object.emplace("second", "second");
   object.emplace("third", "third");
   EXPECT_CALL(*pref_store_, SetValue(_, _))
-      .WillOnce([&object](std::string&& key, Value&& value) {
+      .WillOnce([&object](const std::string_view key, Value&& value) {
         EXPECT_EQ(key, "object");
         EXPECT_EQ(value, Value(std::move(object)));
       });

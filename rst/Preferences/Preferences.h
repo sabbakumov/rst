@@ -64,17 +64,17 @@ class Preferences {
   const Value::Array& GetArray(std::string_view key) const;
   const Value::Object& GetObject(std::string_view key) const;
 
-  void SetBool(std::string&& key, bool value);
-  void SetInt(std::string&& key, int value);
-  void SetDouble(std::string&& key, double value);
-  void SetString(std::string&& key, Value::String&& value);
-  void SetArray(std::string&& key, Value::Array&& value);
-  void SetObject(std::string&& key, Value::Object&& value);
+  void SetBool(std::string_view key, bool value);
+  void SetInt(std::string_view key, int value);
+  void SetDouble(std::string_view key, double value);
+  void SetString(std::string_view key, Value::String&& value);
+  void SetArray(std::string_view key, Value::Array&& value);
+  void SetObject(std::string_view key, Value::Object&& value);
 
  private:
   void RegisterPreference(std::string&& key, Value&& default_value);
 
-  void SetValue(std::string&& key, Value&& value);
+  void SetValue(std::string_view key, Value&& value);
 
   std::map<std::string, Value, std::less<>> defaults_;
   const NotNull<std::unique_ptr<IPreferencesStore>> preferences_store_;

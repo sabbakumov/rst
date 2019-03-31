@@ -328,6 +328,46 @@ NotNull<Value*> Value::SetPath(const std::string_view path, Value&& value) {
   return current_object->SetKey(std::string(current_path), std::move(value));
 }
 
+Nullable<const Value*> Value::FindPath(const std::string_view path) const {
+  RST_DCHECK(IsObject());
+
+  auto current_path = path;
+  NotNull<const Value*> current_object = this;
+  for (auto delimiter_position = current_path.find('.');
+       delimiter_position != std::string_view::npos;
+       delimiter_position = current_path.find('.')) {
+    const auto key = current_path.substr(0, delimiter_position);
+    auto child_object = current_object->FindKeyOfType(key, Type::kObject);
+    if (child_object == nullptr)
+      return nullptr;
+
+    current_object = child_object;
+    current_path = current_path.substr(delimiter_position + 1);
+  }
+
+  return current_object->FindKey(current_path);
+}
+
+Nullable<Value*> Value::FindPath(const std::string_view path) {
+  RST_DCHECK(IsObject());
+
+  auto current_path = path;
+  NotNull<Value*> current_object = this;
+  for (auto delimiter_position = current_path.find('.');
+       delimiter_position != std::string_view::npos;
+       delimiter_position = current_path.find('.')) {
+    const auto key = current_path.substr(0, delimiter_position);
+    auto child_object = current_object->FindKeyOfType(key, Type::kObject);
+    if (child_object == nullptr)
+      return nullptr;
+
+    current_object = child_object;
+    current_path = current_path.substr(delimiter_position + 1);
+  }
+
+  return current_object->FindKey(current_path);
+}
+
 void Value::MoveConstruct(Value&& rhs) {
   switch (rhs.type_) {
     case Type::kNull:
