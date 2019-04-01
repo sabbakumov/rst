@@ -1037,9 +1037,9 @@ TEST(ValueTest, SetPathLevel1) {
   EXPECT_EQ(*v, Value(1));
 
   EXPECT_EQ(object.FindPath("key1"), nullptr);
-  EXPECT_EQ(static_cast<const Value&>(object).FindPath("key1"), nullptr);
+  EXPECT_EQ(const_cast<const Value&>(object).FindPath("key1"), nullptr);
 
-  auto const_v = static_cast<const Value&>(object).FindPath("key");
+  auto const_v = const_cast<const Value&>(object).FindPath("key");
   ASSERT_NE(const_v, nullptr);
   EXPECT_EQ(*const_v, Value(1));
 
@@ -1051,7 +1051,7 @@ TEST(ValueTest, SetPathLevel1) {
   ASSERT_NE(v, nullptr);
   EXPECT_EQ(*v, Value(2));
 
-  const_v = static_cast<const Value&>(object).FindPath("key");
+  const_v = const_cast<const Value&>(object).FindPath("key");
   ASSERT_NE(const_v, nullptr);
   EXPECT_EQ(*const_v, Value(2));
 }
@@ -1070,14 +1070,14 @@ TEST(ValueTest, SetPathLevel2) {
   ASSERT_NE(v, nullptr);
   EXPECT_EQ(*v, Value(1));
 
-  auto const_v = static_cast<const Value&>(object).FindPath("key1.key2");
+  auto const_v = const_cast<const Value&>(object).FindPath("key1.key2");
   ASSERT_NE(const_v, nullptr);
   EXPECT_EQ(*const_v, Value(1));
 
   EXPECT_EQ(object.FindPath("key1.key3"), nullptr);
   EXPECT_EQ(object.FindPath("key2.key2"), nullptr);
-  EXPECT_EQ(static_cast<const Value&>(object).FindPath("key1.key3"), nullptr);
-  EXPECT_EQ(static_cast<const Value&>(object).FindPath("key2.key2"), nullptr);
+  EXPECT_EQ(const_cast<const Value&>(object).FindPath("key1.key3"), nullptr);
+  EXPECT_EQ(const_cast<const Value&>(object).FindPath("key2.key2"), nullptr);
 
   value = object.SetPath("key1.key2", Value(2));
   EXPECT_EQ(*value, Value(2));
@@ -1090,7 +1090,7 @@ TEST(ValueTest, SetPathLevel2) {
   ASSERT_NE(v, nullptr);
   EXPECT_EQ(*v, Value(2));
 
-  const_v = static_cast<const Value&>(object).FindPath("key1.key2");
+  const_v = const_cast<const Value&>(object).FindPath("key1.key2");
   ASSERT_NE(const_v, nullptr);
   EXPECT_EQ(*const_v, Value(2));
 }
@@ -1112,18 +1112,18 @@ TEST(ValueTest, SetPathLevel3) {
   ASSERT_NE(v, nullptr);
   EXPECT_EQ(*v, Value(1));
 
-  auto const_v = static_cast<const Value&>(object).FindPath("key1.key2.key3");
+  auto const_v = const_cast<const Value&>(object).FindPath("key1.key2.key3");
   ASSERT_NE(const_v, nullptr);
   EXPECT_EQ(*const_v, Value(1));
 
   EXPECT_EQ(object.FindPath("key1.key2.key4"), nullptr);
   EXPECT_EQ(object.FindPath("key1.key3.key3"), nullptr);
   EXPECT_EQ(object.FindPath("key2.key2.key3"), nullptr);
-  EXPECT_EQ(static_cast<const Value&>(object).FindPath("key1.key2.key4"),
+  EXPECT_EQ(const_cast<const Value&>(object).FindPath("key1.key2.key4"),
             nullptr);
-  EXPECT_EQ(static_cast<const Value&>(object).FindPath("key1.key3.key3"),
+  EXPECT_EQ(const_cast<const Value&>(object).FindPath("key1.key3.key3"),
             nullptr);
-  EXPECT_EQ(static_cast<const Value&>(object).FindPath("key2.key2.key3"),
+  EXPECT_EQ(const_cast<const Value&>(object).FindPath("key2.key2.key3"),
             nullptr);
 
   value = object.SetPath("key1.key2.key3", Value(2));
@@ -1140,7 +1140,7 @@ TEST(ValueTest, SetPathLevel3) {
   ASSERT_NE(v, nullptr);
   EXPECT_EQ(*v, Value(2));
 
-  const_v = static_cast<const Value&>(object).FindPath("key1.key2.key3");
+  const_v = const_cast<const Value&>(object).FindPath("key1.key2.key3");
   ASSERT_NE(const_v, nullptr);
   EXPECT_EQ(*const_v, Value(2));
 }
