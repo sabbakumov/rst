@@ -8,6 +8,9 @@ rst/Check/Check.h
 
 rst/Defer/Defer.h
 
+rst/Files/FileUtil.cpp
+rst/Files/FileUtil.h
+
 rst/Format/Format.cpp
 rst/Format/Format.h
 rst/Format/Writer.cpp
@@ -67,6 +70,8 @@ rst/Check/CheckNDebugTest.cpp
 rst/Test.cpp
 
 rst/Defer/DeferTest.cpp
+
+rst/Files/FileUtilTest.cpp
 
 rst/Format/FormatTest.cpp
 

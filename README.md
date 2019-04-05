@@ -33,6 +33,8 @@ void Bar() {
   RST_DEFER(Foo);
 }
 ```
+## Files
+  File utils.
 
 ## Format
   A Python-like string format library
