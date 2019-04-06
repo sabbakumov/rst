@@ -32,6 +32,7 @@
 #include <memory>
 #include <mutex>
 
+#include "rst/Check/Check.h"
 #include "rst/Logger/ISink.h"
 #include "rst/Macros/Macros.h"
 #include "rst/NotNull/NotNull.h"
@@ -53,8 +54,10 @@ class FilePtrSink : public ISink {
   // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
       nullptr, [](std::FILE* f) -> void {
-        if (f != nullptr)
-          std::fclose(f);
+        if (f != nullptr) {
+          const auto ret = std::fclose(f);
+          RST_DCHECK(ret == 0);
+        }
       }};
 
   const NotNull<std::FILE*> file_;

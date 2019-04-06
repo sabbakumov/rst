@@ -30,7 +30,6 @@
 #include <limits>
 #include <utility>
 
-#include "rst/Check/Check.h"
 #include "rst/Format/Format.h"
 #include "rst/Logger/LogError.h"
 #include "rst/Memory/Memory.h"
@@ -74,7 +73,7 @@ void FileNameSink::Log(const std::string_view message) {
   RST_DCHECK(val >= 0);
 
   val = std::fflush(log_file_.get());
-  RST_DCHECK(val >= 0);
+  RST_DCHECK(val == 0);
 }
 
 }  // namespace rst

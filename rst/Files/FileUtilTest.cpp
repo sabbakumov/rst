@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Sergey Abbakumov
+// Copyright (c) 2019, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,31 +25,45 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Logger/FilePtrSink.h"
+#include "rst/Files/FileUtil.h"
 
-#include <limits>
+#include <cstdio>
+#include <string>
+
+#include <gtest/gtest.h>
+
+#include "rst/Check/Check.h"
+#include "rst/Macros/Macros.h"
 
 namespace rst {
+namespace {
 
-FilePtrSink::FilePtrSink(const NotNull<std::FILE*> file,
-                         const bool should_close)
-    : file_(file) {
-  if (should_close)
-    log_file_.reset(file.get());
-}
+class File {
+ public:
+  File() { RST_CHECK(std::tmpnam(buffer_) != nullptr); }
+  ~File() { std::remove(buffer_); }
 
-FilePtrSink::~FilePtrSink() = default;
+  const char* FileName() const { return buffer_; }
 
-void FilePtrSink::Log(const std::string_view message) {
-  std::unique_lock<std::mutex> lock(mutex_);
+ private:
+  char buffer_[L_tmpnam];
 
-  RST_DCHECK(message.size() <= std::numeric_limits<int>::max());
-  auto val = std::fprintf(file_.get(), "%.*s\n",
-                          static_cast<int>(message.size()), message.data());
-  RST_DCHECK(val >= 0);
+  RST_DISALLOW_COPY_AND_ASSIGN(File);
+};
 
-  val = std::fflush(file_.get());
-  RST_DCHECK(val == 0);
+}  // namespace
+
+TEST(FileUtil, WriteRead) {
+  std::string content;
+  for (auto i = 0; i < 15000; content += std::to_string(i), i++) {
+    File file;
+    auto status = WriteFile(file.FileName(), content);
+    ASSERT_FALSE(status.err());
+
+    auto string = ReadFile(file.FileName());
+    ASSERT_FALSE(string.err());
+    EXPECT_EQ(*string, content);
+  }
 }
 
 }  // namespace rst
