@@ -29,8 +29,6 @@
 
 #include <limits>
 
-#include "rst/Check/Check.h"
-
 namespace rst {
 
 FilePtrSink::FilePtrSink(const NotNull<std::FILE*> file,
@@ -51,7 +49,7 @@ void FilePtrSink::Log(const std::string_view message) {
   RST_DCHECK(val >= 0);
 
   val = std::fflush(file_.get());
-  RST_DCHECK(val >= 0);
+  RST_DCHECK(val == 0);
 }
 
 }  // namespace rst
