@@ -30,6 +30,7 @@
 #include <cstdio>
 #include <memory>
 #include <optional>
+#include <utility>
 
 #include "rst/Format/Format.h"
 
@@ -43,6 +44,10 @@ FileError::~FileError() = default;
 
 const std::string& FileError::AsString() const { return message_; }
 
+char FileOpenError::id_ = 0;
+
+FileOpenError::~FileOpenError() = default;
+
 Status WriteFile(const NotNull<const char*> filename,
                  const std::string_view data) {
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> file(
@@ -53,8 +58,10 @@ Status WriteFile(const NotNull<const char*> filename,
         }
       });
 
-  if (file == nullptr)
-    return MakeStatus<FileError>(Format("Can't open file {}", filename.get()));
+  if (file == nullptr) {
+    return MakeStatus<FileOpenError>(
+        Format("Can't open file {}", filename.get()));
+  }
 
   if (std::fwrite(data.data(), 1, data.size(), file.get()) != data.size())
     return MakeStatus<FileError>(Format("Can't write file {}", filename.get()));
@@ -74,8 +81,10 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
         }
       });
 
-  if (file == nullptr)
-    return MakeStatus<FileError>(Format("Can't open file {}", filename.get()));
+  if (file == nullptr) {
+    return MakeStatus<FileOpenError>(
+        Format("Can't open file {}", filename.get()));
+  }
 
   const auto get_file_size =
       [](const NotNull<FILE*> file) -> std::optional<long> {

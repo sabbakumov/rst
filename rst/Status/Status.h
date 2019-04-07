@@ -62,17 +62,17 @@ class ErrorInfoBase {
   RST_DISALLOW_COPY_AND_ASSIGN(ErrorInfoBase);
 };
 
-template <class T>
-class ErrorInfo : public ErrorInfoBase {
+template <class T, class Parent = ErrorInfoBase>
+class ErrorInfo : public Parent {
  public:
-  using ErrorInfoBase::ErrorInfoBase;
+  using Parent::Parent;
 
   static NotNull<const void*> GetClassID() { return &T::id_; }
 
   NotNull<const void*> GetDynamicClassID() const override { return &T::id_; }
 
   bool IsA(const NotNull<const void*> class_id) const override {
-    return class_id == GetClassID() || ErrorInfoBase::IsA(class_id);
+    return class_id == GetClassID() || Parent::IsA(class_id);
   }
 
  private:
@@ -104,7 +104,7 @@ class [[nodiscard]] Status {
     return error_ != nullptr;
   }
 
-  const ErrorInfoBase& GetError() const;
+  NotNull<const ErrorInfoBase*> GetError() const;
 
   // Sets the object to be checked.
   void Ignore() {

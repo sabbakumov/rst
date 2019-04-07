@@ -53,6 +53,17 @@ class FileError : public ErrorInfo<FileError> {
   RST_DISALLOW_COPY_AND_ASSIGN(FileError);
 };
 
+class FileOpenError : public ErrorInfo<FileOpenError, FileError> {
+ public:
+  using ErrorInfo::ErrorInfo;
+  ~FileOpenError();
+
+  static char id_;
+
+ private:
+  RST_DISALLOW_COPY_AND_ASSIGN(FileOpenError);
+};
+
 Status WriteFile(NotNull<const char*> filename, std::string_view data);
 
 StatusOr<std::string> ReadFile(NotNull<const char*> filename);
