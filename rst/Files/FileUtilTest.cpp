@@ -34,6 +34,8 @@
 
 #include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
+#include "rst/RTTI/RTTI.h"
 
 namespace rst {
 namespace {
@@ -43,7 +45,7 @@ class File {
   File() { RST_CHECK(std::tmpnam(buffer_) != nullptr); }
   ~File() { std::remove(buffer_); }
 
-  const char* FileName() const { return buffer_; }
+  NotNull<const char*> FileName() const { return buffer_; }
 
  private:
   char buffer_[L_tmpnam];
@@ -64,6 +66,13 @@ TEST(FileUtil, WriteRead) {
     ASSERT_FALSE(string.err());
     EXPECT_EQ(*string, content);
   }
+}
+
+TEST(FileUtil, OpenFailed) {
+  File file;
+  auto string = ReadFile(file.FileName());
+  ASSERT_TRUE(string.err());
+  EXPECT_NE(dyn_cast<FileOpenError>(string.status().GetError()), nullptr);
 }
 
 }  // namespace rst

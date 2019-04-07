@@ -72,10 +72,10 @@ Status& Status::operator=(Status&& rhs) {
 
 Status::~Status() { RST_DCHECK(was_checked_); }
 
-const ErrorInfoBase& Status::GetError() const {
+NotNull<const ErrorInfoBase*> Status::GetError() const {
   RST_DCHECK(was_checked_);
   RST_DCHECK(error_ != nullptr);
-  return *error_;
+  return error_.get();
 }
 
 StatusAsOutParameter::StatusAsOutParameter(const NotNull<Status*> status)

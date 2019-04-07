@@ -34,11 +34,14 @@
 #include <gtest/gtest.h>
 
 #include "rst/Macros/Macros.h"
+#include "rst/RTTI/RTTI.h"
 
 namespace rst {
 namespace {
 
 constexpr auto kError = "Error";
+constexpr auto kError2 = "Error2";
+constexpr auto kError3 = "Error2";
 
 class Error : public ErrorInfo<Error> {
  public:
@@ -55,6 +58,38 @@ class Error : public ErrorInfo<Error> {
 };
 
 char Error::id_ = 0;
+
+class Error2 : public ErrorInfo<Error2> {
+ public:
+  Error2() = default;
+
+  const std::string& AsString() const override { return message_; }
+
+  static char id_;
+
+ private:
+  const std::string message_ = kError2;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(Error2);
+};
+
+char Error2::id_ = 0;
+
+class Error3 : public ErrorInfo<Error3, Error2> {
+ public:
+  Error3() = default;
+
+  const std::string& AsString() const override { return message_; }
+
+  static char id_;
+
+ private:
+  const std::string message_ = kError3;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(Error3);
+};
+
+char Error3::id_ = 0;
 
 }  // namespace
 
@@ -74,7 +109,7 @@ TEST(Status, Ctor) {
   Status status = MakeStatus<Error>();
   ASSERT_FALSE(status.ok());
   ASSERT_TRUE(status.err());
-  EXPECT_EQ(status.GetError().AsString(), kError);
+  EXPECT_EQ(status.GetError()->AsString(), kError);
 }
 
 TEST(Status, MoveCtor) {
@@ -82,7 +117,7 @@ TEST(Status, MoveCtor) {
   Status status2(std::move(status));
   ASSERT_FALSE(status2.ok());
   ASSERT_TRUE(status2.err());
-  EXPECT_EQ(status2.GetError().AsString(), kError);
+  EXPECT_EQ(status2.GetError()->AsString(), kError);
 }
 
 TEST(Status, MoveAssignment) {
@@ -92,7 +127,7 @@ TEST(Status, MoveAssignment) {
   status2 = std::move(status);
   ASSERT_FALSE(status2.ok());
   ASSERT_TRUE(status2.err());
-  EXPECT_EQ(status2.GetError().AsString(), kError);
+  EXPECT_EQ(status2.GetError()->AsString(), kError);
 
   status2 = MakeStatus<Error>();
   EXPECT_DEATH(status2 = std::move(status), "");
@@ -130,7 +165,38 @@ TEST(Status, MakeStatus) {
 
   ASSERT_FALSE(status.ok());
   ASSERT_TRUE(status.err());
-  EXPECT_EQ(status.GetError().AsString(), kError);
+  EXPECT_EQ(status.GetError()->AsString(), kError);
+}
+
+TEST(Status, Errors) {
+  {
+    auto status = MakeStatus<Error3>();
+    ASSERT_TRUE(status.err());
+
+    Nullable<const Error3*> cast3 = dyn_cast<Error3>(status.GetError());
+    ASSERT_NE(cast3, nullptr);
+    EXPECT_EQ(cast3->AsString(), kError3);
+
+    EXPECT_EQ(dyn_cast<Error>(status.GetError()), nullptr);
+
+    Nullable<const Error2*> cast2 = dyn_cast<Error2>(status.GetError());
+    ASSERT_NE(cast2, nullptr);
+    EXPECT_EQ(cast2->AsString(), kError3);
+  }
+
+  {
+    Error2 error;
+    auto status = MakeStatus<Error2>();
+    ASSERT_TRUE(status.err());
+
+    EXPECT_EQ(dyn_cast<Error3>(status.GetError()), nullptr);
+
+    EXPECT_EQ(dyn_cast<Error>(status.GetError()), nullptr);
+
+    Nullable<const Error2*> cast2 = dyn_cast<Error2>(status.GetError());
+    ASSERT_NE(cast2, nullptr);
+    EXPECT_EQ(cast2->AsString(), kError2);
+  }
 }
 
 }  // namespace rst

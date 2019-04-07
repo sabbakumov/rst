@@ -48,6 +48,7 @@
 
 #include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
 
 using testing::_;
 using testing::Eq;
@@ -66,7 +67,7 @@ class File {
   File() { RST_CHECK(std::tmpnam(buffer_) != nullptr); }
   ~File() { std::remove(buffer_); }
 
-  const char* FileName() const { return buffer_; }
+  NotNull<const char*> FileName() const { return buffer_; }
 
  private:
   char buffer_[L_tmpnam];
@@ -252,7 +253,7 @@ TEST(FileNameSink, Log) {
   const std::vector<std::string> messages = {"Message1", "Message2",
                                              "Message3"};
 
-  std::ifstream f(filename);
+  std::ifstream f(filename.get());
   ASSERT_TRUE(f.is_open());
 
   std::vector<std::string> strings;
@@ -283,7 +284,7 @@ TEST(FileNameSink, LogThreadSafe) {
   std::vector<std::string> messages = {"Message1", "Message2", "Message3"};
   std::sort(messages.begin(), messages.end());
 
-  std::ifstream f(filename);
+  std::ifstream f(filename.get());
   ASSERT_TRUE(f.is_open());
 
   std::vector<std::string> strings;

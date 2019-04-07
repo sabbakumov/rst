@@ -194,7 +194,7 @@ TEST(StatusOr, OperatorEquals) {
     status_or = MakeStatus<Error>();
     ASSERT_FALSE(status_or.ok());
     ASSERT_TRUE(status_or.err());
-    EXPECT_EQ(status_or.status().GetError().AsString(), kError);
+    EXPECT_EQ(status_or.status().GetError()->AsString(), kError);
 
     StatusOr<DtorHelper> status_or2 = MakeStatus<Error>();
     status_or2.Ignore();
@@ -344,7 +344,7 @@ TEST(StatusOr, Status) {
     StatusOr<int> status_or = MakeStatus<Error>();
     status_or.Ignore();
     const auto& status = status_or.status();
-    EXPECT_EQ(status.GetError().AsString(), kError);
+    EXPECT_EQ(status.GetError()->AsString(), kError);
   }
 }
 
