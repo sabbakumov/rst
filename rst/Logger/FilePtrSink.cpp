@@ -32,9 +32,9 @@
 namespace rst {
 
 FilePtrSink::FilePtrSink(const NotNull<std::FILE*> file,
-                         const bool should_close)
+                         const ShouldClose should_close)
     : file_(file) {
-  if (should_close)
+  if (should_close == ShouldClose::kYes)
     log_file_.reset(file.get());
 }
 

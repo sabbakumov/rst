@@ -42,9 +42,15 @@ namespace rst {
 // The class for sinking to a FILE* (can be stdout or stderr).
 class FilePtrSink : public ISink {
  public:
+  enum class ShouldClose : bool {
+    kNo,
+    kYes,
+  };
+
   // Saves the |file| pointer. If |should_close| is not set, doesn't close the
   // |file| pointer (e.g. stdout, stderr).
-  explicit FilePtrSink(NotNull<std::FILE*> file, bool should_close = true);
+  explicit FilePtrSink(NotNull<std::FILE*> file,
+                       ShouldClose should_close = ShouldClose::kYes);
   ~FilePtrSink();
 
   // Thread safe logging function.

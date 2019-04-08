@@ -322,7 +322,7 @@ TEST(FilePtrSink, Log) {
 TEST(FilePtrSink, LogNonClosing) {
   const auto file = tmpfile();
 
-  FilePtrSink sink(file, false);
+  FilePtrSink sink(file, FilePtrSink::ShouldClose::kNo);
 
   sink.Log("Message1");
   sink.Log("Message2");

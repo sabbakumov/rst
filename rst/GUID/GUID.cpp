@@ -47,7 +47,12 @@ bool IsLowerHexDigit(const char c) {
   return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
 }
 
-bool IsValidGUIDInternal(const std::string_view guid, const bool strict) {
+enum class Strict : bool {
+  kNo,
+  kYes,
+};
+
+bool IsValidGUIDInternal(const std::string_view guid, const Strict strict) {
   if (guid.size() != kGUIDLength)
     return false;
 
@@ -57,8 +62,16 @@ bool IsValidGUIDInternal(const std::string_view guid, const bool strict) {
       if (current != '-')
         return false;
     } else {
-      if (strict ? !IsLowerHexDigit(current) : !IsHexDigit(current))
-        return false;
+      switch (strict) {
+        case Strict::kNo:
+          if (!IsHexDigit(current))
+            return false;
+          break;
+        case Strict::kYes:
+          if (!IsLowerHexDigit(current))
+            return false;
+          break;
+      }
     }
   }
 
@@ -87,11 +100,11 @@ std::string GenerateGUID() {
 }
 
 bool IsValidGUID(const std::string_view guid) {
-  return IsValidGUIDInternal(guid, false);
+  return IsValidGUIDInternal(guid, Strict::kNo);
 }
 
 bool IsValidGUIDOutputString(const std::string_view guid) {
-  return IsValidGUIDInternal(guid, true);
+  return IsValidGUIDInternal(guid, Strict::kYes);
 }
 
 namespace internal {
