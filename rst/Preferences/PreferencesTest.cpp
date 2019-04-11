@@ -25,8 +25,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Preferences/Preferences.h"
-
 #include <utility>
 
 #include <gmock/gmock.h>
@@ -35,6 +33,8 @@
 #include "rst/Memory/Memory.h"
 #include "rst/NotNull/NotNull.h"
 #include "rst/Preferences/IPreferencesStore.h"
+#include "rst/Preferences/MemoryPreferencesStore.h"
+#include "rst/Preferences/Preferences.h"
 
 using testing::_;
 using testing::Return;
@@ -304,6 +304,28 @@ TEST_F(PreferencesTest, GetValuesOfDifferentType) {
   EXPECT_DEATH(prefs_.GetArray("object"), "");
   EXPECT_NO_FATAL_FAILURE(prefs_.GetObject("object"));
   testing::Mock::VerifyAndClearExpectations(pref_store_.get());
+}
+
+class MemoryPreferencesStoreTest : public testing::Test {};
+
+TEST_F(MemoryPreferencesStoreTest, MemoryPreferencesStore) {
+  MemoryPreferencesStore pref_store;
+
+  auto value = pref_store.GetValue("path");
+  EXPECT_EQ(value, nullptr);
+
+  pref_store.SetValue("path", Value(10));
+  value = pref_store.GetValue("path");
+  ASSERT_NE(value, nullptr);
+  EXPECT_EQ(*value, Value(10));
+
+  value = pref_store.GetValue("path.path2");
+  EXPECT_EQ(value, nullptr);
+
+  pref_store.SetValue("path.path2", Value(20));
+  value = pref_store.GetValue("path.path2");
+  ASSERT_NE(value, nullptr);
+  EXPECT_EQ(*value, Value(20));
 }
 
 }  // namespace rst

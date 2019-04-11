@@ -43,6 +43,8 @@ rst/NotNull/NotNull.h
 
 rst/Preferences/IPreferencesStore.cpp
 rst/Preferences/IPreferencesStore.h
+rst/Preferences/MemoryPreferencesStore.cpp
+rst/Preferences/MemoryPreferencesStore.h
 rst/Preferences/Preferences.cpp
 rst/Preferences/Preferences.h
 
