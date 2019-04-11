@@ -42,6 +42,8 @@ namespace rst {
 template <class T>
 class [[nodiscard]] StatusOr {
  public:
+  StatusOr() = delete;
+
   StatusOr(StatusOr && other)
       : status_(std::move(other.status_)), value_(std::move(other.value_)) {
     RST_DCHECK(value_.has_value() ? (status_.error_ == nullptr) : true);
@@ -50,9 +52,8 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  StatusOr(const T& value) { Construct(value); }
-
-  StatusOr(T && value) { Construct(std::move(value)); }
+  template <class U>
+  StatusOr(U && value) : value_(std::forward<U>(value)) {}
 
   StatusOr(Status status) : status_(std::move(status)) {
     RST_DCHECK(status_.error_ != nullptr);
@@ -77,24 +78,12 @@ class [[nodiscard]] StatusOr {
     return *this;
   }
 
-  StatusOr& operator=(const T& value) {
+  template <class U>
+  StatusOr& operator=(U&& value) {
     RST_DCHECK(was_checked_);
 
     status_ = Status::OK();
-    Construct(value);
-
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-
-    return *this;
-  }
-
-  StatusOr& operator=(T&& value) {
-    RST_DCHECK(was_checked_);
-
-    status_ = Status::OK();
-    Construct(std::move(value));
+    value_.emplace(std::forward<U>(value));
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
@@ -159,9 +148,6 @@ class [[nodiscard]] StatusOr {
   }
 
  private:
-  void Construct(const T& value) { value_.emplace(value); }
-  void Construct(T && value) { value_.emplace(std::move(value)); }
-
   Status status_;
   std::optional<T> value_;
 
