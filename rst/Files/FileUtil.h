@@ -66,6 +66,8 @@ class FileOpenError : public ErrorInfo<FileOpenError, FileError> {
 
 Status WriteFile(NotNull<const char*> filename, std::string_view data);
 
+Status WriteImportantFile(NotNull<const char*> filename, std::string_view data);
+
 StatusOr<std::string> ReadFile(NotNull<const char*> filename);
 
 }  // namespace rst

@@ -68,6 +68,45 @@ TEST(FileUtil, WriteRead) {
   }
 }
 
+TEST(FileUtil, WriteReadToTheSameFile) {
+  File file;
+  std::string content;
+  for (auto i = 0; i < 15000; content += std::to_string(i), i++) {
+    auto status = WriteFile(file.FileName(), content);
+    ASSERT_FALSE(status.err());
+
+    auto string = ReadFile(file.FileName());
+    ASSERT_FALSE(string.err());
+    EXPECT_EQ(*string, content);
+  }
+}
+
+TEST(FileUtil, WriteImportantRead) {
+  std::string content;
+  for (auto i = 0; i < 15000; content += std::to_string(i), i++) {
+    File file;
+    auto status = WriteImportantFile(file.FileName(), content);
+    ASSERT_FALSE(status.err());
+
+    auto string = ReadFile(file.FileName());
+    ASSERT_FALSE(string.err());
+    EXPECT_EQ(*string, content);
+  }
+}
+
+TEST(FileUtil, WriteImportantReadToTheSameFile) {
+  File file;
+  std::string content;
+  for (auto i = 0; i < 15000; content += std::to_string(i), i++) {
+    auto status = WriteImportantFile(file.FileName(), content);
+    ASSERT_FALSE(status.err());
+
+    auto string = ReadFile(file.FileName());
+    ASSERT_FALSE(string.err());
+    EXPECT_EQ(*string, content);
+  }
+}
+
 TEST(FileUtil, OpenFailed) {
   File file;
   auto string = ReadFile(file.FileName());

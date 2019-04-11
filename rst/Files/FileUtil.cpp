@@ -72,6 +72,20 @@ Status WriteFile(const NotNull<const char*> filename,
   return Status::OK();
 }
 
+Status WriteImportantFile(const NotNull<const char*> filename,
+                          const std::string_view data) {
+  const auto temp_filename = Format("{}._tmp_", filename.get());
+  if (auto status = WriteFile(temp_filename.c_str(), data); status.err())
+    return status;
+
+  if (std::rename(temp_filename.c_str(), filename.get()) != 0) {
+    return MakeStatus<FileError>(
+        Format("Can't rename temp file {}", temp_filename));
+  }
+
+  return Status::OK();
+}
+
 StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> file(
       std::fopen(filename.get(), "rb"), [](std::FILE* f) -> void {
