@@ -92,9 +92,6 @@ class [[nodiscard]] Status {
   // Sets the object not checked by default and moves |rhs| content.
   Status& operator=(Status&& rhs);
 
-  // Sets the object to be checked and returns whether the object is OK object.
-  bool ok() { return !err(); }
-
   // Sets the object to be checked and returns whether the object is error
   // object.
   bool err() {
@@ -114,8 +111,6 @@ class [[nodiscard]] Status {
   }
 
  private:
-  friend class StatusAsOutParameter;
-
   template <class T>
   friend class StatusOr;
 
@@ -143,18 +138,6 @@ template <class Err, class... Args>
 Status MakeStatus(Args&&... args) {
   return Status(std::make_unique<Err>(std::forward<Args>(args)...));
 }
-
-// A helper for Status used as out-parameters.
-class StatusAsOutParameter {
- public:
-  explicit StatusAsOutParameter(NotNull<Status*> status);
-  ~StatusAsOutParameter();
-
- private:
-  const NotNull<Status*> status_;
-
-  RST_DISALLOW_COPY_AND_ASSIGN(StatusAsOutParameter);
-};
 
 }  // namespace rst
 

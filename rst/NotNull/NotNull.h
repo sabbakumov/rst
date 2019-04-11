@@ -77,9 +77,6 @@ class NotNull {
   }
 
   NotNull& operator=(const NotNull& rhs) {
-    if (this == &rhs)
-      return *this;
-
     ptr_ = rhs.ptr_;
     RST_DCHECK(ptr_ != nullptr);
     return *this;
@@ -88,8 +85,6 @@ class NotNull {
   template <class U>
   NotNull& operator=(const NotNull<U>& rhs) {
     static_assert(std::is_pointer<U>::value);
-    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
-      return *this;
 
     ptr_ = rhs.ptr_;
     RST_DCHECK(ptr_ != nullptr);
@@ -168,9 +163,6 @@ class Nullable {
   }
 
   Nullable& operator=(const Nullable& rhs) {
-    if (this == &rhs)
-      return *this;
-
     ptr_ = rhs.ptr_;
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
@@ -181,8 +173,6 @@ class Nullable {
   template <class U>
   Nullable& operator=(const Nullable<U>& rhs) {
     static_assert(std::is_pointer<U>::value);
-    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
-      return *this;
 
     ptr_ = rhs.ptr_;
 #if RST_BUILDFLAG(DCHECK_IS_ON)
@@ -287,9 +277,6 @@ class NotNull<std::unique_ptr<T>> {
 
   template <class U>
   NotNull& operator=(NotNull<U>&& rhs) {
-    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
-      return *this;
-
     ptr_ = rhs.Take();
     RST_DCHECK(ptr_ != nullptr);
     return *this;
@@ -367,9 +354,6 @@ class Nullable<std::unique_ptr<T>> {
 
   template <class U>
   Nullable& operator=(Nullable<U>&& rhs) {
-    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
-      return *this;
-
     ptr_ = rhs.Take();
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
@@ -473,9 +457,6 @@ class NotNull<std::shared_ptr<T>> {
 
   template <class U>
   NotNull& operator=(NotNull<U>&& rhs) {
-    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
-      return *this;
-
     ptr_ = rhs.Take();
     RST_DCHECK(ptr_ != nullptr);
     return *this;
@@ -575,9 +556,6 @@ class Nullable<std::shared_ptr<T>> {
 
   template <class U>
   Nullable& operator=(Nullable<U>&& rhs) {
-    if (static_cast<void*>(this) == static_cast<const void*>(&rhs))
-      return *this;
-
     ptr_ = rhs.Take();
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;

@@ -116,8 +116,6 @@ class [[nodiscard]] StatusOr {
     return *this;
   }
 
-  bool ok() { return !err(); }
-
   bool err() {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = true;

@@ -54,8 +54,7 @@ class FileNameSink : public ISink {
   void Log(std::string_view message) final;
 
  private:
-  // Opens a |filename| for writing.
-  FileNameSink(const NotNull<const char*> filename, NotNull<Status*> status);
+  FileNameSink();
 
   // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{

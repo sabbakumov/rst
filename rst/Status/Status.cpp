@@ -78,18 +78,4 @@ NotNull<const ErrorInfoBase*> Status::GetError() const {
   return error_.get();
 }
 
-StatusAsOutParameter::StatusAsOutParameter(const NotNull<Status*> status)
-    : status_(status) {
-  RST_DCHECK(!status_->was_checked_);
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-  status_->was_checked_ = true;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-}
-
-StatusAsOutParameter::~StatusAsOutParameter() {
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-  status_->was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-}
-
 }  // namespace rst

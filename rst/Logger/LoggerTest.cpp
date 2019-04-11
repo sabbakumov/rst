@@ -244,7 +244,7 @@ TEST(FileNameSink, Log) {
   const auto filename = file.FileName();
 
   auto sink = FileNameSink::Create(filename);
-  ASSERT_TRUE(sink.ok());
+  ASSERT_FALSE(sink.err());
 
   (*sink)->Log("Message1");
   (*sink)->Log("Message2");
@@ -268,7 +268,7 @@ TEST(FileNameSink, LogThreadSafe) {
   const auto filename = file.FileName();
 
   auto sink = FileNameSink::Create(filename);
-  ASSERT_TRUE(sink.ok());
+  ASSERT_FALSE(sink.err());
 
   std::thread t1([&sink]() -> void {
     std::this_thread::yield();

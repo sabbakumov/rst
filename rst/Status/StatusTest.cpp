@@ -95,7 +95,7 @@ char Error3::id_ = 0;
 
 TEST(Status, OK) {
   auto status = Status::OK();
-  EXPECT_TRUE(status.ok());
+  EXPECT_FALSE(status.err());
 
   EXPECT_DEATH({ auto status = Status::OK(); }, "");
 }
@@ -107,7 +107,6 @@ TEST(Status, Err) {
 
 TEST(Status, Ctor) {
   Status status = MakeStatus<Error>();
-  ASSERT_FALSE(status.ok());
   ASSERT_TRUE(status.err());
   EXPECT_EQ(status.GetError()->AsString(), kError);
 }
@@ -115,7 +114,6 @@ TEST(Status, Ctor) {
 TEST(Status, MoveCtor) {
   Status status = MakeStatus<Error>();
   Status status2(std::move(status));
-  ASSERT_FALSE(status2.ok());
   ASSERT_TRUE(status2.err());
   EXPECT_EQ(status2.GetError()->AsString(), kError);
 }
@@ -125,7 +123,6 @@ TEST(Status, MoveAssignment) {
   auto status2 = Status::OK();
   status2.Ignore();
   status2 = std::move(status);
-  ASSERT_FALSE(status2.ok());
   ASSERT_TRUE(status2.err());
   EXPECT_EQ(status2.GetError()->AsString(), kError);
 
@@ -144,26 +141,13 @@ TEST(Status, ErrorInfo) {
   status.Ignore();
 
   auto status2 = Status::OK();
-  EXPECT_TRUE(status2.ok());
   EXPECT_FALSE(status2.err());
   EXPECT_DEATH(status.GetError(), "");
-}
-
-TEST(StatusAsOutParameter, Test) {
-  auto status = Status::OK();
-  {
-    StatusAsOutParameter sao(&status);
-    status = Status::OK();
-  }
-
-  EXPECT_TRUE(status.ok());
-  EXPECT_FALSE(status.err());
 }
 
 TEST(Status, MakeStatus) {
   auto status = MakeStatus<Error>();
 
-  ASSERT_FALSE(status.ok());
   ASSERT_TRUE(status.err());
   EXPECT_EQ(status.GetError()->AsString(), kError);
 }

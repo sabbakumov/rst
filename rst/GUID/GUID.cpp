@@ -119,7 +119,7 @@ std::string RandomDataToGUIDString(const uint64_t (&bytes)[2]) {
                    static_cast<unsigned int>(bytes[1] >> 48),
                    bytes[1] & 0x0000ffff'ffffffffULL);
   RST_DCHECK(ret == kGUIDLength);
-  return buffer;
+  return std::string(buffer, kGUIDLength);
 }
 
 }  // namespace internal
