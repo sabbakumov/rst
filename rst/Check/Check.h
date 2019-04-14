@@ -33,11 +33,20 @@
 
 #if defined(NDEBUG)
 #define RST_BUILDFLAG_DCHECK_IS_ON() (false)
+
+#define RST_DCHECK(condition)                                    \
+  do {                                                           \
+    false ? static_cast<void>(condition) : static_cast<void>(0); \
+  } while (false)
 #else
 #define RST_BUILDFLAG_DCHECK_IS_ON() (true)
-#endif
 
-#define RST_DCHECK(condition) assert(condition)
+#define RST_DCHECK(condition)                            \
+  do {                                                   \
+    (condition) ? static_cast<void>(0)                   \
+                : [] { assert(false && #condition); }(); \
+  } while (false)
+#endif
 
 #define RST_NOTREACHED() RST_DCHECK(false)
 

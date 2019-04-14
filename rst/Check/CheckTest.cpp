@@ -30,6 +30,21 @@
 #include <gtest/gtest.h>
 
 namespace rst {
+namespace {
+
+auto g_int = 0;
+
+bool IncrementIntAndReturnTrue() {
+  g_int++;
+  return true;
+}
+
+constexpr double Divide(const double a, const double b) {
+  RST_DCHECK(b != 0.0);
+  RST_CHECK(b != 0.0);
+  return a / b;
+}
+}  // namespace
 
 TEST(Check, Check) {
   EXPECT_NO_FATAL_FAILURE(RST_CHECK(true));
@@ -42,5 +57,21 @@ TEST(Check, DCheck) {
 }
 
 TEST(Check, Notreached) { EXPECT_DEATH(RST_NOTREACHED(), ""); }
+
+TEST(Check, DCheckInConstexpr) {
+  static constexpr auto result = Divide(1.0, 1.0);
+  EXPECT_EQ(result, 1.0);
+}
+
+TEST(Check, NoUnused) {
+  static constexpr auto result = Divide(1.0, 1.0);
+  RST_DCHECK(result == 1.0);
+}
+
+TEST(Check, ConditionEvaluation) {
+  EXPECT_EQ(g_int, 0);
+  RST_DCHECK(IncrementIntAndReturnTrue());
+  EXPECT_EQ(g_int, 1);
+}
 
 }  // namespace rst

@@ -149,25 +149,33 @@ class [[nodiscard]] optional {
   }
 
   T& operator*() {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(is_valid_);
     return value_;
   }
 
   const T& operator*() const {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(is_valid_);
     return value_;
   }
 
   T* operator->() {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(is_valid_);
     return &value_;
   }
 
   T* operator->() const {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(is_valid_);
     return &value_;
   }

@@ -59,10 +59,16 @@ class [[nodiscard]] StatusOr {
     RST_DCHECK(status_.error_ != nullptr);
   }
 
-  ~StatusOr() { RST_DCHECK(was_checked_); }
+  ~StatusOr() {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
 
   StatusOr& operator=(StatusOr&& rhs) {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     if (this == &rhs)
       return *this;
@@ -80,7 +86,9 @@ class [[nodiscard]] StatusOr {
 
   template <class U>
   StatusOr& operator=(U&& value) {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     status_ = Status::OK();
     value_.emplace(std::forward<U>(value));
@@ -93,7 +101,9 @@ class [[nodiscard]] StatusOr {
   }
 
   StatusOr& operator=(Status status) {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(status.error_ != nullptr);
 
     status_ = std::move(status);
@@ -113,28 +123,36 @@ class [[nodiscard]] StatusOr {
   }
 
   T& operator*() {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(value_.has_value());
 
     return *value_;
   }
 
   NotNull<T*> operator->() {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(value_.has_value());
 
     return &*value_;
   }
 
   Status TakeStatus() {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(status_.error_ != nullptr);
 
     return std::move(status_);
   }
 
   const Status& status() const {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(status_.error_ != nullptr);
 
     return status_;

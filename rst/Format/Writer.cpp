@@ -113,8 +113,8 @@ void Writer::Write(const std::string_view str) {
 }
 
 std::string Writer::TakeString() {
-  RST_DCHECK(!moved_ && "String has been already moved");
 #if RST_BUILDFLAG(DCHECK_IS_ON)
+  RST_DCHECK(!moved_ && "String has been already moved");
   moved_ = true;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 

@@ -56,7 +56,9 @@ Status::Status(Status&& other) {
 }
 
 Status& Status::operator=(Status&& rhs) {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
   RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
   if (this == &rhs)
     return *this;
@@ -70,10 +72,16 @@ Status& Status::operator=(Status&& rhs) {
   return *this;
 }
 
-Status::~Status() { RST_DCHECK(was_checked_); }
+Status::~Status() {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+}
 
 NotNull<const ErrorInfoBase*> Status::GetError() const {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
   RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   RST_DCHECK(error_ != nullptr);
   return error_.get();
 }

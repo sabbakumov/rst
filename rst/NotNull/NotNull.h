@@ -203,19 +203,25 @@ class Nullable {
 
   T operator->() const {
     const auto p = get();
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(p != nullptr);
     return p;
   }
   auto& operator*() const {
     const auto p = get();
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(p != nullptr);
     return *p;
   }
   auto& operator[](const size_t i) const {
     const auto p = get();
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(p != nullptr);
     const auto ptr = p + i;
     return *ptr;
@@ -382,13 +388,17 @@ class Nullable<std::unique_ptr<T>> {
 
   T* operator->() const {
     const auto p = get();
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(p != nullptr);
     return p;
   }
   auto& operator*() const {
     const auto p = get();
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(p != nullptr);
     return *p;
   }
@@ -589,13 +599,17 @@ class Nullable<std::shared_ptr<T>> {
 
   T* operator->() const {
     const auto p = get();
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(p != nullptr);
     return p;
   }
   auto& operator*() const {
     const auto p = get();
+#if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(p != nullptr);
     return *p;
   }
