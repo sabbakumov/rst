@@ -29,6 +29,7 @@
 #define RST_MEMORY_MEMORY_H_
 
 #include <memory>
+#include <type_traits>
 
 #include "rst/NotNull/NotNull.h"
 
@@ -37,6 +38,7 @@ namespace rst {
 // Chromium-like WrapUnique.
 template <class T>
 NotNull<std::unique_ptr<T>> WrapUnique(const NotNull<T*> ptr) {
+  static_assert(!std::is_array<T>::value);
   return std::unique_ptr<T>(ptr.get());
 }
 
