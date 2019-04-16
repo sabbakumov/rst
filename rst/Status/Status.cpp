@@ -60,9 +60,6 @@ Status& Status::operator=(Status&& rhs) {
   RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
-  if (this == &rhs)
-    return *this;
-
 #if RST_BUILDFLAG(DCHECK_IS_ON)
   was_checked_ = false;
   rhs.was_checked_ = true;

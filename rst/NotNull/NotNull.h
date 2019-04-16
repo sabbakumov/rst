@@ -52,7 +52,7 @@ class NotNull {
 
   NotNull(T ptr) : ptr_(ptr) { RST_DCHECK(ptr_ != nullptr); }
 
-  NotNull(const NotNull& other) : NotNull(other.ptr_) {}
+  NotNull(const NotNull&) = default;
 
   template <class U>
   NotNull(const NotNull<U>& other) : NotNull(other.ptr_) {
@@ -133,7 +133,7 @@ class Nullable {
 
   Nullable(T ptr) : ptr_(ptr) {}
 
-  Nullable(const Nullable& other) : Nullable(other.ptr_) {}
+  Nullable(const Nullable&) = default;
 
   template <class U>
   Nullable(const Nullable<U>& other) : Nullable(other.ptr_) {
@@ -253,7 +253,7 @@ class NotNull<std::unique_ptr<T>> {
     RST_DCHECK(ptr_ != nullptr);
   }
 
-  NotNull(NotNull&& other) : NotNull(other.Take()) {}
+  NotNull(NotNull&&) = default;
 
   template <class U>
   NotNull(NotNull<U>&& other) : NotNull(other.Take()) {}
@@ -272,14 +272,7 @@ class NotNull<std::unique_ptr<T>> {
     return *this;
   }
 
-  NotNull& operator=(NotNull&& rhs) {
-    if (this == &rhs)
-      return *this;
-
-    ptr_ = rhs.Take();
-    RST_DCHECK(ptr_ != nullptr);
-    return *this;
-  }
+  NotNull& operator=(NotNull&&) = default;
 
   template <class U>
   NotNull& operator=(NotNull<U>&& rhs) {
@@ -322,7 +315,7 @@ class Nullable<std::unique_ptr<T>> {
   template <class U>
   Nullable(std::unique_ptr<U> ptr) : ptr_(std::move(ptr)) {}
 
-  Nullable(Nullable&& other) : Nullable(other.Take()) {}
+  Nullable(Nullable&&) = default;
 
   template <class U>
   Nullable(Nullable<U>&& other) : Nullable(other.Take()) {}
@@ -348,9 +341,6 @@ class Nullable<std::unique_ptr<T>> {
   }
 
   Nullable& operator=(Nullable&& rhs) {
-    if (this == &rhs)
-      return *this;
-
     ptr_ = rhs.Take();
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
@@ -431,7 +421,7 @@ class NotNull<std::shared_ptr<T>> {
   template <class U>
   NotNull(const NotNull<U>&) = delete;
 
-  NotNull(NotNull&& other) : NotNull(other.Take()) {}
+  NotNull(NotNull&&) = default;
 
   template <class U>
   NotNull(NotNull<U>&& other) : NotNull(other.Take()) {}
@@ -456,14 +446,7 @@ class NotNull<std::shared_ptr<T>> {
   template <class U>
   NotNull& operator=(const NotNull<U>&) = delete;
 
-  NotNull& operator=(NotNull&& rhs) {
-    if (this == &rhs)
-      return *this;
-
-    ptr_ = rhs.Take();
-    RST_DCHECK(ptr_ != nullptr);
-    return *this;
-  }
+  NotNull& operator=(NotNull&&) = default;
 
   template <class U>
   NotNull& operator=(NotNull<U>&& rhs) {
@@ -522,7 +505,7 @@ class Nullable<std::shared_ptr<T>> {
   template <class U>
   Nullable(const Nullable<U>&) = delete;
 
-  Nullable(Nullable&& other) : Nullable(other.Take()) {}
+  Nullable(Nullable&&) = default;
 
   template <class U>
   Nullable(Nullable<U>&& other) : Nullable(other.Take()) {}
@@ -554,9 +537,6 @@ class Nullable<std::shared_ptr<T>> {
   Nullable& operator=(const Nullable<U>&) = delete;
 
   Nullable& operator=(Nullable&& rhs) {
-    if (this == &rhs)
-      return *this;
-
     ptr_ = rhs.Take();
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;

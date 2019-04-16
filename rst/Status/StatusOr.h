@@ -70,9 +70,6 @@ class [[nodiscard]] StatusOr {
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
-    if (this == &rhs)
-      return *this;
-
     status_ = std::move(rhs.status_);
     value_ = std::move(rhs.value_);
 

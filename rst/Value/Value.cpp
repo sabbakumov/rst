@@ -97,9 +97,6 @@ Value::Value(Value&& rhs) { MoveConstruct(std::move(rhs)); }
 Value::~Value() { Cleanup(); }
 
 Value& Value::operator=(Value&& rhs) {
-  if (this == &rhs)
-    return *this;
-
   if (type_ == rhs.type_) {
     MoveAssign(std::move(rhs));
   } else {

@@ -54,51 +54,31 @@ class WeakPtr {
   WeakPtr(std::weak_ptr<internal::Flag>&& flag, const NotNull<T*> ptr)
       : flag_(std::move(flag)), ptr_(ptr.get()) {}
 
-  WeakPtr(const WeakPtr& other) : flag_(other.flag_), ptr_(other.ptr_) {}
+  WeakPtr(const WeakPtr&) = default;
 
   template <class U>
   WeakPtr(const WeakPtr<U>& other)
       : flag_(other.flag_), ptr_(static_cast<T*>(other.ptr_)) {}
 
-  WeakPtr(WeakPtr&& other) : flag_(std::move(other.flag_)), ptr_(other.ptr_) {}
+  WeakPtr(WeakPtr&&) = default;
 
   template <class U>
   WeakPtr(WeakPtr<U>&& other)
       : flag_(std::move(other.flag_)), ptr_(static_cast<T*>(other.ptr_)) {}
 
-  WeakPtr& operator=(const WeakPtr& rhs) {
-    if (this == &rhs)
-      return *this;
-
-    flag_ = rhs.flag_;
-    ptr_ = rhs.ptr_;
-    return *this;
-  }
+  WeakPtr& operator=(const WeakPtr&) = default;
 
   template <class U>
   WeakPtr& operator=(const WeakPtr<U>& rhs) {
-    if (this == &rhs)
-      return *this;
-
     flag_ = rhs.flag_;
     ptr_ = static_cast<T*>(rhs.ptr_);
     return *this;
   }
 
-  WeakPtr& operator=(WeakPtr&& rhs) {
-    if (this == &rhs)
-      return *this;
-
-    flag_ = std::move(rhs.flag_);
-    ptr_ = rhs.ptr_;
-    return *this;
-  }
+  WeakPtr& operator=(WeakPtr&&) = default;
 
   template <class U>
   WeakPtr& operator=(WeakPtr<U>&& rhs) {
-    if (this == &rhs)
-      return *this;
-
     flag_ = std::move(rhs.flag_);
     ptr_ = static_cast<T*>(rhs.ptr_);
     return *this;

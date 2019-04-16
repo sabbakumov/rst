@@ -117,9 +117,6 @@ class [[nodiscard]] optional {
   }
 
   optional& operator=(optional&& rhs) {
-    if (this == &rhs)
-      return *this;
-
     if (is_valid_)
       Destruct();
 
