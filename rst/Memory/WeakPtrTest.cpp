@@ -107,16 +107,6 @@ TEST(WeakPtrTest, MultipleStaged) {
   EXPECT_EQ(a.get(), nullptr);
 }
 
-TEST(WeakPtrTest, Dereference) {
-  Base data;
-  data.member = "123456";
-  const WeakPtrFactory<Base> factory(&data);
-  const auto ptr = factory.GetWeakPtr();
-  EXPECT_EQ(ptr.get(), &data);
-  EXPECT_EQ((*ptr).member, data.member);
-  EXPECT_EQ(ptr->member, data.member);
-}
-
 TEST(WeakPtrTest, UpCast) {
   Derived data;
   const WeakPtrFactory<Derived> factory(&data);
@@ -127,19 +117,6 @@ TEST(WeakPtrTest, UpCast) {
 TEST(WeakPtrTest, ConstructFromNullptr) {
   const WeakPtr<int> ptr(nullptr);
   EXPECT_EQ(ptr.get(), nullptr);
-}
-
-TEST(WeakPtrTest, ComparisonToNull) {
-  auto data = 0;
-  const WeakPtrFactory<int> factory(&data);
-
-  const auto ptr_to_an_instance = factory.GetWeakPtr();
-  EXPECT_NE(nullptr, ptr_to_an_instance);
-  EXPECT_NE(ptr_to_an_instance, nullptr);
-
-  WeakPtr<int> null_ptr;
-  EXPECT_EQ(null_ptr, nullptr);
-  EXPECT_EQ(nullptr, null_ptr);
 }
 
 }  // namespace rst

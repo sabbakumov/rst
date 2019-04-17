@@ -29,7 +29,6 @@
 #define RST_MEMORY_WEAKPTR_H_
 
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <utility>
 
@@ -49,7 +48,7 @@ template <class T>
 class WeakPtr {
  public:
   WeakPtr() = default;
-  explicit WeakPtr(std::nullptr_t) {}
+  WeakPtr(std::nullptr_t) {}
 
   WeakPtr(std::weak_ptr<internal::Flag>&& flag, const NotNull<T*> ptr)
       : flag_(std::move(flag)), ptr_(ptr.get()) {}
@@ -57,21 +56,20 @@ class WeakPtr {
   WeakPtr(const WeakPtr&) = default;
 
   template <class U>
-  WeakPtr(const WeakPtr<U>& other)
-      : flag_(other.flag_), ptr_(static_cast<T*>(other.ptr_)) {}
+  WeakPtr(const WeakPtr<U>& other) : flag_(other.flag_), ptr_(other.ptr_) {}
 
   WeakPtr(WeakPtr&&) = default;
 
   template <class U>
   WeakPtr(WeakPtr<U>&& other)
-      : flag_(std::move(other.flag_)), ptr_(static_cast<T*>(other.ptr_)) {}
+      : flag_(std::move(other.flag_)), ptr_(other.ptr_) {}
 
   WeakPtr& operator=(const WeakPtr&) = default;
 
   template <class U>
   WeakPtr& operator=(const WeakPtr<U>& rhs) {
     flag_ = rhs.flag_;
-    ptr_ = static_cast<T*>(rhs.ptr_);
+    ptr_ = rhs.ptr_;
     return *this;
   }
 
@@ -80,23 +78,11 @@ class WeakPtr {
   template <class U>
   WeakPtr& operator=(WeakPtr<U>&& rhs) {
     flag_ = std::move(rhs.flag_);
-    ptr_ = static_cast<T*>(rhs.ptr_);
+    ptr_ = rhs.ptr_;
     return *this;
   }
 
   Nullable<T*> get() const { return IsValid() ? ptr_ : nullptr; }
-
-  T& operator*() const {
-    const auto ptr = get();
-    RST_DCHECK(ptr != nullptr);
-    return *ptr;
-  }
-
-  NotNull<T*> operator->() const {
-    const auto ptr = get();
-    RST_DCHECK(ptr != nullptr);
-    return ptr;
-  }
 
  private:
   template <class U>
@@ -105,28 +91,8 @@ class WeakPtr {
   bool IsValid() const { return !flag_.expired(); }
 
   std::weak_ptr<internal::Flag> flag_;
-  T* ptr_ = nullptr;
+  Nullable<T*> ptr_;
 };
-
-template <class T>
-bool operator==(const WeakPtr<T>& weak_ptr, std::nullptr_t) {
-  return weak_ptr.get() == nullptr;
-}
-
-template <class T>
-bool operator==(std::nullptr_t, const WeakPtr<T>& weak_ptr) {
-  return weak_ptr == nullptr;
-}
-
-template <class T>
-bool operator!=(const WeakPtr<T>& weak_ptr, std::nullptr_t) {
-  return !(weak_ptr == nullptr);
-}
-
-template <class T>
-bool operator!=(std::nullptr_t, const WeakPtr<T>& weak_ptr) {
-  return weak_ptr != nullptr;
-}
 
 template <class T>
 class WeakPtrFactory {
