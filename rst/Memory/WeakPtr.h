@@ -82,6 +82,12 @@ class WeakPtr {
     return *this;
   }
 
+  WeakPtr& operator=(std::nullptr_t) {
+    flag_.reset();
+    ptr_ = nullptr;
+    return *this;
+  }
+
   Nullable<T*> get() const { return IsValid() ? ptr_ : nullptr; }
 
  private:

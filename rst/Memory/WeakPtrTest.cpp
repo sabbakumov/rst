@@ -119,4 +119,12 @@ TEST(WeakPtrTest, ConstructFromNullptr) {
   EXPECT_EQ(ptr.get(), nullptr);
 }
 
+TEST(WeakPtrTest, AssignNullptr) {
+  Derived data;
+  const WeakPtrFactory<Derived> factory(&data);
+  WeakPtr<Base> ptr = factory.GetWeakPtr();
+  ptr = nullptr;
+  EXPECT_EQ(ptr.get(), nullptr);
+}
+
 }  // namespace rst
