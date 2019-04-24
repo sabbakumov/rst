@@ -43,9 +43,9 @@ template <class F>
 class DeferredAction {
  public:
   explicit DeferredAction(F&& action) : action_(std::forward<F>(action)) {}
-  DeferredAction(DeferredAction&&) = default;
+  DeferredAction(DeferredAction&&) noexcept = default;
 
-  DeferredAction& operator=(DeferredAction&&) = delete;
+  DeferredAction& operator=(DeferredAction&&) noexcept = delete;
 
   ~DeferredAction() { action_(); }
 

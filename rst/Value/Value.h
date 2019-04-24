@@ -77,11 +77,11 @@ class Value {
   // Prevents Value(pointer) from accidentally producing a bool.
   explicit Value(void*) = delete;
 
-  Value(Value&& rhs);
+  Value(Value&& other) noexcept;
 
   ~Value();
 
-  Value& operator=(Value&& rhs);
+  Value& operator=(Value&& rhs) noexcept;
 
   Value Clone() const;
 
@@ -149,7 +149,7 @@ class Value {
   friend bool operator==(const Value& lhs, const Value& rhs);
   friend bool operator<(const Value& lhs, const Value& rhs);
 
-  void MoveConstruct(Value&& rhs);
+  void MoveConstruct(Value&& other);
   void MoveAssign(Value&& rhs);
   void Cleanup();
 

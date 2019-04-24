@@ -48,14 +48,14 @@ Status::Status(NotNull<std::unique_ptr<ErrorInfoBase>> error)
   RST_DCHECK(error_ != nullptr);
 }
 
-Status::Status(Status&& other) {
+Status::Status(Status&& other) noexcept {
   error_ = std::move(other.error_);
 #if RST_BUILDFLAG(DCHECK_IS_ON)
   other.was_checked_ = true;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 }
 
-Status& Status::operator=(Status&& rhs) {
+Status& Status::operator=(Status&& rhs) noexcept {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
   RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)

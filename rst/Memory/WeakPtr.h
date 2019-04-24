@@ -58,10 +58,10 @@ class WeakPtr {
   template <class U>
   WeakPtr(const WeakPtr<U>& other) : flag_(other.flag_), ptr_(other.ptr_) {}
 
-  WeakPtr(WeakPtr&&) = default;
+  WeakPtr(WeakPtr&&) noexcept = default;
 
   template <class U>
-  WeakPtr(WeakPtr<U>&& other)
+  WeakPtr(WeakPtr<U>&& other) noexcept
       : flag_(std::move(other.flag_)), ptr_(other.ptr_) {}
 
   WeakPtr& operator=(const WeakPtr&) = default;
@@ -73,10 +73,10 @@ class WeakPtr {
     return *this;
   }
 
-  WeakPtr& operator=(WeakPtr&&) = default;
+  WeakPtr& operator=(WeakPtr&&) noexcept = default;
 
   template <class U>
-  WeakPtr& operator=(WeakPtr<U>&& rhs) {
+  WeakPtr& operator=(WeakPtr<U>&& rhs) noexcept {
     flag_ = std::move(rhs.flag_);
     ptr_ = rhs.ptr_;
     return *this;
@@ -105,8 +105,8 @@ class WeakPtrFactory {
  public:
   explicit WeakPtrFactory(const NotNull<T*> ptr) : ptr_(ptr) {}
 
-  WeakPtrFactory(WeakPtrFactory&&) = delete;
-  WeakPtrFactory& operator=(WeakPtrFactory&&) = delete;
+  WeakPtrFactory(WeakPtrFactory&&) noexcept = delete;
+  WeakPtrFactory& operator=(WeakPtrFactory&&) noexcept = delete;
 
   WeakPtr<T> GetWeakPtr() const { return WeakPtr<T>(flag_, ptr_); }
 

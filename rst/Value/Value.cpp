@@ -92,11 +92,11 @@ Value::Value(Array&& value) : type_(Type::kArray), array_(std::move(value)) {}
 Value::Value(Object&& value)
     : type_(Type::kObject), object_(std::move(value)) {}
 
-Value::Value(Value&& rhs) { MoveConstruct(std::move(rhs)); }
+Value::Value(Value&& other) noexcept { MoveConstruct(std::move(other)); }
 
 Value::~Value() { Cleanup(); }
 
-Value& Value::operator=(Value&& rhs) {
+Value& Value::operator=(Value&& rhs) noexcept {
   if (type_ == rhs.type_) {
     MoveAssign(std::move(rhs));
   } else {
@@ -365,28 +365,28 @@ Nullable<Value*> Value::FindPath(const std::string_view path) {
   return current_object->FindKey(current_path);
 }
 
-void Value::MoveConstruct(Value&& rhs) {
-  switch (rhs.type_) {
+void Value::MoveConstruct(Value&& other) {
+  switch (other.type_) {
     case Type::kNull:
       break;
     case Type::kBool:
-      bool_ = rhs.bool_;
+      bool_ = other.bool_;
       break;
     case Type::kNumber:
-      number_ = rhs.number_;
+      number_ = other.number_;
       break;
     case Type::kString:
-      new (&string_) String(std::move(rhs.string_));
+      new (&string_) String(std::move(other.string_));
       break;
     case Type::kArray:
-      new (&array_) Array(std::move(rhs.array_));
+      new (&array_) Array(std::move(other.array_));
       break;
     case Type::kObject:
-      new (&object_) Object(std::move(rhs.object_));
+      new (&object_) Object(std::move(other.object_));
       break;
   }
 
-  type_ = rhs.type_;
+  type_ = other.type_;
 }
 
 void Value::MoveAssign(Value&& rhs) {
