@@ -43,7 +43,7 @@ void Foo() { g_int = 1; }
 TEST(Defer, Lambda) {
   auto i = 0;
   {
-    RST_DEFER([&i]() -> void { i = 1; });
+    RST_DEFER([&i]() { i = 1; });
   }
 
   EXPECT_EQ(i, 1);
@@ -58,8 +58,8 @@ TEST(Defer, Function) {
 TEST(Defer, MultipleTimesDeclaration) {
   std::string result;
   {
-    RST_DEFER([&result]() -> void { result += '1'; });
-    RST_DEFER([&result]() -> void { result += '2'; });
+    RST_DEFER([&result]() { result += '1'; });
+    RST_DEFER([&result]() { result += '2'; });
   }
 
   EXPECT_EQ(result, "21");

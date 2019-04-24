@@ -58,7 +58,7 @@ class FileNameSink : public ISink {
 
   // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
-      nullptr, [](std::FILE* f) -> void {
+      nullptr, [](std::FILE* f) {
         if (f != nullptr) {
           const auto ret = std::fclose(f);
           RST_DCHECK(ret == 0);

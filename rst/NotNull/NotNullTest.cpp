@@ -145,10 +145,10 @@ TEST(NotNull, PlainPtrNullable) {
 }
 
 TEST(NotNull, PlainPtrBaseDerived) {
-  const auto foo_base = [](NotNull<Base*> b) -> void {
+  const auto foo_base = [](NotNull<Base*> b) {
     EXPECT_EQ(b->GetName(), "Base");
   };
-  const auto foo_derived = [](NotNull<Base*> b) -> void {
+  const auto foo_derived = [](NotNull<Base*> b) {
     EXPECT_EQ(b->GetName(), "Derived");
   };
   class C {
@@ -370,10 +370,10 @@ TEST(NotNull, UniquePtrNullable) {
 }
 
 TEST(NotNull, UniquePtrBaseDerived) {
-  const auto foo_base = [](NotNull<std::unique_ptr<Base>> b) -> void {
+  const auto foo_base = [](NotNull<std::unique_ptr<Base>> b) {
     EXPECT_EQ(b->GetName(), "Base");
   };
-  const auto foo_derived = [](NotNull<std::unique_ptr<Base>> b) -> void {
+  const auto foo_derived = [](NotNull<std::unique_ptr<Base>> b) {
     EXPECT_EQ(b->GetName(), "Derived");
   };
   class C {
@@ -463,10 +463,10 @@ TEST(NotNull, SharedPtrNullable) {
 }
 
 TEST(NotNull, SharedPtrBaseDerived) {
-  const auto foo_base = [](NotNull<std::shared_ptr<Base>> b) -> void {
+  const auto foo_base = [](NotNull<std::shared_ptr<Base>> b) {
     EXPECT_EQ(b->GetName(), "Base");
   };
-  const auto foo_derived = [](NotNull<std::shared_ptr<Base>> b) -> void {
+  const auto foo_derived = [](NotNull<std::shared_ptr<Base>> b) {
     EXPECT_EQ(b->GetName(), "Derived");
   };
   class C {
@@ -617,11 +617,11 @@ TEST(Nullable, PlainPtrNotNull) {
 }
 
 TEST(Nullable, PlainPtrBaseDerived) {
-  const auto foo_base = [](Nullable<Base*> b) -> void {
+  const auto foo_base = [](Nullable<Base*> b) {
     ASSERT_NE(b, nullptr);
     EXPECT_EQ(b->GetName(), "Base");
   };
-  const auto foo_derived = [](Nullable<Base*> b) -> void {
+  const auto foo_derived = [](Nullable<Base*> b) {
     ASSERT_NE(b, nullptr);
     EXPECT_EQ(b->GetName(), "Derived");
   };
@@ -880,11 +880,11 @@ TEST(Nullable, UniquePtrNotNull) {
 }
 
 TEST(Nullable, UniquePtrBaseDerived) {
-  const auto foo_base = [](Nullable<std::unique_ptr<Base>> b) -> void {
+  const auto foo_base = [](Nullable<std::unique_ptr<Base>> b) {
     ASSERT_NE(b, nullptr);
     EXPECT_EQ(b->GetName(), "Base");
   };
-  const auto foo_derived = [](Nullable<std::unique_ptr<Base>> b) -> void {
+  const auto foo_derived = [](Nullable<std::unique_ptr<Base>> b) {
     ASSERT_NE(b, nullptr);
     EXPECT_EQ(b->GetName(), "Derived");
   };
@@ -993,11 +993,11 @@ TEST(Nullable, SharedPtrNotNull) {
 }
 
 TEST(Nullable, SharedPtrBaseDerived) {
-  const auto foo_base = [](Nullable<std::shared_ptr<Base>> b) -> void {
+  const auto foo_base = [](Nullable<std::shared_ptr<Base>> b) {
     ASSERT_NE(b, nullptr);
     EXPECT_EQ(b->GetName(), "Base");
   };
-  const auto foo_derived = [](Nullable<std::shared_ptr<Base>> b) -> void {
+  const auto foo_derived = [](Nullable<std::shared_ptr<Base>> b) {
     ASSERT_NE(b, nullptr);
     EXPECT_EQ(b->GetName(), "Derived");
   };

@@ -51,7 +51,7 @@ FileOpenError::~FileOpenError() = default;
 Status WriteFile(const NotNull<const char*> filename,
                  const std::string_view data) {
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> file(
-      std::fopen(filename.get(), "wb"), [](std::FILE* f) -> void {
+      std::fopen(filename.get(), "wb"), [](std::FILE* f) {
         if (f != nullptr) {
           const auto ret = std::fclose(f);
           RST_DCHECK(ret == 0);
@@ -88,7 +88,7 @@ Status WriteImportantFile(const NotNull<const char*> filename,
 
 StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> file(
-      std::fopen(filename.get(), "rb"), [](std::FILE* f) -> void {
+      std::fopen(filename.get(), "rb"), [](std::FILE* f) {
         if (f != nullptr) {
           const auto ret = std::fclose(f);
           RST_DCHECK(ret == 0);

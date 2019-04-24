@@ -270,12 +270,12 @@ TEST(FileNameSink, LogThreadSafe) {
   auto sink = FileNameSink::Create(filename);
   ASSERT_FALSE(sink.err());
 
-  std::thread t1([&sink]() -> void {
+  std::thread t1([&sink]() {
     std::this_thread::yield();
     (*sink)->Log("Message1");
   });
-  std::thread t2([&sink]() -> void { (*sink)->Log("Message2"); });
-  std::thread t3([&sink]() -> void { (*sink)->Log("Message3"); });
+  std::thread t2([&sink]() { (*sink)->Log("Message2"); });
+  std::thread t3([&sink]() { (*sink)->Log("Message3"); });
 
   t1.join();
   t2.join();
@@ -348,12 +348,12 @@ TEST(FilePtrSink, LogThreadSafe) {
 
   FilePtrSink sink(file);
 
-  std::thread t1([&sink]() -> void {
+  std::thread t1([&sink]() {
     std::this_thread::yield();
     sink.Log("Message1");
   });
-  std::thread t2([&sink]() -> void { sink.Log("Message2"); });
-  std::thread t3([&sink]() -> void { sink.Log("Message3"); });
+  std::thread t2([&sink]() { sink.Log("Message2"); });
+  std::thread t3([&sink]() { sink.Log("Message3"); });
 
   t1.join();
   t2.join();
