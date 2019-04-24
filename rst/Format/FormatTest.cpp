@@ -27,8 +27,9 @@
 
 #include "rst/Format/Format.h"
 
-#include <iterator>
+#include <cstdint>
 #include <limits>
+#include <sstream>
 #include <string>
 #include <string_view>
 
@@ -36,9 +37,7 @@
 
 namespace rst {
 
-using namespace internal;
-
-TEST(FormatterTest, Escape) {
+TEST(Format, Escape) {
   EXPECT_EQ(Format("{{"), "{");
   EXPECT_EQ(Format("before {{"), "before {");
   EXPECT_EQ(Format("{{ after"), "{ after");
@@ -53,25 +52,21 @@ TEST(FormatterTest, Escape) {
   EXPECT_EQ(Format("{{{}}}", 42), "{42}");
 }
 
-TEST(FormatterTest, UnmatchedBraces) {
+TEST(Format, UnmatchedBraces) {
   EXPECT_DEATH(Format("{"), "");
-
   EXPECT_DEATH(Format("}"), "");
-
   EXPECT_DEATH(Format("{0{}"), "");
 }
 
-TEST(FormatterTest, UnmatchedBracesWithArgs) {
+TEST(Format, UnmatchedBracesWithArgs) {
   EXPECT_DEATH(Format("{", 1), "");
-
   EXPECT_DEATH(Format("}", 1), "");
-
   EXPECT_DEATH(Format("{0{}", 1), "");
 }
 
-TEST(FormatterTest, NoArgs) { EXPECT_EQ(Format("test"), "test"); }
+TEST(Format, NoArgs) { EXPECT_EQ(Format("test"), "test"); }
 
-TEST(FormatterTest, ArgsInDifferentPositions) {
+TEST(Format, ArgsInDifferentPositions) {
   EXPECT_EQ(Format("{}", 42), "42");
   EXPECT_EQ(Format("before {}", 42), "before 42");
   EXPECT_EQ(Format("{} after", 42), "42 after");
@@ -81,39 +76,34 @@ TEST(FormatterTest, ArgsInDifferentPositions) {
   EXPECT_EQ(Format("{}{}{}", "abra", "cad", "abra"), "abracadabra");
 }
 
-TEST(FormatterTest, ArgErrors) {
+TEST(Format, ArgErrors) {
   EXPECT_DEATH(Format("{"), "");
-
   EXPECT_DEATH(Format("{?}"), "");
-
   EXPECT_DEATH(Format("{0"), "");
-
   EXPECT_DEATH(Format("{}"), "");
 }
 
-TEST(FormatterTest, ArgErrorsWithArgs) {
+TEST(Format, ArgErrorsWithArgs) {
   EXPECT_DEATH(Format("{", 1), "");
-
   EXPECT_DEATH(Format("{?}", 1), "");
-
   EXPECT_DEATH(Format("{0", 1), "");
 }
 
-TEST(FormatTest, Variadic) { EXPECT_EQ(Format("{}c{}", "ab", 1), "abc1"); }
+TEST(Format, Variadic) { EXPECT_EQ(Format("{}c{}", "ab", 1), "abc1"); }
 
-TEST(FormatTest, MaxArgs) {
-  EXPECT_EQ(Format("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", 0, 1, 2, 3, 4, 5, 6, 7,
-                   8, 9, 'a', 'b', 'c', 'd', 'e', 1.23, 1.23f),
-            "0123456789abcde1.2300001.230000");
+TEST(Format, MaxArgs) {
+  EXPECT_EQ(Format("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{} {} {}", 0, 1, 2, 3, 4, 5, 6,
+                   7, 8, 9, 'a', 'b', 'c', 'd', 'e', 1.23, 1.23f),
+            "0123456789abcde 1.23 1.23");
 }
 
-TEST(FormatTest, ExtraArgument) {
+TEST(Format, ExtraArgument) {
   EXPECT_DEATH(Format("", 1), "");
   EXPECT_DEATH(Format("string", 1), "");
   EXPECT_DEATH(Format("string{}{}", 1), "");
 }
 
-TEST(FormatTest, Strings) {
+TEST(Format, Strings) {
   const std::string s = "string";
   EXPECT_EQ(Format("{}", s), "string");
   EXPECT_EQ(Format("{}{}", s, s), "stringstring");
@@ -121,296 +111,205 @@ TEST(FormatTest, Strings) {
   EXPECT_EQ(Format("{}", std::string_view("temp")), "temp");
 }
 
-TEST(Literals, Common) {
+TEST(Format, Common) {
   EXPECT_EQ(Format(""), std::string());
   EXPECT_EQ(Format("{} {}, {}{}{}", 1234, "Hello", "wor", 'l', 'd'),
             "1234 Hello, world");
 }
 
-TEST(Writer, DefaultCtor) {
-  Writer writer;
-  EXPECT_EQ(writer.CopyString(), std::string());
-  EXPECT_EQ(writer.TakeString(), std::string());
+TEST(Format, Numbers) {
+  static constexpr short kShort = 0;
+  static constexpr int kInt = 1;
+  static constexpr long kLong = 2;
+  static constexpr long long kLongLong = 3;
+  static constexpr unsigned short kUnsignedShort = 4;
+  static constexpr unsigned int kUnsignedInt = 5;
+  static constexpr unsigned long kUnsignedLong = 6;
+  static constexpr unsigned long long kUnsignedLongLong = 7;
+  static constexpr float kFloat = 8.0f;
+  static constexpr double kDouble = 9.0;
+  static constexpr long double kLongDouble = 10.0L;
+
+  EXPECT_EQ(Format("{}{}{}{}{}{}{}{}{}{}{}", kShort, kInt, kLong, kLongLong,
+                   kUnsignedShort, kUnsignedInt, kUnsignedLong,
+                   kUnsignedLongLong, kFloat, kDouble, kLongDouble),
+            "012345678910");
 }
 
-TEST(Writer, FormatAndWriteZeroSize) {
-  Writer writer;
-  char str[10];
-  writer.FormatAndWrite(str, 0, "%d", 0);
-  EXPECT_EQ(writer.CopyString(), std::string());
-}
-
-TEST(Writer, FormatAndWriteOneSize) {
-  Writer writer;
-  char str[10];
-  writer.FormatAndWrite(str, 1, "%d", 0);
-  EXPECT_EQ(writer.CopyString(), std::string());
-}
-
-TEST(Writer, FormatAndWriteTwoSize) {
-  Writer writer;
-  char str[10];
-  writer.FormatAndWrite(str, 2, "%d", 0);
-  EXPECT_EQ(writer.CopyString(), "0");
-}
-
-TEST(Writer, FormatAndWriteThreeSize) {
-  Writer writer;
-  char str[10];
-  writer.FormatAndWrite(str, 3, "%d", 10);
-  EXPECT_EQ(writer.CopyString(), "10");
-}
-
-TEST(Writer, FormatAndWriteThreeSizeNotFull) {
-  Writer writer;
-  char str[10];
-  writer.FormatAndWrite(str, 3, "%d", 103);
-  EXPECT_EQ(writer.CopyString(), "10");
-}
-
-TEST(FormatTemplate, SNullPtr) {
-  Writer writer;
-  EXPECT_DEATH(Format(&writer, nullptr), "");
-}
-
-TEST(Writer, Numbers) {
-  static constexpr short short_val = 0;
-  static constexpr int int_val = 1;
-  static constexpr long long_val = 2;
-  static constexpr long long long_long_val = 3;
-  static constexpr unsigned short unsigned_short_val = 4;
-  static constexpr unsigned int unsigned_int_val = 5;
-  static constexpr unsigned long unsigned_long_val = 6;
-  static constexpr unsigned long long unsigned_long_long_val = 7;
-  static constexpr float float_val = 8.0f;
-  static constexpr double double_val = 9.0;
-  static constexpr long double long_double_val = 10.0L;
-
-  Writer writer;
-  writer.Write(short_val);
-  writer.Write(int_val);
-  writer.Write(long_val);
-  writer.Write(long_long_val);
-  writer.Write(unsigned_short_val);
-  writer.Write(unsigned_int_val);
-  writer.Write(unsigned_long_val);
-  writer.Write(unsigned_long_long_val);
-  writer.Write(float_val);
-  writer.Write(double_val);
-  writer.Write(long_double_val);
-  EXPECT_EQ(writer.CopyString(), "012345678.0000009.00000010.000000");
-}
-
-TEST(Writer, MinMax) {
-  Writer writer;
-  writer.Write(std::numeric_limits<short>::min());
-  writer.Write(std::numeric_limits<short>::max());
-  writer.Write(std::numeric_limits<int>::min());
-  writer.Write(std::numeric_limits<int>::max());
-  writer.Write(std::numeric_limits<long>::min());
-  writer.Write(std::numeric_limits<long>::max());
-  writer.Write(std::numeric_limits<long long>::min());
-  writer.Write(std::numeric_limits<long long>::max());
-  writer.Write(std::numeric_limits<unsigned short>::min());
-  writer.Write(std::numeric_limits<unsigned short>::max());
-  writer.Write(std::numeric_limits<unsigned int>::min());
-  writer.Write(std::numeric_limits<unsigned int>::max());
-  writer.Write(std::numeric_limits<unsigned long>::min());
-  writer.Write(std::numeric_limits<unsigned long>::max());
-  writer.Write(std::numeric_limits<unsigned long long>::min());
-  writer.Write(std::numeric_limits<unsigned long long>::max());
-  writer.Write(std::numeric_limits<float>::min());
-  writer.Write(std::numeric_limits<float>::max());
-  writer.Write(std::numeric_limits<double>::min());
-  writer.Write(std::numeric_limits<double>::max());
-  writer.Write(std::numeric_limits<long double>::min());
-  writer.Write(std::numeric_limits<long double>::max());
+TEST(Format, MinMax) {
+  const auto string = Format(
+      "{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}",
+      std::numeric_limits<short>::min(), std::numeric_limits<short>::max(),
+      std::numeric_limits<int>::min(), std::numeric_limits<int>::max(),
+      std::numeric_limits<long>::min(), std::numeric_limits<long>::max(),
+      std::numeric_limits<long long>::min(),
+      std::numeric_limits<long long>::max(),
+      std::numeric_limits<unsigned short>::min(),
+      std::numeric_limits<unsigned short>::max(),
+      std::numeric_limits<unsigned int>::min(),
+      std::numeric_limits<unsigned int>::max(),
+      std::numeric_limits<unsigned long>::min(),
+      std::numeric_limits<unsigned long>::max(),
+      std::numeric_limits<unsigned long long>::min(),
+      std::numeric_limits<unsigned long long>::max(),
+      std::numeric_limits<float>::min(), std::numeric_limits<float>::max(),
+      std::numeric_limits<double>::min(), std::numeric_limits<double>::max(),
+      std::numeric_limits<long double>::min(),
+      std::numeric_limits<long double>::max());
 
   std::string result;
   result += std::to_string(std::numeric_limits<short>::min());
+  result += ' ';
   result += std::to_string(std::numeric_limits<short>::max());
+  result += ' ';
   result += std::to_string(std::numeric_limits<int>::min());
+  result += ' ';
   result += std::to_string(std::numeric_limits<int>::max());
+  result += ' ';
   result += std::to_string(std::numeric_limits<long>::min());
+  result += ' ';
   result += std::to_string(std::numeric_limits<long>::max());
+  result += ' ';
   result += std::to_string(std::numeric_limits<long long>::min());
+  result += ' ';
   result += std::to_string(std::numeric_limits<long long>::max());
+  result += ' ';
   result += std::to_string(std::numeric_limits<unsigned short>::min());
+  result += ' ';
   result += std::to_string(std::numeric_limits<unsigned short>::max());
+  result += ' ';
   result += std::to_string(std::numeric_limits<unsigned int>::min());
+  result += ' ';
   result += std::to_string(std::numeric_limits<unsigned int>::max());
+  result += ' ';
   result += std::to_string(std::numeric_limits<unsigned long>::min());
+  result += ' ';
   result += std::to_string(std::numeric_limits<unsigned long>::max());
+  result += ' ';
   result += std::to_string(std::numeric_limits<unsigned long long>::min());
+  result += ' ';
   result += std::to_string(std::numeric_limits<unsigned long long>::max());
-  result += std::to_string(std::numeric_limits<float>::min());
-  result += std::to_string(std::numeric_limits<float>::max());
-  result += std::to_string(std::numeric_limits<double>::min());
-  result += std::to_string(std::numeric_limits<double>::max());
-  result += std::to_string(std::numeric_limits<long double>::min());
-  result += std::to_string(std::numeric_limits<long double>::max());
+  result += ' ';
 
-  EXPECT_EQ(writer.CopyString(), result);
+  std::ostringstream stream;
+  stream << std::numeric_limits<float>::min();
+  stream << ' ';
+  stream << std::numeric_limits<float>::max();
+  stream << ' ';
+  stream << std::numeric_limits<double>::min();
+  stream << ' ';
+  stream << std::numeric_limits<double>::max();
+  stream << ' ';
+  stream << std::numeric_limits<long double>::min();
+  stream << ' ';
+  stream << std::numeric_limits<long double>::max();
+
+  result += stream.str();
+
+  EXPECT_EQ(string, result);
 }
 
-TEST(Writer, EmptyStdString) {
-  Writer writer;
+TEST(Format, EmptyStdString) {
   const std::string str;
-  writer.Write(str);
-  EXPECT_EQ(writer.CopyString(), std::string());
+  EXPECT_EQ(Format("{}", str), std::string());
 }
 
-TEST(Writer, EmptyCharPtr) {
-  Writer writer;
-  static constexpr auto str = "";
-  writer.Write(str);
-  EXPECT_EQ(writer.CopyString(), std::string());
+TEST(Format, EmptyCharPtr) {
+  static constexpr auto kStr = "";
+  EXPECT_EQ(Format("{}", kStr), std::string());
 }
 
-TEST(Writer, NormalStdString) {
-  Writer writer;
+TEST(Format, NormalStdString) {
   const std::string str = "Normal";
-  writer.Write(str);
-  EXPECT_EQ(writer.CopyString(), "Normal");
+  EXPECT_EQ(Format("{}", str), "Normal");
 }
 
-TEST(Writer, NormalCharPtr) {
-  Writer writer;
-  static constexpr auto str = "Normal";
-  writer.Write(str);
-  EXPECT_EQ(writer.CopyString(), "Normal");
+TEST(Format, NormalCharPtr) {
+  static constexpr auto kStr = "Normal";
+  EXPECT_EQ(Format("{}", kStr), "Normal");
 }
 
-TEST(Writer, StringView) {
-  Writer writer;
-  const std::string_view str = "Normal";
-  writer.Write(str);
-  EXPECT_EQ(writer.CopyString(), "Normal");
+TEST(Format, StringView) {
+  static constexpr std::string_view kStr = "Normal";
+  EXPECT_EQ(Format("{}", kStr), "Normal");
 }
 
-TEST(Writer, NormalChar) {
-  Writer writer;
-  static constexpr auto c = 'C';
-  writer.Write(c);
-  EXPECT_EQ(writer.CopyString(), "C");
+TEST(Format, NormalChar) {
+  static constexpr auto kC = 'C';
+  EXPECT_EQ(Format("{}", kC), "C");
 }
 
-TEST(Writer, BigStdString) {
-  Writer writer;
-  const std::string str(Writer::kStaticBufferSize, 'A');
-  writer.Write(str);
-  EXPECT_EQ(writer.CopyString(), str);
+TEST(Format, BigStdString) {
+  const std::string str(1024, 'A');
+  EXPECT_EQ(Format("{}", str), str);
 }
 
-TEST(Writer, BigCharPtr) {
-  Writer writer;
-  const std::string str(Writer::kStaticBufferSize, 'A');
-  writer.Write(str.c_str());
-  EXPECT_EQ(writer.CopyString(), str);
+TEST(Format, BigCharPtr) {
+  const std::string str(1024, 'A');
+  EXPECT_EQ(Format("{}", str.c_str()), str);
 }
 
-TEST(Writer, AppendBigStdString) {
-  Writer writer;
+TEST(Format, AppendBigStdString) {
   const std::string initial_str = "Initial";
-  const std::string str(Writer::kStaticBufferSize, 'A');
-  writer.Write(initial_str);
-  writer.Write(str);
-  writer.Write(initial_str);
-  EXPECT_EQ(writer.CopyString(), initial_str + str + initial_str);
+  const std::string str(1024, 'A');
+  EXPECT_EQ(Format("{}{}{}", initial_str, str, initial_str),
+            initial_str + str + initial_str);
 }
 
-TEST(Writer, AppendBigCharPtr) {
-  Writer writer;
-  static constexpr auto initial_str = "Initial";
-  const std::string str(Writer::kStaticBufferSize, 'A');
-  writer.Write(initial_str);
-  writer.Write(str.c_str());
-  writer.Write(initial_str);
-  EXPECT_EQ(writer.CopyString(), initial_str + str + initial_str);
+TEST(Format, AppendBigCharPtr) {
+  static constexpr auto kInitialStr = "Initial";
+  const std::string str(1024, 'A');
+  EXPECT_EQ(Format("{}{}{}", kInitialStr, str.c_str(), kInitialStr),
+            kInitialStr + str + kInitialStr);
 }
 
-TEST(Writer, AppendBigChar) {
-  Writer writer;
-  const std::string str(Writer::kStaticBufferSize, 'A');
-  writer.Write(str);
-  static constexpr auto c = 'C';
-  writer.Write(c);
-  EXPECT_EQ(writer.CopyString(), str + c);
+TEST(Format, AppendBigChar) {
+  const std::string str(1024, 'A');
+  static constexpr auto kC = 'C';
+  EXPECT_EQ(Format("{}{}", str, kC), str + kC);
 }
 
-TEST(Writer, WriteZeroSize) {
-  Writer writer;
-  static constexpr auto str = "Initial";
-  writer.Write(std::string_view(str, 0));
-  EXPECT_EQ(writer.CopyString(), std::string());
+TEST(Format, Bool) {
+  EXPECT_EQ(Format("{}", false), "false");
+  EXPECT_EQ(Format("{}", true), "true");
 }
 
-TEST(Writer, TakeStringStatic) {
-  Writer writer;
-  writer.Write("Initial");
-  EXPECT_EQ(writer.TakeString(), "Initial");
-  EXPECT_DEATH(writer.TakeString(), "");
+TEST(Format, Doubles) {
+  std::ostringstream stream;
+
+  for (int64_t i = -1100000; i < 1100000; i++) {
+    stream.str(std::string());
+    stream << static_cast<double>(i);
+    EXPECT_EQ(Format("{}", static_cast<double>(i)), stream.str());
+  }
 }
 
-TEST(Writer, TakeStringDynamic) {
-  Writer writer;
-  const std::string str(Writer::kStaticBufferSize, 'A');
-  writer.Write(str);
-  EXPECT_EQ(writer.TakeString(), str);
-  EXPECT_DEATH(writer.TakeString(), "");
+TEST(Format, Enum) {
+  enum Old {
+    kZero,
+    kOne,
+    kTwo,
+    kThree,
+  };
+
+  EXPECT_EQ(Format("{}{}{}{}", kZero, kOne, kTwo, kThree), "0123");
 }
 
-TEST(Writer, CopyStringStatic) {
-  Writer writer;
-  writer.Write("Initial");
-  EXPECT_EQ(writer.CopyString(), "Initial");
-  EXPECT_EQ(writer.CopyString(), "Initial");
+TEST(Format, ScopedEnum) {
+  enum class New {
+    kZero,
+    kOne,
+    kTwo,
+    kThree,
+  };
+
+  EXPECT_EQ(Format("{}{}{}{}", New::kZero, New::kOne, New::kTwo, New::kThree),
+            "0123");
 }
 
-TEST(Writer, CopyStringDynamic) {
-  Writer writer;
-  const std::string str(Writer::kStaticBufferSize, 'A');
-  writer.Write(str);
-  EXPECT_EQ(writer.CopyString(), str);
-  EXPECT_EQ(writer.CopyString(), str);
-}
-
-TEST(HandleCharacter, SRefNullPtr) {
-  const char* s = nullptr;
-  EXPECT_DEATH(HandleCharacter(&s), "");
-}
-
-TEST(HandleCharacter, CaseOpenOpen) {
-  auto s = "{{";
-  EXPECT_TRUE(HandleCharacter(&s));
-  EXPECT_STREQ(s, "{");
-}
-
-TEST(HandleCharacter, CaseOpenClose) {
-  auto s = "{}";
-  EXPECT_FALSE(HandleCharacter(&s));
-  EXPECT_STREQ(s, "{}");
-}
-
-TEST(HandleCharacter, CaseOpenOther) {
-  auto s = "{o";
-  EXPECT_DEATH(HandleCharacter(&s), "");
-}
-
-TEST(HandleCharacter, CaseCloseClose) {
-  auto s = "}}";
-  EXPECT_TRUE(HandleCharacter(&s));
-  EXPECT_STREQ(s, "}");
-}
-
-TEST(HandleCharacter, CaseCloseOther) {
-  auto s = "}o";
-  EXPECT_DEATH(HandleCharacter(&s), "");
-}
-
-TEST(Format, SNullPtr) {
-  Writer writer;
-  EXPECT_DEATH(Format(&writer, nullptr), "");
+TEST(Format, StringCapacity) {
+  static constexpr auto kStr = "abcdefghijklmno";
+  EXPECT_EQ(Format(kStr), kStr);
 }
 
 }  // namespace rst

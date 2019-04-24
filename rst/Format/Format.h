@@ -31,93 +31,63 @@
 #include <iterator>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 
-#include "rst/Format/Writer.h"
 #include "rst/Macros/Macros.h"
 #include "rst/NotNull/NotNull.h"
 
 namespace rst {
 namespace internal {
 
-class Value {
+class Arg {
  public:
-  explicit Value(short short_val);
-  explicit Value(unsigned short unsigned_short_val);
-  explicit Value(int int_val);
-  explicit Value(unsigned int unsigned_int_val);
-  explicit Value(long long_val);
-  explicit Value(unsigned long unsigned_long_val);
-  explicit Value(long long long_long_val);
-  explicit Value(unsigned long long unsigned_long_long_val);
-  explicit Value(float float_val);
-  explicit Value(double double_val);
-  explicit Value(long double long_double_val);
-  explicit Value(std::string_view string_view_val);
-  explicit Value(char char_val);
+  explicit Arg(bool value);
+  explicit Arg(char value);
+  explicit Arg(short value);
+  explicit Arg(unsigned short value);
+  explicit Arg(int value);
+  explicit Arg(unsigned int value);
+  explicit Arg(long value);
+  explicit Arg(unsigned long value);
+  explicit Arg(long long value);
+  explicit Arg(unsigned long long value);
+  explicit Arg(float value);
+  explicit Arg(double value);
+  explicit Arg(long double value);
+  explicit Arg(std::string_view value);
+  explicit Arg(const char* value);
 
-  ~Value();
+  template <class T, class = typename std::enable_if<std::is_enum<T>{}>::type>
+  explicit Arg(const T e)
+      : Arg(static_cast<typename std::underlying_type<T>::type>(e)) {}
 
-  void Write(NotNull<Writer*> writer) const;
+  Arg(void*) = delete;
+
+  ~Arg();
+
+  std::string_view view() const { return view_; }
+  size_t size() const { return view_.size(); }
 
  private:
-  enum class Type : unsigned int {
-    kInt,
-    kDouble,
-    kStringView,
-    kChar,
-    kShort,
-    kFloat,
-    kUnsignedShort,
-    kUnsignedInt,
-    kLong,
-    kUnsignedLong,
-    kLongLong,
-    kUnsignedLongLong,
-    kLongDouble,
-  };
+  char buffer_[21];
+  std::string_view view_;
 
-  union {
-    const short short_val_;
-    const unsigned short unsigned_short_val_;
-    const int int_val_;
-    const unsigned int unsigned_int_val_;
-    const long long_val_;
-    const unsigned long unsigned_long_val_;
-    const long long long_long_val_;
-    const unsigned long long unsigned_long_long_val_;
-    const float float_val_;
-    const double double_val_;
-    const long double long_double_val_;
-    const std::string_view string_view_val_;
-    const char char_val_;
-  };
-  const Type type_;
-
-  RST_DISALLOW_COPY_AND_ASSIGN(Value);
+  RST_DISALLOW_COPY_AND_ASSIGN(Arg);
 };
 
-// Handles character in the string |s|. Returns false if there's {} in |s|.
-bool HandleCharacter(NotNull<const char**> s);
-
-// Writes |s| to the |writer|.
-void Format(NotNull<Writer*> writer, const char* s);
-// Writes |s| to the |writer|. "{{" -> "{", "}}" -> "}".
-void Format(NotNull<Writer*> writer, const char* s,
-            NotNull<const Value*> values, size_t size);
+std::string FormatAndReturnString(const char* format,
+                                  Nullable<const Arg*> values, size_t size);
 
 }  // namespace internal
 
-// A wrapper around Format functions.
-std::string Format(NotNull<const char*> s);
+std::string Format(NotNull<const char*> format);
 
 template <class... Args>
-inline std::string Format(const NotNull<const char*> s, Args&&... args) {
-  internal::Writer writer;
-  const internal::Value values[] = {
-      internal::Value(std::forward<Args>(args))...};
-  internal::Format(&writer, s.get(), values, std::size(values));
-  return writer.TakeString();
+inline std::string Format(const NotNull<const char*> format, Args&&... args) {
+  const internal::Arg values[] = {internal::Arg(std::forward<Args>(args))...};
+  return internal::FormatAndReturnString(format.get(), values,
+                                         std::size(values));
 }
 
 }  // namespace rst

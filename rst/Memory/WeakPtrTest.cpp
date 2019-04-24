@@ -44,14 +44,14 @@ struct Derived : public Base {};
 
 }  // namespace
 
-TEST(WeakPtrTest, Basic) {
+TEST(WeakPtr, Basic) {
   auto data = 0;
   const WeakPtrFactory<int> factory(&data);
   const auto ptr = factory.GetWeakPtr();
   EXPECT_EQ(ptr.get(), &data);
 }
 
-TEST(WeakPtrTest, Comparison) {
+TEST(WeakPtr, Comparison) {
   auto data = 0;
   const WeakPtrFactory<int> factory(&data);
   const auto ptr = factory.GetWeakPtr();
@@ -59,7 +59,7 @@ TEST(WeakPtrTest, Comparison) {
   EXPECT_EQ(ptr.get(), ptr2.get());
 }
 
-TEST(WeakPtrTest, Move) {
+TEST(WeakPtr, Move) {
   auto data = 0;
   const WeakPtrFactory<int> factory(&data);
   const auto ptr = factory.GetWeakPtr();
@@ -70,7 +70,7 @@ TEST(WeakPtrTest, Move) {
   EXPECT_EQ(ptr.get(), ptr3.get());
 }
 
-TEST(WeakPtrTest, OutOfScope) {
+TEST(WeakPtr, OutOfScope) {
   WeakPtr<int> ptr;
   EXPECT_EQ(ptr.get(), nullptr);
   {
@@ -81,7 +81,7 @@ TEST(WeakPtrTest, OutOfScope) {
   EXPECT_EQ(ptr.get(), nullptr);
 }
 
-TEST(WeakPtrTest, Multiple) {
+TEST(WeakPtr, Multiple) {
   WeakPtr<int> a, b;
   {
     auto data = 0;
@@ -95,7 +95,7 @@ TEST(WeakPtrTest, Multiple) {
   EXPECT_EQ(b.get(), nullptr);
 }
 
-TEST(WeakPtrTest, MultipleStaged) {
+TEST(WeakPtr, MultipleStaged) {
   WeakPtr<int> a;
   {
     auto data = 0;
@@ -107,19 +107,19 @@ TEST(WeakPtrTest, MultipleStaged) {
   EXPECT_EQ(a.get(), nullptr);
 }
 
-TEST(WeakPtrTest, UpCast) {
+TEST(WeakPtr, UpCast) {
   Derived data;
   const WeakPtrFactory<Derived> factory(&data);
   WeakPtr<Base> ptr = factory.GetWeakPtr();
   EXPECT_EQ(ptr.get(), &data);
 }
 
-TEST(WeakPtrTest, ConstructFromNullptr) {
+TEST(WeakPtr, ConstructFromNullptr) {
   const WeakPtr<int> ptr(nullptr);
   EXPECT_EQ(ptr.get(), nullptr);
 }
 
-TEST(WeakPtrTest, AssignNullptr) {
+TEST(WeakPtr, AssignNullptr) {
   Derived data;
   const WeakPtrFactory<Derived> factory(&data);
   WeakPtr<Base> ptr = factory.GetWeakPtr();

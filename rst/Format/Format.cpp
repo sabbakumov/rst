@@ -27,224 +27,134 @@
 
 #include "rst/Format/Format.h"
 
+#include <cstring>
+
 #include "rst/Check/Check.h"
 
 namespace rst {
 namespace internal {
 namespace {
 
-void WriteShort(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const short*>(ptr.get());
-  writer->Write(val);
-}
-
-void WriteUnsignedShort(const NotNull<Writer*> writer,
-                        const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const unsigned short*>(ptr.get());
-  writer->Write(val);
-}
-
-void WriteInt(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const int*>(ptr.get());
-  writer->Write(val);
-}
-
-void WriteUnsignedInt(const NotNull<Writer*> writer,
-                      const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const unsigned int*>(ptr.get());
-  writer->Write(val);
-}
-
-void WriteLong(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const long*>(ptr.get());
-  writer->Write(val);
-}
-
-void WriteUnsignedLong(const NotNull<Writer*> writer,
-                       const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const unsigned long*>(ptr.get());
-  writer->Write(val);
-}
-
-void WriteLongLong(const NotNull<Writer*> writer,
-                   const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const long long*>(ptr.get());
-  writer->Write(val);
-}
-
-void WriteUnsignedLongLong(const NotNull<Writer*> writer,
-                           const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const unsigned long long*>(ptr.get());
-  writer->Write(val);
-}
-
-void WriteFloat(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const float*>(ptr.get());
-  writer->Write(val);
-}
-
-void WriteDouble(const NotNull<Writer*> writer,
-                 const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const double*>(ptr.get());
-  writer->Write(val);
-}
-
-void WriteLongDouble(const NotNull<Writer*> writer,
-                     const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const long double*>(ptr.get());
-  writer->Write(val);
-}
-
-void WriteStringView(const NotNull<Writer*> writer,
-                     const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const std::string_view*>(ptr.get());
-  writer->Write(val);
-}
-
-void WriteChar(const NotNull<Writer*> writer, const NotNull<const void*> ptr) {
-  const auto val = *static_cast<const char*>(ptr.get());
-  writer->Write(val);
+template <class T, size_t N>
+NotNull<char*> FormatAndWrite(char (&str)[N], const NotNull<const char*> format,
+                              const T val) {
+  static_assert(std::is_arithmetic<T>::value, "Not an arithmetic type");
+  const auto bytes_written = std::snprintf(str, N, format.get(), val);
+  RST_DCHECK(bytes_written > 0);
+  RST_DCHECK(static_cast<size_t>(bytes_written) < N);
+  RST_DCHECK(str[bytes_written] == '\0');
+  return str + bytes_written;
 }
 
 }  // namespace
 
-bool HandleCharacter(const NotNull<const char**> s) {
-  const char*& s_ref = *s;
-  RST_DCHECK(s_ref != nullptr);
+std::string FormatAndReturnString(const char* format,
+                                  const Nullable<const Arg*> values,
+                                  const size_t size) {
+  RST_DCHECK(format != nullptr);
 
-  const auto c = *s_ref;
-  switch (c) {
-    case '{': {
-      const auto s_1 = *(s_ref + 1);
-      switch (s_1) {
-        case '{': {
-          s_ref++;
-          break;
-        }
-        case '}': {
-          return false;
-        }
-        default: { RST_DCHECK(false && "Invalid format string"); }
-      }
-      break;
-    }
-    case '}': {
-      const auto s_1 = *(s_ref + 1);
-      switch (s_1) {
-        case '}': {
-          s_ref++;
-          break;
-        }
-        default: { RST_DCHECK(false && "Unmatched '}' in format string"); }
-      }
-      break;
-    }
+  std::string output;
+  auto capacity = std::strlen(format);
+  for (size_t i = 0; i < size; i++) {
+    RST_DCHECK(values != nullptr);
+    capacity += values[i].size();
   }
-  return true;
-}
-
-void Format(const NotNull<Writer*> writer, const char* s) {
-  RST_DCHECK(s != nullptr);
-
-  for (auto c = '\0'; (c = *s) != '\0'; s++) {
-    const auto result = HandleCharacter(&s);
-    RST_DCHECK(result && "Argument index out of range");
-    writer->Write(c);
-  }
-}
-
-void Format(const NotNull<Writer*> writer, const char* s,
-            const NotNull<const Value*> values, const size_t size) {
-  RST_DCHECK(s != nullptr);
+  output.reserve(capacity);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  const auto old_capacity = output.capacity();
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
   size_t arg_idx = 0;
-  for (auto c = '\0'; (c = *s) != '\0'; s++) {
-    if (!HandleCharacter(&s)) {
-      RST_DCHECK(arg_idx < size && "Extra arguments");
-      values[arg_idx].Write(writer);
-      s++;
-      arg_idx++;
-      continue;
+  for (auto c = '\0'; (c = *format) != '\0'; format++) {
+    switch (c) {
+      case '{': {
+        switch (*(format + 1)) {
+          case '{': {
+            format++;
+            break;
+          }
+          case '}': {
+            RST_DCHECK(arg_idx < size && "Extra arguments");
+            output.append(values[arg_idx].view());
+            format++;
+            arg_idx++;
+            continue;
+          }
+          default: { RST_DCHECK(false && "Invalid format string"); }
+        }
+        break;
+      }
+      case '}': {
+        switch (*(format + 1)) {
+          case '}': {
+            format++;
+            break;
+          }
+          default: { RST_DCHECK(false && "Unmatched '}' in format string"); }
+        }
+        break;
+      }
     }
-    writer->Write(c);
+
+    output.push_back(c);
   }
 
   RST_DCHECK(arg_idx == size && "Numbers of parameters should match");
+
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  RST_DCHECK(output.capacity() == old_capacity);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+
+  return output;
 }
 
-Value::Value(const short short_val)
-    : short_val_(short_val), type_(Type::kShort) {}
+Arg::Arg(const bool value) : view_(value ? "true" : "false") {}
 
-Value::Value(const unsigned short unsigned_short_val)
-    : unsigned_short_val_(unsigned_short_val), type_(Type::kUnsignedShort) {}
+Arg::Arg(const char value) : view_(buffer_, 1) { buffer_[0] = value; }
 
-Value::Value(const int int_val) : int_val_(int_val), type_(Type::kInt) {}
+Arg::Arg(const short value)
+    : view_(buffer_, FormatAndWrite(buffer_, "%hd", value).get() - buffer_) {}
 
-Value::Value(const unsigned int unsigned_int_val)
-    : unsigned_int_val_(unsigned_int_val), type_(Type::kUnsignedInt) {}
+Arg::Arg(const unsigned short value)
+    : view_(buffer_, FormatAndWrite(buffer_, "%hu", value).get() - buffer_) {}
 
-Value::Value(const long long_val) : long_val_(long_val), type_(Type::kLong) {}
+Arg::Arg(const int value)
+    : view_(buffer_, FormatAndWrite(buffer_, "%d", value).get() - buffer_) {}
 
-Value::Value(const unsigned long unsigned_long_val)
-    : unsigned_long_val_(unsigned_long_val), type_(Type::kUnsignedLong) {}
+Arg::Arg(const unsigned int value)
+    : view_(buffer_, FormatAndWrite(buffer_, "%u", value).get() - buffer_) {}
 
-Value::Value(const long long long_long_val)
-    : long_long_val_(long_long_val), type_(Type::kLongLong) {}
+Arg::Arg(const long value)
+    : view_(buffer_, FormatAndWrite(buffer_, "%ld", value).get() - buffer_) {}
 
-Value::Value(const unsigned long long unsigned_long_long_val)
-    : unsigned_long_long_val_(unsigned_long_long_val),
-      type_(Type::kUnsignedLongLong) {}
+Arg::Arg(const unsigned long value)
+    : view_(buffer_, FormatAndWrite(buffer_, "%lu", value).get() - buffer_) {}
 
-Value::Value(const float float_val)
-    : float_val_(float_val), type_(Type::kFloat) {}
+Arg::Arg(const long long value)
+    : view_(buffer_, FormatAndWrite(buffer_, "%lld", value).get() - buffer_) {}
 
-Value::Value(const double double_val)
-    : double_val_(double_val), type_(Type::kDouble) {}
+Arg::Arg(const unsigned long long value)
+    : view_(buffer_, FormatAndWrite(buffer_, "%llu", value).get() - buffer_) {}
 
-Value::Value(const long double long_double_val)
-    : long_double_val_(long_double_val), type_(Type::kLongDouble) {}
+Arg::Arg(const float value)
+    : view_(buffer_, FormatAndWrite(buffer_, "%g", value).get() - buffer_) {}
 
-Value::Value(const std::string_view string_view_val)
-    : string_view_val_(string_view_val), type_(Type::kStringView) {}
+Arg::Arg(const double value)
+    : view_(buffer_, FormatAndWrite(buffer_, "%lg", value).get() - buffer_) {}
 
-Value::Value(const char char_val) : char_val_(char_val), type_(Type::kChar) {}
+Arg::Arg(const long double value)
+    : view_(buffer_, FormatAndWrite(buffer_, "%Lg", value).get() - buffer_) {}
 
-Value::~Value() = default;
+Arg::Arg(const std::string_view value) : view_(value) {}
 
-void Value::Write(const NotNull<Writer*> writer) const {
-  using WriteFunction =
-      void(const NotNull<Writer*> writer, const NotNull<const void*> ptr);
-  // clang-format off
-  static constexpr WriteFunction* kFuncs[] = {
-      &WriteInt,
-      &WriteDouble,
-      &WriteStringView,
-      &WriteChar,
-      &WriteShort,
-      &WriteFloat,
-      &WriteUnsignedShort,
-      &WriteUnsignedInt,
-      &WriteLong,
-      &WriteUnsignedLong,
-      &WriteLongLong,
-      &WriteUnsignedLongLong,
-      &WriteLongDouble,
-  };
-  // clang-format on
+Arg::Arg(const char* value) : view_(value) { RST_DCHECK(value != nullptr); }
 
-  const auto index = static_cast<size_t>(type_);
-  RST_DCHECK(index < std::size(kFuncs));
-
-  const auto func = kFuncs[index];
-  func(writer, &short_val_);
-}
+Arg::~Arg() = default;
 
 }  // namespace internal
 
-std::string Format(const NotNull<const char*> s) {
-  internal::Writer writer;
-  internal::Format(&writer, s.get());
-  return writer.TakeString();
+std::string Format(const NotNull<const char*> format) {
+  return internal::FormatAndReturnString(format.get(), nullptr, 0);
 }
 
 }  // namespace rst

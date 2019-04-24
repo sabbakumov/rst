@@ -13,8 +13,6 @@ rst/Files/FileUtil.h
 
 rst/Format/Format.cpp
 rst/Format/Format.h
-rst/Format/Writer.cpp
-rst/Format/Writer.h
 
 rst/GUID/GUID.cpp
 rst/GUID/GUID.h

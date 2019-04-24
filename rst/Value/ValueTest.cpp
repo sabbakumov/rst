@@ -45,7 +45,7 @@ constexpr int64_t kMaxSafeInteger =
 
 }  // namespace
 
-TEST(ValueTest, ConstructFromType) {
+TEST(Value, ConstructFromType) {
   Value null(Value::Type::kNull);
   EXPECT_EQ(null.type(), Value::Type::kNull);
   EXPECT_TRUE(null.IsNull());
@@ -136,7 +136,7 @@ TEST(ValueTest, ConstructFromType) {
   EXPECT_NO_FATAL_FAILURE(const_cast<const Value&>(object).GetObject());
 }
 
-TEST(ValueTest, ConstructBool) {
+TEST(Value, ConstructBool) {
   Value true_value(true);
   ASSERT_EQ(true_value.type(), Value::Type::kBool);
   EXPECT_TRUE(true_value.GetBool());
@@ -146,7 +146,7 @@ TEST(ValueTest, ConstructBool) {
   EXPECT_FALSE(false_value.GetBool());
 }
 
-TEST(ValueTest, ConstructInt) {
+TEST(Value, ConstructInt) {
   Value value(-37);
   ASSERT_EQ(value.type(), Value::Type::kNumber);
   EXPECT_EQ(value.GetInt(), -37);
@@ -160,7 +160,7 @@ TEST(ValueTest, ConstructInt) {
   EXPECT_EQ(value.GetInt64(), -37);
 }
 
-TEST(ValueTest, ConstructBigInt64) {
+TEST(Value, ConstructBigInt64) {
   Value value(kMaxSafeInteger);
   ASSERT_EQ(value.type(), Value::Type::kNumber);
   ASSERT_TRUE(value.IsInt64());
@@ -175,7 +175,7 @@ TEST(ValueTest, ConstructBigInt64) {
   EXPECT_DEATH(Value(-kMaxSafeInteger - 1), "");
 }
 
-TEST(ValueTest, ConstructBigInt) {
+TEST(Value, ConstructBigInt) {
   Value value(int64_t{std::numeric_limits<int>::max()});
   ASSERT_EQ(value.type(), Value::Type::kNumber);
   ASSERT_TRUE(value.IsInt());
@@ -199,18 +199,18 @@ TEST(ValueTest, ConstructBigInt) {
   EXPECT_EQ(value.GetInt64(), int64_t{std::numeric_limits<int>::min()} - 1);
 }
 
-TEST(ValueTest, ConstructDouble) {
+TEST(Value, ConstructDouble) {
   Value value(-4.655);
   ASSERT_EQ(value.type(), Value::Type::kNumber);
   EXPECT_EQ(value.GetDouble(), -4.655);
 }
 
-TEST(ValueTest, ConstructWrongDouble) {
+TEST(Value, ConstructWrongDouble) {
   EXPECT_DEATH(Value value(std::numeric_limits<double>::infinity()), "");
   EXPECT_DEATH(Value value(std::numeric_limits<double>::quiet_NaN()), "");
 }
 
-TEST(ValueTest, ConstructStringFromConstCharPtr) {
+TEST(Value, ConstructStringFromConstCharPtr) {
   Value value("foobar");
   ASSERT_EQ(value.type(), Value::Type::kString);
   EXPECT_EQ(value.GetString(), "foobar");
@@ -219,19 +219,19 @@ TEST(ValueTest, ConstructStringFromConstCharPtr) {
   EXPECT_DEATH((Value(null)), "");
 }
 
-TEST(ValueTest, ConstructStringFromStringView) {
+TEST(Value, ConstructStringFromStringView) {
   Value value(Value::String(std::string_view("foobar")));
   ASSERT_EQ(value.type(), Value::Type::kString);
   EXPECT_EQ(value.GetString(), "foobar");
 }
 
-TEST(ValueTest, ConstructStringFromStdStringRRef) {
+TEST(Value, ConstructStringFromStdStringRRef) {
   Value value(Value::String("foobar"));
   ASSERT_EQ(value.type(), Value::Type::kString);
   EXPECT_EQ(value.GetString(), "foobar");
 }
 
-TEST(ValueTest, ConstructArray) {
+TEST(Value, ConstructArray) {
   Value::Array storage;
   storage.emplace_back("foo");
   {
@@ -252,7 +252,7 @@ TEST(ValueTest, ConstructArray) {
   }
 }
 
-TEST(ValueTest, ConstructObject) {
+TEST(Value, ConstructObject) {
   Value::Object storage;
   storage.emplace("foo", "bar");
   {
@@ -275,7 +275,7 @@ TEST(ValueTest, ConstructObject) {
   }
 }
 
-TEST(ValueTest, CopyBool) {
+TEST(Value, CopyBool) {
   Value true_value(true);
   Value copied_true_value(true_value.Clone());
   ASSERT_EQ(copied_true_value.type(), true_value.type());
@@ -297,7 +297,7 @@ TEST(ValueTest, CopyBool) {
   EXPECT_EQ(blank.GetBool(), false_value.GetBool());
 }
 
-TEST(ValueTest, CopyInt) {
+TEST(Value, CopyInt) {
   Value value(74);
   Value copied_value(value.Clone());
   ASSERT_EQ(copied_value.type(), value.type());
@@ -310,7 +310,7 @@ TEST(ValueTest, CopyInt) {
   EXPECT_EQ(blank.GetInt(), value.GetInt());
 }
 
-TEST(ValueTest, CopyInt32) {
+TEST(Value, CopyInt32) {
   Value value(int32_t{74});
   Value copied_value(value.Clone());
   ASSERT_EQ(copied_value.type(), value.type());
@@ -323,7 +323,7 @@ TEST(ValueTest, CopyInt32) {
   EXPECT_EQ(blank.GetInt64(), value.GetInt64());
 }
 
-TEST(ValueTest, CopyInt64) {
+TEST(Value, CopyInt64) {
   Value value(int64_t{74});
   Value copied_value(value.Clone());
   ASSERT_EQ(copied_value.type(), value.type());
@@ -336,7 +336,7 @@ TEST(ValueTest, CopyInt64) {
   EXPECT_EQ(blank.GetInt64(), value.GetInt64());
 }
 
-TEST(ValueTest, CopyDouble) {
+TEST(Value, CopyDouble) {
   Value value(74.896);
   Value copied_value(value.Clone());
   ASSERT_EQ(copied_value.type(), value.type());
@@ -349,7 +349,7 @@ TEST(ValueTest, CopyDouble) {
   EXPECT_EQ(blank.GetDouble(), value.GetDouble());
 }
 
-TEST(ValueTest, CopyString) {
+TEST(Value, CopyString) {
   Value value("foobar");
   Value copied_value(value.Clone());
   ASSERT_EQ(copied_value.type(), value.type());
@@ -362,7 +362,7 @@ TEST(ValueTest, CopyString) {
   EXPECT_EQ(blank.GetString(), value.GetString());
 }
 
-TEST(ValueTest, CopyArray) {
+TEST(Value, CopyArray) {
   Value::Array storage;
   storage.emplace_back(123);
   Value value(std::move(storage));
@@ -375,7 +375,7 @@ TEST(ValueTest, CopyArray) {
   EXPECT_EQ(blank, value);
 }
 
-TEST(ValueTest, CopyObject) {
+TEST(Value, CopyObject) {
   Value::Object storage;
   storage.emplace("Int", 123);
   Value value(std::move(storage));
@@ -388,7 +388,7 @@ TEST(ValueTest, CopyObject) {
   EXPECT_EQ(blank, value);
 }
 
-TEST(ValueTest, MoveBool) {
+TEST(Value, MoveBool) {
   Value true_value(true);
   Value moved_true_value(std::move(true_value));
   ASSERT_EQ(moved_true_value.type(), Value::Type::kBool);
@@ -410,7 +410,7 @@ TEST(ValueTest, MoveBool) {
   EXPECT_FALSE(blank.GetBool());
 }
 
-TEST(ValueTest, MoveInt) {
+TEST(Value, MoveInt) {
   Value value(74);
   Value moved_value(std::move(value));
   ASSERT_EQ(moved_value.type(), Value::Type::kNumber);
@@ -423,7 +423,7 @@ TEST(ValueTest, MoveInt) {
   EXPECT_EQ(blank.GetInt(), 47);
 }
 
-TEST(ValueTest, MoveInt32) {
+TEST(Value, MoveInt32) {
   Value value(int32_t{74});
   Value moved_value(std::move(value));
   ASSERT_EQ(moved_value.type(), Value::Type::kNumber);
@@ -436,7 +436,7 @@ TEST(ValueTest, MoveInt32) {
   EXPECT_EQ(blank.GetInt64(), 47);
 }
 
-TEST(ValueTest, MoveInt64) {
+TEST(Value, MoveInt64) {
   Value value(int64_t{74});
   Value moved_value(std::move(value));
   ASSERT_EQ(moved_value.type(), Value::Type::kNumber);
@@ -449,7 +449,7 @@ TEST(ValueTest, MoveInt64) {
   EXPECT_EQ(blank.GetInt64(), 47);
 }
 
-TEST(ValueTest, MoveDouble) {
+TEST(Value, MoveDouble) {
   Value value(74.896);
   Value moved_value(std::move(value));
   ASSERT_EQ(moved_value.type(), Value::Type::kNumber);
@@ -462,7 +462,7 @@ TEST(ValueTest, MoveDouble) {
   EXPECT_EQ(blank.GetDouble(), 654.38);
 }
 
-TEST(ValueTest, MoveString) {
+TEST(Value, MoveString) {
   Value value("foobar");
   Value moved_value(std::move(value));
   ASSERT_EQ(moved_value.type(), Value::Type::kString);
@@ -475,7 +475,7 @@ TEST(ValueTest, MoveString) {
   EXPECT_EQ(blank.GetString(), "foobar");
 }
 
-TEST(ValueTest, MoveArray) {
+TEST(Value, MoveArray) {
   Value::Array storage;
   storage.emplace_back(123);
   Value value(Value::Clone(storage));
@@ -489,7 +489,7 @@ TEST(ValueTest, MoveArray) {
   EXPECT_EQ(blank.GetArray().back().GetInt64(), 123);
 }
 
-TEST(ValueTest, MoveConstructObject) {
+TEST(Value, MoveConstructObject) {
   Value::Object storage;
   storage.emplace("Int", 123);
 
@@ -501,7 +501,7 @@ TEST(ValueTest, MoveConstructObject) {
   EXPECT_EQ(key->GetInt64(), 123);
 }
 
-TEST(ValueTest, MoveAssignObject) {
+TEST(Value, MoveAssignObject) {
   Value::Object storage;
   storage.emplace("Int", 123);
 
@@ -513,7 +513,7 @@ TEST(ValueTest, MoveAssignObject) {
   EXPECT_EQ(key->GetInt64(), 123);
 }
 
-TEST(ValueTest, FindKey) {
+TEST(Value, FindKey) {
   Value::Object storage;
   storage.emplace("foo", "bar");
   Value dict(std::move(storage));
@@ -527,7 +527,7 @@ TEST(ValueTest, FindKey) {
   EXPECT_DEATH(null.FindKey("foo"), "");
 }
 
-TEST(ValueTest, FindKeyChangeValue) {
+TEST(Value, FindKeyChangeValue) {
   Value::Object storage;
   storage.emplace("foo", "bar");
   Value dict(std::move(storage));
@@ -541,7 +541,7 @@ TEST(ValueTest, FindKeyChangeValue) {
   EXPECT_EQ(key->GetInt64(), 123);
 }
 
-TEST(ValueTest, FindKeyConst) {
+TEST(Value, FindKeyConst) {
   Value::Object storage;
   storage.emplace("foo", "bar");
   const Value dict(std::move(storage));
@@ -552,7 +552,7 @@ TEST(ValueTest, FindKeyConst) {
   EXPECT_DEATH(null.FindKey("foo"), "");
 }
 
-TEST(ValueTest, FindKeyOfType) {
+TEST(Value, FindKeyOfType) {
   Value::Object storage;
   storage.emplace("null", Value::Type::kNull);
   storage.emplace("bool", Value::Type::kBool);
@@ -608,7 +608,7 @@ TEST(ValueTest, FindKeyOfType) {
   EXPECT_DEATH(null.FindKeyOfType("dict", Value::Type::kObject), "");
 }
 
-TEST(ValueTest, FindKeyOfTypeConst) {
+TEST(Value, FindKeyOfTypeConst) {
   Value::Object storage;
   storage.emplace("null", Value::Type::kNull);
   storage.emplace("bool", Value::Type::kBool);
@@ -664,7 +664,7 @@ TEST(ValueTest, FindKeyOfTypeConst) {
   EXPECT_DEATH(null.FindKeyOfType("dict", Value::Type::kObject), "");
 }
 
-TEST(ValueTest, FindBoolKey) {
+TEST(Value, FindBoolKey) {
   Value::Object storage;
   storage.emplace("null", Value::Type::kNull);
   storage.emplace("bool", Value::Type::kBool);
@@ -685,7 +685,7 @@ TEST(ValueTest, FindBoolKey) {
   EXPECT_DEATH(null.FindBoolKey("dict"), "");
 }
 
-TEST(ValueTest, FindIntKey) {
+TEST(Value, FindIntKey) {
   Value::Object storage;
   storage.emplace("null", Value::Type::kNull);
   storage.emplace("bool", Value::Type::kBool);
@@ -706,7 +706,7 @@ TEST(ValueTest, FindIntKey) {
   EXPECT_DEATH(null.FindIntKey("dict"), "");
 }
 
-TEST(ValueTest, FindInt64Key) {
+TEST(Value, FindInt64Key) {
   Value::Object storage;
   storage.emplace("null", Value::Type::kNull);
   storage.emplace("bool", Value::Type::kBool);
@@ -727,7 +727,7 @@ TEST(ValueTest, FindInt64Key) {
   EXPECT_DEATH(null.FindInt64Key("dict"), "");
 }
 
-TEST(ValueTest, FindDoubleKey) {
+TEST(Value, FindDoubleKey) {
   Value::Object storage;
   storage.emplace("null", Value::Type::kNull);
   storage.emplace("bool", Value::Type::kBool);
@@ -748,7 +748,7 @@ TEST(ValueTest, FindDoubleKey) {
   EXPECT_DEATH(null.FindDoubleKey("dict"), "");
 }
 
-TEST(ValueTest, FindStringKey) {
+TEST(Value, FindStringKey) {
   Value::Object storage;
   storage.emplace("null", Value::Type::kNull);
   storage.emplace("bool", Value::Type::kBool);
@@ -769,7 +769,7 @@ TEST(ValueTest, FindStringKey) {
   EXPECT_DEATH(null.FindStringKey("dict"), "");
 }
 
-TEST(ValueTest, FindArrayKey) {
+TEST(Value, FindArrayKey) {
   Value::Object storage;
   storage.emplace("null", Value::Type::kNull);
   storage.emplace("bool", Value::Type::kBool);
@@ -790,7 +790,7 @@ TEST(ValueTest, FindArrayKey) {
   EXPECT_DEATH(null.FindArrayKey("dict"), "");
 }
 
-TEST(ValueTest, FindObjectKey) {
+TEST(Value, FindObjectKey) {
   Value::Object storage;
   storage.emplace("null", Value::Type::kNull);
   storage.emplace("bool", Value::Type::kBool);
@@ -811,7 +811,7 @@ TEST(ValueTest, FindObjectKey) {
   EXPECT_DEATH(null.FindObjectKey("dict"), "");
 }
 
-TEST(ValueTest, SetKey) {
+TEST(Value, SetKey) {
   Value::Object storage;
   storage.emplace("null", Value::Type::kNull);
   storage.emplace("bool", Value::Type::kBool);
@@ -837,7 +837,7 @@ TEST(ValueTest, SetKey) {
   EXPECT_DEATH(null.SetKey("number", Value()), "");
 }
 
-TEST(ValueTest, SetKeyReturns) {
+TEST(Value, SetKeyReturns) {
   Value root(Value::Type::kObject);
 
   const auto null_weak = root.SetKey("null", Value());
@@ -868,7 +868,7 @@ TEST(ValueTest, SetKeyReturns) {
   EXPECT_EQ(*object_weak, Value(std::move(object)));
 }
 
-TEST(ValueTest, RemoveKey) {
+TEST(Value, RemoveKey) {
   Value root(Value::Type::kObject);
   root.SetKey("one", Value(123));
 
@@ -880,7 +880,7 @@ TEST(ValueTest, RemoveKey) {
   EXPECT_DEATH(null.RemoveKey("one"), "");
 }
 
-TEST(ValueTest, Comparisons) {
+TEST(Value, Comparisons) {
   Value null1;
   Value null2;
   EXPECT_EQ(null2, null1);
@@ -985,13 +985,13 @@ TEST(ValueTest, Comparisons) {
   }
 }
 
-TEST(ValueTest, SelfSwap) {
+TEST(Value, SelfSwap) {
   Value test(1);
   std::swap(test, test);
   EXPECT_EQ(test.GetInt64(), 1);
 }
 
-TEST(ValueTest, SetPathOnlyForObject) {
+TEST(Value, SetPathOnlyForObject) {
   EXPECT_DEATH(Value(Value::Type::kNull).SetPath("key", Value()), "");
   EXPECT_DEATH(Value(Value::Type::kBool).SetPath("key", Value()), "");
   EXPECT_DEATH(Value(Value::Type::kNumber).SetPath("key", Value()), "");
@@ -1000,7 +1000,7 @@ TEST(ValueTest, SetPathOnlyForObject) {
   EXPECT_NO_FATAL_FAILURE(Value(Value::Type::kObject).SetPath("key", Value()));
 }
 
-TEST(ValueTest, FindPathOnlyForObject) {
+TEST(Value, FindPathOnlyForObject) {
   EXPECT_DEATH(Value(Value::Type::kNull).FindPath("key"), "");
   EXPECT_DEATH(Value(Value::Type::kBool).FindPath("key"), "");
   EXPECT_DEATH(Value(Value::Type::kNumber).FindPath("key"), "");
@@ -1025,7 +1025,7 @@ TEST(ValueTest, FindPathOnlyForObject) {
       static_cast<const Value&>(Value(Value::Type::kObject)).FindPath("key"));
 }
 
-TEST(ValueTest, SetPathLevel1) {
+TEST(Value, SetPathLevel1) {
   Value object(Value::Type::kObject);
 
   auto value = object.SetPath("key", Value(1));
@@ -1056,7 +1056,7 @@ TEST(ValueTest, SetPathLevel1) {
   EXPECT_EQ(*const_v, Value(2));
 }
 
-TEST(ValueTest, SetPathLevel2) {
+TEST(Value, SetPathLevel2) {
   Value object(Value::Type::kObject);
 
   auto value = object.SetPath("key1.key2", Value(1));
@@ -1095,7 +1095,7 @@ TEST(ValueTest, SetPathLevel2) {
   EXPECT_EQ(*const_v, Value(2));
 }
 
-TEST(ValueTest, SetPathLevel3) {
+TEST(Value, SetPathLevel3) {
   Value object(Value::Type::kObject);
 
   auto value = object.SetPath("key1.key2.key3", Value(1));
