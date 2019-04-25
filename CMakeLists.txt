@@ -58,6 +58,9 @@ rst/Status/StatusOr.h
 rst/STL/Adapters.h
 rst/STL/Algorithm.h
 
+rst/Threading/Barrier.h
+rst/Threading/Barrier.cpp
+
 rst/Value/Value.h
 rst/Value/Value.cpp
 )
@@ -103,6 +106,8 @@ rst/Status/StatusTest.cpp
 
 rst/STL/AdaptersTest.cpp
 rst/STL/AlgorithmTest.cpp
+
+rst/Threading/BarrierTest.cpp
 
 rst/Value/ValueTest.cpp
 )
