@@ -35,28 +35,19 @@ Barrier::Barrier(const size_t counter) : counter_(counter) {
   RST_DCHECK(counter > 0);
 }
 
-Barrier::~Barrier() {
-  std::unique_lock<std::mutex> lock(mutex_);
-  while (counter_ != 0)
-    cv_.wait(lock);
-}
+Barrier::~Barrier() = default;
 
 void Barrier::CountDownAndWait() {
-  do {
+  {
     std::unique_lock<std::mutex> lock(mutex_);
     RST_DCHECK(counter_ > 0);
 
     counter_--;
-    if (counter_ == 0)
-      break;
-
     while (counter_ != 0)
       cv_.wait(lock);
+  }
 
-    return;
-  } while (false);
-
-  cv_.notify_all();
+  cv_.notify_one();
 }
 
 }  // namespace rst

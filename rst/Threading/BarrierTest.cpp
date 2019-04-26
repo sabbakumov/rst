@@ -27,7 +27,6 @@
 
 #include "rst/Threading/Barrier.h"
 
-#include <optional>
 #include <thread>
 #include <vector>
 
@@ -59,25 +58,6 @@ TEST(Barrier, CalledMoreTimesThanNeeded) {
 
   barrier.CountDownAndWait();
   EXPECT_DEATH(barrier.CountDownAndWait(), "");
-}
-
-TEST(Barrier, DestructorWaits) {
-  static constexpr size_t kMaxThreadNumber = 20;
-  std::vector<std::thread> threads;
-  threads.reserve(kMaxThreadNumber);
-
-  for (size_t i = 1; i <= kMaxThreadNumber; i++) {
-    std::optional<Barrier> barrier(i);
-
-    threads.clear();
-    for (size_t j = 0; j < i; j++)
-      threads.emplace_back([&barrier]() { barrier->CountDownAndWait(); });
-
-    barrier.reset();
-
-    for (auto& thread : threads)
-      thread.join();
-  }
 }
 
 }  // namespace rst
