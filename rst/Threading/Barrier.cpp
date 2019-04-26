@@ -35,7 +35,12 @@ Barrier::Barrier(const size_t counter) : counter_(counter) {
   RST_DCHECK(counter > 0);
 }
 
-Barrier::~Barrier() = default;
+Barrier::~Barrier() {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  std::unique_lock<std::mutex> lock(mutex_);
+  RST_DCHECK(counter_ == 0);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+}
 
 void Barrier::CountDownAndWait() {
   {

@@ -27,6 +27,7 @@
 
 #include "rst/Threading/Barrier.h"
 
+#include <optional>
 #include <thread>
 #include <vector>
 
@@ -59,5 +60,7 @@ TEST(Barrier, CalledMoreTimesThanNeeded) {
   barrier.CountDownAndWait();
   EXPECT_DEATH(barrier.CountDownAndWait(), "");
 }
+
+TEST(Barrier, CalledLessTimesThanNeeded) { EXPECT_DEATH(Barrier(1), ""); }
 
 }  // namespace rst
