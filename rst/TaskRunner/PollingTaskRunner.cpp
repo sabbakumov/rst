@@ -30,7 +30,6 @@
 #include <utility>
 
 #include "rst/Check/Check.h"
-#include "rst/NoDestructor/NoDestructor.h"
 
 namespace chrono = std::chrono;
 
