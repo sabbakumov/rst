@@ -37,7 +37,7 @@ Barrier::Barrier(const size_t counter) : counter_(counter) {
 
 Barrier::~Barrier() {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
-  std::unique_lock<std::mutex> lock(mutex_);
+  std::lock_guard<std::mutex> lock(mutex_);
   RST_DCHECK(counter_ == 0);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 }
