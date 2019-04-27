@@ -25,43 +25,24 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Threading/Barrier.h"
+#include "rst/TaskRunner/Item.h"
 
-#include <cstddef>
-#include <optional>
-#include <thread>
-#include <vector>
+#include <utility>
 
-#include <gtest/gtest.h>
+namespace chrono = std::chrono;
 
 namespace rst {
+namespace internal {
 
-TEST(Barrier, Normal) {
-  static constexpr size_t kMaxThreadNumber = 20;
-  std::vector<std::thread> threads;
-  threads.reserve(kMaxThreadNumber);
+Item::Item(chrono::milliseconds that_time_point, const uint64_t task_id,
+           std::function<void()>&& that_task)
+    : time_point(that_time_point),
+      task_id(task_id),
+      task(std::move(that_task)) {}
 
-  for (size_t i = 1; i <= kMaxThreadNumber; i++) {
-    Barrier barrier(i);
+Item::Item(Item&&) noexcept = default;
+Item::~Item() = default;
+Item& Item::operator=(Item&&) noexcept = default;
 
-    threads.clear();
-    for (size_t j = 0; j < i; j++)
-      threads.emplace_back([&barrier]() { barrier.CountDownAndWait(); });
-
-    for (auto& thread : threads)
-      thread.join();
-  }
-}
-
-TEST(Barrier, ZeroCounter) { EXPECT_DEATH(Barrier(0), ""); }
-
-TEST(Barrier, CalledMoreTimesThanNeeded) {
-  Barrier barrier(1);
-
-  barrier.CountDownAndWait();
-  EXPECT_DEATH(barrier.CountDownAndWait(), "");
-}
-
-TEST(Barrier, CalledLessTimesThanNeeded) { EXPECT_DEATH(Barrier(1), ""); }
-
+}  // namespace internal
 }  // namespace rst

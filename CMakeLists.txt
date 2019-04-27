@@ -4,6 +4,8 @@ include_directories(.)
 
 add_library(rst
 
+rst/Bind/BindHelpers.h
+
 rst/Check/Check.h
 
 rst/Defer/Defer.h
@@ -61,11 +63,20 @@ rst/STL/Algorithm.h
 rst/Threading/Barrier.h
 rst/Threading/Barrier.cpp
 
+rst/TaskRunner/ITaskRunner.cpp
+rst/TaskRunner/ITaskRunner.h
+rst/TaskRunner/Item.cpp
+rst/TaskRunner/Item.h
+rst/TaskRunner/PollingTaskRunner.cpp
+rst/TaskRunner/PollingTaskRunner.h
+
 rst/Value/Value.h
 rst/Value/Value.cpp
 )
 
 add_executable(rst_tests
+
+rst/Bind/BindHelpersTest.cpp
 
 rst/Check/CheckTest.cpp
 rst/Check/CheckNDebugTest.cpp
@@ -106,6 +117,8 @@ rst/Status/StatusTest.cpp
 
 rst/STL/AdaptersTest.cpp
 rst/STL/AlgorithmTest.cpp
+
+rst/TaskRunner/PollingTaskRunnerTest.cpp
 
 rst/Threading/BarrierTest.cpp
 

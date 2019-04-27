@@ -25,43 +25,18 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Threading/Barrier.h"
+#include "rst/TaskRunner/ITaskRunner.h"
 
-#include <cstddef>
-#include <optional>
-#include <thread>
-#include <vector>
+#include <utility>
 
-#include <gtest/gtest.h>
+namespace chrono = std::chrono;
 
 namespace rst {
 
-TEST(Barrier, Normal) {
-  static constexpr size_t kMaxThreadNumber = 20;
-  std::vector<std::thread> threads;
-  threads.reserve(kMaxThreadNumber);
+ITaskRunner::~ITaskRunner() = default;
 
-  for (size_t i = 1; i <= kMaxThreadNumber; i++) {
-    Barrier barrier(i);
-
-    threads.clear();
-    for (size_t j = 0; j < i; j++)
-      threads.emplace_back([&barrier]() { barrier.CountDownAndWait(); });
-
-    for (auto& thread : threads)
-      thread.join();
-  }
+void ITaskRunner::PostTask(std::function<void()>&& task) {
+  PostDelayedTask(std::move(task), chrono::milliseconds::zero());
 }
-
-TEST(Barrier, ZeroCounter) { EXPECT_DEATH(Barrier(0), ""); }
-
-TEST(Barrier, CalledMoreTimesThanNeeded) {
-  Barrier barrier(1);
-
-  barrier.CountDownAndWait();
-  EXPECT_DEATH(barrier.CountDownAndWait(), "");
-}
-
-TEST(Barrier, CalledLessTimesThanNeeded) { EXPECT_DEATH(Barrier(1), ""); }
 
 }  // namespace rst

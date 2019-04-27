@@ -25,43 +25,38 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Threading/Barrier.h"
+#ifndef RST_BIND_BINDHELPERS_H_
+#define RST_BIND_BINDHELPERS_H_
 
-#include <cstddef>
-#include <optional>
-#include <thread>
-#include <vector>
-
-#include <gtest/gtest.h>
+#include <functional>
 
 namespace rst {
 
-TEST(Barrier, Normal) {
-  static constexpr size_t kMaxThreadNumber = 20;
-  std::vector<std::thread> threads;
-  threads.reserve(kMaxThreadNumber);
-
-  for (size_t i = 1; i <= kMaxThreadNumber; i++) {
-    Barrier barrier(i);
-
-    threads.clear();
-    for (size_t j = 0; j < i; j++)
-      threads.emplace_back([&barrier]() { barrier.CountDownAndWait(); });
-
-    for (auto& thread : threads)
-      thread.join();
+// Creates a null function.
+class NullFunction {
+ public:
+  template <class R, class... Args>
+  operator std::function<R(Args...)>() const {
+    return std::function<R(Args...)>();
   }
-}
+};
 
-TEST(Barrier, ZeroCounter) { EXPECT_DEATH(Barrier(0), ""); }
+// Creates a callback that does nothing when called.
+class DoNothing {
+ public:
+  template <class... Args>
+  operator std::function<void(Args...)>() const {
+    return Function<Args...>();
+  }
 
-TEST(Barrier, CalledMoreTimesThanNeeded) {
-  Barrier barrier(1);
-
-  barrier.CountDownAndWait();
-  EXPECT_DEATH(barrier.CountDownAndWait(), "");
-}
-
-TEST(Barrier, CalledLessTimesThanNeeded) { EXPECT_DEATH(Barrier(1), ""); }
+  // Explicit way of setting a specific callback type when the compiler can't
+  // deduce it.
+  template <class... Args>
+  static std::function<void(Args...)> Function() {
+    return std::function([](Args...) {});
+  }
+};
 
 }  // namespace rst
+
+#endif  // RST_BIND_BINDHELPERS_H_

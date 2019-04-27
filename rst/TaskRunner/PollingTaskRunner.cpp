@@ -25,43 +25,54 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Threading/Barrier.h"
+#include "rst/TaskRunner/PollingTaskRunner.h"
 
-#include <cstddef>
-#include <optional>
-#include <thread>
-#include <vector>
+#include <utility>
 
-#include <gtest/gtest.h>
+#include "rst/Check/Check.h"
+#include "rst/NoDestructor/NoDestructor.h"
+
+namespace chrono = std::chrono;
 
 namespace rst {
 
-TEST(Barrier, Normal) {
-  static constexpr size_t kMaxThreadNumber = 20;
-  std::vector<std::thread> threads;
-  threads.reserve(kMaxThreadNumber);
+PollingTaskRunner::PollingTaskRunner(
+    std::function<chrono::milliseconds()>&& time_function)
+    : time_function_(std::move(time_function)) {}
 
-  for (size_t i = 1; i <= kMaxThreadNumber; i++) {
-    Barrier barrier(i);
+PollingTaskRunner::~PollingTaskRunner() = default;
 
-    threads.clear();
-    for (size_t j = 0; j < i; j++)
-      threads.emplace_back([&barrier]() { barrier.CountDownAndWait(); });
+void PollingTaskRunner::PostDelayedTask(std::function<void()>&& task,
+                                        const chrono::milliseconds delay) {
+  RST_DCHECK(delay.count() >= 0);
 
-    for (auto& thread : threads)
-      thread.join();
+  const auto now = time_function_();
+  const auto future_time_point = now + delay;
+  std::lock_guard<std::mutex> lock(mutex_);
+  queue_.emplace(future_time_point, task_id_, std::move(task));
+  task_id_++;
+}
+
+void PollingTaskRunner::RunPendingTasks() {
+  pending_tasks_.clear();
+
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    const auto now = time_function_();
+    while (!queue_.empty()) {
+      const auto& item = queue_.top();
+      if (now < item.time_point)
+        break;
+
+      auto task = item.task;
+      queue_.pop();
+      pending_tasks_.emplace_back(std::move(task));
+    }
   }
+
+  for (const auto& task : pending_tasks_)
+    task();
 }
-
-TEST(Barrier, ZeroCounter) { EXPECT_DEATH(Barrier(0), ""); }
-
-TEST(Barrier, CalledMoreTimesThanNeeded) {
-  Barrier barrier(1);
-
-  barrier.CountDownAndWait();
-  EXPECT_DEATH(barrier.CountDownAndWait(), "");
-}
-
-TEST(Barrier, CalledLessTimesThanNeeded) { EXPECT_DEATH(Barrier(1), ""); }
 
 }  // namespace rst

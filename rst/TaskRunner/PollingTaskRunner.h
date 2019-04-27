@@ -25,43 +25,43 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Threading/Barrier.h"
+#ifndef RST_TASKRUNNER_POLLINGTASKRUNNER_H_
+#define RST_TASKRUNNER_POLLINGTASKRUNNER_H_
 
-#include <cstddef>
-#include <optional>
-#include <thread>
+#include <chrono>
+#include <cstdint>
+#include <functional>
+#include <mutex>
+#include <queue>
 #include <vector>
 
-#include <gtest/gtest.h>
+#include "rst/Macros/Macros.h"
+#include "rst/TaskRunner/ITaskRunner.h"
+#include "rst/TaskRunner/Item.h"
 
 namespace rst {
 
-TEST(Barrier, Normal) {
-  static constexpr size_t kMaxThreadNumber = 20;
-  std::vector<std::thread> threads;
-  threads.reserve(kMaxThreadNumber);
+class PollingTaskRunner : public ITaskRunner {
+ public:
+  explicit PollingTaskRunner(
+      std::function<std::chrono::milliseconds()>&& time_function);
+  ~PollingTaskRunner();
 
-  for (size_t i = 1; i <= kMaxThreadNumber; i++) {
-    Barrier barrier(i);
+  void PostDelayedTask(std::function<void()>&& task,
+                       std::chrono::milliseconds delay) final;
 
-    threads.clear();
-    for (size_t j = 0; j < i; j++)
-      threads.emplace_back([&barrier]() { barrier.CountDownAndWait(); });
+  void RunPendingTasks();
 
-    for (auto& thread : threads)
-      thread.join();
-  }
-}
+ private:
+  std::function<std::chrono::milliseconds()> time_function_;
+  std::vector<std::function<void()>> pending_tasks_;
+  std::mutex mutex_;
+  std::priority_queue<internal::Item> queue_;
+  uint64_t task_id_ = 0;
 
-TEST(Barrier, ZeroCounter) { EXPECT_DEATH(Barrier(0), ""); }
-
-TEST(Barrier, CalledMoreTimesThanNeeded) {
-  Barrier barrier(1);
-
-  barrier.CountDownAndWait();
-  EXPECT_DEATH(barrier.CountDownAndWait(), "");
-}
-
-TEST(Barrier, CalledLessTimesThanNeeded) { EXPECT_DEATH(Barrier(1), ""); }
+  RST_DISALLOW_COPY_AND_ASSIGN(PollingTaskRunner);
+};
 
 }  // namespace rst
+
+#endif  // RST_TASKRUNNER_POLLINGTASKRUNNER_H_

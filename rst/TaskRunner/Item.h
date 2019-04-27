@@ -25,43 +25,40 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Threading/Barrier.h"
+#ifndef RST_TASKRUNNER_ITEM_H_
+#define RST_TASKRUNNER_ITEM_H_
 
-#include <cstddef>
-#include <optional>
-#include <thread>
-#include <vector>
+#include <chrono>
+#include <cstdint>
+#include <functional>
+#include <tuple>
 
-#include <gtest/gtest.h>
+#include "rst/Macros/Macros.h"
 
 namespace rst {
+namespace internal {
 
-TEST(Barrier, Normal) {
-  static constexpr size_t kMaxThreadNumber = 20;
-  std::vector<std::thread> threads;
-  threads.reserve(kMaxThreadNumber);
+struct Item {
+  Item(std::chrono::milliseconds time_point, uint64_t task_id,
+       std::function<void()>&& task);
+  Item(Item&&) noexcept;
+  ~Item();
 
-  for (size_t i = 1; i <= kMaxThreadNumber; i++) {
-    Barrier barrier(i);
-
-    threads.clear();
-    for (size_t j = 0; j < i; j++)
-      threads.emplace_back([&barrier]() { barrier.CountDownAndWait(); });
-
-    for (auto& thread : threads)
-      thread.join();
+  Item& operator=(Item&&) noexcept;
+  bool operator<(const Item& item) const {
+    return std::make_tuple(item.time_point, item.task_id) <
+           std::make_tuple(time_point, task_id);
   }
-}
 
-TEST(Barrier, ZeroCounter) { EXPECT_DEATH(Barrier(0), ""); }
+  std::chrono::milliseconds time_point;
+  uint64_t task_id = 0;
+  std::function<void()> task;
 
-TEST(Barrier, CalledMoreTimesThanNeeded) {
-  Barrier barrier(1);
+ private:
+  RST_DISALLOW_COPY_AND_ASSIGN(Item);
+};
 
-  barrier.CountDownAndWait();
-  EXPECT_DEATH(barrier.CountDownAndWait(), "");
-}
-
-TEST(Barrier, CalledLessTimesThanNeeded) { EXPECT_DEATH(Barrier(1), ""); }
-
+}  // namespace internal
 }  // namespace rst
+
+#endif  // RST_TASKRUNNER_ITEM_H_

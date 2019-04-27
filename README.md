@@ -7,6 +7,9 @@ It is licensed under the _Simplified BSD License_.
 
 Now the library contains the following components:
 
+## Bind
+  A set of std::function utilities like NullFunction and DoNothing.
+
 ## Check
   A set of macros for better programming error handling.
 
@@ -196,6 +199,9 @@ EXPECT_TRUE(std::is_sorted(std::cbegin(vec), std::cend(vec)));
 ## Status
   A Google-like _Status_ class for recoverable error handling with small
   improvements. It's impossible now to ignore an error.
+
+## TaskRunner
+  A set of task runner utilities like PollingTaskRunner.
 
 ## Threading
   A set of thread related utilities like Barrier.

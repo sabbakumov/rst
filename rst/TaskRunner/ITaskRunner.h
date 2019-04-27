@@ -25,43 +25,24 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/Threading/Barrier.h"
+#ifndef RST_TASKRUNNER_ITASKRUNNER_H_
+#define RST_TASKRUNNER_ITASKRUNNER_H_
 
-#include <cstddef>
-#include <optional>
-#include <thread>
-#include <vector>
-
-#include <gtest/gtest.h>
+#include <chrono>
+#include <functional>
 
 namespace rst {
 
-TEST(Barrier, Normal) {
-  static constexpr size_t kMaxThreadNumber = 20;
-  std::vector<std::thread> threads;
-  threads.reserve(kMaxThreadNumber);
+class ITaskRunner {
+ public:
+  virtual ~ITaskRunner();
 
-  for (size_t i = 1; i <= kMaxThreadNumber; i++) {
-    Barrier barrier(i);
+  virtual void PostDelayedTask(std::function<void()>&& task,
+                               std::chrono::milliseconds delay) = 0;
 
-    threads.clear();
-    for (size_t j = 0; j < i; j++)
-      threads.emplace_back([&barrier]() { barrier.CountDownAndWait(); });
-
-    for (auto& thread : threads)
-      thread.join();
-  }
-}
-
-TEST(Barrier, ZeroCounter) { EXPECT_DEATH(Barrier(0), ""); }
-
-TEST(Barrier, CalledMoreTimesThanNeeded) {
-  Barrier barrier(1);
-
-  barrier.CountDownAndWait();
-  EXPECT_DEATH(barrier.CountDownAndWait(), "");
-}
-
-TEST(Barrier, CalledLessTimesThanNeeded) { EXPECT_DEATH(Barrier(1), ""); }
+  void PostTask(std::function<void()>&& task);
+};
 
 }  // namespace rst
+
+#endif  // RST_TASKRUNNER_ITASKRUNNER_H_
