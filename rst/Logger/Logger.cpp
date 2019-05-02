@@ -37,10 +37,7 @@
 namespace rst {
 namespace {
 
-Nullable<Logger*>& GetLogger() {
-  static NoDestructor<Nullable<Logger*>> logger;
-  return *logger;
-}
+Logger* g_logger = nullptr;
 
 }  // namespace
 
@@ -51,11 +48,10 @@ Logger::~Logger() = default;
 // static
 void Logger::Log(const Level level, const NotNull<const char*> filename,
                  const int line, const std::string_view message) {
-  const auto logger = GetLogger();
-  RST_DCHECK(logger != nullptr);
+  RST_DCHECK(g_logger != nullptr);
   RST_DCHECK(line > 0);
 
-  if (static_cast<int>(level) < static_cast<int>(logger->level_))
+  if (static_cast<int>(level) < static_cast<int>(g_logger->level_))
     return;
 
   const char* level_str = nullptr;
@@ -84,7 +80,7 @@ void Logger::Log(const Level level, const NotNull<const char*> filename,
   }
   RST_DCHECK(level_str != nullptr);
 
-  logger->sink_->Log(
+  g_logger->sink_->Log(
       Format("[{}:{}({})] {}", level_str, filename.get(), line, message));
 
   if (level == Level::kFatal)
@@ -93,7 +89,7 @@ void Logger::Log(const Level level, const NotNull<const char*> filename,
 
 // static
 void Logger::SetLogger(const NotNull<Logger*> logger) {
-  GetLogger() = logger.get();
+  g_logger = logger.get();
 }
 
 }  // namespace rst
