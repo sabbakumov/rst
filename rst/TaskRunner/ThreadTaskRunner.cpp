@@ -25,7 +25,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/TaskRunner/PollingTaskRunner.h"
+#include "rst/TaskRunner/ThreadTaskRunner.h"
 
 #include <utility>
 
@@ -35,43 +35,73 @@ namespace chrono = std::chrono;
 
 namespace rst {
 
-PollingTaskRunner::PollingTaskRunner(
+ThreadTaskRunner::ThreadTaskRunner(
     std::function<chrono::milliseconds()>&& time_function)
-    : time_function_(std::move(time_function)) {}
+    : time_function_(std::move(time_function)),
+      thread_(&ThreadTaskRunner::WaitAndRunTasks, this) {}
 
-PollingTaskRunner::~PollingTaskRunner() = default;
+ThreadTaskRunner::~ThreadTaskRunner() {
+  {
+    std::lock_guard<std::mutex> lock(thread_mutex_);
+    should_exit_ = true;
+  }
+  thread_cv_.notify_one();
+  thread_.join();
+}
 
-void PollingTaskRunner::PostDelayedTask(std::function<void()>&& task,
-                                        const chrono::milliseconds delay) {
+void ThreadTaskRunner::PostDelayedTask(std::function<void()>&& task,
+                                       const chrono::milliseconds delay) {
   RST_DCHECK(delay.count() >= 0);
 
   const auto now = time_function_();
   const auto future_time_point = now + delay;
-  std::lock_guard<std::mutex> lock(mutex_);
-  queue_.emplace(future_time_point, task_id_, std::move(task));
-  task_id_++;
+  {
+    std::lock_guard<std::mutex> lock(thread_mutex_);
+    queue_.emplace(future_time_point, task_id_, std::move(task));
+    task_id_++;
+  }
+  thread_cv_.notify_one();
 }
 
-void PollingTaskRunner::RunPendingTasks() {
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
+void ThreadTaskRunner::WaitAndRunTasks() {
+  while (true) {
+    {
+      std::unique_lock<std::mutex> lock(thread_mutex_);
 
-    const auto now = time_function_();
-    while (!queue_.empty()) {
-      const auto& item = queue_.top();
-      if (now < item.time_point)
-        break;
+      if (should_exit_)
+        return;
 
-      auto task = item.task;
-      queue_.pop();
-      pending_tasks_.emplace_back(std::move(task));
+      if (!queue_.empty()) {
+        const auto& item = queue_.top();
+        const auto now = time_function_();
+        if (now < item.time_point) {
+          const auto wait_duration = item.time_point - now;
+          thread_cv_.wait_for(lock, wait_duration);
+        }
+      } else {
+        thread_cv_.wait(lock);
+      }
+
+      if (should_exit_)
+        return;
+
+      const auto now = time_function_();
+      while (!queue_.empty()) {
+        const auto& item = queue_.top();
+        if (now < item.time_point)
+          break;
+
+        auto task = item.task;
+        queue_.pop();
+        pending_tasks_.emplace_back(std::move(task));
+      }
     }
+
+    for (const auto& task : pending_tasks_)
+      task();
+
+    pending_tasks_.clear();
   }
-
-  for (const auto& task : pending_tasks_)
-    task();
-
-  pending_tasks_.clear();
 }
 
 }  // namespace rst

@@ -25,53 +25,51 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/TaskRunner/PollingTaskRunner.h"
+#ifndef RST_TASKRUNNER_THREADTASKRUNNER_H_
+#define RST_TASKRUNNER_THREADTASKRUNNER_H_
 
-#include <utility>
+#include <chrono>
+#include <condition_variable>
+#include <cstdint>
+#include <functional>
+#include <mutex>
+#include <queue>
+#include <thread>
+#include <vector>
 
-#include "rst/Check/Check.h"
-
-namespace chrono = std::chrono;
+#include "rst/Macros/Macros.h"
+#include "rst/TaskRunner/ITaskRunner.h"
+#include "rst/TaskRunner/Item.h"
 
 namespace rst {
 
-PollingTaskRunner::PollingTaskRunner(
-    std::function<chrono::milliseconds()>&& time_function)
-    : time_function_(std::move(time_function)) {}
+class ThreadTaskRunner : public ITaskRunner {
+ public:
+  explicit ThreadTaskRunner(
+      std::function<std::chrono::milliseconds()>&& time_function);
+  ~ThreadTaskRunner();
 
-PollingTaskRunner::~PollingTaskRunner() = default;
+  void PostDelayedTask(std::function<void()>&& task,
+                       std::chrono::milliseconds delay) final;
 
-void PollingTaskRunner::PostDelayedTask(std::function<void()>&& task,
-                                        const chrono::milliseconds delay) {
-  RST_DCHECK(delay.count() >= 0);
+ private:
+  void WaitAndRunTasks();
 
-  const auto now = time_function_();
-  const auto future_time_point = now + delay;
-  std::lock_guard<std::mutex> lock(mutex_);
-  queue_.emplace(future_time_point, task_id_, std::move(task));
-  task_id_++;
-}
+  std::function<std::chrono::milliseconds()> time_function_;
 
-void PollingTaskRunner::RunPendingTasks() {
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
+  std::mutex thread_mutex_;
+  std::condition_variable thread_cv_;
+  bool should_exit_ = false;
 
-    const auto now = time_function_();
-    while (!queue_.empty()) {
-      const auto& item = queue_.top();
-      if (now < item.time_point)
-        break;
+  std::vector<std::function<void()>> pending_tasks_;
+  std::priority_queue<internal::Item> queue_;
+  uint64_t task_id_ = 0;
 
-      auto task = item.task;
-      queue_.pop();
-      pending_tasks_.emplace_back(std::move(task));
-    }
-  }
+  std::thread thread_;
 
-  for (const auto& task : pending_tasks_)
-    task();
-
-  pending_tasks_.clear();
-}
+  RST_DISALLOW_COPY_AND_ASSIGN(ThreadTaskRunner);
+};
 
 }  // namespace rst
+
+#endif  // RST_TASKRUNNER_THREADTASKRUNNER_H_

@@ -69,6 +69,8 @@ rst/TaskRunner/Item.cpp
 rst/TaskRunner/Item.h
 rst/TaskRunner/PollingTaskRunner.cpp
 rst/TaskRunner/PollingTaskRunner.h
+rst/TaskRunner/ThreadTaskRunner.cpp
+rst/TaskRunner/ThreadTaskRunner.h
 
 rst/Value/Value.h
 rst/Value/Value.cpp
@@ -119,6 +121,7 @@ rst/STL/AdaptersTest.cpp
 rst/STL/AlgorithmTest.cpp
 
 rst/TaskRunner/PollingTaskRunnerTest.cpp
+rst/TaskRunner/ThreadTaskRunnerTest.cpp
 
 rst/Threading/BarrierTest.cpp
 

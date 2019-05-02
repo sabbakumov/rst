@@ -201,7 +201,7 @@ EXPECT_TRUE(std::is_sorted(std::cbegin(vec), std::cend(vec)));
   improvements. It's impossible now to ignore an error.
 
 ## TaskRunner
-  A set of task runner utilities like PollingTaskRunner.
+  A set of task runner utilities like PollingTaskRunner and ThreadTaskRunner.
 
 ## Threading
   A set of thread related utilities like Barrier.
