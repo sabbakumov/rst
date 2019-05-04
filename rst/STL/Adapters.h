@@ -29,10 +29,9 @@
 #define RST_STL_ADAPTERS_H_
 
 #include <iterator>
+#include <utility>
 
-#include "rst/Check/Check.h"
 #include "rst/Macros/Macros.h"
-#include "rst/NotNull/NotNull.h"
 
 namespace rst {
 namespace internal {
@@ -40,16 +39,16 @@ namespace internal {
 template <class T>
 class ReversedAdapter {
  public:
-  using Iterator = decltype(std::rbegin(*static_cast<T*>(nullptr)));
+  using Iterator = decltype(std::rbegin(std::declval<T&>()));
 
-  explicit ReversedAdapter(const NotNull<T*> t) : t_(t) {}
+  explicit ReversedAdapter(T& t) : t_(t) {}
   ReversedAdapter(const ReversedAdapter&) = default;
 
-  Iterator begin() const { return std::rbegin(*t_); }
-  Iterator end() const { return std::rend(*t_); }
+  Iterator begin() const { return std::rbegin(t_); }
+  Iterator end() const { return std::rend(t_); }
 
  private:
-  const NotNull<T*> t_;
+  T& t_;
 
   RST_DISALLOW_ASSIGN(ReversedAdapter);
 };
@@ -57,7 +56,7 @@ class ReversedAdapter {
 }  // namespace internal
 
 template <class T>
-internal::ReversedAdapter<T> Reversed(const NotNull<T*> t) {
+internal::ReversedAdapter<T> Reversed(T& t) {
   return internal::ReversedAdapter<T>(t);
 }
 
