@@ -32,7 +32,6 @@
 
 #include "rst/Format/Format.h"
 #include "rst/Logger/LogError.h"
-#include "rst/NoDestructor/NoDestructor.h"
 
 namespace rst {
 namespace {
