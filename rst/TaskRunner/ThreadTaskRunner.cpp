@@ -41,6 +41,24 @@ ThreadTaskRunner::ThreadTaskRunner(
       thread_(&ThreadTaskRunner::WaitAndRunTasks, this) {}
 
 ThreadTaskRunner::~ThreadTaskRunner() {
+  std::mutex ending_task_mutex;
+  std::condition_variable ending_task_cv;
+  auto should_continue = false;
+
+  PostTask(std::bind([&ending_task_mutex, &ending_task_cv, &should_continue]() {
+    {
+      std::lock_guard<std::mutex> lock(ending_task_mutex);
+      should_continue = true;
+    }
+    ending_task_cv.notify_one();
+  }));
+
+  {
+    std::unique_lock<std::mutex> lock(ending_task_mutex);
+    while (!should_continue)
+      ending_task_cv.wait(lock);
+  }
+
   {
     std::lock_guard<std::mutex> lock(thread_mutex_);
     should_exit_ = true;

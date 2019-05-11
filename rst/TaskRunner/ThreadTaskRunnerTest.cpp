@@ -30,7 +30,6 @@
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
-#include <optional>
 #include <string>
 #include <thread>
 #include <vector>
@@ -59,12 +58,12 @@ TEST(ThreadTaskRunner, InvalidPostTaskDelay) {
 
 TEST(ThreadTaskRunner, PostTaskInOrder) {
   std::mutex mtx;
-  std::optional<ThreadTaskRunner> task_runner(
+  ThreadTaskRunner task_runner(
       []() -> chrono::milliseconds { return chrono::milliseconds(0); });
 
   std::string str, expected;
   for (auto i = 0; i < 1000; i++) {
-    task_runner->PostTask([i, &mtx, &str]() {
+    task_runner.PostTask([i, &mtx, &str]() {
       std::lock_guard<std::mutex> lock(mtx);
       str += std::to_string(i);
     });
@@ -78,15 +77,35 @@ TEST(ThreadTaskRunner, PostTaskInOrder) {
   }
 }
 
+TEST(ThreadTaskRunner, DestructorRunsPendingTasks) {
+  std::string str, expected;
+
+  {
+    std::mutex mtx;
+    ThreadTaskRunner task_runner(
+        []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+
+    for (auto i = 0; i < 1000; i++) {
+      task_runner.PostTask([i, &mtx, &str]() {
+        std::lock_guard<std::mutex> lock(mtx);
+        str += std::to_string(i);
+      });
+      expected += std::to_string(i);
+    }
+  }
+
+  EXPECT_EQ(str, expected);
+}
+
 TEST(ThreadTaskRunner, PostDelayedTaskInOrder) {
   std::mutex mtx;
   std::atomic<int> ms = 0;
-  std::optional<ThreadTaskRunner> task_runner(
+  ThreadTaskRunner task_runner(
       [&ms]() -> chrono::milliseconds { return chrono::milliseconds(ms); });
 
   std::string str, first_half;
   for (auto i = 0; i < 500; i++) {
-    task_runner->PostDelayedTask(
+    task_runner.PostDelayedTask(
         [i, &mtx, &str]() {
           std::lock_guard<std::mutex> lock(mtx);
           str += std::to_string(i);
@@ -98,7 +117,7 @@ TEST(ThreadTaskRunner, PostDelayedTaskInOrder) {
   auto expected = first_half;
 
   for (auto i = 500; i < 1000; i++) {
-    task_runner->PostDelayedTask(
+    task_runner.PostDelayedTask(
         [i, &mtx, &str]() {
           std::lock_guard<std::mutex> lock(mtx);
           str += std::to_string(i);
@@ -129,7 +148,7 @@ TEST(ThreadTaskRunner, PostDelayedTaskInOrder) {
 
 TEST(ThreadTaskRunner, PostTaskConcurrently) {
   std::mutex mtx;
-  std::optional<ThreadTaskRunner> task_runner(
+  ThreadTaskRunner task_runner(
       []() -> chrono::milliseconds { return chrono::milliseconds(0); });
 
   std::string str, expected;
@@ -138,7 +157,7 @@ TEST(ThreadTaskRunner, PostTaskConcurrently) {
   threads.reserve(kMaxThreadNumber);
   for (size_t i = 0; i < kMaxThreadNumber; i++) {
     std::thread t([&task_runner, i, &mtx, &str]() {
-      task_runner->PostTask([i, &mtx, &str]() {
+      task_runner.PostTask([i, &mtx, &str]() {
         std::lock_guard<std::mutex> lock(mtx);
         str += std::to_string(i);
       });
