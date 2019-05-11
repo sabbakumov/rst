@@ -39,7 +39,7 @@ PollingTaskRunner::PollingTaskRunner(
     std::function<chrono::milliseconds()>&& time_function)
     : time_function_(std::move(time_function)) {}
 
-PollingTaskRunner::~PollingTaskRunner() = default;
+PollingTaskRunner::~PollingTaskRunner() { RunPendingTasks(); }
 
 void PollingTaskRunner::PostDelayedTask(std::function<void()>&& task,
                                         const chrono::milliseconds delay) {
