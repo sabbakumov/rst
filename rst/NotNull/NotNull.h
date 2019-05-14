@@ -250,7 +250,7 @@ class NotNull<std::unique_ptr<T>> {
     RST_DCHECK(ptr_ != nullptr);
   }
 
-  NotNull(NotNull&&) noexcept = default;
+  NotNull(NotNull&& other) noexcept : NotNull(other.Take()) {}
 
   template <class U>
   NotNull(NotNull<U>&& other) noexcept : NotNull(other.Take()) {}
@@ -269,7 +269,7 @@ class NotNull<std::unique_ptr<T>> {
     return *this;
   }
 
-  NotNull& operator=(NotNull&&) noexcept = default;
+  NotNull& operator=(NotNull&& rhs) noexcept { return *this = rhs.Take(); }
 
   template <class U>
   NotNull& operator=(NotNull<U>&& rhs) noexcept {
@@ -414,7 +414,7 @@ class NotNull<std::shared_ptr<T>> {
   template <class U>
   NotNull(const NotNull<U>&) = delete;
 
-  NotNull(NotNull&&) noexcept = default;
+  NotNull(NotNull&& other) noexcept : NotNull(other.Take()) {}
 
   template <class U>
   NotNull(NotNull<U>&& other) noexcept : NotNull(other.Take()) {}
@@ -439,7 +439,7 @@ class NotNull<std::shared_ptr<T>> {
   template <class U>
   NotNull& operator=(const NotNull<U>&) = delete;
 
-  NotNull& operator=(NotNull&&) noexcept = default;
+  NotNull& operator=(NotNull&& rhs) noexcept { return *this = rhs.Take(); }
 
   template <class U>
   NotNull& operator=(NotNull<U>&& rhs) noexcept {
