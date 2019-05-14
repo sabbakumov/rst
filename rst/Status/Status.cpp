@@ -44,9 +44,7 @@ bool ErrorInfoBase::IsA(const NotNull<const void*> class_id) const {
 Status::Status() = default;
 
 Status::Status(NotNull<std::unique_ptr<ErrorInfoBase>> error)
-    : error_(error.Take()) {
-  RST_DCHECK(error_ != nullptr);
-}
+    : error_(error.Take()) {}
 
 Status::Status(Status&& other) noexcept {
   error_ = std::move(other.error_);
@@ -79,7 +77,6 @@ NotNull<const ErrorInfoBase*> Status::GetError() const {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
   RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-  RST_DCHECK(error_ != nullptr);
   return error_.get();
 }
 
