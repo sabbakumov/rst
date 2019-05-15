@@ -44,7 +44,7 @@ bool ErrorInfoBase::IsA(const NotNull<const void*> class_id) const {
 Status::Status() = default;
 
 Status::Status(NotNull<std::unique_ptr<ErrorInfoBase>> error)
-    : error_(error.Take()) {}
+    : error_(std::move(error).Take()) {}
 
 Status::Status(Status&& other) noexcept {
   error_ = std::move(other.error_);

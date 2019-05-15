@@ -243,7 +243,7 @@ TEST(NotNull, Take) {
   {
     NotNull<std::unique_ptr<std::string>> str_ptr(
         std::make_unique<std::string>("UniquePtr"));
-    const std::unique_ptr<std::string> str = str_ptr.Take();
+    const std::unique_ptr<std::string> str = std::move(str_ptr).Take();
     EXPECT_EQ(*str, "UniquePtr");
     EXPECT_DEATH(NotNull<std::unique_ptr<std::string>>(std::move(str_ptr)), "");
     NotNull<std::unique_ptr<std::string>> str_ptr2(
@@ -254,7 +254,7 @@ TEST(NotNull, Take) {
   {
     NotNull<std::shared_ptr<std::string>> str_ptr(
         std::make_shared<std::string>("SharedPtr"));
-    const std::shared_ptr<std::string> str = str_ptr.Take();
+    const std::shared_ptr<std::string> str = std::move(str_ptr).Take();
     EXPECT_EQ(*str, "SharedPtr");
     EXPECT_DEATH(NotNull<std::shared_ptr<std::string>>(std::move(str_ptr)), "");
     NotNull<std::shared_ptr<std::string>> str_ptr2(
@@ -722,14 +722,14 @@ TEST(Nullable, Take) {
   {
     Nullable<std::unique_ptr<std::string>> str_ptr(
         std::make_unique<std::string>("UniquePtr"));
-    const std::unique_ptr<std::string> str = str_ptr.Take();
+    const std::unique_ptr<std::string> str = std::move(str_ptr).Take();
     EXPECT_EQ(*str, "UniquePtr");
   }
 
   {
     Nullable<std::shared_ptr<std::string>> str_ptr(
         std::make_shared<std::string>("SharedPtr"));
-    const std::shared_ptr<std::string> str = str_ptr.Take();
+    const std::shared_ptr<std::string> str = std::move(str_ptr).Take();
     EXPECT_EQ(*str, "SharedPtr");
   }
 }
