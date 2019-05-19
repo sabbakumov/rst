@@ -4,6 +4,7 @@ include_directories(.)
 
 add_library(rst
 
+rst/Bind/Bind.h
 rst/Bind/BindHelpers.h
 
 rst/Check/Check.h
@@ -78,6 +79,7 @@ rst/Value/Value.cpp
 
 add_executable(rst_tests
 
+rst/Bind/BindTest.cpp
 rst/Bind/BindHelpersTest.cpp
 
 rst/Check/CheckTest.cpp
