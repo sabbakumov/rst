@@ -31,7 +31,7 @@
 #include <random>
 
 #include "rst/Check/Check.h"
-#include "rst/NoDestructor/NoDestructor.h"
+#include "rst/Random/RandomDevice.h"
 
 namespace rst {
 namespace {
@@ -81,11 +81,11 @@ bool IsValidGUIDInternal(const std::string_view guid, const Strict strict) {
 }  // namespace
 
 std::string GenerateGUID() {
-  static NoDestructor<std::random_device> random_device;
+  auto& random_device = GetRandomDevice();
 
   std::uniform_int_distribution<uint64_t> distribution;
-  uint64_t sixteen_bytes[2] = {distribution(*random_device),
-                               distribution(*random_device)};
+  uint64_t sixteen_bytes[2] = {distribution(random_device),
+                               distribution(random_device)};
 
   // Clear the version bits and set the version to 4:
   sixteen_bytes[0] &= 0xffffffff'ffff0fffULL;

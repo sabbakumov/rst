@@ -177,6 +177,9 @@ void Bar(Nullable<int*> ptr) {
 ## Preferences
   Chromium-like preferences.
 
+## Random
+  Random device to be used in one place.
+
 ## RTTI
   LLVM-like custom RTTI support.
 

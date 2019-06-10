@@ -52,6 +52,9 @@ rst/Preferences/Preferences.h
 rst/Memory/Memory.h
 rst/Memory/WeakPtr.h
 
+rst/Random/RandomDevice.cpp
+rst/Random/RandomDevice.h
+
 rst/RTTI/RTTI.h
 
 rst/Status/Status.cpp
