@@ -137,7 +137,7 @@ class [[nodiscard]] StatusOr {
     return &*value_;
   }
 
-  Status TakeStatus() {
+  Status TakeStatus() && {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
