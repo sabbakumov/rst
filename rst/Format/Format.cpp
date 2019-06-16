@@ -59,6 +59,8 @@ std::string FormatAndReturnString(const char* format,
     RST_DCHECK(values != nullptr);
     capacity += values[i].size();
   }
+  RST_DCHECK(capacity >= size * 2);
+  capacity -= size * 2;
   output.reserve(capacity);
 #if RST_BUILDFLAG(DCHECK_IS_ON)
   const auto old_capacity = output.capacity();

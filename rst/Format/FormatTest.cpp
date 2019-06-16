@@ -99,6 +99,7 @@ TEST(Format, MaxArgs) {
 
 TEST(Format, ExtraArgument) {
   EXPECT_DEATH(Format("", 1), "");
+  EXPECT_DEATH(Format("1", 1), "");
   EXPECT_DEATH(Format("string", 1), "");
   EXPECT_DEATH(Format("string{}{}", 1), "");
 }
