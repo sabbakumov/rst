@@ -56,11 +56,11 @@ TEST(Logger, DebugMacrosNDebug) {
   Logger logger(std::move(sink));
   Logger::SetLogger(&logger);
 
-  DLOG_DEBUG(kMessage);
-  DLOG_INFO(kMessage);
-  DLOG_WARNING(kMessage);
-  DLOG_ERROR(kMessage);
-  DLOG_FATAL(kMessage);
+  RST_DLOG_DEBUG(kMessage);
+  RST_DLOG_INFO(kMessage);
+  RST_DLOG_WARNING(kMessage);
+  RST_DLOG_ERROR(kMessage);
+  RST_DLOG_FATAL(kMessage);
 }
 
 }  // namespace rst

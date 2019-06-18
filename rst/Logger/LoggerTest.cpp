@@ -199,11 +199,11 @@ TEST(Logger, Macros) {
   Logger logger(std::move(sink));
   Logger::SetLogger(&logger);
 
-  LOG_DEBUG(kMessage);
-  LOG_INFO(kMessage);
-  LOG_WARNING(kMessage);
-  LOG_ERROR(kMessage);
-  EXPECT_DEATH(LOG_FATAL(kMessage), "");
+  RST_LOG_DEBUG(kMessage);
+  RST_LOG_INFO(kMessage);
+  RST_LOG_WARNING(kMessage);
+  RST_LOG_ERROR(kMessage);
+  EXPECT_DEATH(RST_LOG_FATAL(kMessage), "");
 }
 
 TEST(Logger, DebugMacros) {
@@ -214,11 +214,11 @@ TEST(Logger, DebugMacros) {
   Logger logger(std::move(sink));
   Logger::SetLogger(&logger);
 
-  DLOG_DEBUG(kMessage);
-  DLOG_INFO(kMessage);
-  DLOG_WARNING(kMessage);
-  DLOG_ERROR(kMessage);
-  EXPECT_DEATH(DLOG_FATAL(kMessage), "");
+  RST_DLOG_DEBUG(kMessage);
+  RST_DLOG_INFO(kMessage);
+  RST_DLOG_WARNING(kMessage);
+  RST_DLOG_ERROR(kMessage);
+  EXPECT_DEATH(RST_DLOG_FATAL(kMessage), "");
 }
 
 TEST(Logger, ZeroLine) {

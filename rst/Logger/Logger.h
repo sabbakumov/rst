@@ -36,34 +36,34 @@
 #include "rst/Macros/Macros.h"
 #include "rst/NotNull/NotNull.h"
 
-#define LOG_DEBUG(message) \
+#define RST_LOG_DEBUG(message) \
   ::rst::Logger::Log(::rst::Logger::Level::kDebug, __FILE__, __LINE__, message)
 
-#define LOG_INFO(message) \
+#define RST_LOG_INFO(message) \
   ::rst::Logger::Log(::rst::Logger::Level::kInfo, __FILE__, __LINE__, message)
 
-#define LOG_WARNING(message)                                             \
+#define RST_LOG_WARNING(message)                                         \
   ::rst::Logger::Log(::rst::Logger::Level::kWarning, __FILE__, __LINE__, \
                      message)
 
-#define LOG_ERROR(message) \
+#define RST_LOG_ERROR(message) \
   ::rst::Logger::Log(::rst::Logger::Level::kError, __FILE__, __LINE__, message)
 
-#define LOG_FATAL(message) \
+#define RST_LOG_FATAL(message) \
   ::rst::Logger::Log(::rst::Logger::Level::kFatal, __FILE__, __LINE__, message)
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
-#define DLOG_DEBUG(message) LOG_DEBUG(message)
-#define DLOG_INFO(message) LOG_INFO(message)
-#define DLOG_WARNING(message) LOG_WARNING(message)
-#define DLOG_ERROR(message) LOG_ERROR(message)
-#define DLOG_FATAL(message) LOG_FATAL(message)
+#define RST_DLOG_DEBUG(message) RST_LOG_DEBUG(message)
+#define RST_DLOG_INFO(message) RST_LOG_INFO(message)
+#define RST_DLOG_WARNING(message) RST_LOG_WARNING(message)
+#define RST_DLOG_ERROR(message) RST_LOG_ERROR(message)
+#define RST_DLOG_FATAL(message) RST_LOG_FATAL(message)
 #else
-#define DLOG_DEBUG(message)
-#define DLOG_INFO(message)
-#define DLOG_WARNING(message)
-#define DLOG_ERROR(message)
-#define DLOG_FATAL(message)
+#define RST_DLOG_DEBUG(message)
+#define RST_DLOG_INFO(message)
+#define RST_DLOG_WARNING(message)
+#define RST_DLOG_ERROR(message)
+#define RST_DLOG_FATAL(message)
 #endif
 
 namespace rst {
