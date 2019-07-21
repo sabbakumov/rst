@@ -36,21 +36,19 @@
 #include "rst/Logger/ISink.h"
 #include "rst/Macros/Macros.h"
 #include "rst/NotNull/NotNull.h"
+#include "rst/Type/Type.h"
 
 namespace rst {
 
 // The class for sinking to a FILE* (can be stdout or stderr).
 class FilePtrSink : public ISink {
  public:
-  enum class ShouldClose : bool {
-    kNo,
-    kYes,
-  };
+  using ShouldClose = Type<class ShouldCloseTag, bool>;
 
   // Saves the |file| pointer. If |should_close| is not set, doesn't close the
   // |file| pointer (e.g. stdout, stderr).
   explicit FilePtrSink(NotNull<std::FILE*> file,
-                       ShouldClose should_close = ShouldClose::kYes);
+                       ShouldClose should_close = ShouldClose(true));
   ~FilePtrSink();
 
   // Thread safe logging function.

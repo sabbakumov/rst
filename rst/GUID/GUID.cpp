@@ -32,6 +32,7 @@
 
 #include "rst/Check/Check.h"
 #include "rst/Random/RandomDevice.h"
+#include "rst/Type/Type.h"
 
 namespace rst {
 namespace {
@@ -47,10 +48,7 @@ bool IsLowerHexDigit(const char c) {
   return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
 }
 
-enum class Strict : bool {
-  kNo,
-  kYes,
-};
+using Strict = Type<class StrictTag, bool>;
 
 bool IsValidGUIDInternal(const std::string_view guid, const Strict strict) {
   if (guid.size() != kGUIDLength)
@@ -62,15 +60,12 @@ bool IsValidGUIDInternal(const std::string_view guid, const Strict strict) {
       if (current != '-')
         return false;
     } else {
-      switch (strict) {
-        case Strict::kNo:
-          if (!IsHexDigit(current))
-            return false;
-          break;
-        case Strict::kYes:
-          if (!IsLowerHexDigit(current))
-            return false;
-          break;
+      if (strict) {
+        if (!IsLowerHexDigit(current))
+          return false;
+      } else {
+        if (!IsHexDigit(current))
+          return false;
       }
     }
   }
@@ -100,11 +95,11 @@ std::string GenerateGUID() {
 }
 
 bool IsValidGUID(const std::string_view guid) {
-  return IsValidGUIDInternal(guid, Strict::kNo);
+  return IsValidGUIDInternal(guid, Strict(false));
 }
 
 bool IsValidGUIDOutputString(const std::string_view guid) {
-  return IsValidGUIDInternal(guid, Strict::kYes);
+  return IsValidGUIDInternal(guid, Strict(true));
 }
 
 namespace internal {
