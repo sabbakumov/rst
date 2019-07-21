@@ -67,6 +67,8 @@ rst/STL/Algorithm.h
 rst/Threading/Barrier.h
 rst/Threading/Barrier.cpp
 
+rst/Type/Type.h
+
 rst/TaskRunner/ITaskRunner.cpp
 rst/TaskRunner/ITaskRunner.h
 rst/TaskRunner/Item.cpp
@@ -129,6 +131,8 @@ rst/TaskRunner/PollingTaskRunnerTest.cpp
 rst/TaskRunner/ThreadTaskRunnerTest.cpp
 
 rst/Threading/BarrierTest.cpp
+
+rst/Type/TypeTest.cpp
 
 rst/Value/ValueTest.cpp
 )

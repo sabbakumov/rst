@@ -209,5 +209,8 @@ EXPECT_TRUE(std::is_sorted(std::cbegin(vec), std::cend(vec)));
 ## Threading
   A set of thread related utilities like Barrier.
 
+## Type
+  A Chromium-like StrongAlias class.
+
 ## Value
   A Chromium-like _Value_ class for representing JSON values in a program.
