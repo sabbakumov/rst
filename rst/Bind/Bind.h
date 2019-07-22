@@ -38,10 +38,10 @@ namespace rst {
 template <class F, class T, class... Args>
 auto Bind(F&& f, WeakPtr<T>&& weak_ptr, Args&&... args) {
   return std::bind(
-      [](const F& f, const WeakPtr<T>& weak_ptr, const auto&... args) {
-        const auto self = weak_ptr.get();
-        if (self != nullptr)
-          std::invoke(f, self, args...);
+      [](const F& f, const WeakPtr<T>& weak_ptr, auto&&... args) {
+        const auto nullable_self = weak_ptr.get();
+        if (const auto self = nullable_self.get())
+          std::invoke(f, self, std::forward<decltype(args)>(args)...);
       },
       std::forward<F>(f), std::move(weak_ptr), std::forward<Args>(args)...);
 }

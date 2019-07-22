@@ -27,6 +27,7 @@
 
 #include "rst/Bind/Bind.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -51,6 +52,7 @@ class Weaked {
 
   void Foo() { s_ = "Foo"; }
   void Bar(std::string s) { s_ = std::move(s); }
+  void Baz(std::unique_ptr<std::string> s) { s_ = std::move(*s); }
 
  private:
   std::string s_;
@@ -96,6 +98,24 @@ TEST(Bind, OneArgumentOnDestruction) {
     bar = Bind(&Weaked::Bar, weaked.AsWeakPtr(), _1);
   }
   bar("Bar");
+}
+
+TEST(Bind, OneMoveOnlyArgument) {
+  Weaked weaked;
+  auto baz = Bind(&Weaked::Baz, weaked.AsWeakPtr(), _1);
+
+  EXPECT_EQ(weaked.s(), std::string());
+  baz(std::make_unique<std::string>("Baz"));
+  EXPECT_EQ(weaked.s(), "Baz");
+}
+
+TEST(Bind, OneMoveOnlyArgumentOnDestruction) {
+  std::function<void(std::unique_ptr<std::string>)> baz;
+  {
+    Weaked weaked;
+    baz = Bind(&Weaked::Baz, weaked.AsWeakPtr(), _1);
+  }
+  baz(std::make_unique<std::string>("Baz"));
 }
 
 }  // namespace rst
