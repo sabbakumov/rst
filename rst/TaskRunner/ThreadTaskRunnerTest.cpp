@@ -175,7 +175,7 @@ TEST(ThreadTaskRunner, PostTaskConcurrently) {
   }
 }
 
-TEST(ThreadTaskRunner, NonJoinable) {
+TEST(ThreadTaskRunner, Detached) {
   ThreadTaskRunner task_runner(
       []() -> chrono::milliseconds { return chrono::milliseconds(0); });
   task_runner.Detach();

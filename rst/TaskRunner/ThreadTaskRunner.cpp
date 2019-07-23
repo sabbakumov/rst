@@ -35,57 +35,13 @@ namespace chrono = std::chrono;
 
 namespace rst {
 
-ThreadTaskRunner::ThreadTaskRunner(
+ThreadTaskRunner::InternalTaskRunner::InternalTaskRunner(
     std::function<chrono::milliseconds()>&& time_function)
-    : time_function_(std::move(time_function)),
-      thread_(&ThreadTaskRunner::WaitAndRunTasks, this) {}
+    : time_function_(std::move(time_function)) {}
 
-ThreadTaskRunner::~ThreadTaskRunner() {
-  std::mutex ending_task_mutex;
-  std::condition_variable ending_task_cv;
-  auto should_continue = false;
+ThreadTaskRunner::InternalTaskRunner::~InternalTaskRunner() = default;
 
-  PostTask(std::bind([&ending_task_mutex, &ending_task_cv, &should_continue]() {
-    {
-      std::lock_guard<std::mutex> lock(ending_task_mutex);
-      should_continue = true;
-    }
-    ending_task_cv.notify_one();
-  }));
-
-  {
-    std::unique_lock<std::mutex> lock(ending_task_mutex);
-    while (!should_continue)
-      ending_task_cv.wait(lock);
-  }
-
-  {
-    std::lock_guard<std::mutex> lock(thread_mutex_);
-    should_exit_ = true;
-  }
-
-  thread_cv_.notify_one();
-  if (thread_.joinable())
-    thread_.join();
-}
-
-void ThreadTaskRunner::PostDelayedTask(std::function<void()>&& task,
-                                       const chrono::milliseconds delay) {
-  RST_DCHECK(delay.count() >= 0);
-
-  const auto now = time_function_();
-  const auto future_time_point = now + delay;
-  {
-    std::lock_guard<std::mutex> lock(thread_mutex_);
-    queue_.emplace(future_time_point, task_id_, std::move(task));
-    task_id_++;
-  }
-  thread_cv_.notify_one();
-}
-
-void ThreadTaskRunner::Detach() { thread_.detach(); }
-
-void ThreadTaskRunner::WaitAndRunTasks() {
+void ThreadTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
   while (true) {
     {
       std::unique_lock<std::mutex> lock(thread_mutex_);
@@ -125,5 +81,58 @@ void ThreadTaskRunner::WaitAndRunTasks() {
     pending_tasks_.clear();
   }
 }
+
+ThreadTaskRunner::ThreadTaskRunner(
+    std::function<chrono::milliseconds()>&& time_function)
+    : task_runner_(
+          std::make_shared<InternalTaskRunner>(std::move(time_function))),
+      thread_(&InternalTaskRunner::WaitAndRunTasks,
+              task_runner_.Clone().Take()) {}
+
+ThreadTaskRunner::~ThreadTaskRunner() {
+  std::mutex ending_task_mutex;
+  std::condition_variable ending_task_cv;
+  auto should_continue = false;
+
+  PostTask(std::bind([&ending_task_mutex, &ending_task_cv, &should_continue]() {
+    {
+      std::lock_guard<std::mutex> lock(ending_task_mutex);
+      should_continue = true;
+    }
+    ending_task_cv.notify_one();
+  }));
+
+  {
+    std::unique_lock<std::mutex> lock(ending_task_mutex);
+    while (!should_continue)
+      ending_task_cv.wait(lock);
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(task_runner_->thread_mutex_);
+    task_runner_->should_exit_ = true;
+  }
+
+  task_runner_->thread_cv_.notify_one();
+  if (thread_.joinable())
+    thread_.join();
+}
+
+void ThreadTaskRunner::PostDelayedTask(std::function<void()>&& task,
+                                       const chrono::milliseconds delay) {
+  RST_DCHECK(delay.count() >= 0);
+
+  const auto now = task_runner_->time_function_();
+  const auto future_time_point = now + delay;
+  {
+    std::lock_guard<std::mutex> lock(task_runner_->thread_mutex_);
+    task_runner_->queue_.emplace(future_time_point, task_runner_->task_id_,
+                                 std::move(task));
+    task_runner_->task_id_++;
+  }
+  task_runner_->thread_cv_.notify_one();
+}
+
+void ThreadTaskRunner::Detach() { thread_.detach(); }
 
 }  // namespace rst

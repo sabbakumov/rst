@@ -32,12 +32,14 @@
 #include <condition_variable>
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <queue>
 #include <thread>
 #include <vector>
 
 #include "rst/Macros/Macros.h"
+#include "rst/NotNull/NotNull.h"
 #include "rst/TaskRunner/ITaskRunner.h"
 #include "rst/TaskRunner/Item.h"
 
@@ -54,18 +56,30 @@ class ThreadTaskRunner : public ITaskRunner {
   void Detach();
 
  private:
-  void WaitAndRunTasks();
+  class InternalTaskRunner {
+   public:
+    explicit InternalTaskRunner(
+        std::function<std::chrono::milliseconds()>&& time_function);
+    ~InternalTaskRunner();
 
-  std::function<std::chrono::milliseconds()> time_function_;
+    void WaitAndRunTasks();
 
-  std::mutex thread_mutex_;
-  std::condition_variable thread_cv_;
-  bool should_exit_ = false;
+    std::function<std::chrono::milliseconds()> time_function_;
 
-  std::vector<std::function<void()>> pending_tasks_;
-  std::priority_queue<internal::Item> queue_;
-  uint64_t task_id_ = 0;
+    std::mutex thread_mutex_;
+    std::condition_variable thread_cv_;
+    bool should_exit_ = false;
 
+    std::priority_queue<internal::Item> queue_;
+    uint64_t task_id_ = 0;
+
+   private:
+    std::vector<std::function<void()>> pending_tasks_;
+
+    RST_DISALLOW_COPY_AND_ASSIGN(InternalTaskRunner);
+  };
+
+  const NotNull<std::shared_ptr<InternalTaskRunner>> task_runner_;
   std::thread thread_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(ThreadTaskRunner);
