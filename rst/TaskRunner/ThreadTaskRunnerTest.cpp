@@ -175,4 +175,10 @@ TEST(ThreadTaskRunner, PostTaskConcurrently) {
   }
 }
 
+TEST(ThreadTaskRunner, NonJoinable) {
+  ThreadTaskRunner task_runner(
+      []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+  task_runner.Detach();
+}
+
 }  // namespace rst

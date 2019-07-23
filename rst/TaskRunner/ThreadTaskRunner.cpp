@@ -63,8 +63,10 @@ ThreadTaskRunner::~ThreadTaskRunner() {
     std::lock_guard<std::mutex> lock(thread_mutex_);
     should_exit_ = true;
   }
+
   thread_cv_.notify_one();
-  thread_.join();
+  if (thread_.joinable())
+    thread_.join();
 }
 
 void ThreadTaskRunner::PostDelayedTask(std::function<void()>&& task,
@@ -80,6 +82,8 @@ void ThreadTaskRunner::PostDelayedTask(std::function<void()>&& task,
   }
   thread_cv_.notify_one();
 }
+
+void ThreadTaskRunner::Detach() { thread_.detach(); }
 
 void ThreadTaskRunner::WaitAndRunTasks() {
   while (true) {

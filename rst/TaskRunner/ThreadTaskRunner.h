@@ -51,6 +51,7 @@ class ThreadTaskRunner : public ITaskRunner {
 
   void PostDelayedTask(std::function<void()>&& task,
                        std::chrono::milliseconds delay) final;
+  void Detach();
 
  private:
   void WaitAndRunTasks();
