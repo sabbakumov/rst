@@ -64,7 +64,7 @@ class ThreadTaskRunner : public ITaskRunner {
 
     void WaitAndRunTasks();
 
-    std::function<std::chrono::milliseconds()> time_function_;
+    const std::function<std::chrono::milliseconds()> time_function_;
 
     std::mutex thread_mutex_;
     std::condition_variable thread_cv_;

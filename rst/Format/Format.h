@@ -71,7 +71,7 @@ class Arg {
 
  private:
   char buffer_[21];
-  std::string_view view_;
+  const std::string_view view_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(Arg);
 };

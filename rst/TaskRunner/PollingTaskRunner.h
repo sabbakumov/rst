@@ -53,7 +53,7 @@ class PollingTaskRunner : public ITaskRunner {
   void RunPendingTasks();
 
  private:
-  std::function<std::chrono::milliseconds()> time_function_;
+  const std::function<std::chrono::milliseconds()> time_function_;
   std::vector<std::function<void()>> pending_tasks_;
   std::mutex mutex_;
   std::priority_queue<internal::Item> queue_;
