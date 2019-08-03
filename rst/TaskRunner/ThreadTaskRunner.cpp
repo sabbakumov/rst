@@ -44,7 +44,7 @@ ThreadTaskRunner::InternalTaskRunner::~InternalTaskRunner() = default;
 void ThreadTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
   while (true) {
     {
-      std::unique_lock<std::mutex> lock(thread_mutex_);
+      std::unique_lock lock(thread_mutex_);
 
       if (should_exit_)
         return;
@@ -97,18 +97,18 @@ ThreadTaskRunner::~ThreadTaskRunner() {
 
     PostTask(
         std::bind([&ending_task_mutex, &ending_task_cv, &should_continue]() {
-          std::lock_guard<std::mutex> lock(ending_task_mutex);
+          std::lock_guard lock(ending_task_mutex);
           should_continue = true;
           ending_task_cv.notify_one();
         }));
 
-    std::unique_lock<std::mutex> lock(ending_task_mutex);
+    std::unique_lock lock(ending_task_mutex);
     while (!should_continue)
       ending_task_cv.wait(lock);
   }
 
   {
-    std::lock_guard<std::mutex> lock(task_runner_->thread_mutex_);
+    std::lock_guard lock(task_runner_->thread_mutex_);
     task_runner_->should_exit_ = true;
   }
 
@@ -124,7 +124,7 @@ void ThreadTaskRunner::PostDelayedTask(std::function<void()>&& task,
   const auto now = task_runner_->time_function_();
   const auto future_time_point = now + delay;
   {
-    std::lock_guard<std::mutex> lock(task_runner_->thread_mutex_);
+    std::lock_guard lock(task_runner_->thread_mutex_);
     task_runner_->queue_.emplace(future_time_point, task_runner_->task_id_,
                                  std::move(task));
     task_runner_->task_id_++;

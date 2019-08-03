@@ -39,7 +39,7 @@ namespace rst {
 namespace {
 
 struct CheckOnDestroy {
-  ~CheckOnDestroy() { RST_CHECK(false); }
+  ~CheckOnDestroy() { RST_NOTREACHED(); }
 };
 
 struct CopyOnly {

@@ -41,7 +41,7 @@ FilePtrSink::FilePtrSink(const NotNull<std::FILE*> file,
 FilePtrSink::~FilePtrSink() = default;
 
 void FilePtrSink::Log(const std::string_view message) {
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::lock_guard lock(mutex_);
 
   RST_DCHECK(message.size() <= std::numeric_limits<int>::max());
   auto val = std::fprintf(file_.get(), "%.*s\n",

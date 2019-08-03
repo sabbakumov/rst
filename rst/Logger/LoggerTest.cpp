@@ -64,7 +64,7 @@ constexpr auto kMessage = "message";
 
 class File {
  public:
-  File() { RST_CHECK(std::tmpnam(buffer_) != nullptr); }
+  File() { RST_DCHECK(std::tmpnam(buffer_) != nullptr); }
   ~File() { std::remove(buffer_); }
 
   NotNull<const char*> FileName() const { return buffer_; }

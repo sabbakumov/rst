@@ -52,7 +52,7 @@ StatusOr<NotNull<std::unique_ptr<FileNameSink>>> FileNameSink::Create(
 }
 
 void FileNameSink::Log(const std::string_view message) {
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::lock_guard lock(mutex_);
 
   RST_DCHECK(message.size() <= std::numeric_limits<int>::max());
   auto val = std::fprintf(log_file_.get(), "%.*s\n",

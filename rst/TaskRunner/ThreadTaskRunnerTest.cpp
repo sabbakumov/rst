@@ -64,14 +64,14 @@ TEST(ThreadTaskRunner, PostTaskInOrder) {
   std::string str, expected;
   for (auto i = 0; i < 1000; i++) {
     task_runner.PostTask([i, &mtx, &str]() {
-      std::lock_guard<std::mutex> lock(mtx);
+      std::lock_guard lock(mtx);
       str += std::to_string(i);
     });
     expected += std::to_string(i);
   }
 
   while (true) {
-    std::unique_lock<std::mutex> lock(mtx);
+    std::unique_lock lock(mtx);
     if (str == expected)
       break;
   }
@@ -87,7 +87,7 @@ TEST(ThreadTaskRunner, DestructorRunsPendingTasks) {
 
     for (auto i = 0; i < 1000; i++) {
       task_runner.PostTask([i, &mtx, &str]() {
-        std::lock_guard<std::mutex> lock(mtx);
+        std::lock_guard lock(mtx);
         str += std::to_string(i);
       });
       expected += std::to_string(i);
@@ -107,7 +107,7 @@ TEST(ThreadTaskRunner, PostDelayedTaskInOrder) {
   for (auto i = 0; i < 500; i++) {
     task_runner.PostDelayedTask(
         [i, &mtx, &str]() {
-          std::lock_guard<std::mutex> lock(mtx);
+          std::lock_guard lock(mtx);
           str += std::to_string(i);
         },
         chrono::milliseconds(100));
@@ -119,7 +119,7 @@ TEST(ThreadTaskRunner, PostDelayedTaskInOrder) {
   for (auto i = 500; i < 1000; i++) {
     task_runner.PostDelayedTask(
         [i, &mtx, &str]() {
-          std::lock_guard<std::mutex> lock(mtx);
+          std::lock_guard lock(mtx);
           str += std::to_string(i);
         },
         chrono::milliseconds(200));
@@ -127,20 +127,20 @@ TEST(ThreadTaskRunner, PostDelayedTaskInOrder) {
   }
 
   {
-    std::lock_guard<std::mutex> lock(mtx);
+    std::lock_guard lock(mtx);
     EXPECT_EQ(str, std::string());
   }
 
   ms = 100;
   while (true) {
-    std::lock_guard<std::mutex> lock(mtx);
+    std::lock_guard lock(mtx);
     if (str == first_half)
       break;
   }
 
   ms = 200;
   while (true) {
-    std::lock_guard<std::mutex> lock(mtx);
+    std::lock_guard lock(mtx);
     if (str == expected)
       break;
   }
@@ -158,7 +158,7 @@ TEST(ThreadTaskRunner, PostTaskConcurrently) {
   for (size_t i = 0; i < kMaxThreadNumber; i++) {
     std::thread t([&task_runner, i, &mtx, &str]() {
       task_runner.PostTask([i, &mtx, &str]() {
-        std::lock_guard<std::mutex> lock(mtx);
+        std::lock_guard lock(mtx);
         str += std::to_string(i);
       });
     });
@@ -170,7 +170,7 @@ TEST(ThreadTaskRunner, PostTaskConcurrently) {
     t.join();
 
   {
-    std::lock_guard<std::mutex> lock(mtx);
+    std::lock_guard lock(mtx);
     EXPECT_EQ(str, expected);
   }
 }
