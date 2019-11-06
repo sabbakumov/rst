@@ -4,137 +4,137 @@ include_directories(.)
 
 add_library(rst
 
-rst/Bind/Bind.h
-rst/Bind/BindHelpers.h
+rst/bind/bind.h
+rst/bind/bind_helpers.h
 
-rst/Check/Check.h
+rst/check/check.h
 
-rst/Defer/Defer.h
+rst/defer/defer.h
 
-rst/Files/FileUtil.cpp
-rst/Files/FileUtil.h
+rst/files/file_utils.cc
+rst/files/file_utils.h
 
-rst/Format/Format.cpp
-rst/Format/Format.h
+rst/format/format.cc
+rst/format/format.h
 
-rst/GUID/GUID.cpp
-rst/GUID/GUID.h
+rst/guid/guid.cc
+rst/guid/guid.h
 
-rst/HiddenString/HiddenString.h
+rst/hidden_string/hidden_string.h
 
-rst/Legacy/Memory.h
-rst/Legacy/Optional.h
+rst/legacy/memory.h
+rst/legacy/optional.h
 
-rst/Logger/FileNameSink.cpp
-rst/Logger/FileNameSink.h
-rst/Logger/FilePtrSink.cpp
-rst/Logger/FilePtrSink.h
-rst/Logger/ISink.cpp
-rst/Logger/ISink.h
-rst/Logger/LogError.cpp
-rst/Logger/LogError.h
-rst/Logger/Logger.cpp
-rst/Logger/Logger.h
+rst/logger/file_name_sink.cc
+rst/logger/file_name_sink.h
+rst/logger/file_ptr_sink.cc
+rst/logger/file_ptr_sink.h
+rst/logger/log_error.cc
+rst/logger/log_error.h
+rst/logger/logger.cc
+rst/logger/logger.h
+rst/logger/sink.cc
+rst/logger/sink.h
 
-rst/Macros/Macros.h
+rst/macros/macros.h
 
-rst/NoDestructor/NoDestructor.h
+rst/no_destructor/no_destructor.h
 
-rst/NotNull/NotNull.h
+rst/not_null/not_null.h
 
-rst/Preferences/IPreferencesStore.cpp
-rst/Preferences/IPreferencesStore.h
-rst/Preferences/MemoryPreferencesStore.cpp
-rst/Preferences/MemoryPreferencesStore.h
-rst/Preferences/Preferences.cpp
-rst/Preferences/Preferences.h
+rst/preferences/memory_preferences_store.cc
+rst/preferences/memory_preferences_store.h
+rst/preferences/preferences.cc
+rst/preferences/preferences.h
+rst/preferences/preferences_store.cc
+rst/preferences/preferences_store.h
 
-rst/Memory/Memory.h
-rst/Memory/WeakPtr.h
+rst/memory/memory.h
+rst/memory/weak_ptr.h
 
-rst/Random/RandomDevice.cpp
-rst/Random/RandomDevice.h
+rst/random/random_device.cc
+rst/random/random_device.h
 
-rst/RTTI/RTTI.h
+rst/rtti/rtti.h
 
-rst/Status/Status.cpp
-rst/Status/Status.h
-rst/Status/StatusOr.h
+rst/status/status.cc
+rst/status/status.h
+rst/status/status_or.h
 
-rst/STL/Adapters.h
-rst/STL/Algorithm.h
+rst/stl/adapters.h
+rst/stl/algorithm.h
 
-rst/Threading/Barrier.h
-rst/Threading/Barrier.cpp
+rst/threading/barrier.h
+rst/threading/barrier.cc
 
-rst/Type/Type.h
+rst/type/type.h
 
-rst/TaskRunner/ITaskRunner.cpp
-rst/TaskRunner/ITaskRunner.h
-rst/TaskRunner/Item.cpp
-rst/TaskRunner/Item.h
-rst/TaskRunner/PollingTaskRunner.cpp
-rst/TaskRunner/PollingTaskRunner.h
-rst/TaskRunner/ThreadTaskRunner.cpp
-rst/TaskRunner/ThreadTaskRunner.h
+rst/task_runner/task_runner.cc
+rst/task_runner/task_runner.h
+rst/task_runner/item.cc
+rst/task_runner/item.h
+rst/task_runner/polling_task_runner.cc
+rst/task_runner/polling_task_runner.h
+rst/task_runner/thread_task_runner.cc
+rst/task_runner/thread_task_runner.h
 
-rst/Value/Value.h
-rst/Value/Value.cpp
+rst/value/value.h
+rst/value/value.cc
 )
 
 add_executable(rst_tests
 
-rst/Bind/BindTest.cpp
-rst/Bind/BindHelpersTest.cpp
+rst/bind/bind_test.cc
+rst/bind/bind_helpers_test.cc
 
-rst/Check/CheckTest.cpp
-rst/Check/CheckNDebugTest.cpp
+rst/check/check_test.cc
+rst/check/check_ndebug_test.cc
 
-rst/Test.cpp
+rst/test.cc
 
-rst/Defer/DeferTest.cpp
+rst/defer/defer_test.cc
 
-rst/Files/FileUtilTest.cpp
+rst/files/file_utils_test.cc
 
-rst/Format/FormatTest.cpp
+rst/format/format_test.cc
 
-rst/GUID/GUIDTest.cpp
+rst/guid/guid_test.cc
 
-rst/HiddenString/HiddenStringTest.cpp
+rst/hidden_string/hidden_string_test.cc
 
-rst/Legacy/MemoryTest.cpp
-rst/Legacy/OptionalTest.cpp
+rst/legacy/memory_test.cc
+rst/legacy/optional_test.cc
 
-rst/Logger/LoggerNDebugTest.cpp
-rst/Logger/LoggerTest.cpp
+rst/logger/logger_ndebug_test.cc
+rst/logger/logger_test.cc
 
-rst/Macros/MacrosTest.cpp
+rst/macros/macros_test.cc
 
-rst/NoDestructor/NoDestructorTest.cpp
+rst/no_destructor/no_destructor_test.cc
 
-rst/NotNull/NotNullTest.cpp
+rst/not_null/not_null_test.cc
 
-rst/Preferences/PreferencesTest.cpp
+rst/preferences/preferences_test.cc
 
-rst/Memory/MemoryTest.cpp
-rst/Memory/WeakPtrTest.cpp
+rst/memory/memory_test.cc
+rst/memory/weak_ptr_test.cc
 
-rst/RTTI/RTTITest.cpp
+rst/rtti/rtti_test.cc
 
-rst/Status/StatusOrTest.cpp
-rst/Status/StatusTest.cpp
+rst/status/status_or_test.cc
+rst/status/status_test.cc
 
-rst/STL/AdaptersTest.cpp
-rst/STL/AlgorithmTest.cpp
+rst/stl/adapters_test.cc
+rst/stl/algorithm_test.cc
 
-rst/TaskRunner/PollingTaskRunnerTest.cpp
-rst/TaskRunner/ThreadTaskRunnerTest.cpp
+rst/task_runner/polling_task_runner_test.cc
+rst/task_runner/thread_task_runner_test.cc
 
-rst/Threading/BarrierTest.cpp
+rst/threading/barrier_test.cc
 
-rst/Type/TypeTest.cpp
+rst/type/type_test.cc
 
-rst/Value/ValueTest.cpp
+rst/value/value_test.cc
 )
 
 TARGET_LINK_LIBRARIES(rst_tests rst pthread gtest gmock)
