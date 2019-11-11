@@ -35,6 +35,7 @@
 
 namespace rst {
 
+// Like std::bind() but doesn't call |f| when |weak_ptr| is invalidated.
 template <class F, class T, class... Args>
 auto Bind(F&& f, WeakPtr<T>&& weak_ptr, Args&&... args) {
   return std::bind(

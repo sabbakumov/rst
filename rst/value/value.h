@@ -63,7 +63,7 @@ class Value {
   Value();  // A null value.
   explicit Value(bool value);
   explicit Value(int32_t value);
-  // Can store |2^53 - 1| at maximum since it's a max safe integer that can
+  // Can store |2^53 - 1| at maximum since it's a max safe integer that can be
   // stored in JavaScript.
   explicit Value(int64_t value);
   explicit Value(double value);

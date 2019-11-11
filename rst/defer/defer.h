@@ -32,6 +32,7 @@
 
 #include "rst/macros/macros.h"
 
+// Executes |f| on scope exit.
 #define RST_DEFER(f)                                                   \
   const auto RST_INTERNAL_CAT(RST_DEFER_INTERNAL_VAR_NAME, __LINE__) = \
       ::rst::internal::Defer(f)
@@ -43,8 +44,8 @@ template <class F>
 class DeferredAction {
  public:
   explicit DeferredAction(F&& action) : action_(std::forward<F>(action)) {}
-  DeferredAction(DeferredAction&&) noexcept = default;
 
+  DeferredAction(DeferredAction&&) noexcept = default;
   DeferredAction& operator=(DeferredAction&&) noexcept = delete;
 
   ~DeferredAction() { action_(); }

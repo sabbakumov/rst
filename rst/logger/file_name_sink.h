@@ -46,7 +46,7 @@ class FileNameSink : public Sink {
  public:
   // Opens a |filename| for writing.
   static StatusOr<NotNull<std::unique_ptr<FileNameSink>>> Create(
-      const NotNull<const char*> filename);
+      NotNull<const char*> filename);
 
   ~FileNameSink();
 
@@ -61,7 +61,7 @@ class FileNameSink : public Sink {
       nullptr, [](std::FILE* f) {
         if (f != nullptr) {
           const auto ret = std::fclose(f);
-          RST_DCHECK(ret == 0);
+          RST_CHECK(ret == 0);
         }
       }};
 

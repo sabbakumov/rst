@@ -56,37 +56,45 @@ class Arg {
   explicit Arg(double value);
   explicit Arg(long double value);
   explicit Arg(std::string_view value);
+  // Provides const char* overload since otherwise it will be implicitly
+  // converted to bool.
   explicit Arg(const char* value);
 
   template <class T, class = typename std::enable_if<std::is_enum<T>{}>::type>
   explicit Arg(const T e)
       : Arg(static_cast<typename std::underlying_type<T>::type>(e)) {}
 
+  // Prevents Arg(pointer) from accidentally producing a bool.
   Arg(void*) = delete;
 
   ~Arg();
 
   std::string_view view() const { return view_; }
-  size_t size() const { return view_.size(); }
 
  private:
-  char buffer_[21];
+  char buffer_[21];  // Can store 18,446,744,073,709,551,615 with '\0'.
   const std::string_view view_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(Arg);
 };
 
-std::string FormatAndReturnString(const char* format,
+std::string FormatAndReturnString(NotNull<const char*> format,
+                                  size_t format_size,
                                   Nullable<const Arg*> values, size_t size);
 
 }  // namespace internal
 
-std::string Format(NotNull<const char*> format);
+template <size_t N>
+inline std::string Format(const char (&format)[N]) {
+  static_assert(N > 0);
+  return internal::FormatAndReturnString(format, N - 1, nullptr, 0);
+}
 
-template <class... Args>
-inline std::string Format(const NotNull<const char*> format, Args&&... args) {
+template <size_t N, class... Args>
+inline std::string Format(const char (&format)[N], Args&&... args) {
+  static_assert(N > 0);
   const internal::Arg values[] = {internal::Arg(std::forward<Args>(args))...};
-  return internal::FormatAndReturnString(format.get(), values,
+  return internal::FormatAndReturnString(format, N - 1, values,
                                          std::size(values));
 }
 

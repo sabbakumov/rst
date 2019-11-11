@@ -35,28 +35,27 @@
 // Chromium-like GUID helpers.
 namespace rst {
 
-// Generates a 128-bit random GUID in the form of version 4 as described in
-// RFC 4122, section 4.4.
-// The format of GUID version 4 must be xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx,
-// where y is one of [8, 9, A, B].
-// The hexadecimal values "a" through "f" are output as lower case characters.
-std::string GenerateGUID();
+// Generates a 128-bit random GUID in the form of version 4 as described in RFC
+// 4122, section 4.4. The format of GUID version 4 must be
+// xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx, where y is one of [8, 9, A, B]. The
+// hexadecimal values "a" through "f" are output as lower case characters.
+std::string GenerateGuid();
 
 // Returns true if the input string conforms to the version 4 GUID format.
-// Note that this does NOT check if the hexadecimal values "a" through "f"
-// are in lower case characters, as Version 4 RFC says onput they're
-// case insensitive. (Use IsValidGUIDOutputString for checking if the
-// given string is valid output string)
-bool IsValidGUID(std::string_view guid);
+// Note that this does not check if the hexadecimal values "a" through "f" are
+// in lower case characters, as Version 4 RFC says onput they're case
+// insensitive. (Use IsValidGuidOutputString() for checking if the given string
+// is valid output string)
+bool IsValidGuid(std::string_view guid);
 
 // Returns true if the input string is valid version 4 GUID output string.
-// This also checks if the hexadecimal values "a" through "f" are in lower
-// case characters.
-bool IsValidGUIDOutputString(std::string_view guid);
+// This also checks if the hexadecimal values "a" through "f" are in lower case
+// characters.
+bool IsValidGuidOutputString(std::string_view guid);
 
 namespace internal {
 
-std::string RandomDataToGUIDString(const uint64_t (&bytes)[2]);
+std::string RandomDataToGuidString(const uint64_t (&bytes)[2]);
 
 }  // namespace internal
 }  // namespace rst

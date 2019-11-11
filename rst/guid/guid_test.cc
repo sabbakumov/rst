@@ -37,8 +37,8 @@
 namespace rst {
 namespace {
 
-bool IsGUIDv4(const std::string_view guid) {
-  return IsValidGUID(guid) && guid[14] == '4' &&
+bool IsGuidv4(const std::string_view guid) {
+  return IsValidGuid(guid) && guid[14] == '4' &&
          (guid[19] == '8' || guid[19] == '9' || guid[19] == 'A' ||
           guid[19] == 'a' || guid[19] == 'B' || guid[19] == 'b');
 }
@@ -71,36 +71,36 @@ std::string ToUpperASCII(const std::string_view str) {
 
 TEST(GUID, GUIDGeneratesAllZeroes) {
   const uint64_t bytes[] = {0, 0};
-  const auto guid = internal::RandomDataToGUIDString(bytes);
+  const auto guid = internal::RandomDataToGuidString(bytes);
   EXPECT_EQ(guid, "00000000-0000-0000-0000-000000000000");
 }
 
 TEST(GUID, GUIDGeneratesCorrectly) {
   const uint64_t bytes[] = {uint64_t{0x0123456789ABCDEF},
                             uint64_t{0xFEDCBA9876543210}};
-  const auto guid = internal::RandomDataToGUIDString(bytes);
+  const auto guid = internal::RandomDataToGuidString(bytes);
   EXPECT_EQ(guid, "01234567-89ab-cdef-fedc-ba9876543210");
 }
 
 TEST(GUID, GUIDCorrectlyFormatted) {
   for (auto i = 0; i < 10; i++) {
-    const auto guid = GenerateGUID();
-    EXPECT_TRUE(IsValidGUID(guid));
-    EXPECT_TRUE(IsValidGUIDOutputString(guid));
-    EXPECT_TRUE(IsValidGUID(ToLowerASCII(guid)));
-    EXPECT_TRUE(IsValidGUID(ToUpperASCII(guid)));
+    const auto guid = GenerateGuid();
+    EXPECT_TRUE(IsValidGuid(guid));
+    EXPECT_TRUE(IsValidGuidOutputString(guid));
+    EXPECT_TRUE(IsValidGuid(ToLowerASCII(guid)));
+    EXPECT_TRUE(IsValidGuid(ToUpperASCII(guid)));
   }
 }
 
 TEST(GUID, GUIDBasicUniqueness) {
   for (auto i = 0; i < 10; i++) {
-    const auto guid1 = GenerateGUID();
-    const auto guid2 = GenerateGUID();
+    const auto guid1 = GenerateGuid();
+    const auto guid2 = GenerateGuid();
     EXPECT_EQ(guid1.size(), 36U);
     EXPECT_EQ(guid2.size(), 36U);
     EXPECT_NE(guid1, guid2);
-    EXPECT_TRUE(IsGUIDv4(guid1));
-    EXPECT_TRUE(IsGUIDv4(guid2));
+    EXPECT_TRUE(IsGuidv4(guid1));
+    EXPECT_TRUE(IsGuidv4(guid2));
   }
 }
 

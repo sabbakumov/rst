@@ -66,6 +66,7 @@ template <class T, class Parent = ErrorInfoBase>
 class ErrorInfo : public Parent {
  public:
   using Parent::Parent;
+  ~ErrorInfo() = default;
 
   static NotNull<const void*> GetClassID() { return &T::id_; }
 
@@ -84,7 +85,7 @@ class [[nodiscard]] Status {
  public:
   static Status OK() { return Status(); }
 
-  // Sets the object not checked by default and moves |other content.
+  // Sets the object not checked by default and moves |other| content.
   Status(Status && other) noexcept;
 
   ~Status();

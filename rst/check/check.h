@@ -35,6 +35,7 @@
 
 #define RST_BUILDFLAG_DCHECK_IS_ON() (false)
 
+// Ensures |condition| is referenced.
 #define RST_DCHECK(condition)                                    \
   do {                                                           \
     false ? static_cast<void>(condition) : static_cast<void>(0); \

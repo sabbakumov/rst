@@ -62,6 +62,9 @@ class NotNull {
   template <class U>
   NotNull(const Nullable<U>& nullable) : NotNull(nullable.ptr_) {
     static_assert(std::is_pointer<U>::value);
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    RST_DCHECK(nullable.was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
   NotNull(std::nullptr_t) = delete;
@@ -76,27 +79,21 @@ class NotNull {
     return *this;
   }
 
-  NotNull& operator=(const NotNull& rhs) {
-    ptr_ = rhs.ptr_;
-    RST_DCHECK(ptr_ != nullptr);
-    return *this;
-  }
+  NotNull& operator=(const NotNull&) = default;
 
   template <class U>
   NotNull& operator=(const NotNull<U>& rhs) {
     static_assert(std::is_pointer<U>::value);
-
-    ptr_ = rhs.ptr_;
-    RST_DCHECK(ptr_ != nullptr);
-    return *this;
+    return *this = rhs.ptr_;
   }
 
   template <class U>
   NotNull& operator=(const Nullable<U>& nullable) {
     static_assert(std::is_pointer<U>::value);
-    ptr_ = nullable.ptr_;
-    RST_DCHECK(ptr_ != nullptr);
-    return *this;
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    RST_DCHECK(nullable.was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    return *this = nullable.ptr_;
   }
 
   NotNull& operator=(std::nullptr_t) = delete;
@@ -109,8 +106,9 @@ class NotNull {
   T operator->() const { return get(); }
   auto& operator*() const { return *get(); }
   auto& operator[](const size_t i) const {
-    const auto ptr = get() + i;
-    RST_DCHECK(ptr != nullptr);
+    const auto p = get();
+    RST_DCHECK(p != nullptr);
+    const auto ptr = p + i;
     return *ptr;
   }
 
@@ -159,66 +157,45 @@ class Nullable {
     return *this;
   }
 
-  Nullable& operator=(const Nullable& rhs) {
-    ptr_ = rhs.ptr_;
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return *this;
-  }
+  Nullable& operator=(const Nullable& rhs) { return *this = rhs.ptr_; }
 
   template <class U>
   Nullable& operator=(const Nullable<U>& rhs) {
     static_assert(std::is_pointer<U>::value);
-
-    ptr_ = rhs.ptr_;
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return *this;
+    return *this = rhs.ptr_;
   }
 
   template <class U>
   Nullable& operator=(const NotNull<U>& not_null) {
     static_assert(std::is_pointer<U>::value);
-    ptr_ = not_null.ptr_;
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return *this;
+    return *this = not_null.ptr_;
   }
 
-  Nullable& operator=(std::nullptr_t) {
-    ptr_ = nullptr;
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return *this;
-  }
+  Nullable& operator=(std::nullptr_t) { return *this = T{nullptr}; }
 
   T get() const { return ptr_; }
 
   T operator->() const {
-    const auto p = get();
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    const auto p = get();
     RST_DCHECK(p != nullptr);
     return p;
   }
   auto& operator*() const {
-    const auto p = get();
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    const auto p = get();
     RST_DCHECK(p != nullptr);
     return *p;
   }
   auto& operator[](const size_t i) const {
-    const auto p = get();
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    const auto p = get();
     RST_DCHECK(p != nullptr);
     const auto ptr = p + i;
     return *ptr;
@@ -253,11 +230,16 @@ class NotNull<std::unique_ptr<T>> {
   NotNull(NotNull&& other) noexcept : NotNull(std::move(other).Take()) {}
 
   template <class U>
-  NotNull(NotNull<U>&& other) noexcept : NotNull(std::move(other).Take()) {}
+  NotNull(NotNull<std::unique_ptr<U>>&& other) noexcept
+      : NotNull(std::move(other).Take()) {}
 
   template <class U>
-  NotNull(Nullable<U>&& nullable) noexcept
-      : NotNull(std::move(nullable).Take()) {}
+  NotNull(Nullable<std::unique_ptr<U>>&& nullable) noexcept
+      : NotNull(std::move(nullable).Take()) {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    RST_DCHECK(nullable.was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
 
   NotNull(std::nullptr_t) = delete;
 
@@ -275,17 +257,16 @@ class NotNull<std::unique_ptr<T>> {
   }
 
   template <class U>
-  NotNull& operator=(NotNull<U>&& rhs) noexcept {
-    ptr_ = std::move(rhs).Take();
-    RST_DCHECK(ptr_ != nullptr);
-    return *this;
+  NotNull& operator=(NotNull<std::unique_ptr<U>>&& rhs) noexcept {
+    return *this = std::move(rhs).Take();
   }
 
   template <class U>
-  NotNull& operator=(Nullable<U>&& nullable) noexcept {
-    ptr_ = std::move(nullable).Take();
-    RST_DCHECK(ptr_ != nullptr);
-    return *this;
+  NotNull& operator=(Nullable<std::unique_ptr<U>>&& nullable) noexcept {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    RST_DCHECK(nullable.was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    return *this = std::move(nullable).Take();
   }
 
   NotNull& operator=(std::nullptr_t) = delete;
@@ -318,10 +299,11 @@ class Nullable<std::unique_ptr<T>> {
   Nullable(Nullable&&) noexcept = default;
 
   template <class U>
-  Nullable(Nullable<U>&& other) noexcept : Nullable(std::move(other).Take()) {}
+  Nullable(Nullable<std::unique_ptr<U>>&& other) noexcept
+      : Nullable(std::move(other).Take()) {}
 
   template <class U>
-  Nullable(NotNull<U>&& not_null) noexcept
+  Nullable(NotNull<std::unique_ptr<U>>&& not_null) noexcept
       : Nullable(std::move(not_null).Take()) {}
 
   Nullable(std::nullptr_t) {}
@@ -338,54 +320,36 @@ class Nullable<std::unique_ptr<T>> {
   }
 
   Nullable& operator=(Nullable&& rhs) noexcept {
-    ptr_ = std::move(rhs).Take();
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return *this;
+    return *this = std::move(rhs).Take();
   }
 
   template <class U>
-  Nullable& operator=(Nullable<U>&& rhs) noexcept {
-    ptr_ = std::move(rhs).Take();
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return *this;
+  Nullable& operator=(Nullable<std::unique_ptr<U>>&& rhs) noexcept {
+    return *this = std::move(rhs).Take();
   }
 
   template <class U>
-  Nullable& operator=(NotNull<U>&& not_null) noexcept {
-    ptr_ = std::move(not_null).Take();
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return *this;
+  Nullable& operator=(NotNull<std::unique_ptr<U>>&& not_null) noexcept {
+    return *this = std::move(not_null).Take();
   }
 
-  Nullable& operator=(std::nullptr_t) {
-    ptr_ = nullptr;
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return *this;
-  }
+  Nullable& operator=(std::nullptr_t) { return *this = std::unique_ptr<T>(); }
 
   T* get() const { return ptr_.get(); }
 
   T* operator->() const {
-    const auto p = get();
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    const auto p = get();
     RST_DCHECK(p != nullptr);
     return p;
   }
   auto& operator*() const {
-    const auto p = get();
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    const auto p = get();
     RST_DCHECK(p != nullptr);
     return *p;
   }
@@ -415,20 +379,33 @@ class NotNull<std::shared_ptr<T>> {
     RST_DCHECK(ptr_ != nullptr);
   }
 
+  NotNull(const NotNull& other) : NotNull(std::shared_ptr(other.ptr_)) {}
+
   template <class U>
-  NotNull(const NotNull<U>&) = delete;
+  NotNull(const NotNull<std::shared_ptr<U>>& other)
+      : NotNull(std::shared_ptr(other.ptr_)) {}
 
   NotNull(NotNull&& other) noexcept : NotNull(std::move(other).Take()) {}
 
   template <class U>
-  NotNull(NotNull<U>&& other) noexcept : NotNull(std::move(other).Take()) {}
+  NotNull(NotNull<std::shared_ptr<U>>&& other) noexcept
+      : NotNull(std::move(other).Take()) {}
 
   template <class U>
-  NotNull(const Nullable<U>&) = delete;
+  NotNull(const Nullable<std::shared_ptr<U>>& nullable)
+      : NotNull(std::shared_ptr(nullable.ptr_)) {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    RST_DCHECK(nullable.was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
 
   template <class U>
-  NotNull(Nullable<U>&& nullable) noexcept
-      : NotNull(std::move(nullable).Take()) {}
+  NotNull(Nullable<std::shared_ptr<U>>&& nullable) noexcept
+      : NotNull(std::move(nullable).Take()) {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    RST_DCHECK(nullable.was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
 
   NotNull(std::nullptr_t) = delete;
 
@@ -441,33 +418,41 @@ class NotNull<std::shared_ptr<T>> {
     return *this;
   }
 
+  NotNull& operator=(const NotNull& rhs) {
+    return *this = std::shared_ptr(rhs.ptr_);
+  }
+
   template <class U>
-  NotNull& operator=(const NotNull<U>&) = delete;
+  NotNull& operator=(const NotNull<std::shared_ptr<U>>& rhs) {
+    return *this = std::shared_ptr(rhs.ptr_);
+  }
 
   NotNull& operator=(NotNull&& rhs) noexcept {
     return *this = std::move(rhs).Take();
   }
 
   template <class U>
-  NotNull& operator=(NotNull<U>&& rhs) noexcept {
-    ptr_ = std::move(rhs).Take();
-    RST_DCHECK(ptr_ != nullptr);
-    return *this;
+  NotNull& operator=(NotNull<std::shared_ptr<U>>&& rhs) noexcept {
+    return *this = std::move(rhs).Take();
   }
 
   template <class U>
-  NotNull& operator=(const Nullable<U>&) = delete;
+  NotNull& operator=(const Nullable<std::shared_ptr<U>>& nullable) {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    RST_DCHECK(nullable.was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    return *this = std::shared_ptr(nullable.ptr_);
+  }
 
   template <class U>
-  NotNull& operator=(Nullable<U>&& nullable) noexcept {
-    ptr_ = std::move(nullable).Take();
-    RST_DCHECK(ptr_ != nullptr);
-    return *this;
+  NotNull& operator=(Nullable<std::shared_ptr<U>>&& nullable) noexcept {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    RST_DCHECK(nullable.was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    return *this = std::move(nullable).Take();
   }
 
   NotNull& operator=(std::nullptr_t) = delete;
-
-  NotNull Clone() const { return NotNull(std::shared_ptr(ptr_)); }
 
   T* get() const {
     RST_DCHECK(ptr_ != nullptr);
@@ -490,8 +475,6 @@ class NotNull<std::shared_ptr<T>> {
   friend class Nullable;
 
   std::shared_ptr<T> ptr_;
-
-  RST_DISALLOW_COPY_AND_ASSIGN(NotNull);
 };
 
 template <class T>
@@ -502,19 +485,24 @@ class Nullable<std::shared_ptr<T>> {
   template <class U>
   Nullable(std::shared_ptr<U>&& ptr) : ptr_(std::move(ptr)) {}
 
+  Nullable(const Nullable&) = default;
+
   template <class U>
-  Nullable(const Nullable<U>&) = delete;
+  Nullable(const Nullable<std::shared_ptr<U>>& other)
+      : Nullable(std::shared_ptr(other.ptr_)) {}
 
   Nullable(Nullable&&) noexcept = default;
 
   template <class U>
-  Nullable(Nullable<U>&& other) noexcept : Nullable(std::move(other).Take()) {}
+  Nullable(Nullable<std::shared_ptr<U>>&& other) noexcept
+      : Nullable(std::move(other).Take()) {}
 
   template <class U>
-  Nullable(const NotNull<U>&) = delete;
+  Nullable(const NotNull<std::shared_ptr<U>>& not_null)
+      : Nullable(std::shared_ptr(not_null.ptr_)) {}
 
   template <class U>
-  Nullable(NotNull<U>&& not_null) noexcept
+  Nullable(NotNull<std::shared_ptr<U>>&& not_null) noexcept
       : Nullable(std::move(not_null).Take()) {}
 
   Nullable(std::nullptr_t) {}
@@ -530,63 +518,51 @@ class Nullable<std::shared_ptr<T>> {
     return *this;
   }
 
+  Nullable& operator=(const Nullable& rhs) {
+    return *this = std::shared_ptr(rhs.ptr_);
+  }
+
   template <class U>
-  Nullable& operator=(const Nullable<U>&) = delete;
+  Nullable& operator=(const Nullable<std::shared_ptr<U>>& rhs) {
+    return *this = std::shared_ptr(rhs.ptr_);
+  }
 
   Nullable& operator=(Nullable&& rhs) noexcept {
-    ptr_ = std::move(rhs).Take();
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return *this;
+    return *this = std::move(rhs).Take();
   }
 
   template <class U>
-  Nullable& operator=(Nullable<U>&& rhs) noexcept {
-    ptr_ = std::move(rhs).Take();
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return *this;
+  Nullable& operator=(Nullable<std::shared_ptr<U>>&& rhs) noexcept {
+    return *this = std::move(rhs).Take();
   }
 
   template <class U>
-  Nullable& operator=(const NotNull<U>&) = delete;
+  Nullable& operator=(const NotNull<std::shared_ptr<U>>& not_null) {
+    return *this = std::shared_ptr(not_null.ptr_);
+  }
 
   template <class U>
-  Nullable& operator=(NotNull<U>&& not_null) noexcept {
-    ptr_ = std::move(not_null).Take();
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return *this;
+  Nullable& operator=(NotNull<std::shared_ptr<U>>&& not_null) noexcept {
+    return *this = std::move(not_null).Take();
   }
 
-  Nullable& operator=(std::nullptr_t) {
-    ptr_ = nullptr;
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return *this;
-  }
-
-  Nullable Clone() const { return Nullable(std::shared_ptr(ptr_)); }
+  Nullable& operator=(std::nullptr_t) { return *this = std::shared_ptr<T>(); }
 
   T* get() const { return ptr_.get(); }
 
   T* operator->() const {
-    const auto p = get();
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    const auto p = get();
     RST_DCHECK(p != nullptr);
     return p;
   }
   auto& operator*() const {
-    const auto p = get();
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    const auto p = get();
     RST_DCHECK(p != nullptr);
     return *p;
   }
@@ -607,8 +583,6 @@ class Nullable<std::shared_ptr<T>> {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
   mutable bool was_checked_ = false;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-
-  RST_DISALLOW_COPY_AND_ASSIGN(Nullable);
 };
 
 template <class T, class U>

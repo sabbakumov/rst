@@ -318,6 +318,7 @@ NotNull<Value*> Value::SetPath(const std::string_view path, Value&& value) {
           current_object->SetKey(std::string(key), Value(Type::kObject));
     }
 
+    RST_DCHECK(child_object != nullptr);
     current_object = child_object;
     current_path = current_path.substr(delimiter_position + 1);
   }

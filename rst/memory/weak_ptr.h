@@ -105,9 +105,6 @@ class WeakPtrFactory {
  public:
   explicit WeakPtrFactory(const NotNull<T*> ptr) : ptr_(ptr) {}
 
-  WeakPtrFactory(WeakPtrFactory&&) noexcept = delete;
-  WeakPtrFactory& operator=(WeakPtrFactory&&) noexcept = delete;
-
   WeakPtr<T> GetWeakPtr() const { return WeakPtr<T>(flag_, ptr_); }
 
  private:

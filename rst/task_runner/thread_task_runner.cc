@@ -87,7 +87,7 @@ ThreadTaskRunner::ThreadTaskRunner(
     : task_runner_(
           std::make_shared<InternalTaskRunner>(std::move(time_function))),
       thread_(&InternalTaskRunner::WaitAndRunTasks,
-              task_runner_.Clone().Take()) {}
+              NotNull(task_runner_).Take()) {}
 
 ThreadTaskRunner::~ThreadTaskRunner() {
   if (thread_.joinable()) {

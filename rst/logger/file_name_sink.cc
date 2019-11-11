@@ -57,10 +57,10 @@ void FileNameSink::Log(const std::string_view message) {
   RST_DCHECK(message.size() <= std::numeric_limits<int>::max());
   auto val = std::fprintf(log_file_.get(), "%.*s\n",
                           static_cast<int>(message.size()), message.data());
-  RST_DCHECK(val >= 0);
+  RST_CHECK(val >= 0);
 
   val = std::fflush(log_file_.get());
-  RST_DCHECK(val == 0);
+  RST_CHECK(val == 0);
 }
 
 }  // namespace rst

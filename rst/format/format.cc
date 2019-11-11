@@ -39,7 +39,7 @@ template <class T, size_t N>
 NotNull<char*> FormatAndWrite(char (&str)[N], const NotNull<const char*> format,
                               const T val) {
   static_assert(std::is_arithmetic<T>::value, "Not an arithmetic type");
-  const auto bytes_written = std::snprintf(str, N, format.get(), val);
+  const auto bytes_written = std::sprintf(str, format.get(), val);
   RST_DCHECK(bytes_written > 0);
   RST_DCHECK(static_cast<size_t>(bytes_written) < N);
   RST_DCHECK(str[bytes_written] == '\0');
@@ -48,16 +48,18 @@ NotNull<char*> FormatAndWrite(char (&str)[N], const NotNull<const char*> format,
 
 }  // namespace
 
-std::string FormatAndReturnString(const char* format,
+std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
+                                  const size_t format_size,
                                   const Nullable<const Arg*> values,
                                   const size_t size) {
-  RST_DCHECK(format != nullptr);
+  auto format = not_null_format.get();
 
   std::string output;
-  auto capacity = std::strlen(format);
+  RST_DCHECK(format_size == std::strlen(format));
+  auto capacity = format_size;
   for (size_t i = 0; i < size; i++) {
     RST_DCHECK(values != nullptr);
-    capacity += values[i].size();
+    capacity += values[i].view().size();
   }
   RST_DCHECK(capacity >= size * 2);
   capacity -= size * 2;
@@ -154,9 +156,5 @@ Arg::Arg(const char* value) : view_(value) { RST_DCHECK(value != nullptr); }
 Arg::~Arg() = default;
 
 }  // namespace internal
-
-std::string Format(const NotNull<const char*> format) {
-  return internal::FormatAndReturnString(format.get(), nullptr, 0);
-}
 
 }  // namespace rst

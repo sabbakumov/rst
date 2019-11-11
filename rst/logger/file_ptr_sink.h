@@ -60,7 +60,7 @@ class FilePtrSink : public Sink {
       nullptr, [](std::FILE* f) {
         if (f != nullptr) {
           const auto ret = std::fclose(f);
-          RST_DCHECK(ret == 0);
+          RST_CHECK(ret == 0);
         }
       }};
 

@@ -46,6 +46,9 @@ const std::string& FileError::AsString() const { return message_; }
 
 char FileOpenError::id_ = 0;
 
+FileOpenError::FileOpenError(std::string&& message)
+    : ErrorInfo(std::move(message)) {}
+
 FileOpenError::~FileOpenError() = default;
 
 Status WriteFile(const NotNull<const char*> filename,
@@ -114,7 +117,7 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
 
   static constexpr long kDefaultChunkSize = 128 * 1024 - 1;
   auto chunk_size = get_file_size(file.get()).value_or(kDefaultChunkSize);
-  if (chunk_size == 0)
+  if (chunk_size == 0)  // Some files return 0 bytes (/etc/*).
     chunk_size = kDefaultChunkSize;
   chunk_size++;
 

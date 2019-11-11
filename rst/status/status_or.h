@@ -46,8 +46,9 @@ class [[nodiscard]] StatusOr {
 
   StatusOr(StatusOr && other) noexcept
       : status_(std::move(other.status_)), value_(std::move(other.value_)) {
-    RST_DCHECK(value_.has_value() ? (status_.error_ == nullptr) : true);
 #if RST_BUILDFLAG(DCHECK_IS_ON)
+    if (value_.has_value())
+      RST_DCHECK(status_.error_ == nullptr);
     other.was_checked_ = true;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }

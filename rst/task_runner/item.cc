@@ -34,11 +34,9 @@ namespace chrono = std::chrono;
 namespace rst {
 namespace internal {
 
-Item::Item(chrono::milliseconds that_time_point, const uint64_t task_id,
-           std::function<void()>&& that_task)
-    : time_point(that_time_point),
-      task_id(task_id),
-      task(std::move(that_task)) {}
+Item::Item(chrono::milliseconds time_point, const uint64_t task_id,
+           std::function<void()>&& task)
+    : time_point(time_point), task_id(task_id), task(std::move(task)) {}
 
 Item::Item(Item&&) noexcept = default;
 Item::~Item() = default;

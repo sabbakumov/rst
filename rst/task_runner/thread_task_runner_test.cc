@@ -169,9 +169,10 @@ TEST(ThreadTaskRunner, PostTaskConcurrently) {
   for (auto& t : threads)
     t.join();
 
-  {
+  while (true) {
     std::lock_guard lock(mtx);
-    EXPECT_EQ(str, expected);
+    if (str == expected)
+      break;
   }
 }
 

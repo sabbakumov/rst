@@ -309,7 +309,7 @@ TEST(Format, ScopedEnum) {
 }
 
 TEST(Format, StringCapacity) {
-  static constexpr auto kStr = "abcdefghijklmno";
+  static constexpr char kStr[] = "abcdefghijklmno";
   EXPECT_EQ(Format(kStr), kStr);
 }
 

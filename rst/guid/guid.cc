@@ -37,7 +37,7 @@
 namespace rst {
 namespace {
 
-constexpr size_t kGUIDLength = 36;
+constexpr size_t kGuidLength = 36;
 
 bool IsHexDigit(const char c) {
   return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
@@ -50,8 +50,8 @@ bool IsLowerHexDigit(const char c) {
 
 using Strict = Type<class StrictTag, bool>;
 
-bool IsValidGUIDInternal(const std::string_view guid, const Strict strict) {
-  if (guid.size() != kGUIDLength)
+bool IsValidGuidInternal(const std::string_view guid, const Strict strict) {
+  if (guid.size() != kGuidLength)
     return false;
 
   for (size_t i = 0; i < guid.size(); i++) {
@@ -75,7 +75,7 @@ bool IsValidGUIDInternal(const std::string_view guid, const Strict strict) {
 
 }  // namespace
 
-std::string GenerateGUID() {
+std::string GenerateGuid() {
   auto& random_device = GetRandomDevice();
 
   std::uniform_int_distribution<uint64_t> distribution;
@@ -91,21 +91,21 @@ std::string GenerateGUID() {
   sixteen_bytes[1] &= 0x3fffffff'ffffffffULL;
   sixteen_bytes[1] |= 0x80000000'00000000ULL;
 
-  return internal::RandomDataToGUIDString(sixteen_bytes);
+  return internal::RandomDataToGuidString(sixteen_bytes);
 }
 
-bool IsValidGUID(const std::string_view guid) {
-  return IsValidGUIDInternal(guid, Strict(false));
+bool IsValidGuid(const std::string_view guid) {
+  return IsValidGuidInternal(guid, Strict(false));
 }
 
-bool IsValidGUIDOutputString(const std::string_view guid) {
-  return IsValidGUIDInternal(guid, Strict(true));
+bool IsValidGuidOutputString(const std::string_view guid) {
+  return IsValidGuidInternal(guid, Strict(true));
 }
 
 namespace internal {
 
-std::string RandomDataToGUIDString(const uint64_t (&bytes)[2]) {
-  char buffer[kGUIDLength + 1];
+std::string RandomDataToGuidString(const uint64_t (&bytes)[2]) {
+  char buffer[kGuidLength + 1];
   const auto ret =
       std::sprintf(buffer, "%08x-%04x-%04x-%04x-%012llx",
                    static_cast<unsigned int>(bytes[0] >> 32),
@@ -113,8 +113,8 @@ std::string RandomDataToGUIDString(const uint64_t (&bytes)[2]) {
                    static_cast<unsigned int>(bytes[0] & 0x0000ffff),
                    static_cast<unsigned int>(bytes[1] >> 48),
                    bytes[1] & 0x0000ffff'ffffffffULL);
-  RST_DCHECK(ret == kGUIDLength);
-  return std::string(buffer, kGUIDLength);
+  RST_DCHECK(ret == kGuidLength);
+  return std::string(buffer, kGuidLength);
 }
 
 }  // namespace internal

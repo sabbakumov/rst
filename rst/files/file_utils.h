@@ -55,7 +55,7 @@ class FileError : public ErrorInfo<FileError> {
 
 class FileOpenError : public ErrorInfo<FileOpenError, FileError> {
  public:
-  using ErrorInfo::ErrorInfo;
+  explicit FileOpenError(std::string&& message);
   ~FileOpenError();
 
   static char id_;
@@ -66,6 +66,7 @@ class FileOpenError : public ErrorInfo<FileOpenError, FileError> {
 
 Status WriteFile(NotNull<const char*> filename, std::string_view data);
 
+// Ensures that the file won't be corrupted by application crash during write.
 Status WriteImportantFile(NotNull<const char*> filename, std::string_view data);
 
 StatusOr<std::string> ReadFile(NotNull<const char*> filename);
