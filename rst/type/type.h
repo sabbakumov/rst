@@ -33,7 +33,39 @@
 
 namespace rst {
 
-// Chromium-like StrongAlias type.
+// A Chromium-like StrongAlias type.
+//
+// A type-safe alternative for a typedef or a using directive like in Golang.
+//
+// The motivation is to disallow several classes of errors:
+//
+// using Orange = int;
+// using Apple = int;
+// Apple apple(2);
+// Orange orange = apple;  // Orange should not be able to become an Apple.
+// Orange x = orange + apple;  // Shouldn't add Oranges and Apples.
+// if (orange > apple);  // Shouldn't compare Apples to Oranges.
+// void foo(Orange);
+// void foo(Apple);  // Redefinition.
+// etc.
+//
+// Type may instead be used as follows:
+//
+// using Orange = Type<class OrangeTag, int>;
+// using Apple = Type<class AppleTag, int>;
+// Apple apple(2);
+// Orange orange = apple;  // Does not compile.
+// Orange other_orange = orange;  // Compiles, types match.
+// Orange x = orange + apple;  // Does not compile.
+// Orange y = Orange(orange.value() + apple.value());  // Compiles.
+// if (orange > apple);  // Does not compile.
+// if (orange > other_orange);  // Compiles.
+// void foo(Orange);
+// void foo(Apple);  // Compiles into separate overload.
+//
+// TagType is an empty tag class (also called "phantom type") that only serves
+// the type system to differentiate between different instantiations of the
+// template.
 template <class TagType, class UnderlyingType>
 class Type {
  public:

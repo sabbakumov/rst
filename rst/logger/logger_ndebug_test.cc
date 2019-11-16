@@ -54,7 +54,7 @@ TEST(Logger, DebugMacrosNDebug) {
   EXPECT_CALL(*sink, Log(_)).Times(0);
 
   Logger logger(std::move(sink));
-  Logger::SetLogger(&logger);
+  Logger::SetGlobalLogger(&logger);
 
   RST_DLOG_DEBUG(kMessage);
   RST_DLOG_INFO(kMessage);

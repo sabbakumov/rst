@@ -176,8 +176,7 @@ const Value::String& Value::GetString() const {
 }
 
 Value::String& Value::GetString() {
-  RST_DCHECK(IsString());
-  return string_;
+  return const_cast<String&>(const_cast<const Value*>(this)->GetString());
 }
 
 const Value::Array& Value::GetArray() const {
@@ -186,8 +185,7 @@ const Value::Array& Value::GetArray() const {
 }
 
 Value::Array& Value::GetArray() {
-  RST_DCHECK(IsArray());
-  return array_;
+  return const_cast<Array&>(const_cast<const Value*>(this)->GetArray());
 }
 
 const Value::Object& Value::GetObject() const {
@@ -196,8 +194,7 @@ const Value::Object& Value::GetObject() const {
 }
 
 Value::Object& Value::GetObject() {
-  RST_DCHECK(IsObject());
-  return object_;
+  return const_cast<Object&>(const_cast<const Value*>(this)->GetObject());
 }
 
 Nullable<const Value*> Value::FindKey(const std::string_view key) const {
@@ -209,11 +206,7 @@ Nullable<const Value*> Value::FindKey(const std::string_view key) const {
 }
 
 Nullable<Value*> Value::FindKey(const std::string_view key) {
-  RST_DCHECK(IsObject());
-  const auto it = object_.find(key);
-  if (it == object_.cend())
-    return nullptr;
-  return &it->second;
+  return const_cast<Value*>(const_cast<const Value*>(this)->FindKey(key).get());
 }
 
 Nullable<const Value*> Value::FindKeyOfType(const std::string_view key,
@@ -230,14 +223,8 @@ Nullable<const Value*> Value::FindKeyOfType(const std::string_view key,
 
 Nullable<Value*> Value::FindKeyOfType(const std::string_view key,
                                       const Type type) {
-  const auto result = FindKey(key);
-  if (result == nullptr)
-    return nullptr;
-
-  if (result->type_ != type)
-    return nullptr;
-
-  return result;
+  return const_cast<Value*>(
+      const_cast<const Value*>(this)->FindKeyOfType(key, type).get());
 }
 
 std::optional<bool> Value::FindBoolKey(const std::string_view key) const {
@@ -298,9 +285,14 @@ NotNull<Value*> Value::SetKey(std::string&& key, Value&& value) {
   return &ret.first->second;
 }
 
-bool Value::RemoveKey(const std::string& key) {
+bool Value::RemoveKey(const std::string_view key) {
   RST_DCHECK(IsObject());
-  return object_.erase(key) != 0;
+  const auto it = object_.find(key);
+  if (it == object_.cend())
+    return false;
+
+  object_.erase(it);
+  return true;
 }
 
 NotNull<Value*> Value::SetPath(const std::string_view path, Value&& value) {
@@ -347,26 +339,13 @@ Nullable<const Value*> Value::FindPath(const std::string_view path) const {
 }
 
 Nullable<Value*> Value::FindPath(const std::string_view path) {
-  RST_DCHECK(IsObject());
-
-  auto current_path = path;
-  NotNull<Value*> current_object = this;
-  for (auto delimiter_position = current_path.find('.');
-       delimiter_position != std::string_view::npos;
-       delimiter_position = current_path.find('.')) {
-    const auto key = current_path.substr(0, delimiter_position);
-    auto child_object = current_object->FindKeyOfType(key, Type::kObject);
-    if (child_object == nullptr)
-      return nullptr;
-
-    current_object = child_object;
-    current_path = current_path.substr(delimiter_position + 1);
-  }
-
-  return current_object->FindKey(current_path);
+  return const_cast<Value*>(
+      const_cast<const Value*>(this)->FindPath(path).get());
 }
 
 void Value::MoveConstruct(Value&& other) {
+  type_ = other.type_;
+
   switch (other.type_) {
     case Type::kNull:
       break;
@@ -386,8 +365,6 @@ void Value::MoveConstruct(Value&& other) {
       new (&object_) Object(std::move(other.object_));
       break;
   }
-
-  type_ = other.type_;
 }
 
 void Value::MoveAssign(Value&& rhs) {

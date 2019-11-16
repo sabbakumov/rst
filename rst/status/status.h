@@ -39,6 +39,35 @@
 
 namespace rst {
 
+// ErrorInfoBase and ErrorInfo are LLVM-like base classes for user-defined
+// error types.
+//
+// Example:
+//
+//   class FileError : public ErrorInfo<FileError> {
+//    public:
+//     explicit FileError(std::string&& message);
+//     ~FileError();
+//
+//     const std::string& AsString() const override;
+//
+//     // Important to have this field as non-const!
+//     static char id_;
+//
+//    private:
+//     const std::string message_;
+//   };
+//
+//   // Subclass of FileOpenError.
+//   class FileOpenError : public ErrorInfo<FileOpenError, FileError> {
+//    public:
+//     explicit FileOpenError(std::string&& message);
+//     ~FileOpenError();
+//
+//     // Important to have this field as non-const!
+//     static char id_;
+//   };
+//
 class ErrorInfoBase {
  public:
   ErrorInfoBase();
@@ -81,19 +110,34 @@ class ErrorInfo : public Parent {
 };
 
 // A Google-like Status class for error handling.
+//
+// Example:
+//
+//   Status status = Foo();
+//   if (status.err())
+//     return status;
+//
+//   Status status = Bar();
+//   if (status.err() &&
+//       dyn_cast<FileOpenError>(status.GetError()) != nullptr) {
+//     // File doesn't exist.
+//   }
+//
 class [[nodiscard]] Status {
  public:
+  // OK object.
   static Status OK() { return Status(); }
 
-  // Sets the object not checked by default and moves |other| content.
+  // Sets as not checked by default.
   Status(Status && other) noexcept;
 
+  // Asserts that it was checked.
   ~Status();
 
-  // Sets the object not checked by default and moves |rhs| content.
+  // Asserts that it was checked before and sets as not checked.
   Status& operator=(Status&& rhs) noexcept;
 
-  // Sets the object to be checked and returns whether the object is error
+  // Sets the object to be checked and returns whether the status is error
   // object.
   bool err() {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
@@ -102,6 +146,7 @@ class [[nodiscard]] Status {
     return error_ != nullptr;
   }
 
+  // Asserts that it was checked. Returns error information.
   NotNull<const ErrorInfoBase*> GetError() const;
 
   // Sets the object to be checked.
@@ -118,10 +163,10 @@ class [[nodiscard]] Status {
   template <class Err, class... Args>
   friend Status MakeStatus(Args && ... args);
 
-  // Sets the object not checked by default and to be OK.
+  // Sets the object as not checked by default and to be OK.
   Status();
 
-  // Sets the object not checked by default and to be the error object.
+  // Sets the object as not checked by default and to be the error object.
   Status(NotNull<std::unique_ptr<ErrorInfoBase>> error);
 
   // Information about the error. nullptr if the object is OK.
@@ -135,6 +180,7 @@ class [[nodiscard]] Status {
   RST_DISALLOW_COPY_AND_ASSIGN(Status);
 };
 
+// Factory function for creating Status objects.
 template <class Err, class... Args>
 Status MakeStatus(Args&&... args) {
   return Status(std::make_unique<Err>(std::forward<Args>(args)...));

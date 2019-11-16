@@ -32,6 +32,7 @@
 
 namespace rst {
 
+// Returns singleton reference in order to have only one open random file.
 std::random_device& GetRandomDevice();
 
 }  // namespace rst

@@ -36,7 +36,14 @@
 
 // Compile time encrypted string modified implementation originally taken from
 // https://stackoverflow.com/questions/7270473/compile-time-string-encryption.
-
+//
+// Strings encrypted with this method are not visible directly in the binary.
+//
+// Example:
+//
+//   RST_HIDDEN_STRING(kHidden, "Not visible");
+//   assert(kHidden.Decrypt() == "Not visible");
+//
 #define RST_HIDDEN_STRING(var, str)                                 \
   static constexpr ::rst::internal::HiddenString<                   \
       ::rst::internal::ConstructIndexList<sizeof(str) - 1>::Result> \

@@ -37,6 +37,37 @@
 #include "rst/macros/macros.h"
 #include "rst/not_null/not_null.h"
 
+// This component is for efficiently performing string formatting.
+//
+// Unlike printf-style format specifiers, Format() functions do not need to
+// specify the type of the arguments. Supported arguments following the format
+// string, such as strings, string_views, ints, floats, and bools, are
+// automatically converted to strings during the formatting process. See below
+// for a full list of supported types.
+//
+// Format() does not allow you to specify how to format a value, beyond the
+// default conversion to string. For example, you cannot format an integer in
+// hex.
+//
+// The format string uses identifiers indicated by a {} like in Python.
+//
+// A '{{' or '}}' sequence in the format string causes a literal '{' or '}' to
+// be output.
+//
+// Example:
+//   std::string s = Format("{} purchased {} {}", "Bob", 5, "Apples");
+//   assert(s == "Bob purchased 5 Apples");
+//
+// Supported types:
+//   * std::string_view, std::string, const char*
+//   * short, unsigned short, int, unsigned int, long, unsigned long, long long,
+//     unsigned long long
+//   * float, double, long double (printed as if %g is specified for printf())
+//   * bool (printed as "true" or "false")
+//   * char
+//   * enums (printed as underlying integer type)
+//
+// If an invalid format string is provided, Format() asserts in a debug build.
 namespace rst {
 namespace internal {
 
@@ -72,7 +103,8 @@ class Arg {
   std::string_view view() const { return view_; }
 
  private:
-  char buffer_[21];  // Can store 18,446,744,073,709,551,615 with '\0'.
+  char buffer_[21];  // Can store 2^64 - 1 that is 18,446,744,073,709,551,615
+                     // with '\0'.
   const std::string_view view_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(Arg);

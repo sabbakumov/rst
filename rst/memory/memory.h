@@ -36,6 +36,21 @@
 namespace rst {
 
 // Chromium-like WrapUnique.
+//
+// Helper to transfer ownership of a raw pointer to a std::unique_ptr<T>. It is
+// usually used inside factory methods.
+//
+// Example:
+//   class Foo {
+//    public:
+//     std::unique_ptr<Foo> Create() {
+//       return WrapUnique(NotNull(new Foo()));
+//     }
+//
+//    private:
+//     Foo() = default;
+//   };
+//
 template <class T>
 NotNull<std::unique_ptr<T>> WrapUnique(const NotNull<T*> ptr) {
   static_assert(!std::is_array<T>::value);

@@ -28,8 +28,8 @@
 #ifndef RST_STATUS_STATUS_OR_H_
 #define RST_STATUS_STATUS_OR_H_
 
+#include <cstdint>
 #include <new>
-#include <optional>
 #include <utility>
 
 #include "rst/check/check.h"
@@ -39,136 +39,258 @@
 
 namespace rst {
 
+// A Google-like StatusOr class for error handling.
+//
+// Example:
+//
+//   StatusOr<std::string> foo = Foo();
+//   if (foo.err())
+//     return std::move(foo).TakeStatus();
+//
+//   std::cout << *foo << ", " << foo->size() << std::endl;
+//
 template <class T>
 class [[nodiscard]] StatusOr {
  public:
   StatusOr() = delete;
 
-  StatusOr(StatusOr && other) noexcept
-      : status_(std::move(other.status_)), value_(std::move(other.value_)) {
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    if (value_.has_value())
-      RST_DCHECK(status_.error_ == nullptr);
-    other.was_checked_ = true;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-  }
+  StatusOr(StatusOr && other) noexcept { MoveConstruct(std::move(other)); }
 
+  // Stores success value.
   template <class U>
-  StatusOr(U && value) : value_(std::forward<U>(value)) {}
-
-  StatusOr(Status status) : status_(std::move(status)) {
-    RST_DCHECK(status_.error_ != nullptr);
+  StatusOr(U && value) {
+    MoveConstruct(std::forward<U>(value));
   }
 
+  // Stores error value.
+  StatusOr(Status status) { MoveConstruct(std::move(status)); }
+
+  // Asserts that it was checked.
   ~StatusOr() {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+
+    Cleanup();
   }
 
+  // Asserts that it was checked before and sets as not checked.
   StatusOr& operator=(StatusOr&& rhs) noexcept {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
-    status_ = std::move(rhs.status_);
-    value_ = std::move(rhs.value_);
-
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-    rhs.was_checked_ = true;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    if (type_ == rhs.type_) {
+      MoveAssign(std::move(rhs));
+    } else {
+      Cleanup();
+      MoveConstruct(std::move(rhs));
+    }
 
     return *this;
   }
 
+  // Asserts that it was checked before and sets as not checked.
   template <class U>
   StatusOr& operator=(U&& value) {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
-    status_ = Status::OK();
-    value_.emplace(std::forward<U>(value));
-
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    switch (type_) {
+      case Type::kOk:
+        MoveAssign(std::forward<U>(value));
+        break;
+      case Type::kError:
+        Cleanup();
+        MoveConstruct(std::forward<U>(value));
+        break;
+    }
 
     return *this;
   }
 
+  // Asserts that it was checked before and sets as not checked.
   StatusOr& operator=(Status status) {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(status.error_ != nullptr);
 
-    status_ = std::move(status);
-    value_.reset();
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-    was_checked_ = false;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    switch (type_) {
+      case Type::kOk:
+        Cleanup();
+        MoveConstruct(std::move(status));
+        break;
+      case Type::kError:
+        MoveAssign(std::move(status));
+        break;
+    }
 
     return *this;
   }
 
+  // Sets the object to be checked and returns whether the status is error
+  // object.
   bool err() {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = true;
+    if (type_ == Type::kError)
+      (void)status_.err();
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return status_.err();
+    return type_ == Type::kError;
   }
 
+  // Asserts that it was checked.
   T& operator*() {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    RST_DCHECK(value_.has_value());
+    RST_DCHECK(type_ == Type::kOk);
 
-    return *value_;
+    return value_;
   }
 
+  // Asserts that it was checked.
   NotNull<T*> operator->() {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    RST_DCHECK(value_.has_value());
+    RST_DCHECK(type_ == Type::kOk);
 
-    return &*value_;
+    return &value_;
   }
 
+  // Asserts that it was checked.
   Status TakeStatus()&& {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    RST_DCHECK(status_.error_ != nullptr);
+    RST_DCHECK(type_ == Type::kError);
 
     return std::move(status_);
   }
 
+  // Asserts that it was checked.
   const Status& status() const {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    RST_DCHECK(status_.error_ != nullptr);
+    RST_DCHECK(type_ == Type::kError);
 
     return status_;
   }
 
+  // Sets the object to be checked.
   void Ignore() {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = true;
-    status_.was_checked_ = true;
+    if (type_ == Type::kError)
+      status_.was_checked_ = true;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
  private:
-  Status status_;
-  std::optional<T> value_;
+  enum class Type : int8_t {
+    kOk,
+    kError,
+  };
+
+  void MoveConstruct(StatusOr && other) {
+    type_ = other.type_;
+
+    switch (type_) {
+      case Type::kOk:
+        new (&value_) T(std::move(other.value_));
+        break;
+      case Type::kError:
+        new (&status_) Status(std::move(other.status_));
+        break;
+    }
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
-  bool was_checked_ = false;
+    was_checked_ = false;
+    other.was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
+
+  void MoveAssign(StatusOr && other) {
+    RST_DCHECK(type_ == other.type_);
+
+    switch (type_) {
+      case Type::kOk:
+        value_ = std::move(other.value_);
+        break;
+      case Type::kError:
+        status_ = std::move(other.status_);
+        break;
+    }
+
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+    other.was_checked_ = true;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
+
+  template <class U>
+  void MoveConstruct(U && value) {
+    type_ = Type::kOk;
+    new (&value_) T(std::forward<U>(value));
+
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
+
+  template <class U>
+  void MoveAssign(U && value) {
+    RST_DCHECK(type_ == Type::kOk);
+    value_ = std::forward<U>(value);
+
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
+
+  void MoveConstruct(Status status) {
+    type_ = Type::kError;
+    new (&status_) Status(std::move(status));
+    RST_DCHECK(status_.error_ != nullptr);
+
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
+
+  void MoveAssign(Status status) {
+    RST_DCHECK(type_ == Type::kError);
+    status_ = std::move(status);
+    RST_DCHECK(status_.error_ != nullptr);
+
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
+
+  void Cleanup() {
+    switch (type_) {
+      case Type::kOk:
+        value_.~T();
+        break;
+      case Type::kError:
+        status_.~Status();
+        break;
+    }
+  }
+
+  Type type_;
+  union {
+    Status status_;
+    T value_;
+  };
+
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  bool was_checked_;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
   RST_DISALLOW_COPY_AND_ASSIGN(StatusOr);

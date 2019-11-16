@@ -32,46 +32,50 @@
 namespace rst {
 namespace {
 
-auto g_int = 0;
+class Check : public testing::Test {
+ protected:
+  bool IncrementIntAndReturnTrue() {
+    int_++;
+    return true;
+  }
 
-bool IncrementIntAndReturnTrue() {
-  g_int++;
-  return true;
-}
+  int int_ = 0;
+};
 
 constexpr double Divide(const double a, const double b) {
   RST_DCHECK(b != 0.0);
   RST_CHECK(b != 0.0);
   return a / b;
 }
+
 }  // namespace
 
-TEST(Check, Check) {
+TEST_F(Check, Check) {
   EXPECT_NO_FATAL_FAILURE(RST_CHECK(true));
   EXPECT_DEATH(RST_CHECK(false), "");
 }
 
-TEST(Check, DCheck) {
+TEST_F(Check, DCheck) {
   EXPECT_NO_FATAL_FAILURE(RST_DCHECK(true));
   EXPECT_DEATH(RST_DCHECK(false), "");
 }
 
-TEST(Check, Notreached) { EXPECT_DEATH(RST_NOTREACHED(), ""); }
+TEST_F(Check, Notreached) { EXPECT_DEATH(RST_NOTREACHED(), ""); }
 
-TEST(Check, DCheckInConstexpr) {
+TEST_F(Check, DCheckInConstexpr) {
   static constexpr auto result = Divide(1.0, 1.0);
   EXPECT_EQ(result, 1.0);
 }
 
-TEST(Check, NoUnused) {
+TEST_F(Check, NoUnused) {
   static constexpr auto result = Divide(1.0, 1.0);
   RST_DCHECK(result == 1.0);
 }
 
-TEST(Check, ConditionEvaluation) {
-  EXPECT_EQ(g_int, 0);
+TEST_F(Check, ConditionEvaluation) {
+  EXPECT_EQ(int_, 0);
   RST_DCHECK(IncrementIntAndReturnTrue());
-  EXPECT_EQ(g_int, 1);
+  EXPECT_EQ(int_, 1);
 }
 
 }  // namespace rst

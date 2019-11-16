@@ -36,6 +36,21 @@
 #include "rst/macros/macros.h"
 #include "rst/not_null/not_null.h"
 
+// General logger component.
+//
+// Example:
+//
+//   // Construct logger with a custom sink.
+//   std::unique_ptr<Sink> sink = ...;
+//   Logger logger(std::move(sink));
+//
+//   // To get logger macros working.
+//   Logger::SetGlobalLogger(&logger);
+//
+//   RST_LOG_INFO("Init subsystem A");
+//   RST_DLOG_WARNING("Init subsystem A.B");  // Logs only in a debug build.
+
+// Helper macros for logging with the specified level.
 #define RST_LOG_DEBUG(message) \
   ::rst::Logger::Log(::rst::Logger::Level::kDebug, __FILE__, __LINE__, message)
 
@@ -52,6 +67,7 @@
 #define RST_LOG_FATAL(message) \
   ::rst::Logger::Log(::rst::Logger::Level::kFatal, __FILE__, __LINE__, message)
 
+// Like RST_LOG_* macros but compiles to nothing in release build.
 #if RST_BUILDFLAG(DCHECK_IS_ON)
 #define RST_DLOG_DEBUG(message) RST_LOG_DEBUG(message)
 #define RST_DLOG_INFO(message) RST_LOG_INFO(message)
@@ -85,15 +101,18 @@ class Logger {
   explicit Logger(NotNull<std::unique_ptr<Sink>> sink);
   ~Logger();
 
-  // Logs a message. If the |level| is less than |level_| nothing gets logged.
+  // Logs a |message|. If the |level| is less than |level_| nothing gets logged.
   static void Log(Level level, NotNull<const char*> filename, int line,
                   std::string_view message);
-  static void SetLogger(NotNull<Logger*> logger);
+
+  // Sets |logger| as a global logger instance.
+  static void SetGlobalLogger(NotNull<Logger*> logger);
 
   void set_level(Level level) { level_ = level; }
 
  private:
   const NotNull<std::unique_ptr<Sink>> sink_;
+  // Current severity level.
   Level level_ = Level::kAll;
 
   RST_DISALLOW_COPY_AND_ASSIGN(Logger);

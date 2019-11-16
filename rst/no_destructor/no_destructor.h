@@ -37,6 +37,34 @@
 namespace rst {
 
 // Chromium-like NoDestructor class.
+//
+// A wrapper that makes it easy to create an object of type T with static
+// storage duration that:
+// * is only constructed on first access
+// * never invokes the destructor
+//
+// Runtime constant example:
+// const std::string& GetLineSeparator() {
+//   static const base::NoDestructor<std::string> s(5, '-');
+//   return *s;
+// }
+//
+// More complex initialization with a lambda:
+// const std::string& GetSessionNonce() {
+//   static const base::NoDestructor<std::string> nonce([] {
+//     std::string s(16);
+//     ...
+//     return s;
+//   }());
+//   return *nonce;
+// }
+//
+// NoDestructor<T> stores the object inline, so it also avoids a pointer
+// indirection and memory allocation.
+//
+// Note that since the destructor is never run, this will leak memory if used
+// as a stack or member variable. Furthermore, a NoDestructor<T> should never
+// have global scope as that may require a static initializer.
 template <class T>
 class NoDestructor {
  public:
@@ -62,6 +90,16 @@ class NoDestructor {
  private:
   alignas(T) char storage_[sizeof(T)];
 #if defined(__has_feature) && __has_feature(address_sanitizer)
+  // This is a hack to work around the fact that LSan doesn't seem to treat
+  // NoDestructor as a root for reachability analysis. This means that code:
+  //   static base::NoDestructor<std::vector<int>> v({1, 2, 3});
+  // is considered a leak. Using the standard leak sanitizer annotations to
+  // suppress leaks doesn't work: std::vector is implicitly constructed before
+  // calling the base::NoDestructor constructor.
+  //
+  // Hold an explicit pointer to the placement-new'd object in leak sanitizer
+  // mode to help it realize that objects allocated by the contained type are
+  // still reachable.
   const T* storage_ptr_ = reinterpret_cast<const T*>(storage_);
 #endif  // defined(__has_feature) && __has_feature(address_sanitizer)
 

@@ -42,6 +42,20 @@ class NullFunction {
 };
 
 // Creates a callback that does nothing when called.
+//
+// Example:
+//
+//   using MyCallback = std::function<void(bool arg)>;
+//   void MyFunction(MyCallback&& callback) {
+//     callback(true);  // Uh oh...
+//   }
+//
+//   MyFunction(MyCallback());  // ... this will crash!
+//
+//   // Instead, use DoNothing():
+//
+//   MyFunction(DoNothing());  // Can be run, will no-op.
+//
 class DoNothing {
  public:
   template <class... Args>

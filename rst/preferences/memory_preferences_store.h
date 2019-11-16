@@ -35,6 +35,8 @@
 
 namespace rst {
 
+// A lightweight preferences store that keeps preferences in a memory backed
+// store.
 class MemoryPreferencesStore : public PreferencesStore {
  public:
   MemoryPreferencesStore();

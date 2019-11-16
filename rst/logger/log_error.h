@@ -35,6 +35,7 @@
 
 namespace rst {
 
+// Indicates error in logger component.
 class LogError : public ErrorInfo<LogError> {
  public:
   explicit LogError(std::string&& message);

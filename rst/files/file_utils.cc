@@ -57,7 +57,7 @@ Status WriteFile(const NotNull<const char*> filename,
       std::fopen(filename.get(), "wb"), [](std::FILE* f) {
         if (f != nullptr) {
           const auto ret = std::fclose(f);
-          RST_DCHECK(ret == 0);
+          RST_CHECK(ret == 0);
         }
       });
 
@@ -94,7 +94,7 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
       std::fopen(filename.get(), "rb"), [](std::FILE* f) {
         if (f != nullptr) {
           const auto ret = std::fclose(f);
-          RST_DCHECK(ret == 0);
+          RST_CHECK(ret == 0);
         }
       });
 

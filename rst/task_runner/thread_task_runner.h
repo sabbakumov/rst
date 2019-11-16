@@ -45,14 +45,26 @@
 
 namespace rst {
 
+// Task runner that is supposed to run tasks on the dedicated thread.
+//
+// Example:
+//
+//   ThreadTaskRunner task_runner(...);
+//   task_runner.Detach();
+//   ...
+//   task_runner.PostTask(...);
+//   ...
+//
 class ThreadTaskRunner : public TaskRunner {
  public:
+  // Takes |time_function| that returns current time.
   explicit ThreadTaskRunner(
       std::function<std::chrono::milliseconds()>&& time_function);
   ~ThreadTaskRunner();
 
   void PostDelayedTask(std::function<void()>&& task,
                        std::chrono::milliseconds delay) final;
+  // Detaches internal thread in order not to block in destructor.
   void Detach();
 
  private:
@@ -62,18 +74,27 @@ class ThreadTaskRunner : public TaskRunner {
         std::function<std::chrono::milliseconds()>&& time_function);
     ~InternalTaskRunner();
 
+    // Worker method.
     void WaitAndRunTasks();
 
+   private:
+    friend class ThreadTaskRunner;
+
+    // Returns current time.
     const std::function<std::chrono::milliseconds()> time_function_;
 
     std::mutex thread_mutex_;
     std::condition_variable thread_cv_;
     bool should_exit_ = false;
 
-    std::priority_queue<internal::Item> queue_;
+    // Sorted queue of tasks.
+    std::priority_queue<internal::Item, std::vector<internal::Item>,
+                        std::greater<internal::Item>>
+        queue_;
+    // Increasing task counter.
     uint64_t task_id_ = 0;
 
-   private:
+    // Used to not to allocate memory on every RunPendingTasks() call.
     std::vector<std::function<void()>> pending_tasks_;
 
     RST_DISALLOW_COPY_AND_ASSIGN(InternalTaskRunner);

@@ -38,6 +38,8 @@
 namespace rst {
 namespace internal {
 
+// Used in implementations of TaskRunner interface to maintain an ordered queue
+// of tasks.
 struct Item {
   Item(std::chrono::milliseconds time_point, uint64_t task_id,
        std::function<void()>&& task);
@@ -45,9 +47,9 @@ struct Item {
   ~Item();
 
   Item& operator=(Item&&) noexcept;
-  bool operator<(const Item& item) const {
-    return std::make_tuple(item.time_point, item.task_id) <
-           std::make_tuple(time_point, task_id);
+  bool operator>(const Item& item) const {
+    return std::make_tuple(time_point, task_id) >
+           std::make_tuple(item.time_point, item.task_id);
   }
 
   std::chrono::milliseconds time_point;

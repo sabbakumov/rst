@@ -33,8 +33,16 @@
 #include "rst/macros/macros.h"
 
 // Executes |f| on scope exit.
-#define RST_DEFER(f)                                                   \
-  const auto RST_INTERNAL_CAT(RST_DEFER_INTERNAL_VAR_NAME, __LINE__) = \
+//
+// Example:
+//
+//   void Foo() {
+//     std::FILE* f = std::fopen(...);
+//     RST_DEFER([f]() { std::fclose(f); });
+//   }
+//
+#define RST_DEFER(f)                                          \
+  const auto RST_CAT(RST_DEFER_INTERNAL_VAR_NAME, __LINE__) = \
       ::rst::internal::Defer(f)
 
 namespace rst {

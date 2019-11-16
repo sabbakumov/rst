@@ -36,11 +36,30 @@
 
 namespace rst {
 
+// Provides a thread-coordination mechanism that allows a set of participating
+// threads to block until an operation is completed. The value of the counter
+// is initialized on creation. Threads block until the counter is decremented
+// to zero.
+//
+// Example:
+//
+//   Barrier barrier(6);
+//
+//   std::vector<std::thread> threads;
+//   for (auto i = 0; i < 5; i++)
+//     threads.emplace_back([&barrier]() { barrier.CountDownAndWait(); });
+//
+//   barrier.CountDownAndWait();
+//   // Synchronization point.
+//
 class Barrier {
  public:
   explicit Barrier(size_t counter);
   ~Barrier();
 
+  // Atomically decrements the internal counter by 1 and (if necessary) blocks
+  // the calling thread until the counter reaches zero. Asserts that the
+  // internal counter is already zero.
   void CountDownAndWait();
 
  private:

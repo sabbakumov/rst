@@ -89,7 +89,7 @@ TEST(Logger, Log) {
                             "(" + kLineStr + ")] " + kMessage)));
 
   Logger logger(std::move(sink));
-  Logger::SetLogger(&logger);
+  Logger::SetGlobalLogger(&logger);
   Logger::Log(Logger::Level::kDebug, kFilename, kLine, kMessage);
 }
 
@@ -99,7 +99,7 @@ TEST(Logger, LogSeverityLevelComparison) {
   EXPECT_CALL(*sink, Log(_)).Times(0);
 
   Logger logger(std::move(sink));
-  Logger::SetLogger(&logger);
+  Logger::SetGlobalLogger(&logger);
 
   logger.set_level(Logger::Level::kInfo);
   Logger::Log(Logger::Level::kDebug, kFilename, kLine, kMessage);
@@ -123,7 +123,7 @@ TEST(Logger, LogSeverityLevelComparisonPass) {
   EXPECT_CALL(*sink, Log(_)).Times(8);
 
   Logger logger(std::move(sink));
-  Logger::SetLogger(&logger);
+  Logger::SetGlobalLogger(&logger);
 
   logger.set_level(Logger::Level::kAll);
   Logger::Log(Logger::Level::kDebug, kFilename, kLine, kMessage);
@@ -169,7 +169,7 @@ TEST(Logger, LogEnumToString) {
                             kLineStr + ")] " + kMessage)));
 
   Logger logger(std::move(sink));
-  Logger::SetLogger(&logger);
+  Logger::SetGlobalLogger(&logger);
 
   Logger::Log(Logger::Level::kDebug, kFilename, kLine, kMessage);
   Logger::Log(Logger::Level::kInfo, kFilename, kLine, kMessage);
@@ -183,7 +183,7 @@ TEST(Logger, LogEnumToStringIncorrectCases) {
   auto sink = std::make_unique<SinkMock>();
 
   Logger logger(std::move(sink));
-  Logger::SetLogger(&logger);
+  Logger::SetGlobalLogger(&logger);
 
   EXPECT_DEATH(Logger::Log(Logger::Level::kAll, kFilename, kLine, kMessage),
                "");
@@ -197,7 +197,7 @@ TEST(Logger, Macros) {
   EXPECT_CALL(*sink, Log(_)).Times(4);
 
   Logger logger(std::move(sink));
-  Logger::SetLogger(&logger);
+  Logger::SetGlobalLogger(&logger);
 
   RST_LOG_DEBUG(kMessage);
   RST_LOG_INFO(kMessage);
@@ -212,7 +212,7 @@ TEST(Logger, DebugMacros) {
   EXPECT_CALL(*sink, Log(_)).Times(4);
 
   Logger logger(std::move(sink));
-  Logger::SetLogger(&logger);
+  Logger::SetGlobalLogger(&logger);
 
   RST_DLOG_DEBUG(kMessage);
   RST_DLOG_INFO(kMessage);
@@ -225,7 +225,7 @@ TEST(Logger, ZeroLine) {
   auto sink = std::make_unique<SinkMock>();
 
   Logger logger(std::move(sink));
-  Logger::SetLogger(&logger);
+  Logger::SetGlobalLogger(&logger);
 
   EXPECT_DEATH(Logger::Log(Logger::Level::kDebug, kFilename, 0, kMessage), "");
 }
@@ -234,7 +234,7 @@ TEST(Logger, NegativeLine) {
   auto sink = std::make_unique<SinkMock>();
 
   Logger logger(std::move(sink));
-  Logger::SetLogger(&logger);
+  Logger::SetGlobalLogger(&logger);
 
   EXPECT_DEATH(Logger::Log(Logger::Level::kDebug, kFilename, -1, kMessage), "");
 }

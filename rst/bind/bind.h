@@ -36,6 +36,39 @@
 namespace rst {
 
 // Like std::bind() but doesn't call |f| when |weak_ptr| is invalidated.
+//
+// Example:
+//
+//   class Controller {
+//    public:
+//     void SpawnWorker() {
+//       Worker::StartNew(Bind(&Controller::WorkComplete,
+//                             weak_factory_.GetWeakPtr()));
+//     }
+//     void WorkComplete(const Result& result) { ... }
+//
+//    private:
+//     WeakPtrFactory<Controller> weak_factory_{this};
+//   };
+//
+//   class Worker {
+//    public:
+//     static void StartNew(std::function<void(const Result&)>&& callback) {
+//       auto worker = new Worker(std::move(callback));
+//       // Asynchronous processing...
+//     }
+//
+//    private:
+//     Worker(std::function<void(const Result&)>&& callback) {
+//         : callback_(std::move(callback)) {}
+//
+//     void DidCompleteAsynchronousProcessing(const Result& result) {
+//       callback_(result);  // Does nothing if controller has been deleted.
+//     }
+//
+//     std::function<void(const Result&)> callback_;
+//   };
+//
 template <class F, class T, class... Args>
 auto Bind(F&& f, WeakPtr<T>&& weak_ptr, Args&&... args) {
   return std::bind(

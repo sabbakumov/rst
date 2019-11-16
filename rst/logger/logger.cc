@@ -87,7 +87,7 @@ void Logger::Log(const Level level, const NotNull<const char*> filename,
 }
 
 // static
-void Logger::SetLogger(const NotNull<Logger*> logger) {
+void Logger::SetGlobalLogger(const NotNull<Logger*> logger) {
   g_logger = logger.get();
 }
 

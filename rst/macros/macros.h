@@ -29,22 +29,65 @@
 #define RST_MACROS_MACROS_H_
 
 // Google like macros.
+//
+// Example:
+//
+//   class NonCopyAssignable {
+//    public:
+//     NonCopyAssignable() = default;
+//
+//     void Foo();
+//     void Bar();
+//
+//    private:
+//     RST_DISALLOW_COPY_AND_ASSIGN(NonCopyAssignable);
+//   };
+//
+//   class NonConstructible {
+//    public:
+//     static void Foo();
+//     static void Bar();
+//
+//    private:
+//     RST_DISALLOW_IMPLICIT_CONSTRUCTORS(NonConstructible);
+//   };
 
+// Put this in the declarations for a class to be uncopyable.
 #define RST_DISALLOW_COPY(Class) Class(const Class&) = delete
 
+// Put this in the declarations for a class to be unassignable.
 #define RST_DISALLOW_ASSIGN(Class) Class& operator=(const Class&) = delete
 
+// Put this in the declarations for a class to be uncopyable and unassignable.
 #define RST_DISALLOW_COPY_AND_ASSIGN(Class) \
   RST_DISALLOW_COPY(Class);                 \
   RST_DISALLOW_ASSIGN(Class)
 
+// A macro to disallow all the implicit constructors, namely the default
+// constructor, copy constructor and operator=() functions. This is especially
+// useful for classes containing only static methods.
 #define RST_DISALLOW_IMPLICIT_CONSTRUCTORS(Class) \
   Class() = delete;                               \
   RST_DISALLOW_COPY_AND_ASSIGN(Class)
 
-#define RST_INTERNAL_CAT2(x, y) x##y
-#define RST_INTERNAL_CAT(x, y) RST_INTERNAL_CAT2(x, y)
+// This does a concatenation of two preprocessor args using ## doubly
+// indirectly because using ## directly prevents macros in that parameter from
+// being expanded.
+#define RST_INTERNAL_CAT(x, y) x##y
+#define RST_CAT(x, y) RST_INTERNAL_CAT(x, y)
 
-#define RST_BUILDFLAG(flag) (RST_INTERNAL_CAT(RST_BUILDFLAG_, flag)())
+// This macro un-mangles the names of the build flags in a way that looks
+// natural, and gives errors if the flag is not defined. Normally in the
+// preprocessor it's easy to make mistakes that interpret "you haven't done the
+// setup to know what the flag is" as "flag is off".
+//
+// Example:
+//
+//   #define RST_BUILDFLAG_ENABLE_FOO() (true)
+//
+//   #if BUILDFLAG(ENABLE_FOO)
+//     ...
+//   #endif
+#define RST_BUILDFLAG(flag) (RST_CAT(RST_BUILDFLAG_, flag)())
 
 #endif  // RST_MACROS_MACROS_H_

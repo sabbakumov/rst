@@ -64,11 +64,15 @@ class FileOpenError : public ErrorInfo<FileOpenError, FileError> {
   RST_DISALLOW_COPY_AND_ASSIGN(FileOpenError);
 };
 
+// Writes |data| to |filename|. Returns FileError on error.
 Status WriteFile(NotNull<const char*> filename, std::string_view data);
 
-// Ensures that the file won't be corrupted by application crash during write.
+// Like WriteFile() but ensures that the file won't be corrupted by application
+// crash during write.
 Status WriteImportantFile(NotNull<const char*> filename, std::string_view data);
 
+// Reads content from |filename|. Returns FileOpenError if the file can not be
+// opened, FileError on other error.
 StatusOr<std::string> ReadFile(NotNull<const char*> filename);
 
 }  // namespace rst

@@ -33,13 +33,19 @@
 
 namespace rst {
 
+// An object that runs posted tasks in sequence (in the form of
+// std::function<void()> objects). All methods are thread-safe.
 class TaskRunner {
  public:
   virtual ~TaskRunner();
 
+  // Like PostTask(), but tries to run the posted task only after |delay| has
+  // passed. Implementations should use a tick clock, rather than wall clock
+  // time, to implement |delay|.
   virtual void PostDelayedTask(std::function<void()>&& task,
                                std::chrono::milliseconds delay) = 0;
 
+  // Posts the given task to be run.
   void PostTask(std::function<void()>&& task);
 };
 

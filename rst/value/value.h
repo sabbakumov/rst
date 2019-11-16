@@ -42,6 +42,18 @@
 namespace rst {
 
 // A Chromium-like JSON Value class.
+
+// This is a recursive data storage class intended for storing settings and
+// other persistable data.
+//
+// A Value represents something that can be stored in JSON or passed to/from
+// JavaScript. As such, it is not a generalized variant type, since only the
+// types supported by JavaScript/JSON are supported.
+//
+// In particular this means that there is no support for int64_t or unsigned
+// numbers. Writing JSON with such types would violate the spec. If you need
+// something like this, either use a double or make a string value containing
+// the number you want.
 class Value {
  public:
   using String = std::string;
@@ -49,6 +61,7 @@ class Value {
   // std::less allows to use heterogeneous lookup.
   using Object = std::map<std::string, Value, std::less<>>;
 
+  // Types supported by JSON.
   enum class Type : int8_t {
     kNull,
     kBool,
@@ -58,6 +71,7 @@ class Value {
     kObject,
   };
 
+  // Constructs the default value of a given type.
   explicit Value(Type type);
 
   Value();  // A null value.
@@ -83,13 +97,15 @@ class Value {
 
   Value& operator=(Value&& rhs) noexcept;
 
+  // Creates an explicit copy.
   Value Clone() const;
-
   static Array Clone(const Array& array);
   static Object Clone(const Object& object);
 
+  // Returns the type of the stored value.
   Type type() const { return type_; }
 
+  // Returns true if the current value represents a given type.
   bool IsNull() const { return type() == Type::kNull; }
   bool IsBool() const { return type() == Type::kBool; }
   bool IsNumber() const { return type() == Type::kNumber; }
@@ -99,6 +115,7 @@ class Value {
   bool IsArray() const { return type() == Type::kArray; }
   bool IsObject() const { return type() == Type::kObject; }
 
+  // These will all assert that the type matches.
   bool GetBool() const;
   int64_t GetInt64() const;
   int GetInt() const;
@@ -110,38 +127,49 @@ class Value {
   const Object& GetObject() const;
   Object& GetObject();
 
+  // Looks up |key| in the underlying dictionary. Asserts that the value is
+  // object.
   Nullable<const Value*> FindKey(std::string_view key) const;
   Nullable<Value*> FindKey(std::string_view key);
 
+  // Similar to FindKey(), but it also requires the found value to have type
+  // |type|. Asserts that the value is object.
   Nullable<const Value*> FindKeyOfType(std::string_view key, Type type) const;
   Nullable<Value*> FindKeyOfType(std::string_view key, Type type);
 
+  // These are convenience forms of FindKeyOfType(). Asserts that the value is
+  // object.
   std::optional<bool> FindBoolKey(std::string_view key) const;
   std::optional<int64_t> FindInt64Key(std::string_view key) const;
   std::optional<int> FindIntKey(std::string_view key) const;
   std::optional<double> FindDoubleKey(std::string_view key) const;
-
   Nullable<const String*> FindStringKey(std::string_view key) const;
   Nullable<const Value*> FindArrayKey(std::string_view key) const;
   Nullable<const Value*> FindObjectKey(std::string_view key) const;
 
+  // Looks up |key| in the underlying dictionary and sets the mapped value to
+  // |value|. If |key| could not be found, a new element is inserted. A pointer
+  // to the modified item is returned. Asserts that the value is object.
   NotNull<Value*> SetKey(std::string&& key, Value&& value);
 
-  bool RemoveKey(const std::string& key);
+  // Attempts to remove the value associated with |key|. In case of failure,
+  // e.g. the |key| does not exist, false is returned and the underlying
+  // dictionary is not changed. In case of success, |key| is deleted from the
+  // dictionary and the method returns true. Asserts that the value is object.
+  bool RemoveKey(std::string_view key);
 
   // Sets the |value| associated with the given |path| starting from this
   // object. A |path| has the form "<key>" or "<key>.<key>.[...]", where "."
   // indexes into the next Value down. Obviously, "." can't be used within a
   // key, but there are no other restrictions on keys. If the key at any step
   // of the way doesn't exist, or exists but isn't an Object, a new Value will
-  // be created and attached to the path in that location.
+  // be created and attached to the path in that location. A pointer to the
+  // modified item is returned. Asserts that the value is object.
   NotNull<Value*> SetPath(std::string_view path, Value&& value);
 
   // Finds the value associated with the given |path| starting from this
   // object. A |path| has the form "<key>" or "<key>.<key>.[...]", where "."
-  // indexes into the next Value down. If the |path| can be resolved
-  // successfully, the value for the last key in the |path| will be returned.
-  // Otherwise, it will return nullptr.
+  // indexes into the next Value down. Asserts that the value is object.
   Nullable<const Value*> FindPath(std::string_view path) const;
   Nullable<Value*> FindPath(std::string_view path);
 

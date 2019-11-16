@@ -34,46 +34,50 @@
 namespace rst {
 namespace {
 
-auto g_int = 0;
+class NDebugCheck : public testing::Test {
+ protected:
+  bool IncrementIntAndReturnTrue() {
+    int_++;
+    return true;
+  }
 
-bool IncrementIntAndReturnTrue() {
-  g_int++;
-  return true;
-}
+  int int_ = 0;
+};
 
 constexpr double Divide(const double a, const double b) {
   RST_DCHECK(b != 0.0);
   RST_CHECK(b != 0.0);
   return a / b;
 }
+
 }  // namespace
 
-TEST(NDebugCheck, Check) {
+TEST_F(NDebugCheck, Check) {
   EXPECT_NO_FATAL_FAILURE(RST_CHECK(true));
   EXPECT_DEATH(RST_CHECK(false), "");
 }
 
-TEST(NDebugCheck, DCheck) {
+TEST_F(NDebugCheck, DCheck) {
   EXPECT_NO_FATAL_FAILURE(RST_DCHECK(true));
   EXPECT_NO_FATAL_FAILURE(RST_DCHECK(false));
 }
 
-TEST(NDebugCheck, Notreached) { EXPECT_NO_FATAL_FAILURE(RST_NOTREACHED()); }
+TEST_F(NDebugCheck, Notreached) { EXPECT_NO_FATAL_FAILURE(RST_NOTREACHED()); }
 
-TEST(NDebugCheck, DCheckInConstexpr) {
+TEST_F(NDebugCheck, DCheckInConstexpr) {
   static constexpr auto result = Divide(1.0, 1.0);
   EXPECT_EQ(result, 1.0);
 }
 
-TEST(NDebugCheck, NoUnused) {
+TEST_F(NDebugCheck, NoUnused) {
   static constexpr auto result = Divide(1.0, 1.0);
   RST_DCHECK(result == 1.0);
 }
 
-TEST(NDebugCheck, ConditionEvaluation) {
-  EXPECT_EQ(g_int, 0);
+TEST_F(NDebugCheck, ConditionEvaluation) {
+  EXPECT_EQ(int_, 0);
   RST_DCHECK(IncrementIntAndReturnTrue());
-  EXPECT_EQ(g_int, 0);
+  EXPECT_EQ(int_, 0);
 }
 
 }  // namespace rst

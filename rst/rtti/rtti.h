@@ -32,6 +32,29 @@
 #include "rst/not_null/not_null.h"
 
 // LLVM-based RTTI.
+//
+// Example:
+//
+//   class FileError : public ErrorInfo<FileError> {
+//    public:
+//     explicit FileError(std::string&& message);
+//     ~FileError();
+//
+//     const std::string& AsString() const override;
+//
+//     // Important to have this non-const field!
+//     static char id_;
+//
+//    private:
+//     const std::string message_;
+//   };
+//
+//   Status status = Bar();
+//   if (status.err() &&
+//       dyn_cast<FileError>(status.GetError()) != nullptr) {
+//     // File doesn't exist.
+//   }
+//
 namespace rst {
 
 template <class T, class U>

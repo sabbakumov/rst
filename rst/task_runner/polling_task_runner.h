@@ -41,8 +41,20 @@
 
 namespace rst {
 
+// Task runner that is supposed to run tasks on the same thread.
+//
+// Example:
+//
+//   PollingTaskRunner task_runner(...);
+//   for (;; task_runner.RunPendingTasks()) {
+//     ...
+//     task_runner.PostTask(...);
+//     ...
+//   }
+//
 class PollingTaskRunner : public TaskRunner {
  public:
+  // Takes |time_function| that returns current time.
   explicit PollingTaskRunner(
       std::function<std::chrono::milliseconds()>&& time_function);
   ~PollingTaskRunner();
@@ -50,13 +62,20 @@ class PollingTaskRunner : public TaskRunner {
   void PostDelayedTask(std::function<void()>&& task,
                        std::chrono::milliseconds delay) final;
 
+  // Runs all pending tasks in interval (-inf, time_function_()].
   void RunPendingTasks();
 
  private:
+  // Returns current time.
   const std::function<std::chrono::milliseconds()> time_function_;
+  // Used to not to allocate memory on every RunPendingTasks() call.
   std::vector<std::function<void()>> pending_tasks_;
   std::mutex mutex_;
-  std::priority_queue<internal::Item> queue_;
+  // Sorted queue of tasks.
+  std::priority_queue<internal::Item, std::vector<internal::Item>,
+                      std::greater<internal::Item>>
+      queue_;
+  // Increasing task counter.
   uint64_t task_id_ = 0;
 
   RST_DISALLOW_COPY_AND_ASSIGN(PollingTaskRunner);

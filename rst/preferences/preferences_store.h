@@ -35,11 +35,17 @@
 
 namespace rst {
 
+// Interface for reading and writing from/to a persistent preferences store.
+//
+// A |path| used in the class has the form "<key>" or "<key>.<key>.[...]",
+// where "." indexes into the next Value down.
 class PreferencesStore {
  public:
   virtual ~PreferencesStore();
 
+  // Returns a value for a given preference |path|.
   virtual Nullable<const Value*> GetValue(std::string_view path) const = 0;
+  // Sets a |value| for a |path| in the store.
   virtual void SetValue(std::string_view path, Value&& value) = 0;
 };
 

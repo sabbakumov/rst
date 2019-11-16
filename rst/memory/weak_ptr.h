@@ -37,6 +37,54 @@
 #include "rst/not_null/not_null.h"
 
 // Chromium-based WeakPtr.
+//
+// Weak pointers are pointers to an object that do not affect its lifetime, and
+// which may be invalidated (i.e. reset to nullptr) by the object, or its
+// owner, at any time, most commonly when the object is about to be deleted.
+//
+// Weak pointers are useful when an object needs to be accessed safely by one
+// or more objects other than its owner, and those callers can cope with the
+// object vanishing and e.g. tasks posted to it being silently dropped.
+// Reference-counting such an object would complicate the ownership graph and
+// make it harder to reason about the object's lifetime.
+//
+// Example:
+//
+//   class Controller {
+//    public:
+//     void SpawnWorker() { Worker::StartNew(weak_factory_.GetWeakPtr()); }
+//     void WorkComplete(const Result& result) { ... }
+//
+//    private:
+//     // Member variables should appear before the WeakPtrFactory, to ensure
+//     // that any WeakPtrs to Controller are invalidated before its members
+//     // variable's destructors are executed, rendering them invalid.
+//     WeakPtrFactory<Controller> weak_factory_{this};
+//   };
+//
+//   class Worker {
+//    public:
+//     static void StartNew(WeakPtr<Controller>&& controller) {
+//       auto worker = new Worker(std::move(controller));
+//       // Asynchronous processing...
+//     }
+//
+//    private:
+//     Worker(WeakPtr<Controller>&& controller)
+//         : controller_(std::move(controller)) {}
+//
+//     void DidCompleteAsynchronousProcessing(const Result& result) {
+//       Nullable<Controller*> controller = controller_.get();
+//       if (controller != nullptr)
+//         controller->WorkComplete(result);
+//     }
+//
+//     WeakPtr<Controller> controller_;
+//   };
+//
+// With this implementation a caller may use SpawnWorker() to dispatch multiple
+// Workers and subsequently delete the Controller, without waiting for all
+// Workers to have completed.
 namespace rst {
 namespace internal {
 
@@ -44,6 +92,7 @@ struct Flag {};
 
 }  // namespace internal
 
+// Holds a weak reference to T*.
 template <class T>
 class WeakPtr {
  public:
@@ -100,6 +149,9 @@ class WeakPtr {
   Nullable<T*> ptr_;
 };
 
+// A class may be composed of a WeakPtrFactory and thereby control how it
+// exposes weak pointers to itself. This is helpful if you only need weak
+// pointers within the implementation of a class.
 template <class T>
 class WeakPtrFactory {
  public:

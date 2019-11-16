@@ -44,7 +44,7 @@ namespace rst {
 // The class for sinking to a file by its filename.
 class FileNameSink : public Sink {
  public:
-  // Opens a |filename| for writing.
+  // Opens a |filename| for writing. Returns LogError on error.
   static StatusOr<NotNull<std::unique_ptr<FileNameSink>>> Create(
       NotNull<const char*> filename);
 
@@ -65,7 +65,7 @@ class FileNameSink : public Sink {
         }
       }};
 
-  // Mutex for thread-safe Log function.
+  // Mutex for thread-safe Log() function.
   std::mutex mutex_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(FileNameSink);

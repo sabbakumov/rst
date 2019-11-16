@@ -38,6 +38,11 @@ auto g_int = 0;
 
 void Foo() { g_int = 1; }
 
+class Defer : public testing::Test {
+ public:
+  Defer() { g_int = 0; }
+};
+
 }  // namespace
 
 TEST(Defer, Lambda) {

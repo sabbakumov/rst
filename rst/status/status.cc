@@ -46,8 +46,7 @@ Status::Status() = default;
 Status::Status(NotNull<std::unique_ptr<ErrorInfoBase>> error)
     : error_(std::move(error).Take()) {}
 
-Status::Status(Status&& other) noexcept {
-  error_ = std::move(other.error_);
+Status::Status(Status&& other) noexcept : error_(std::move(other.error_)) {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
   other.was_checked_ = true;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
@@ -58,11 +57,11 @@ Status& Status::operator=(Status&& rhs) noexcept {
   RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
+  error_ = std::move(rhs.error_);
 #if RST_BUILDFLAG(DCHECK_IS_ON)
   was_checked_ = false;
   rhs.was_checked_ = true;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-  error_ = std::move(rhs.error_);
 
   return *this;
 }

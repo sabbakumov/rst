@@ -42,12 +42,27 @@
 
 namespace rst {
 
+// A set of preferences stored in a PreferencesStore.
+//
+// Preferences need to be registered with a type and a default value before they
+// are used.
+//
+// Example:
+//   Preferences preferences(...);
+//
+//   preferences.RegisterIntPreference("int.preference", 10);
+//   assert(preferences.GetInt("int.preference") == 10);
+//
+//   preferences.SetInt("int.preference", 20);
+//   assert(preferences.GetInt("int.preference") == 20);
+//
 class Preferences {
  public:
   explicit Preferences(
       NotNull<std::unique_ptr<PreferencesStore>> preferences_store);
   ~Preferences();
 
+  // These will all assert that the preference is not registered more than once.
   void RegisterBoolPreference(std::string&& path, bool default_value);
   void RegisterIntPreference(std::string&& path, int default_value);
   void RegisterDoublePreference(std::string&& path, double default_value);
@@ -58,6 +73,8 @@ class Preferences {
   void RegisterObjectPreference(std::string&& path,
                                 Value::Object&& default_value);
 
+  // These will all assert that the preference is registered with the
+  // corresponding type.
   bool GetBool(std::string_view path) const;
   int GetInt(std::string_view path) const;
   double GetDouble(std::string_view path) const;
@@ -65,6 +82,8 @@ class Preferences {
   const Value::Array& GetArray(std::string_view path) const;
   const Value::Object& GetObject(std::string_view path) const;
 
+  // These will all assert that the preference is registered with the
+  // corresponding type.
   void SetBool(std::string_view path, bool value);
   void SetInt(std::string_view path, int value);
   void SetDouble(std::string_view path, double value);
@@ -77,6 +96,7 @@ class Preferences {
 
   void SetValue(std::string_view path, Value&& value);
 
+  // Default values for each path.
   std::map<std::string, Value, std::less<>> defaults_;
   const NotNull<std::unique_ptr<PreferencesStore>> preferences_store_;
 

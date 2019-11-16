@@ -55,6 +55,15 @@ class ReversedAdapter {
 
 }  // namespace internal
 
+// Returns a Chromium-like container adapter usable in a range-based for
+// statement for iterating a reversible container in reverse order.
+//
+// Example:
+//
+//   std::vector<int> v = ...;
+//   for (auto i : base::Reversed(v)) {
+//     // Iterates through v from back to front.
+//   }
 template <class T>
 internal::ReversedAdapter<T> Reversed(T& t) {
   return internal::ReversedAdapter(t);
