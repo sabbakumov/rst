@@ -29,7 +29,7 @@
 
 namespace rst {
 
-char ErrorInfoBase::id_ = 0;
+char ErrorInfoBase::id_ = '\0';
 
 ErrorInfoBase::ErrorInfoBase() = default;
 ErrorInfoBase::~ErrorInfoBase() = default;

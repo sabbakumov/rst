@@ -57,7 +57,7 @@ class Error : public ErrorInfo<Error> {
   RST_DISALLOW_COPY_AND_ASSIGN(Error);
 };
 
-char Error::id_ = 0;
+char Error::id_ = '\0';
 
 class Error2 : public ErrorInfo<Error2> {
  public:
@@ -73,7 +73,7 @@ class Error2 : public ErrorInfo<Error2> {
   RST_DISALLOW_COPY_AND_ASSIGN(Error2);
 };
 
-char Error2::id_ = 0;
+char Error2::id_ = '\0';
 
 class Error3 : public ErrorInfo<Error3, Error2> {
  public:
@@ -89,7 +89,7 @@ class Error3 : public ErrorInfo<Error3, Error2> {
   RST_DISALLOW_COPY_AND_ASSIGN(Error3);
 };
 
-char Error3::id_ = 0;
+char Error3::id_ = '\0';
 
 }  // namespace
 

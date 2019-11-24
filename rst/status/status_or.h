@@ -47,6 +47,12 @@ namespace rst {
 //   if (foo.err())
 //     return std::move(foo).TakeStatus();
 //
+//   // Or:
+//   RST_TRY_CREATE(auto, foo, Foo());
+//   RST_TRY_CREATE(StatusOr<std::string>, foo, Foo());
+//   ...
+//   RST_TRY_ASSIGN(foo, Foo());
+//
 //   std::cout << *foo << ", " << foo->size() << std::endl;
 //
 template <class T>

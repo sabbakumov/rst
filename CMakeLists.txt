@@ -59,6 +59,7 @@ rst/rtti/rtti.h
 
 rst/status/status.cc
 rst/status/status.h
+rst/status/status_macros.h
 rst/status/status_or.h
 
 rst/stl/adapters.h
@@ -119,8 +120,11 @@ rst/preferences/preferences_test.cc
 rst/memory/memory_test.cc
 rst/memory/weak_ptr_test.cc
 
+rst/random/random_device_test.cc
+
 rst/rtti/rtti_test.cc
 
+rst/status/status_macros_test.cc
 rst/status/status_or_test.cc
 rst/status/status_test.cc
 

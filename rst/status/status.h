@@ -117,6 +117,10 @@ class ErrorInfo : public Parent {
 //   if (status.err())
 //     return status;
 //
+//   // Or:
+//   RST_TRY(Foo());
+//
+//   // Check specific error:
 //   Status status = Bar();
 //   if (status.err() &&
 //       dyn_cast<FileOpenError>(status.GetError()) != nullptr) {

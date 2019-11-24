@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Sergey Abbakumov
+// Copyright (c) 2019, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,51 +25,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_DEFER_DEFER_H_
-#define RST_DEFER_DEFER_H_
+#include "rst/random/random_device.h"
 
-#include <utility>
-
-#include "rst/macros/macros.h"
-
-// Executes |f| on scope exit.
-//
-// Example:
-//
-//   void Foo() {
-//     std::FILE* f = std::fopen(...);
-//     RST_DEFER([f]() { std::fclose(f); });
-//   }
-//
-#define RST_DEFER(f)                                          \
-  const auto RST_CAT(RST_INTERNAL_DEFER_VAR_NAME, __LINE__) = \
-      ::rst::internal::Defer(f)
+#include <gtest/gtest.h>
 
 namespace rst {
-namespace internal {
 
-template <class F>
-class DeferredAction {
- public:
-  explicit DeferredAction(F&& action) : action_(std::forward<F>(action)) {}
-
-  DeferredAction(DeferredAction&&) noexcept = default;
-  DeferredAction& operator=(DeferredAction&&) noexcept = delete;
-
-  ~DeferredAction() { action_(); }
-
- private:
-  const F action_;
-
-  RST_DISALLOW_COPY_AND_ASSIGN(DeferredAction);
-};
-
-template <class F>
-inline DeferredAction<F> Defer(F&& f) {
-  return DeferredAction<F>(std::forward<F>(f));
+TEST(GetRandomDevice, Unique) {
+  auto& rd1 = GetRandomDevice();
+  auto& rd2 = GetRandomDevice();
+  EXPECT_EQ(&rd1, &rd2);
 }
 
-}  // namespace internal
 }  // namespace rst
-
-#endif  // RST_DEFER_DEFER_H_

@@ -33,10 +33,11 @@
 #include <utility>
 
 #include "rst/format/format.h"
+#include "rst/status/status_macros.h"
 
 namespace rst {
 
-char FileError::id_ = 0;
+char FileError::id_ = '\0';
 
 FileError::FileError(std::string&& message) : message_(std::move(message)) {}
 
@@ -44,7 +45,7 @@ FileError::~FileError() = default;
 
 const std::string& FileError::AsString() const { return message_; }
 
-char FileOpenError::id_ = 0;
+char FileOpenError::id_ = '\0';
 
 FileOpenError::FileOpenError(std::string&& message)
     : ErrorInfo(std::move(message)) {}
@@ -78,8 +79,7 @@ Status WriteFile(const NotNull<const char*> filename,
 Status WriteImportantFile(const NotNull<const char*> filename,
                           const std::string_view data) {
   const auto temp_filename = Format("{}._tmp_", filename.get());
-  if (auto status = WriteFile(temp_filename.c_str(), data); status.err())
-    return status;
+  RST_TRY(WriteFile(temp_filename.c_str(), data));
 
   if (std::rename(temp_filename.c_str(), filename.get()) != 0) {
     return MakeStatus<FileError>(

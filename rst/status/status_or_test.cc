@@ -56,7 +56,7 @@ class Error : public ErrorInfo<Error> {
   RST_DISALLOW_COPY_AND_ASSIGN(Error);
 };
 
-char Error::id_ = 0;
+char Error::id_ = '\0';
 
 class DtorHelper {
  public:
