@@ -58,7 +58,7 @@ Status WriteFile(const NotNull<const char*> filename,
       std::fopen(filename.get(), "wb"), [](std::FILE* f) {
         if (f != nullptr) {
           const auto ret = std::fclose(f);
-          RST_CHECK(ret == 0);
+          RST_DCHECK(ret == 0);
         }
       });
 
@@ -70,8 +70,9 @@ Status WriteFile(const NotNull<const char*> filename,
   if (std::fwrite(data.data(), 1, data.size(), file.get()) != data.size())
     return MakeStatus<FileError>(Format("Can't write file {}", filename.get()));
 
-  if (std::fflush(file.get()) != 0)
-    return MakeStatus<FileError>(Format("Can't flush file {}", filename.get()));
+  const auto raw_file = file.release();
+  if (std::fclose(raw_file) != 0)
+    return MakeStatus<FileError>(Format("Can't close file {}", filename.get()));
 
   return Status::OK();
 }
@@ -94,7 +95,7 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
       std::fopen(filename.get(), "rb"), [](std::FILE* f) {
         if (f != nullptr) {
           const auto ret = std::fclose(f);
-          RST_CHECK(ret == 0);
+          RST_DCHECK(ret == 0);
         }
       });
 
@@ -136,6 +137,10 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
 
   if (std::ferror(file.get()))
     return MakeStatus<FileError>(Format("Can't read file {}", filename.get()));
+
+  const auto raw_file = file.release();
+  if (std::fclose(raw_file) != 0)
+    return MakeStatus<FileError>(Format("Can't close file {}", filename.get()));
 
   content.resize(bytes_read_so_far);
   return content;
