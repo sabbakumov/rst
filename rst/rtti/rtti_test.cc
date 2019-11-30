@@ -27,6 +27,8 @@
 
 #include "rst/rtti/rtti.h"
 
+#include <utility>
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -71,13 +73,11 @@ TEST(RTTI, ConstCheck) {
   ConstMock mock;
 
   EXPECT_CALL(mock, DoIsA()).WillOnce(Return(false));
-  EXPECT_EQ(dyn_cast<void>(NotNull(const_cast<const ConstMock*>(&mock))),
-            nullptr);
+  EXPECT_EQ(dyn_cast<void>(NotNull(&std::as_const(mock))), nullptr);
   testing::Mock::VerifyAndClearExpectations(&mock);
 
   EXPECT_CALL(mock, DoIsA()).WillOnce(Return(true));
-  EXPECT_NE(dyn_cast<void>(NotNull(const_cast<const ConstMock*>(&mock))),
-            nullptr);
+  EXPECT_NE(dyn_cast<void>(NotNull(&std::as_const(mock))), nullptr);
   testing::Mock::VerifyAndClearExpectations(&mock);
 }
 

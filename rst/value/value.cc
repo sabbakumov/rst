@@ -176,7 +176,7 @@ const Value::String& Value::GetString() const {
 }
 
 Value::String& Value::GetString() {
-  return const_cast<String&>(const_cast<const Value*>(this)->GetString());
+  return const_cast<String&>(std::as_const(*this).GetString());
 }
 
 const Value::Array& Value::GetArray() const {
@@ -185,7 +185,7 @@ const Value::Array& Value::GetArray() const {
 }
 
 Value::Array& Value::GetArray() {
-  return const_cast<Array&>(const_cast<const Value*>(this)->GetArray());
+  return const_cast<Array&>(std::as_const(*this).GetArray());
 }
 
 const Value::Object& Value::GetObject() const {
@@ -194,7 +194,7 @@ const Value::Object& Value::GetObject() const {
 }
 
 Value::Object& Value::GetObject() {
-  return const_cast<Object&>(const_cast<const Value*>(this)->GetObject());
+  return const_cast<Object&>(std::as_const(*this).GetObject());
 }
 
 Nullable<const Value*> Value::FindKey(const std::string_view key) const {
@@ -206,7 +206,7 @@ Nullable<const Value*> Value::FindKey(const std::string_view key) const {
 }
 
 Nullable<Value*> Value::FindKey(const std::string_view key) {
-  return const_cast<Value*>(const_cast<const Value*>(this)->FindKey(key).get());
+  return const_cast<Value*>(std::as_const(*this).FindKey(key).get());
 }
 
 Nullable<const Value*> Value::FindKeyOfType(const std::string_view key,
@@ -224,7 +224,7 @@ Nullable<const Value*> Value::FindKeyOfType(const std::string_view key,
 Nullable<Value*> Value::FindKeyOfType(const std::string_view key,
                                       const Type type) {
   return const_cast<Value*>(
-      const_cast<const Value*>(this)->FindKeyOfType(key, type).get());
+      std::as_const(*this).FindKeyOfType(key, type).get());
 }
 
 std::optional<bool> Value::FindBoolKey(const std::string_view key) const {
@@ -339,8 +339,7 @@ Nullable<const Value*> Value::FindPath(const std::string_view path) const {
 }
 
 Nullable<Value*> Value::FindPath(const std::string_view path) {
-  return const_cast<Value*>(
-      const_cast<const Value*>(this)->FindPath(path).get());
+  return const_cast<Value*>(std::as_const(*this).FindPath(path).get());
 }
 
 void Value::MoveConstruct(Value&& other) {

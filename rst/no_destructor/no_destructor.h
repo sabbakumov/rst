@@ -85,7 +85,7 @@ class NoDestructor {
   NotNull<T*> operator->() { return get(); }
 
   NotNull<const T*> get() const { return reinterpret_cast<const T*>(storage_); }
-  NotNull<T*> get() { return reinterpret_cast<T*>(storage_); }
+  NotNull<T*> get() { return const_cast<T*>(std::as_const(*this).get().get()); }
 
  private:
   alignas(T) char storage_[sizeof(T)];
@@ -100,7 +100,7 @@ class NoDestructor {
   // Hold an explicit pointer to the placement-new'd object in leak sanitizer
   // mode to help it realize that objects allocated by the contained type are
   // still reachable.
-  const T* storage_ptr_ = reinterpret_cast<const T*>(storage_);
+  const NotNull<const T*> storage_ptr_ = get();
 #endif  // defined(__has_feature) && __has_feature(address_sanitizer)
 
   RST_DISALLOW_COPY_AND_ASSIGN(NoDestructor);

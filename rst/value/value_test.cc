@@ -54,11 +54,11 @@ TEST(Value, ConstructFromType) {
   EXPECT_DEATH(null.GetInt(), "");
   EXPECT_DEATH(null.GetDouble(), "");
   EXPECT_DEATH(null.GetString(), "");
-  EXPECT_DEATH(const_cast<const Value&>(null).GetString(), "");
+  EXPECT_DEATH(std::as_const(null).GetString(), "");
   EXPECT_DEATH(null.GetArray(), "");
-  EXPECT_DEATH(const_cast<const Value&>(null).GetArray(), "");
+  EXPECT_DEATH(std::as_const(null).GetArray(), "");
   EXPECT_DEATH(null.GetObject(), "");
-  EXPECT_DEATH(const_cast<const Value&>(null).GetObject(), "");
+  EXPECT_DEATH(std::as_const(null).GetObject(), "");
 
   Value bool_value(Value::Type::kBool);
   ASSERT_EQ(bool_value.type(), Value::Type::kBool);
@@ -69,11 +69,11 @@ TEST(Value, ConstructFromType) {
   EXPECT_DEATH(bool_value.GetInt(), "");
   EXPECT_DEATH(bool_value.GetDouble(), "");
   EXPECT_DEATH(bool_value.GetString(), "");
-  EXPECT_DEATH(const_cast<const Value&>(bool_value).GetString(), "");
+  EXPECT_DEATH(std::as_const(bool_value).GetString(), "");
   EXPECT_DEATH(bool_value.GetArray(), "");
-  EXPECT_DEATH(const_cast<const Value&>(bool_value).GetArray(), "");
+  EXPECT_DEATH(std::as_const(bool_value).GetArray(), "");
   EXPECT_DEATH(bool_value.GetObject(), "");
-  EXPECT_DEATH(const_cast<const Value&>(bool_value).GetObject(), "");
+  EXPECT_DEATH(std::as_const(bool_value).GetObject(), "");
 
   Value number(Value::Type::kNumber);
   ASSERT_EQ(number.type(), Value::Type::kNumber);
@@ -84,11 +84,11 @@ TEST(Value, ConstructFromType) {
   EXPECT_NO_FATAL_FAILURE(number.GetInt());
   EXPECT_NO_FATAL_FAILURE(number.GetDouble());
   EXPECT_DEATH(number.GetString(), "");
-  EXPECT_DEATH(const_cast<const Value&>(number).GetString(), "");
+  EXPECT_DEATH(std::as_const(number).GetString(), "");
   EXPECT_DEATH(number.GetArray(), "");
-  EXPECT_DEATH(const_cast<const Value&>(number).GetArray(), "");
+  EXPECT_DEATH(std::as_const(number).GetArray(), "");
   EXPECT_DEATH(number.GetObject(), "");
-  EXPECT_DEATH(const_cast<const Value&>(number).GetObject(), "");
+  EXPECT_DEATH(std::as_const(number).GetObject(), "");
 
   Value string(Value::Type::kString);
   ASSERT_EQ(string.type(), Value::Type::kString);
@@ -99,11 +99,11 @@ TEST(Value, ConstructFromType) {
   EXPECT_DEATH(string.GetInt(), "");
   EXPECT_DEATH(string.GetDouble(), "");
   EXPECT_NO_FATAL_FAILURE(string.GetString());
-  EXPECT_NO_FATAL_FAILURE(const_cast<const Value&>(string).GetString());
+  EXPECT_NO_FATAL_FAILURE(std::as_const(string).GetString());
   EXPECT_DEATH(string.GetArray(), "");
-  EXPECT_DEATH(const_cast<const Value&>(string).GetArray(), "");
+  EXPECT_DEATH(std::as_const(string).GetArray(), "");
   EXPECT_DEATH(string.GetObject(), "");
-  EXPECT_DEATH(const_cast<const Value&>(string).GetObject(), "");
+  EXPECT_DEATH(std::as_const(string).GetObject(), "");
 
   Value array(Value::Type::kArray);
   ASSERT_EQ(array.type(), Value::Type::kArray);
@@ -114,11 +114,11 @@ TEST(Value, ConstructFromType) {
   EXPECT_DEATH(array.GetInt(), "");
   EXPECT_DEATH(array.GetDouble(), "");
   EXPECT_DEATH(array.GetString(), "");
-  EXPECT_DEATH(const_cast<const Value&>(array).GetString(), "");
+  EXPECT_DEATH(std::as_const(array).GetString(), "");
   EXPECT_NO_FATAL_FAILURE(array.GetArray());
-  EXPECT_NO_FATAL_FAILURE(const_cast<const Value&>(array).GetArray());
+  EXPECT_NO_FATAL_FAILURE(std::as_const(array).GetArray());
   EXPECT_DEATH(array.GetObject(), "");
-  EXPECT_DEATH(const_cast<const Value&>(array).GetObject(), "");
+  EXPECT_DEATH(std::as_const(array).GetObject(), "");
 
   Value object(Value::Type::kObject);
   ASSERT_EQ(object.type(), Value::Type::kObject);
@@ -129,11 +129,11 @@ TEST(Value, ConstructFromType) {
   EXPECT_DEATH(object.GetInt(), "");
   EXPECT_DEATH(object.GetDouble(), "");
   EXPECT_DEATH(object.GetString(), "");
-  EXPECT_DEATH(const_cast<const Value&>(object).GetString(), "");
+  EXPECT_DEATH(std::as_const(object).GetString(), "");
   EXPECT_DEATH(object.GetArray(), "");
-  EXPECT_DEATH(const_cast<const Value&>(object).GetArray(), "");
+  EXPECT_DEATH(std::as_const(object).GetArray(), "");
   EXPECT_NO_FATAL_FAILURE(object.GetObject());
-  EXPECT_NO_FATAL_FAILURE(const_cast<const Value&>(object).GetObject());
+  EXPECT_NO_FATAL_FAILURE(std::as_const(object).GetObject());
 }
 
 TEST(Value, ConstructBool) {
@@ -1037,9 +1037,9 @@ TEST(Value, SetPathLevel1) {
   EXPECT_EQ(*v, Value(1));
 
   EXPECT_EQ(object.FindPath("key1"), nullptr);
-  EXPECT_EQ(const_cast<const Value&>(object).FindPath("key1"), nullptr);
+  EXPECT_EQ(std::as_const(object).FindPath("key1"), nullptr);
 
-  auto const_v = const_cast<const Value&>(object).FindPath("key");
+  auto const_v = std::as_const(object).FindPath("key");
   ASSERT_NE(const_v, nullptr);
   EXPECT_EQ(*const_v, Value(1));
 
@@ -1051,7 +1051,7 @@ TEST(Value, SetPathLevel1) {
   ASSERT_NE(v, nullptr);
   EXPECT_EQ(*v, Value(2));
 
-  const_v = const_cast<const Value&>(object).FindPath("key");
+  const_v = std::as_const(object).FindPath("key");
   ASSERT_NE(const_v, nullptr);
   EXPECT_EQ(*const_v, Value(2));
 }
@@ -1070,14 +1070,14 @@ TEST(Value, SetPathLevel2) {
   ASSERT_NE(v, nullptr);
   EXPECT_EQ(*v, Value(1));
 
-  auto const_v = const_cast<const Value&>(object).FindPath("key1.key2");
+  auto const_v = std::as_const(object).FindPath("key1.key2");
   ASSERT_NE(const_v, nullptr);
   EXPECT_EQ(*const_v, Value(1));
 
   EXPECT_EQ(object.FindPath("key1.key3"), nullptr);
   EXPECT_EQ(object.FindPath("key2.key2"), nullptr);
-  EXPECT_EQ(const_cast<const Value&>(object).FindPath("key1.key3"), nullptr);
-  EXPECT_EQ(const_cast<const Value&>(object).FindPath("key2.key2"), nullptr);
+  EXPECT_EQ(std::as_const(object).FindPath("key1.key3"), nullptr);
+  EXPECT_EQ(std::as_const(object).FindPath("key2.key2"), nullptr);
 
   value = object.SetPath("key1.key2", Value(2));
   EXPECT_EQ(*value, Value(2));
@@ -1090,7 +1090,7 @@ TEST(Value, SetPathLevel2) {
   ASSERT_NE(v, nullptr);
   EXPECT_EQ(*v, Value(2));
 
-  const_v = const_cast<const Value&>(object).FindPath("key1.key2");
+  const_v = std::as_const(object).FindPath("key1.key2");
   ASSERT_NE(const_v, nullptr);
   EXPECT_EQ(*const_v, Value(2));
 }
@@ -1112,19 +1112,16 @@ TEST(Value, SetPathLevel3) {
   ASSERT_NE(v, nullptr);
   EXPECT_EQ(*v, Value(1));
 
-  auto const_v = const_cast<const Value&>(object).FindPath("key1.key2.key3");
+  auto const_v = std::as_const(object).FindPath("key1.key2.key3");
   ASSERT_NE(const_v, nullptr);
   EXPECT_EQ(*const_v, Value(1));
 
   EXPECT_EQ(object.FindPath("key1.key2.key4"), nullptr);
   EXPECT_EQ(object.FindPath("key1.key3.key3"), nullptr);
   EXPECT_EQ(object.FindPath("key2.key2.key3"), nullptr);
-  EXPECT_EQ(const_cast<const Value&>(object).FindPath("key1.key2.key4"),
-            nullptr);
-  EXPECT_EQ(const_cast<const Value&>(object).FindPath("key1.key3.key3"),
-            nullptr);
-  EXPECT_EQ(const_cast<const Value&>(object).FindPath("key2.key2.key3"),
-            nullptr);
+  EXPECT_EQ(std::as_const(object).FindPath("key1.key2.key4"), nullptr);
+  EXPECT_EQ(std::as_const(object).FindPath("key1.key3.key3"), nullptr);
+  EXPECT_EQ(std::as_const(object).FindPath("key2.key2.key3"), nullptr);
 
   value = object.SetPath("key1.key2.key3", Value(2));
   EXPECT_EQ(*value, Value(2));
@@ -1140,7 +1137,7 @@ TEST(Value, SetPathLevel3) {
   ASSERT_NE(v, nullptr);
   EXPECT_EQ(*v, Value(2));
 
-  const_v = const_cast<const Value&>(object).FindPath("key1.key2.key3");
+  const_v = std::as_const(object).FindPath("key1.key2.key3");
   ASSERT_NE(const_v, nullptr);
   EXPECT_EQ(*const_v, Value(2));
 }
