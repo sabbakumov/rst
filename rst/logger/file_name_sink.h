@@ -32,7 +32,6 @@
 #include <memory>
 #include <mutex>
 
-#include "rst/check/check.h"
 #include "rst/logger/sink.h"
 #include "rst/macros/macros.h"
 #include "rst/not_null/not_null.h"
@@ -59,10 +58,8 @@ class FileNameSink : public Sink {
   // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
       nullptr, [](std::FILE* f) {
-        if (f != nullptr) {
-          const auto ret = std::fclose(f);
-          RST_CHECK(ret == 0);
-        }
+        if (f != nullptr)
+          (void)std::fclose(f);
       }};
 
   // Mutex for thread-safe Log() function.

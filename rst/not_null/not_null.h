@@ -135,7 +135,7 @@ class NotNull {
   template <class U>
   friend class Nullable;
 
-  T ptr_;
+  T ptr_ = nullptr;
 };
 
 template <class T>

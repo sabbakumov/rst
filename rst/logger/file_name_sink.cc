@@ -30,6 +30,7 @@
 #include <limits>
 #include <utility>
 
+#include "rst/check/check.h"
 #include "rst/format/format.h"
 #include "rst/logger/log_error.h"
 #include "rst/memory/memory.h"

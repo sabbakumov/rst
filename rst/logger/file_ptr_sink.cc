@@ -29,6 +29,8 @@
 
 #include <limits>
 
+#include "rst/check/check.h"
+
 namespace rst {
 
 FilePtrSink::FilePtrSink(const NotNull<std::FILE*> file,
