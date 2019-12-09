@@ -75,7 +75,10 @@ void Logger::Log(const Level level, const NotNull<const char*> filename,
       level_str = "FATAL";
       break;
     }
-    default: { RST_DCHECK(false && "Unexpected level"); }
+    case Level::kAll:
+    case Level::kOff: {
+      RST_DCHECK(false && "Unexpected level");
+    }
   }
   RST_DCHECK(level_str != nullptr);
 

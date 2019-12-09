@@ -98,7 +98,7 @@ struct ConstructIndexList<0> {
 constexpr auto kXorKey = static_cast<char>(RandomNumber(0x00, 0xFF));
 
 constexpr char EncryptCharacter(const char c, const size_t i) {
-  return c ^ static_cast<char>(kXorKey + i);
+  return c ^ static_cast<char>(static_cast<size_t>(kXorKey) + i);
 }
 
 template <class IndexList>
@@ -113,7 +113,7 @@ class HiddenString<IndexList<Index...>> {
   std::string Decrypt() const {
     std::string result(str_, sizeof...(Index));
     for (size_t i = 0; i < sizeof...(Index); i++)
-      result[i] ^= (kXorKey + i);
+      result[i] ^= (static_cast<size_t>(kXorKey) + i);
     return result;
   }
 

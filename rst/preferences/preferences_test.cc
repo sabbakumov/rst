@@ -70,10 +70,14 @@ class PreferencesTest : public testing::Test {
     prefs_.RegisterObjectPreference("object", std::move(object));
   }
 
+  ~PreferencesTest();
+
  protected:
   NotNull<MockPreferencesStore*> pref_store_{new MockPreferencesStore()};
   Preferences prefs_{WrapUnique(pref_store_)};
 };
+
+PreferencesTest::~PreferencesTest() = default;
 
 TEST_F(PreferencesTest, GetDefaultValues) {
   EXPECT_CALL(*pref_store_, GetValue(std::string_view("bool")))
@@ -306,7 +310,12 @@ TEST_F(PreferencesTest, GetValuesOfDifferentType) {
   testing::Mock::VerifyAndClearExpectations(pref_store_.get());
 }
 
-class MemoryPreferencesStoreTest : public testing::Test {};
+class MemoryPreferencesStoreTest : public testing::Test {
+ public:
+  ~MemoryPreferencesStoreTest();
+};
+
+MemoryPreferencesStoreTest::~MemoryPreferencesStoreTest() = default;
 
 TEST_F(MemoryPreferencesStoreTest, MemoryPreferencesStore) {
   MemoryPreferencesStore pref_store;

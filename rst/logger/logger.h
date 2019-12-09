@@ -28,6 +28,7 @@
 #ifndef RST_LOGGER_LOGGER_H_
 #define RST_LOGGER_LOGGER_H_
 
+#include <cstdint>
 #include <memory>
 #include <string_view>
 
@@ -88,7 +89,7 @@ namespace rst {
 class Logger {
  public:
   // Severity levels of logging.
-  enum class Level {
+  enum class Level : int8_t {
     kAll = 0,
     kDebug,
     kInfo,

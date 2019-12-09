@@ -69,6 +69,7 @@ class NotNull {
   NotNull(T ptr) : ptr_(ptr) { RST_DCHECK(ptr_ != nullptr); }
 
   NotNull(const NotNull&) = default;
+  NotNull(NotNull&&) noexcept = default;
 
   template <class U>
   NotNull(const NotNull<U>& other) : NotNull(other.ptr_) {
@@ -96,6 +97,7 @@ class NotNull {
   }
 
   NotNull& operator=(const NotNull&) = default;
+  NotNull& operator=(NotNull&&) noexcept = default;
 
   template <class U>
   NotNull& operator=(const NotNull<U>& rhs) {
@@ -148,6 +150,7 @@ class Nullable {
   Nullable(T ptr) : ptr_(ptr) {}
 
   Nullable(const Nullable&) = default;
+  Nullable(Nullable&&) noexcept = default;
 
   template <class U>
   Nullable(const Nullable<U>& other) : Nullable(other.ptr_) {
@@ -174,6 +177,7 @@ class Nullable {
   }
 
   Nullable& operator=(const Nullable& rhs) { return *this = rhs.ptr_; }
+  Nullable& operator=(Nullable&& rhs) noexcept { return *this = rhs; }
 
   template <class U>
   Nullable& operator=(const Nullable<U>& rhs) {

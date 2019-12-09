@@ -63,10 +63,8 @@ class [[nodiscard]] StatusOr {
   StatusOr(StatusOr && other) noexcept { MoveConstruct(std::move(other)); }
 
   // Stores success value.
-  template <class U>
-  StatusOr(U && value) {
-    MoveConstruct(std::forward<U>(value));
-  }
+  StatusOr(const T& value) { MoveConstruct(value); }
+  StatusOr(T && value) { MoveConstruct(std::move(value)); }
 
   // Stores error value.
   StatusOr(Status status) { MoveConstruct(std::move(status)); }
@@ -97,19 +95,36 @@ class [[nodiscard]] StatusOr {
   }
 
   // Asserts that it was checked before and sets as not checked.
-  template <class U>
-  StatusOr& operator=(U&& value) {
+  StatusOr& operator=(const T& value) {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     switch (type_) {
       case Type::kOk:
-        MoveAssign(std::forward<U>(value));
+        MoveAssign(value);
         break;
       case Type::kError:
         Cleanup();
-        MoveConstruct(std::forward<U>(value));
+        MoveConstruct(value);
+        break;
+    }
+
+    return *this;
+  }
+
+  StatusOr& operator=(T&& value) {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+
+    switch (type_) {
+      case Type::kOk:
+        MoveAssign(std::move(value));
+        break;
+      case Type::kError:
+        Cleanup();
+        MoveConstruct(std::move(value));
         break;
     }
 
@@ -238,20 +253,36 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  template <class U>
-  void MoveConstruct(U && value) {
+  void MoveConstruct(const T& value) {
     type_ = Type::kOk;
-    new (&value_) T(std::forward<U>(value));
+    new (&value_) T(value);
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  template <class U>
-  void MoveAssign(U && value) {
+  void MoveConstruct(T && value) {
+    type_ = Type::kOk;
+    new (&value_) T(std::move(value));
+
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
+
+  void MoveAssign(const T& value) {
     RST_DCHECK(type_ == Type::kOk);
-    value_ = std::forward<U>(value);
+    value_ = value;
+
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    was_checked_ = false;
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  }
+
+  void MoveAssign(T && value) {
+    RST_DCHECK(type_ == Type::kOk);
+    value_ = std::move(value);
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;

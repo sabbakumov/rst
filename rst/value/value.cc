@@ -122,6 +122,9 @@ Value Value::Clone() const {
     case Type::kObject:
       return Value(Clone(object_));
   }
+
+  RST_NOTREACHED();
+  return Value();
 }
 
 // static
@@ -418,7 +421,8 @@ bool operator==(const Value& lhs, const Value& rhs) {
     case Value::Type::kBool:
       return lhs.bool_ == rhs.bool_;
     case Value::Type::kNumber:
-      return lhs.number_ == rhs.number_;
+      return std::fabs(lhs.number_ - rhs.number_) <
+             std::numeric_limits<double>::epsilon();
     case Value::Type::kString:
       return lhs.string_ == rhs.string_;
     case Value::Type::kArray:
@@ -426,6 +430,9 @@ bool operator==(const Value& lhs, const Value& rhs) {
     case Value::Type::kObject:
       return lhs.object_ == rhs.object_;
   }
+
+  RST_NOTREACHED();
+  return false;
 }
 
 bool operator!=(const Value& lhs, const Value& rhs) { return !(lhs == rhs); }
@@ -448,6 +455,9 @@ bool operator<(const Value& lhs, const Value& rhs) {
     case Value::Type::kObject:
       return lhs.object_ < rhs.object_;
   }
+
+  RST_NOTREACHED();
+  return false;
 }
 
 bool operator>(const Value& lhs, const Value& rhs) { return rhs < lhs; }

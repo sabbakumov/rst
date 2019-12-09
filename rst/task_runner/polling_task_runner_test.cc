@@ -34,6 +34,7 @@
 #include <gtest/gtest.h>
 
 #include "rst/bind/bind_helpers.h"
+#include "rst/stl/algorithm.h"
 
 namespace chrono = std::chrono;
 
@@ -137,6 +138,9 @@ TEST(PollingTaskRunner, PostTaskConcurrently) {
     t.join();
 
   task_runner.RunPendingTasks();
+
+  sort(str);
+  sort(expected);
   EXPECT_EQ(str, expected);
 }
 

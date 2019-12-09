@@ -40,7 +40,7 @@ namespace rst {
 class MemoryPreferencesStore : public PreferencesStore {
  public:
   MemoryPreferencesStore();
-  ~MemoryPreferencesStore();
+  ~MemoryPreferencesStore() override;
 
   Nullable<const Value*> GetValue(std::string_view path) const override;
   void SetValue(std::string_view path, Value&& value) override;

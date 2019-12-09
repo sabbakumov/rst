@@ -62,6 +62,7 @@ class DtorHelper {
  public:
   DtorHelper() { counter_++; }
   DtorHelper(const DtorHelper&) { counter_++; }
+  DtorHelper& operator=(const DtorHelper&) = default;
   ~DtorHelper() { counter_--; }
 
   static int counter() { return counter_; }

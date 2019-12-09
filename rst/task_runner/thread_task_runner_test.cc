@@ -37,6 +37,7 @@
 #include <gtest/gtest.h>
 
 #include "rst/bind/bind_helpers.h"
+#include "rst/stl/algorithm.h"
 
 namespace chrono = std::chrono;
 
@@ -171,6 +172,8 @@ TEST(ThreadTaskRunner, PostTaskConcurrently) {
 
   while (true) {
     std::lock_guard lock(mtx);
+    sort(str);
+    sort(expected);
     if (str == expected)
       break;
   }

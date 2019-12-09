@@ -45,7 +45,7 @@ class Defer : public testing::Test {
 
 }  // namespace
 
-TEST(Defer, Lambda) {
+TEST_F(Defer, Lambda) {
   auto i = 0;
   {
     RST_DEFER([&i]() { i = 1; });
@@ -54,13 +54,13 @@ TEST(Defer, Lambda) {
   EXPECT_EQ(i, 1);
 }
 
-TEST(Defer, Function) {
+TEST_F(Defer, Function) {
   { RST_DEFER(Foo); }
 
   EXPECT_EQ(g_int, 1);
 }
 
-TEST(Defer, MultipleTimesDeclaration) {
+TEST_F(Defer, MultipleTimesDeclaration) {
   std::string result;
   {
     RST_DEFER([&result]() { result += '1'; });

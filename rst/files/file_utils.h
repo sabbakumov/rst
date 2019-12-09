@@ -41,7 +41,7 @@ namespace rst {
 class FileError : public ErrorInfo<FileError> {
  public:
   explicit FileError(std::string&& message);
-  ~FileError();
+  ~FileError() override;
 
   const std::string& AsString() const override;
 
@@ -56,7 +56,7 @@ class FileError : public ErrorInfo<FileError> {
 class FileOpenError : public ErrorInfo<FileOpenError, FileError> {
  public:
   explicit FileOpenError(std::string&& message);
-  ~FileOpenError();
+  ~FileOpenError() override;
 
   static char id_;
 

@@ -89,7 +89,6 @@ class NoDestructor {
 
  private:
   alignas(T) char storage_[sizeof(T)];
-#if defined(__has_feature) && __has_feature(address_sanitizer)
   // This is a hack to work around the fact that LSan doesn't seem to treat
   // NoDestructor as a root for reachability analysis. This means that code:
   //   static base::NoDestructor<std::vector<int>> v({1, 2, 3});
@@ -100,8 +99,13 @@ class NoDestructor {
   // Hold an explicit pointer to the placement-new'd object in leak sanitizer
   // mode to help it realize that objects allocated by the contained type are
   // still reachable.
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
   const NotNull<const T*> storage_ptr_ = get();
-#endif  // defined(__has_feature) && __has_feature(address_sanitizer)
+#endif  // __has_feature(address_sanitizer)
+#elif defined(__SANITIZE_ADDRESS__)
+  const NotNull<const T*> storage_ptr_ = get();
+#endif
 
   RST_DISALLOW_COPY_AND_ASSIGN(NoDestructor);
 };

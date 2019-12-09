@@ -214,9 +214,6 @@ TEST(Value, ConstructStringFromConstCharPtr) {
   Value value("foobar");
   ASSERT_EQ(value.type(), Value::Type::kString);
   EXPECT_EQ(value.GetString(), "foobar");
-
-  const char* null = nullptr;
-  EXPECT_DEATH((Value(null)), "");
 }
 
 TEST(Value, ConstructStringFromStringView) {

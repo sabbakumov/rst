@@ -52,12 +52,12 @@ int GetExampleValue<int>(const int index) {
 
 template <>
 uint64_t GetExampleValue<uint64_t>(const int index) {
-  return uint64_t{500} + index;
+  return uint64_t{500} + static_cast<uint64_t>(index);
 }
 
 template <>
 std::string GetExampleValue<std::string>(const int index) {
-  return std::string('a', index);
+  return std::string(static_cast<size_t>(index), 'a');
 }
 
 class TypeNames {

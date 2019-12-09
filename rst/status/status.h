@@ -95,7 +95,7 @@ template <class T, class Parent = ErrorInfoBase>
 class ErrorInfo : public Parent {
  public:
   using Parent::Parent;
-  ~ErrorInfo() = default;
+  ~ErrorInfo() override = default;
 
   static NotNull<const void*> GetClassID() { return &T::id_; }
 

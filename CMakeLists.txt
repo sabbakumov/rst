@@ -143,4 +143,4 @@ rst/value/value_test.cc
 
 TARGET_LINK_LIBRARIES(rst_tests rst pthread gtest gmock)
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -std=c++17 -O2 -g -fsanitize=address -pthread -fno-exceptions -fno-rtti -Wexit-time-destructors")
+set(CMAKE_CXX_FLAGS "-Wconversion -Wsign-conversion -Wweak-vtables -Winconsistent-missing-destructor-override -Wall -Wextra -pedantic -std=c++17 -O2 -g -fsanitize=address -pthread -fno-exceptions -fno-rtti -Wexit-time-destructors")

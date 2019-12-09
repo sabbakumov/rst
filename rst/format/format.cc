@@ -117,37 +117,59 @@ Arg::Arg(const bool value) : view_(value ? "true" : "false") {}
 Arg::Arg(const char value) : view_(buffer_, 1) { buffer_[0] = value; }
 
 Arg::Arg(const short value)
-    : view_(buffer_, FormatAndWrite(buffer_, "%hd", value).get() - buffer_) {}
+    : view_(buffer_,
+            static_cast<size_t>(FormatAndWrite(buffer_, "%hd", value).get() -
+                                buffer_)) {}
 
 Arg::Arg(const unsigned short value)
-    : view_(buffer_, FormatAndWrite(buffer_, "%hu", value).get() - buffer_) {}
+    : view_(buffer_,
+            static_cast<size_t>(FormatAndWrite(buffer_, "%hu", value).get() -
+                                buffer_)) {}
 
 Arg::Arg(const int value)
-    : view_(buffer_, FormatAndWrite(buffer_, "%d", value).get() - buffer_) {}
+    : view_(buffer_,
+            static_cast<size_t>(FormatAndWrite(buffer_, "%d", value).get() -
+                                buffer_)) {}
 
 Arg::Arg(const unsigned int value)
-    : view_(buffer_, FormatAndWrite(buffer_, "%u", value).get() - buffer_) {}
+    : view_(buffer_,
+            static_cast<size_t>(FormatAndWrite(buffer_, "%u", value).get() -
+                                buffer_)) {}
 
 Arg::Arg(const long value)
-    : view_(buffer_, FormatAndWrite(buffer_, "%ld", value).get() - buffer_) {}
+    : view_(buffer_,
+            static_cast<size_t>(FormatAndWrite(buffer_, "%ld", value).get() -
+                                buffer_)) {}
 
 Arg::Arg(const unsigned long value)
-    : view_(buffer_, FormatAndWrite(buffer_, "%lu", value).get() - buffer_) {}
+    : view_(buffer_,
+            static_cast<size_t>(FormatAndWrite(buffer_, "%lu", value).get() -
+                                buffer_)) {}
 
 Arg::Arg(const long long value)
-    : view_(buffer_, FormatAndWrite(buffer_, "%lld", value).get() - buffer_) {}
+    : view_(buffer_,
+            static_cast<size_t>(FormatAndWrite(buffer_, "%lld", value).get() -
+                                buffer_)) {}
 
 Arg::Arg(const unsigned long long value)
-    : view_(buffer_, FormatAndWrite(buffer_, "%llu", value).get() - buffer_) {}
+    : view_(buffer_,
+            static_cast<size_t>(FormatAndWrite(buffer_, "%llu", value).get() -
+                                buffer_)) {}
 
 Arg::Arg(const float value)
-    : view_(buffer_, FormatAndWrite(buffer_, "%g", value).get() - buffer_) {}
+    : view_(buffer_,
+            static_cast<size_t>(FormatAndWrite(buffer_, "%g", value).get() -
+                                buffer_)) {}
 
 Arg::Arg(const double value)
-    : view_(buffer_, FormatAndWrite(buffer_, "%lg", value).get() - buffer_) {}
+    : view_(buffer_,
+            static_cast<size_t>(FormatAndWrite(buffer_, "%lg", value).get() -
+                                buffer_)) {}
 
 Arg::Arg(const long double value)
-    : view_(buffer_, FormatAndWrite(buffer_, "%Lg", value).get() - buffer_) {}
+    : view_(buffer_,
+            static_cast<size_t>(FormatAndWrite(buffer_, "%Lg", value).get() -
+                                buffer_)) {}
 
 Arg::Arg(const std::string_view value) : view_(value) {}
 

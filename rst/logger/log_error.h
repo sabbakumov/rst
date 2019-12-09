@@ -39,7 +39,7 @@ namespace rst {
 class LogError : public ErrorInfo<LogError> {
  public:
   explicit LogError(std::string&& message);
-  ~LogError();
+  ~LogError() override;
 
   const std::string& AsString() const override;
 

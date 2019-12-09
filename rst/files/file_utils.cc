@@ -126,9 +126,10 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
        !std::feof(file.get()) && !std::ferror(file.get());
        bytes_read_so_far += bytes_read_this_pass) {
     RST_DCHECK(content.size() == bytes_read_so_far);
-    content.resize(bytes_read_so_far + chunk_size);
-    bytes_read_this_pass = std::fread(content.data() + bytes_read_so_far, 1,
-                                      chunk_size, file.get());
+    content.resize(bytes_read_so_far + static_cast<size_t>(chunk_size));
+    bytes_read_this_pass =
+        std::fread(content.data() + bytes_read_so_far, 1,
+                   static_cast<size_t>(chunk_size), file.get());
   }
 
   if (std::ferror(file.get()))

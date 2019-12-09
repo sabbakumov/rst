@@ -39,7 +39,7 @@ namespace rst {
 namespace {
 
 struct CheckOnDestroy {
-  ~CheckOnDestroy() { RST_NOTREACHED(); }
+  [[noreturn]] ~CheckOnDestroy() { RST_NOTREACHED(); }
 };
 
 struct CopyOnly {
@@ -89,7 +89,8 @@ TEST(NoDestructor, Accessors) {
 }
 
 TEST(NoDestructor, InitializerList) {
-  static NoDestructor<std::vector<std::string>> vector({"a", "b", "c"});
+  static NoDestructor<std::vector<std::string>> vector(
+      std::vector<std::string>{"a", "b", "c"});
 }
 
 }  // namespace rst
