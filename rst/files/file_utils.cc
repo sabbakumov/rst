@@ -100,8 +100,8 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
         Format("Can't open file {}", filename.get()));
   }
 
-  const auto get_file_size =
-      [](const NotNull<FILE*> file) -> std::optional<long> {
+  const auto get_file_size = [](const NotNull<FILE*> file)
+      -> std::optional<long> {  // NOLINT(runtime/int)
     if (std::fseek(file.get(), 0, SEEK_END) != 0)
       return std::nullopt;
 
@@ -112,7 +112,8 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
     return size;
   };
 
-  static constexpr long kDefaultChunkSize = 128 * 1024 - 1;
+  static constexpr long kDefaultChunkSize =  // NOLINT(runtime/int)
+      128 * 1024 - 1;
   auto chunk_size = get_file_size(file.get()).value_or(kDefaultChunkSize);
   if (chunk_size == 0)  // Some files return 0 bytes (/etc/*).
     chunk_size = kDefaultChunkSize;

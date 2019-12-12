@@ -97,7 +97,7 @@ template <class T>
 class WeakPtr {
  public:
   WeakPtr() = default;
-  WeakPtr(std::nullptr_t) {}
+  WeakPtr(std::nullptr_t) {}  // NOLINT(runtime/explicit)
 
   WeakPtr(std::weak_ptr<internal::Flag>&& flag, const NotNull<T*> ptr)
       : flag_(std::move(flag)), ptr_(ptr.get()) {}

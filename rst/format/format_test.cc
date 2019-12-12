@@ -119,14 +119,15 @@ TEST(Format, Common) {
 }
 
 TEST(Format, Numbers) {
-  static constexpr short kShort = 0;
+  static constexpr short kShort = 0;  // NOLINT(runtime/int)
   static constexpr int kInt = 1;
-  static constexpr long kLong = 2;
-  static constexpr long long kLongLong = 3;
-  static constexpr unsigned short kUnsignedShort = 4;
+  static constexpr long kLong = 2;                     // NOLINT(runtime/int)
+  static constexpr long long kLongLong = 3;            // NOLINT(runtime/int)
+  static constexpr unsigned short kUnsignedShort = 4;  // NOLINT(runtime/int)
   static constexpr unsigned int kUnsignedInt = 5;
-  static constexpr unsigned long kUnsignedLong = 6;
-  static constexpr unsigned long long kUnsignedLongLong = 7;
+  static constexpr unsigned long kUnsignedLong = 6;  // NOLINT(runtime/int)
+  static constexpr auto kUnsignedLongLong =
+      static_cast<unsigned long long>(7);  // NOLINT(runtime/int)
   static constexpr float kFloat = 8.0f;
   static constexpr double kDouble = 9.0;
   static constexpr long double kLongDouble = 10.0L;
@@ -140,56 +141,70 @@ TEST(Format, Numbers) {
 TEST(Format, MinMax) {
   const auto string = Format(
       "{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}",
-      std::numeric_limits<short>::min(), std::numeric_limits<short>::max(),
+      std::numeric_limits<short>::min(),  // NOLINT(runtime/int)
+      std::numeric_limits<short>::max(),  // NOLINT(runtime/int)
       std::numeric_limits<int>::min(), std::numeric_limits<int>::max(),
-      std::numeric_limits<long>::min(), std::numeric_limits<long>::max(),
-      std::numeric_limits<long long>::min(),
-      std::numeric_limits<long long>::max(),
-      std::numeric_limits<unsigned short>::min(),
-      std::numeric_limits<unsigned short>::max(),
+      std::numeric_limits<long>::min(),            // NOLINT(runtime/int)
+      std::numeric_limits<long>::max(),            // NOLINT(runtime/int)
+      std::numeric_limits<long long>::min(),       // NOLINT(runtime/int)
+      std::numeric_limits<long long>::max(),       // NOLINT(runtime/int)
+      std::numeric_limits<unsigned short>::min(),  // NOLINT(runtime/int)
+      std::numeric_limits<unsigned short>::max(),  // NOLINT(runtime/int)
       std::numeric_limits<unsigned int>::min(),
       std::numeric_limits<unsigned int>::max(),
-      std::numeric_limits<unsigned long>::min(),
-      std::numeric_limits<unsigned long>::max(),
-      std::numeric_limits<unsigned long long>::min(),
-      std::numeric_limits<unsigned long long>::max(),
+      std::numeric_limits<unsigned long>::min(),       // NOLINT(runtime/int)
+      std::numeric_limits<unsigned long>::max(),       // NOLINT(runtime/int)
+      std::numeric_limits<unsigned long long>::min(),  // NOLINT(runtime/int)
+      std::numeric_limits<unsigned long long>::max(),  // NOLINT(runtime/int)
       std::numeric_limits<float>::min(), std::numeric_limits<float>::max(),
       std::numeric_limits<double>::min(), std::numeric_limits<double>::max(),
       std::numeric_limits<long double>::min(),
       std::numeric_limits<long double>::max());
 
   std::string result;
-  result += std::to_string(std::numeric_limits<short>::min());
+  result +=
+      std::to_string(std::numeric_limits<short>::min());  // NOLINT(runtime/int)
   result += ' ';
-  result += std::to_string(std::numeric_limits<short>::max());
+  result +=
+      std::to_string(std::numeric_limits<short>::max());  // NOLINT(runtime/int)
   result += ' ';
   result += std::to_string(std::numeric_limits<int>::min());
   result += ' ';
   result += std::to_string(std::numeric_limits<int>::max());
   result += ' ';
-  result += std::to_string(std::numeric_limits<long>::min());
+  result +=
+      std::to_string(std::numeric_limits<long>::min());  // NOLINT(runtime/int)
   result += ' ';
-  result += std::to_string(std::numeric_limits<long>::max());
+  result +=
+      std::to_string(std::numeric_limits<long>::max());  // NOLINT(runtime/int)
   result += ' ';
-  result += std::to_string(std::numeric_limits<long long>::min());
+  result += std::to_string(
+      std::numeric_limits<long long>::min());  // NOLINT(runtime/int)
   result += ' ';
-  result += std::to_string(std::numeric_limits<long long>::max());
+  result += std::to_string(
+      std::numeric_limits<long long>::max());  // NOLINT(runtime/int)
   result += ' ';
-  result += std::to_string(std::numeric_limits<unsigned short>::min());
+  result += std::to_string(
+      std::numeric_limits<unsigned short>::min());  // NOLINT(runtime/int)
   result += ' ';
-  result += std::to_string(std::numeric_limits<unsigned short>::max());
+  result += std::to_string(
+      std::numeric_limits<unsigned short>::max());  // NOLINT(runtime/int)
   result += ' ';
   result += std::to_string(std::numeric_limits<unsigned int>::min());
   result += ' ';
   result += std::to_string(std::numeric_limits<unsigned int>::max());
   result += ' ';
-  result += std::to_string(std::numeric_limits<unsigned long>::min());
+  result += std::to_string(
+      std::numeric_limits<unsigned long>::min());  // NOLINT(runtime/int)
   result += ' ';
-  result += std::to_string(std::numeric_limits<unsigned long>::max());
+  result += std::to_string(
+      std::numeric_limits<unsigned long>::max());  // NOLINT(runtime/int)
   result += ' ';
-  result += std::to_string(std::numeric_limits<unsigned long long>::min());
+  result += std::to_string(
+      std::numeric_limits<unsigned long long>::min());  // NOLINT(runtime/int)
   result += ' ';
-  result += std::to_string(std::numeric_limits<unsigned long long>::max());
+  result += std::to_string(
+      std::numeric_limits<unsigned long long>::max());  // NOLINT(runtime/int)
   result += ' ';
 
   std::ostringstream stream;

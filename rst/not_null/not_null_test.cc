@@ -153,7 +153,7 @@ TEST(NotNull, PlainPtrBaseDerived) {
   };
   class C {
    public:
-    C(NotNull<Base*>) {}
+    explicit C(NotNull<Base*>) {}
   };
 
   Base b;
@@ -386,7 +386,7 @@ TEST(NotNull, UniquePtrBaseDerived) {
   };
   class C {
    public:
-    C(NotNull<std::unique_ptr<Base>>) {}
+    explicit C(NotNull<std::unique_ptr<Base>>) {}
   };
 
   foo_base(std::make_unique<Base>());
@@ -479,7 +479,7 @@ TEST(NotNull, SharedPtrBaseDerived) {
   };
   class C {
    public:
-    C(NotNull<std::shared_ptr<Base>>) {}
+    explicit C(NotNull<std::shared_ptr<Base>>) {}
   };
 
   foo_base(std::make_shared<Base>());
@@ -635,7 +635,7 @@ TEST(Nullable, PlainPtrBaseDerived) {
   };
   class C {
    public:
-    C(Nullable<Base*>) {}
+    explicit C(Nullable<Base*>) {}
   };
 
   Base b;
@@ -898,7 +898,7 @@ TEST(Nullable, UniquePtrBaseDerived) {
   };
   class C {
    public:
-    C(Nullable<std::unique_ptr<Base>>) {}
+    explicit C(Nullable<std::unique_ptr<Base>>) {}
   };
 
   foo_base(std::make_unique<Base>());
@@ -1011,7 +1011,7 @@ TEST(Nullable, SharedPtrBaseDerived) {
   };
   class C {
    public:
-    C(Nullable<std::shared_ptr<Base>>) {}
+    explicit C(Nullable<std::shared_ptr<Base>>) {}
   };
 
   foo_base(std::make_shared<Base>());

@@ -39,7 +39,8 @@ template <class T, size_t N>
 NotNull<char*> FormatAndWrite(char (&str)[N], const NotNull<const char*> format,
                               const T val) {
   static_assert(std::is_arithmetic<T>::value, "Not an arithmetic type");
-  const auto bytes_written = std::sprintf(str, format.get(), val);
+  const auto bytes_written =
+      std::sprintf(str, format.get(), val);  // NOLINT(runtime/printf)
   RST_DCHECK(bytes_written > 0);
   RST_DCHECK(static_cast<size_t>(bytes_written) < N);
   RST_DCHECK(str[bytes_written] == '\0');
@@ -116,12 +117,12 @@ Arg::Arg(const bool value) : view_(value ? "true" : "false") {}
 
 Arg::Arg(const char value) : view_(buffer_, 1) { buffer_[0] = value; }
 
-Arg::Arg(const short value)
+Arg::Arg(const short value)  // NOLINT(runtime/int)
     : view_(buffer_,
             static_cast<size_t>(FormatAndWrite(buffer_, "%hd", value).get() -
                                 buffer_)) {}
 
-Arg::Arg(const unsigned short value)
+Arg::Arg(const unsigned short value)  // NOLINT(runtime/int)
     : view_(buffer_,
             static_cast<size_t>(FormatAndWrite(buffer_, "%hu", value).get() -
                                 buffer_)) {}
@@ -136,22 +137,22 @@ Arg::Arg(const unsigned int value)
             static_cast<size_t>(FormatAndWrite(buffer_, "%u", value).get() -
                                 buffer_)) {}
 
-Arg::Arg(const long value)
+Arg::Arg(const long value)  // NOLINT(runtime/int)
     : view_(buffer_,
             static_cast<size_t>(FormatAndWrite(buffer_, "%ld", value).get() -
                                 buffer_)) {}
 
-Arg::Arg(const unsigned long value)
+Arg::Arg(const unsigned long value)  // NOLINT(runtime/int)
     : view_(buffer_,
             static_cast<size_t>(FormatAndWrite(buffer_, "%lu", value).get() -
                                 buffer_)) {}
 
-Arg::Arg(const long long value)
+Arg::Arg(const long long value)  // NOLINT(runtime/int)
     : view_(buffer_,
             static_cast<size_t>(FormatAndWrite(buffer_, "%lld", value).get() -
                                 buffer_)) {}
 
-Arg::Arg(const unsigned long long value)
+Arg::Arg(const unsigned long long value)  // NOLINT(runtime/int)
     : view_(buffer_,
             static_cast<size_t>(FormatAndWrite(buffer_, "%llu", value).get() -
                                 buffer_)) {}

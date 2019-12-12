@@ -206,7 +206,7 @@ TYPED_TEST(TypeTest, ComparesCorrectlyToDifferentValue) {
 TEST(TypeTest, CanBeDerivedFrom) {
   class CountryCode : public Type<CountryCode, std::string> {
    public:
-    CountryCode(std::string&& value)
+    explicit CountryCode(std::string&& value)
         : Type<CountryCode, std::string>::Type(std::move(value)) {
       if (value_.size() != 2)
         value_.clear();

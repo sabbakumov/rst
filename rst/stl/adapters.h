@@ -65,7 +65,7 @@ class ReversedAdapter {
 //     // Iterates through v from back to front.
 //   }
 template <class T>
-internal::ReversedAdapter<T> Reversed(T& t) {
+internal::ReversedAdapter<T> Reversed(T& t) {  // NOLINT(runtime/references)
   return internal::ReversedAdapter(t);
 }
 

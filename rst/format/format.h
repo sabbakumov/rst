@@ -75,14 +75,14 @@ class Arg {
  public:
   explicit Arg(bool value);
   explicit Arg(char value);
-  explicit Arg(short value);
-  explicit Arg(unsigned short value);
+  explicit Arg(short value);           // NOLINT(runtime/int)
+  explicit Arg(unsigned short value);  // NOLINT(runtime/int)
   explicit Arg(int value);
   explicit Arg(unsigned int value);
-  explicit Arg(long value);
-  explicit Arg(unsigned long value);
-  explicit Arg(long long value);
-  explicit Arg(unsigned long long value);
+  explicit Arg(long value);                // NOLINT(runtime/int)
+  explicit Arg(unsigned long value);       // NOLINT(runtime/int)
+  explicit Arg(long long value);           // NOLINT(runtime/int)
+  explicit Arg(unsigned long long value);  // NOLINT(runtime/int)
   explicit Arg(float value);
   explicit Arg(double value);
   explicit Arg(long double value);
@@ -96,7 +96,7 @@ class Arg {
       : Arg(static_cast<typename std::underlying_type<T>::type>(e)) {}
 
   // Prevents Arg(pointer) from accidentally producing a bool.
-  Arg(void*) = delete;
+  explicit Arg(void*) = delete;
 
   ~Arg();
 

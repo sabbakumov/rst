@@ -36,7 +36,7 @@
 #include "rst/macros/macros.h"
 #include "rst/memory/weak_ptr.h"
 
-using namespace std::placeholders;
+using namespace std::placeholders;  // NOLINT(build/namespaces)
 
 namespace rst {
 namespace {

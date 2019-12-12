@@ -38,27 +38,27 @@
 namespace rst {
 
 template <class C>
-void sort(C& c) {
+void sort(C& c) {  // NOLINT(runtime/references)
   std::sort(std::begin(c), std::end(c));
 }
 
 template <class C, class Compare>
-void sort(C& c, Compare&& comp) {
+void sort(C& c, Compare&& comp) {  // NOLINT(runtime/references)
   std::sort(std::begin(c), std::end(c), std::forward<Compare>(comp));
 }
 
 template <class C>
-void stable_sort(C& c) {
+void stable_sort(C& c) {  // NOLINT(runtime/references)
   std::stable_sort(std::begin(c), std::end(c));
 }
 
 template <class C, class Compare>
-void stable_sort(C& c, Compare&& comp) {
+void stable_sort(C& c, Compare&& comp) {  // NOLINT(runtime/references)
   std::stable_sort(std::begin(c), std::end(c), std::forward<Compare>(comp));
 }
 
 template <class C, class UnaryPredicate>
-auto find_if(C& c, UnaryPredicate&& pred) {
+auto find_if(C& c, UnaryPredicate&& pred) {  // NOLINT(runtime/references)
   return std::find_if(std::begin(c), std::end(c),
                       std::forward<UnaryPredicate>(pred));
 }
