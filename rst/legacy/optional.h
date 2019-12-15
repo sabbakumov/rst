@@ -45,10 +45,10 @@ constexpr nullopt_t nullopt(0);
 template <class T>
 class [[nodiscard]] optional {
  public:
-  // Allows implicit conversion from T.
-  optional(const T& value) : value_(value), is_valid_(true) {}
-  // Allows implicit conversion from T.
-  optional(T && value) : value_(std::move(value)), is_valid_(true) {}
+  optional(const T& value)  // NOLINT(runtime/explicit)
+      : value_(value), is_valid_(true) {}
+  optional(T && value)  // NOLINT(runtime/explicit)
+      : value_(std::move(value)), is_valid_(true) {}
 
   optional(const optional& other) : is_valid_(other.is_valid_) {
     if (is_valid_)
@@ -60,8 +60,7 @@ class [[nodiscard]] optional {
       Construct(std::move(other.value_));
   }
 
-  // Allows implicit conversion from nullopt_t.
-  optional(nullopt_t) {}
+  optional(nullopt_t) {}  // NOLINT(runtime/explicit)
 
   optional() {}
 

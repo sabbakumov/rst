@@ -171,7 +171,8 @@ class [[nodiscard]] Status {
   Status();
 
   // Sets the object as not checked by default and to be the error object.
-  Status(NotNull<std::unique_ptr<ErrorInfoBase>> error);
+  Status(NotNull<std::unique_ptr<ErrorInfoBase>>
+             error);  // NOLINT(runtime/explicit)
 
   // Information about the error. nullptr if the object is OK.
   Nullable<std::unique_ptr<ErrorInfoBase>> error_;

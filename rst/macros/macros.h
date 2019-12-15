@@ -85,7 +85,7 @@
 //
 //   #define RST_BUILDFLAG_ENABLE_FOO() (true)
 //
-//   #if BUILDFLAG(ENABLE_FOO)
+//   #if RST_BUILDFLAG(ENABLE_FOO)
 //     ...
 //   #endif
 #define RST_BUILDFLAG(flag) (RST_CAT(RST_BUILDFLAG_, flag)())

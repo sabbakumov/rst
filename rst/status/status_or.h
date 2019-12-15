@@ -60,14 +60,22 @@ class [[nodiscard]] StatusOr {
  public:
   StatusOr() = delete;
 
-  StatusOr(StatusOr && other) noexcept { MoveConstruct(std::move(other)); }
+  StatusOr(StatusOr && other) noexcept {
+    MoveConstructFromStatusOr(std::move(other));
+  }
 
   // Stores success value.
-  StatusOr(const T& value) { MoveConstruct(value); }
-  StatusOr(T && value) { MoveConstruct(std::move(value)); }
+  StatusOr(const T& value) {  // NOLINT(runtime/explicit)
+    CopyConstructFromT(value);
+  }
+  StatusOr(T&& value) {  // NOLINT(runtime/explicit)
+    MoveConstructFromT(std::move(value));
+  }
 
   // Stores error value.
-  StatusOr(Status status) { MoveConstruct(std::move(status)); }
+  StatusOr(Status status) {  // NOLINT(runtime/explicit)
+    MoveConstructFromStatus(std::move(status));
+  }
 
   // Asserts that it was checked.
   ~StatusOr() {
@@ -85,10 +93,10 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
     if (type_ == rhs.type_) {
-      MoveAssign(std::move(rhs));
+      MoveAssignFromStatusOr(std::move(rhs));
     } else {
       Cleanup();
-      MoveConstruct(std::move(rhs));
+      MoveConstructFromStatusOr(std::move(rhs));
     }
 
     return *this;
@@ -102,11 +110,11 @@ class [[nodiscard]] StatusOr {
 
     switch (type_) {
       case Type::kOk:
-        MoveAssign(value);
+        CopyAssignFromT(value);
         break;
       case Type::kError:
         Cleanup();
-        MoveConstruct(value);
+        CopyConstructFromT(value);
         break;
     }
 
@@ -120,11 +128,11 @@ class [[nodiscard]] StatusOr {
 
     switch (type_) {
       case Type::kOk:
-        MoveAssign(std::move(value));
+        MoveAssignFromT(std::move(value));
         break;
       case Type::kError:
         Cleanup();
-        MoveConstruct(std::move(value));
+        MoveConstructFromT(std::move(value));
         break;
     }
 
@@ -141,10 +149,10 @@ class [[nodiscard]] StatusOr {
     switch (type_) {
       case Type::kOk:
         Cleanup();
-        MoveConstruct(std::move(status));
+        MoveConstructFromStatus(std::move(status));
         break;
       case Type::kError:
-        MoveAssign(std::move(status));
+        MoveAssignFromStatus(std::move(status));
         break;
     }
 
@@ -217,7 +225,7 @@ class [[nodiscard]] StatusOr {
     kError,
   };
 
-  void MoveConstruct(StatusOr && other) {
+  void MoveConstructFromStatusOr(StatusOr && other) {
     type_ = other.type_;
 
     switch (type_) {
@@ -235,7 +243,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  void MoveAssign(StatusOr && other) {
+  void MoveAssignFromStatusOr(StatusOr && other) {
     RST_DCHECK(type_ == other.type_);
 
     switch (type_) {
@@ -253,7 +261,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  void MoveConstruct(const T& value) {
+  void CopyConstructFromT(const T& value) {
     type_ = Type::kOk;
     new (&value_) T(value);
 
@@ -262,7 +270,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  void MoveConstruct(T && value) {
+  void MoveConstructFromT(T && value) {
     type_ = Type::kOk;
     new (&value_) T(std::move(value));
 
@@ -271,7 +279,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  void MoveAssign(const T& value) {
+  void CopyAssignFromT(const T& value) {
     RST_DCHECK(type_ == Type::kOk);
     value_ = value;
 
@@ -280,7 +288,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  void MoveAssign(T && value) {
+  void MoveAssignFromT(T && value) {
     RST_DCHECK(type_ == Type::kOk);
     value_ = std::move(value);
 
@@ -289,7 +297,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  void MoveConstruct(Status status) {
+  void MoveConstructFromStatus(Status status) {
     type_ = Type::kError;
     new (&status_) Status(std::move(status));
     RST_DCHECK(status_.error_ != nullptr);
@@ -299,7 +307,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  void MoveAssign(Status status) {
+  void MoveAssignFromStatus(Status status) {
     RST_DCHECK(type_ == Type::kError);
     status_ = std::move(status);
     RST_DCHECK(status_.error_ != nullptr);
