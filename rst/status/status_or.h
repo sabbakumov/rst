@@ -30,6 +30,7 @@
 
 #include <cstdint>
 #include <new>
+#include <type_traits>
 #include <utility>
 
 #include "rst/check/check.h"
@@ -65,10 +66,14 @@ class [[nodiscard]] StatusOr {
   }
 
   // Stores success value.
-  StatusOr(const T& value) {  // NOLINT(runtime/explicit)
+  template <class U,
+            class =
+                typename std::enable_if<std::is_trivially_copyable<U>{}>::type>
+  StatusOr(const U& value) {  // NOLINT(runtime/explicit)
+    static_assert(std::is_same<T, U>::value);
     CopyConstructFromT(value);
   }
-  StatusOr(T&& value) {  // NOLINT(runtime/explicit)
+  StatusOr(T && value) {  // NOLINT(runtime/explicit)
     MoveConstructFromT(std::move(value));
   }
 
@@ -103,7 +108,11 @@ class [[nodiscard]] StatusOr {
   }
 
   // Asserts that it was checked before and sets as not checked.
-  StatusOr& operator=(const T& value) {
+  template <class U,
+            class =
+                typename std::enable_if<std::is_trivially_copyable<U>{}>::type>
+  StatusOr& operator=(const U& value) {
+    static_assert(std::is_same<T, U>::value);
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)

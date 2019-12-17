@@ -85,21 +85,29 @@ TEST(StatusOr, ValueCtor) {
     StatusOr<int> status_or = 0;
     ASSERT_FALSE(status_or.err());
     EXPECT_EQ(*status_or, 0);
-
+  }
+  {
+    const auto i = 0;
+    StatusOr<int> status_or = i;
+    ASSERT_FALSE(status_or.err());
+    EXPECT_EQ(*status_or, 0);
+  }
+  {
     StatusOr<std::complex<double>> status_or_cmplx = std::complex(0.0, 0.0);
     ASSERT_FALSE(status_or_cmplx.err());
     EXPECT_EQ(*status_or_cmplx, std::complex(0.0, 0.0));
-
-    std::string s = "Test string";
-    StatusOr<std::string> status_or_str = s;
-    ASSERT_FALSE(status_or_str.err());
-    EXPECT_EQ(*status_or_str, "Test string");
-
-    StatusOr<std::string> status_or_str2 = std::move(s);
+  }
+  {
+    const std::complex cmplx(0.0, 0.0);
+    StatusOr<std::complex<double>> status_or_cmplx = cmplx;
+    ASSERT_FALSE(status_or_cmplx.err());
+    EXPECT_EQ(*status_or_cmplx, std::complex(0.0, 0.0));
+  }
+  {
+    StatusOr<std::string> status_or_str2 = std::string("Test string");
     ASSERT_FALSE(status_or_str2.err());
     EXPECT_EQ(*status_or_str2, "Test string");
   }
-
   {
     StatusOr<int> status_or = MakeStatus<Error>();
     EXPECT_TRUE(status_or.err());
@@ -165,18 +173,20 @@ TEST(StatusOr, OperatorEquals) {
     status_or2.Ignore();
     EXPECT_EQ(DtorHelper::counter(), 2);
 
-    std::string temp = kStringValue;
-    StatusOr<std::string> os = std::string();
-    os.Ignore();
-    os = temp;
-    os.Ignore();
-    EXPECT_EQ(*os, kStringValue);
-
     StatusOr<std::string> os2 = std::string();
     os2.Ignore();
-    os2 = std::move(temp);
+    os2 = std::string(kStringValue);
     os2.Ignore();
     EXPECT_EQ(*os2, kStringValue);
+  }
+
+  {
+    StatusOr<int> status_or = 0;
+    status_or.Ignore();
+    const auto i = 0;
+    status_or = i;
+    status_or.Ignore();
+    EXPECT_EQ(*status_or, 0);
   }
 
   EXPECT_EQ(DtorHelper::counter(), 0);
@@ -240,8 +250,7 @@ TEST(StatusOr, MoveOperatorEquals) {
     ASSERT_FALSE(status_or.err());
     EXPECT_EQ(*status_or, 168);
 
-    std::string test = "Test string! Test!";
-    StatusOr<std::string> os = test;
+    StatusOr<std::string> os = std::string("Test string! Test!");
     ASSERT_FALSE(os.err());
     EXPECT_EQ(*os, "Test string! Test!");
 
