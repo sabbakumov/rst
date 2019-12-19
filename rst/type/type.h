@@ -75,12 +75,12 @@ class Type {
   explicit Type(UnderlyingType&& value) : value_(std::move(value)) {}
 
   Type(const Type&) = default;
-  Type(Type&&) = default;
+  Type(Type&&) noexcept = default;
 
   ~Type() = default;
 
   Type& operator=(const Type&) = default;
-  Type& operator=(Type&&) = default;
+  Type& operator=(Type&&) noexcept = default;
 
   const UnderlyingType& value() const { return value_; }
   explicit operator UnderlyingType() const { return value_; }
