@@ -173,8 +173,8 @@ TEST(ThreadTaskRunner, PostTaskConcurrently) {
 
   while (true) {
     std::lock_guard lock(mtx);
-    sort(str);
-    sort(expected);
+    c_sort(str);
+    c_sort(expected);
     if (str == expected)
       break;
   }

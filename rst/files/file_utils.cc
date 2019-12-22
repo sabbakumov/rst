@@ -115,6 +115,7 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
   static constexpr long kDefaultChunkSize =  // NOLINT(runtime/int)
       128 * 1024 - 1;
   auto chunk_size = get_file_size(file.get()).value_or(kDefaultChunkSize);
+  RST_DCHECK(chunk_size >= 0);
   if (chunk_size == 0)  // Some files return 0 bytes (/etc/*).
     chunk_size = kDefaultChunkSize;
   chunk_size++;

@@ -140,8 +140,8 @@ TEST(PollingTaskRunner, PostTaskConcurrently) {
 
   task_runner.RunPendingTasks();
 
-  sort(str);
-  sort(expected);
+  c_sort(str);
+  c_sort(expected);
   EXPECT_EQ(str, expected);
 }
 

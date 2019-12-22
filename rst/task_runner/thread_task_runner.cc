@@ -30,6 +30,7 @@
 #include <utility>
 
 #include "rst/check/check.h"
+#include "rst/stl/algorithm.h"
 
 namespace chrono = std::chrono;
 
@@ -50,7 +51,7 @@ void ThreadTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
         return;
 
       if (!queue_.empty()) {
-        const auto& item = queue_.top();
+        const auto& item = queue_.front();
         const auto now = time_function_();
         if (now < item.time_point) {
           const auto wait_duration = item.time_point - now;
@@ -65,12 +66,13 @@ void ThreadTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
 
       const auto now = time_function_();
       while (!queue_.empty()) {
-        const auto& item = queue_.top();
+        auto& item = queue_.front();
         if (now < item.time_point)
           break;
 
-        auto task = item.task;
-        queue_.pop();
+        auto task = std::move(item.task);
+        c_pop_heap(queue_, std::greater<internal::Item>());
+        queue_.pop_back();
         pending_tasks_.emplace_back(std::move(task));
       }
     }
@@ -125,8 +127,9 @@ void ThreadTaskRunner::PostDelayedTask(std::function<void()>&& task,
   const auto future_time_point = now + delay;
   {
     std::lock_guard lock(task_runner_->thread_mutex_);
-    task_runner_->queue_.emplace(future_time_point, task_runner_->task_id_,
-                                 std::move(task));
+    task_runner_->queue_.emplace_back(future_time_point, task_runner_->task_id_,
+                                      std::move(task));
+    c_push_heap(task_runner_->queue_, std::greater<internal::Item>());
     task_runner_->task_id_++;
   }
   task_runner_->thread_cv_.notify_one();

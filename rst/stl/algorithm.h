@@ -38,29 +38,39 @@
 namespace rst {
 
 template <class C>
-void sort(C& c) {  // NOLINT(runtime/references)
+void c_sort(C& c) {  // NOLINT(runtime/references)
   std::sort(std::begin(c), std::end(c));
 }
 
 template <class C, class Compare>
-void sort(C& c, Compare&& comp) {  // NOLINT(runtime/references)
+void c_sort(C& c, Compare&& comp) {  // NOLINT(runtime/references)
   std::sort(std::begin(c), std::end(c), std::forward<Compare>(comp));
 }
 
 template <class C>
-void stable_sort(C& c) {  // NOLINT(runtime/references)
+void c_stable_sort(C& c) {  // NOLINT(runtime/references)
   std::stable_sort(std::begin(c), std::end(c));
 }
 
 template <class C, class Compare>
-void stable_sort(C& c, Compare&& comp) {  // NOLINT(runtime/references)
+void c_stable_sort(C& c, Compare&& comp) {  // NOLINT(runtime/references)
   std::stable_sort(std::begin(c), std::end(c), std::forward<Compare>(comp));
 }
 
 template <class C, class UnaryPredicate>
-auto find_if(C& c, UnaryPredicate&& pred) {  // NOLINT(runtime/references)
+auto c_find_if(C& c, UnaryPredicate&& pred) {  // NOLINT(runtime/references)
   return std::find_if(std::begin(c), std::end(c),
                       std::forward<UnaryPredicate>(pred));
+}
+
+template <class C, class Compare>
+void c_push_heap(C& c, Compare&& comp) {  // NOLINT(runtime/references)
+  std::push_heap(std::begin(c), std::end(c), std::forward<Compare>(comp));
+}
+
+template <class C, class Compare>
+void c_pop_heap(C& c, Compare&& comp) {  // NOLINT(runtime/references)
+  std::pop_heap(std::begin(c), std::end(c), std::forward<Compare>(comp));
 }
 
 }  // namespace rst

@@ -34,7 +34,6 @@
 #include <functional>
 #include <memory>
 #include <mutex>
-#include <queue>
 #include <thread>
 #include <vector>
 
@@ -87,10 +86,8 @@ class ThreadTaskRunner : public TaskRunner {
     std::condition_variable thread_cv_;
     bool should_exit_ = false;
 
-    // Sorted queue of tasks.
-    std::priority_queue<internal::Item, std::vector<internal::Item>,
-                        std::greater<internal::Item>>
-        queue_;
+    // Priority queue of tasks.
+    std::vector<internal::Item> queue_;
     // Increasing task counter.
     uint64_t task_id_ = 0;
 

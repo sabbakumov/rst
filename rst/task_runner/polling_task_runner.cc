@@ -30,6 +30,7 @@
 #include <utility>
 
 #include "rst/check/check.h"
+#include "rst/stl/algorithm.h"
 
 namespace chrono = std::chrono;
 
@@ -48,7 +49,8 @@ void PollingTaskRunner::PostDelayedTask(std::function<void()>&& task,
   const auto now = time_function_();
   const auto future_time_point = now + delay;
   std::lock_guard lock(mutex_);
-  queue_.emplace(future_time_point, task_id_, std::move(task));
+  queue_.emplace_back(future_time_point, task_id_, std::move(task));
+  c_push_heap(queue_, std::greater<internal::Item>());
   task_id_++;
 }
 
@@ -58,12 +60,13 @@ void PollingTaskRunner::RunPendingTasks() {
 
     const auto now = time_function_();
     while (!queue_.empty()) {
-      const auto& item = queue_.top();
+      auto& item = queue_.front();
       if (now < item.time_point)
         break;
 
-      auto task = item.task;
-      queue_.pop();
+      auto task = std::move(item.task);
+      c_pop_heap(queue_, std::greater<internal::Item>());
+      queue_.pop_back();
       pending_tasks_.emplace_back(std::move(task));
     }
   }

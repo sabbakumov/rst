@@ -32,7 +32,6 @@
 #include <cstdint>
 #include <functional>
 #include <mutex>
-#include <queue>
 #include <vector>
 
 #include "rst/macros/macros.h"
@@ -71,10 +70,8 @@ class PollingTaskRunner : public TaskRunner {
   // Used to not to allocate memory on every RunPendingTasks() call.
   std::vector<std::function<void()>> pending_tasks_;
   std::mutex mutex_;
-  // Sorted queue of tasks.
-  std::priority_queue<internal::Item, std::vector<internal::Item>,
-                      std::greater<internal::Item>>
-      queue_;
+  // Priority queue of tasks.
+  std::vector<internal::Item> queue_;
   // Increasing task counter.
   uint64_t task_id_ = 0;
 

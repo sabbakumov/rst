@@ -28,6 +28,7 @@
 #include "rst/stl/algorithm.h"
 
 #include <algorithm>
+#include <functional>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -36,52 +37,106 @@ namespace rst {
 
 TEST(Sort, Vector) {
   std::vector<int> vec = {-1, 400, 10, 0, 3, -5};
-  sort(vec);
+  c_sort(vec);
   EXPECT_TRUE(std::is_sorted(std::cbegin(vec), std::cend(vec)));
 }
 
 TEST(Sort, Array) {
   int arr[] = {-1, 4, 10, 400, 3, -5};
-  sort(arr);
+  c_sort(arr);
   EXPECT_TRUE(std::is_sorted(std::cbegin(arr), std::cend(arr)));
 }
 
 TEST(StableSort, Vector) {
   std::vector<int> vec = {-1, 400, 10, 0, 3, -5};
-  stable_sort(vec);
+  c_stable_sort(vec);
   EXPECT_TRUE(std::is_sorted(std::cbegin(vec), std::cend(vec)));
 }
 
 TEST(StableSort, Array) {
   int arr[] = {-1, 4, 10, 400, 3, -5};
-  stable_sort(arr);
+  c_stable_sort(arr);
   EXPECT_TRUE(std::is_sorted(std::cbegin(arr), std::cend(arr)));
 }
 
 TEST(FindIf, Vector) {
   std::vector<int> vec = {-1, 400, 10, 0, 3, -5};
-  const auto it = find_if(vec, [](const int val) -> bool { return val == -1; });
+  const auto it =
+      c_find_if(vec, [](const int val) -> bool { return val == -1; });
   ASSERT_NE(it, std::cend(vec));
   EXPECT_EQ(*it, -1);
 
   const std::vector<int> const_vec = {-1, 400, 10, 0, 3, -5};
   const auto const_it =
-      find_if(const_vec, [](const int val) -> bool { return val == -1; });
+      c_find_if(const_vec, [](const int val) -> bool { return val == -1; });
   ASSERT_NE(const_it, std::cend(const_vec));
   EXPECT_EQ(*const_it, -1);
 }
 
 TEST(FindIf, Array) {
   int arr[] = {-1, 400, 10, 0, 3, -5};
-  const auto it = find_if(arr, [](const int val) -> bool { return val == -1; });
+  const auto it =
+      c_find_if(arr, [](const int val) -> bool { return val == -1; });
   ASSERT_NE(it, std::cend(arr));
   EXPECT_EQ(*it, -1);
 
   const int const_arr[] = {-1, 400, 10, 0, 3, -5};
   const auto const_it =
-      find_if(const_arr, [](const int val) -> bool { return val == -1; });
+      c_find_if(const_arr, [](const int val) -> bool { return val == -1; });
   ASSERT_NE(const_it, std::cend(const_arr));
   EXPECT_EQ(*const_it, -1);
+}
+
+TEST(Heap, Vector) {
+  std::vector<int> vec;
+
+  vec.emplace_back(-1);
+  c_push_heap(vec, std::greater<int>());
+  EXPECT_EQ(vec.front(), -1);
+
+  vec.emplace_back(400);
+  c_push_heap(vec, std::greater<int>());
+  EXPECT_EQ(vec.front(), -1);
+
+  vec.emplace_back(10);
+  c_push_heap(vec, std::greater<int>());
+  EXPECT_EQ(vec.front(), -1);
+
+  vec.emplace_back(0);
+  c_push_heap(vec, std::greater<int>());
+  EXPECT_EQ(vec.front(), -1);
+
+  vec.emplace_back(3);
+  c_push_heap(vec, std::greater<int>());
+  EXPECT_EQ(vec.front(), -1);
+
+  vec.emplace_back(-5);
+  c_push_heap(vec, std::greater<int>());
+  EXPECT_EQ(vec.front(), -5);
+
+  c_pop_heap(vec, std::greater<int>());
+  vec.pop_back();
+  EXPECT_EQ(vec.front(), -1);
+
+  c_pop_heap(vec, std::greater<int>());
+  vec.pop_back();
+  EXPECT_EQ(vec.front(), 0);
+
+  c_pop_heap(vec, std::greater<int>());
+  vec.pop_back();
+  EXPECT_EQ(vec.front(), 3);
+
+  c_pop_heap(vec, std::greater<int>());
+  vec.pop_back();
+  EXPECT_EQ(vec.front(), 10);
+
+  c_pop_heap(vec, std::greater<int>());
+  vec.pop_back();
+  EXPECT_EQ(vec.front(), 400);
+
+  c_pop_heap(vec, std::greater<int>());
+  vec.pop_back();
+  EXPECT_TRUE(vec.empty());
 }
 
 }  // namespace rst
