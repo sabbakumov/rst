@@ -445,7 +445,7 @@ bool operator<(const Value& lhs, const Value& rhs) {
     case Value::Type::kNull:
       return false;
     case Value::Type::kBool:
-      return lhs.bool_ < rhs.bool_;
+      return static_cast<int>(lhs.bool_) < static_cast<int>(rhs.bool_);
     case Value::Type::kNumber:
       return lhs.number_ < rhs.number_;
     case Value::Type::kString:

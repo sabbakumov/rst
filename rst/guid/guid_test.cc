@@ -54,16 +54,16 @@ char ToUpperASCII(const char c) {
 std::string ToLowerASCII(const std::string_view str) {
   std::string ret;
   ret.reserve(str.size());
-  for (size_t i = 0; i < str.size(); i++)
-    ret.push_back(ToLowerASCII(str[i]));
+  for (const auto c : str)
+    ret.push_back(ToLowerASCII(c));
   return ret;
 }
 
 std::string ToUpperASCII(const std::string_view str) {
   std::string ret;
   ret.reserve(str.size());
-  for (size_t i = 0; i < str.size(); i++)
-    ret.push_back(ToUpperASCII(str[i]));
+  for (const auto c : str)
+    ret.push_back(ToUpperASCII(c));
   return ret;
 }
 

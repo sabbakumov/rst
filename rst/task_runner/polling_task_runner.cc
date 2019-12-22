@@ -50,7 +50,7 @@ void PollingTaskRunner::PostDelayedTask(std::function<void()>&& task,
   const auto future_time_point = now + delay;
   std::lock_guard lock(mutex_);
   queue_.emplace_back(future_time_point, task_id_, std::move(task));
-  c_push_heap(queue_, std::greater<internal::Item>());
+  c_push_heap(queue_, std::greater<>());
   task_id_++;
 }
 
@@ -65,7 +65,7 @@ void PollingTaskRunner::RunPendingTasks() {
         break;
 
       auto task = std::move(item.task);
-      c_pop_heap(queue_, std::greater<internal::Item>());
+      c_pop_heap(queue_, std::greater<>());
       queue_.pop_back();
       pending_tasks_.emplace_back(std::move(task));
     }

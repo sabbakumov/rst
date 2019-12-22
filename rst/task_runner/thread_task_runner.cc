@@ -71,7 +71,7 @@ void ThreadTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
           break;
 
         auto task = std::move(item.task);
-        c_pop_heap(queue_, std::greater<internal::Item>());
+        c_pop_heap(queue_, std::greater<>());
         queue_.pop_back();
         pending_tasks_.emplace_back(std::move(task));
       }
@@ -129,7 +129,7 @@ void ThreadTaskRunner::PostDelayedTask(std::function<void()>&& task,
     std::lock_guard lock(task_runner_->thread_mutex_);
     task_runner_->queue_.emplace_back(future_time_point, task_runner_->task_id_,
                                       std::move(task));
-    c_push_heap(task_runner_->queue_, std::greater<internal::Item>());
+    c_push_heap(task_runner_->queue_, std::greater<>());
     task_runner_->task_id_++;
   }
   task_runner_->thread_cv_.notify_one();

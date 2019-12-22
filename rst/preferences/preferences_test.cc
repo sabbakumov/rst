@@ -70,7 +70,7 @@ class PreferencesTest : public testing::Test {
     prefs_.RegisterObjectPreference("object", std::move(object));
   }
 
-  ~PreferencesTest();
+  ~PreferencesTest() override;
 
  protected:
   NotNull<MockPreferencesStore*> pref_store_{new MockPreferencesStore()};
@@ -312,7 +312,7 @@ TEST_F(PreferencesTest, GetValuesOfDifferentType) {
 
 class MemoryPreferencesStoreTest : public testing::Test {
  public:
-  ~MemoryPreferencesStoreTest();
+  ~MemoryPreferencesStoreTest() override;
 };
 
 MemoryPreferencesStoreTest::~MemoryPreferencesStoreTest() = default;

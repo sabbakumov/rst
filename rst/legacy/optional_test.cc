@@ -149,7 +149,8 @@ TEST(Optional, OperatorEquals) {
 TEST(Optional, CopyOperatorEquals) {
   {
     optional<int> oi = 0;
-    oi = oi;
+    const auto& oi2 = oi;
+    oi = oi2;
     ASSERT_TRUE(oi.has_value());
     EXPECT_EQ(*oi, 0);
   }

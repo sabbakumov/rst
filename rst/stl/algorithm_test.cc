@@ -91,50 +91,50 @@ TEST(Heap, Vector) {
   std::vector<int> vec;
 
   vec.emplace_back(-1);
-  c_push_heap(vec, std::greater<int>());
+  c_push_heap(vec, std::greater<>());
   EXPECT_EQ(vec.front(), -1);
 
   vec.emplace_back(400);
-  c_push_heap(vec, std::greater<int>());
+  c_push_heap(vec, std::greater<>());
   EXPECT_EQ(vec.front(), -1);
 
   vec.emplace_back(10);
-  c_push_heap(vec, std::greater<int>());
+  c_push_heap(vec, std::greater<>());
   EXPECT_EQ(vec.front(), -1);
 
   vec.emplace_back(0);
-  c_push_heap(vec, std::greater<int>());
+  c_push_heap(vec, std::greater<>());
   EXPECT_EQ(vec.front(), -1);
 
   vec.emplace_back(3);
-  c_push_heap(vec, std::greater<int>());
+  c_push_heap(vec, std::greater<>());
   EXPECT_EQ(vec.front(), -1);
 
   vec.emplace_back(-5);
-  c_push_heap(vec, std::greater<int>());
+  c_push_heap(vec, std::greater<>());
   EXPECT_EQ(vec.front(), -5);
 
-  c_pop_heap(vec, std::greater<int>());
+  c_pop_heap(vec, std::greater<>());
   vec.pop_back();
   EXPECT_EQ(vec.front(), -1);
 
-  c_pop_heap(vec, std::greater<int>());
+  c_pop_heap(vec, std::greater<>());
   vec.pop_back();
   EXPECT_EQ(vec.front(), 0);
 
-  c_pop_heap(vec, std::greater<int>());
+  c_pop_heap(vec, std::greater<>());
   vec.pop_back();
   EXPECT_EQ(vec.front(), 3);
 
-  c_pop_heap(vec, std::greater<int>());
+  c_pop_heap(vec, std::greater<>());
   vec.pop_back();
   EXPECT_EQ(vec.front(), 10);
 
-  c_pop_heap(vec, std::greater<int>());
+  c_pop_heap(vec, std::greater<>());
   vec.pop_back();
   EXPECT_EQ(vec.front(), 400);
 
-  c_pop_heap(vec, std::greater<int>());
+  c_pop_heap(vec, std::greater<>());
   vec.pop_back();
   EXPECT_TRUE(vec.empty());
 }

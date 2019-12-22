@@ -125,7 +125,7 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
   std::string content;
   size_t bytes_read_so_far = 0;
   for (size_t bytes_read_this_pass = 0;
-       !std::feof(file.get()) && !std::ferror(file.get());
+       std::feof(file.get()) == 0 && std::ferror(file.get()) == 0;
        bytes_read_so_far += bytes_read_this_pass) {
     RST_DCHECK(content.size() == bytes_read_so_far);
     content.resize(bytes_read_so_far + static_cast<size_t>(chunk_size));
@@ -134,7 +134,7 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
                    static_cast<size_t>(chunk_size), file.get());
   }
 
-  if (std::ferror(file.get()))
+  if (std::ferror(file.get()) != 0)
     return MakeStatus<FileError>(Format("Can't read file {}", filename.get()));
 
   const auto raw_file = file.release();

@@ -65,8 +65,6 @@ TEST(WeakPtr, Move) {
   const auto ptr = factory.GetWeakPtr();
   auto ptr2 = factory.GetWeakPtr();
   const auto ptr3 = std::move(ptr2);
-  EXPECT_EQ(ptr2.get(), nullptr);
-  EXPECT_NE(ptr.get(), ptr2.get());
   EXPECT_EQ(ptr.get(), ptr3.get());
 }
 
