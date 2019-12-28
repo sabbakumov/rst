@@ -25,8 +25,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_FORMAT_FORMAT_H_
-#define RST_FORMAT_FORMAT_H_
+#ifndef RST_STRINGS_FORMAT_H_
+#define RST_STRINGS_FORMAT_H_
 
 #include <initializer_list>
 #include <iterator>
@@ -174,4 +174,4 @@ inline std::string Format(const char (&format)[N], const Args&... args) {
 
 }  // namespace rst
 
-#endif  // RST_FORMAT_FORMAT_H_
+#endif  // RST_STRINGS_FORMAT_H_

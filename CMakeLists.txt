@@ -14,9 +14,6 @@ rst/defer/defer.h
 rst/files/file_utils.cc
 rst/files/file_utils.h
 
-rst/format/format.cc
-rst/format/format.h
-
 rst/guid/guid.cc
 rst/guid/guid.h
 
@@ -38,6 +35,9 @@ rst/logger/sink.h
 
 rst/macros/macros.h
 
+rst/memory/memory.h
+rst/memory/weak_ptr.h
+
 rst/no_destructor/no_destructor.h
 
 rst/not_null/not_null.h
@@ -48,9 +48,6 @@ rst/preferences/preferences.cc
 rst/preferences/preferences.h
 rst/preferences/preferences_store.cc
 rst/preferences/preferences_store.h
-
-rst/memory/memory.h
-rst/memory/weak_ptr.h
 
 rst/random/random_device.cc
 rst/random/random_device.h
@@ -65,6 +62,9 @@ rst/status/status_or.h
 rst/stl/adapters.h
 rst/stl/algorithm.h
 rst/stl/resize_uninitialized.h
+
+rst/strings/format.cc
+rst/strings/format.h
 
 rst/threading/barrier.h
 rst/threading/barrier.cc
@@ -98,8 +98,6 @@ rst/defer/defer_test.cc
 
 rst/files/file_utils_test.cc
 
-rst/format/format_test.cc
-
 rst/guid/guid_test.cc
 
 rst/hidden_string/hidden_string_test.cc
@@ -112,14 +110,14 @@ rst/logger/logger_test.cc
 
 rst/macros/macros_test.cc
 
+rst/memory/memory_test.cc
+rst/memory/weak_ptr_test.cc
+
 rst/no_destructor/no_destructor_test.cc
 
 rst/not_null/not_null_test.cc
 
 rst/preferences/preferences_test.cc
-
-rst/memory/memory_test.cc
-rst/memory/weak_ptr_test.cc
 
 rst/random/random_device_test.cc
 
@@ -132,6 +130,8 @@ rst/status/status_test.cc
 rst/stl/adapters_test.cc
 rst/stl/algorithm_test.cc
 rst/stl/resize_uninitialized_test.cc
+
+rst/strings/format_test.cc
 
 rst/task_runner/polling_task_runner_test.cc
 rst/task_runner/thread_task_runner_test.cc

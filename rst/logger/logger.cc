@@ -30,8 +30,8 @@
 #include <cstdlib>
 #include <utility>
 
-#include "rst/format/format.h"
 #include "rst/logger/log_error.h"
+#include "rst/strings/format.h"
 
 namespace rst {
 namespace {

@@ -32,8 +32,8 @@
 #include <optional>
 #include <utility>
 
-#include "rst/format/format.h"
 #include "rst/status/status_macros.h"
+#include "rst/strings/format.h"
 
 namespace rst {
 
