@@ -138,7 +138,7 @@ class [[nodiscard]] Status {
     other.was_checked_ = true;
   }
 #else
-  Status(Status&&) noexcept = default;
+  Status(Status &&) noexcept = default;
 #endif
 
   // Asserts that it was checked.
@@ -198,7 +198,7 @@ class [[nodiscard]] Status {
   Status() = default;
 
   // Sets the object as not checked by default and to be the error object.
-  Status(NotNull<std::unique_ptr<ErrorInfoBase>> error)
+  explicit Status(NotNull<std::unique_ptr<ErrorInfoBase>> error)
       : error_(std::move(error).Take()) {}
 
   // Information about the error. nullptr if the object is OK.

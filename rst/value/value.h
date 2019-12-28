@@ -78,7 +78,7 @@ class Value {
   // Constructs the default value of a given type.
   explicit Value(Type type);
 
-  Value(){};  // A null value.
+  Value() {}  // A null value.
   explicit Value(bool value) : type_(Type::kBool), bool_(value) {}
   explicit Value(int32_t value) : Value(static_cast<int64_t>(value)) {}
   // Can store |2^53 - 1| at maximum since it's a max safe integer that can be
