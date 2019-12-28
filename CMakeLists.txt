@@ -77,7 +77,6 @@ rst/type/type.h
 
 rst/task_runner/task_runner.cc
 rst/task_runner/task_runner.h
-rst/task_runner/item.cc
 rst/task_runner/item.h
 rst/task_runner/polling_task_runner.cc
 rst/task_runner/polling_task_runner.h

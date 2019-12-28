@@ -33,6 +33,7 @@
 
 #include <algorithm>
 #include <cstdarg>
+#include <cstddef>
 #include <cstdio>
 #include <fstream>
 #include <iterator>

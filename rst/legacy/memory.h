@@ -28,6 +28,7 @@
 #ifndef RST_LEGACY_MEMORY_H_
 #define RST_LEGACY_MEMORY_H_
 
+#include <cstddef>
 #include <memory>
 #include <utility>
 

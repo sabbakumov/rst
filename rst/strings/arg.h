@@ -29,6 +29,7 @@
 #define RST_STRINGS_ARG_H_
 
 #include <cstddef>
+#include <cstdio>
 #include <string_view>
 #include <type_traits>
 
@@ -43,8 +44,17 @@ template <class Int, size_t N>
 std::string_view IntToString(char (&str)[N], Int val);
 
 template <class Float, size_t N>
-std::string_view FloatToString(char (&str)[N], NotNull<const char*> format,
-                               Float val);
+std::string_view FloatToString(char (&str)[N],
+                               const NotNull<const char*> format,
+                               const Float val) {
+  static_assert(std::is_floating_point<Float>::value);
+  const auto bytes_written =
+      std::sprintf(str, format.get(), val);  // NOLINT(runtime/printf)
+  RST_DCHECK(bytes_written > 0);
+  RST_DCHECK(static_cast<size_t>(bytes_written) < N);
+  RST_DCHECK(str[bytes_written] == '\0');
+  return std::string_view(str, static_cast<size_t>(bytes_written));
+}
 
 class Arg {
  public:
@@ -92,6 +102,7 @@ class Arg {
   explicit Arg(const char* value) : view_(value) {
     RST_DCHECK(value != nullptr);
   }
+  explicit Arg(const NotNull<const char*> value) : view_(value.get()) {}
 
   template <class T, class = typename std::enable_if<std::is_enum<T>{}>::type>
   explicit Arg(const T e)

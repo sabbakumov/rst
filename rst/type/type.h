@@ -28,6 +28,7 @@
 #ifndef RST_TYPE_TYPE_H_
 #define RST_TYPE_TYPE_H_
 
+#include <cstddef>
 #include <functional>
 #include <utility>
 

@@ -35,6 +35,8 @@
 
 #include <gtest/gtest.h>
 
+#include "rst/not_null/not_null.h"
+
 namespace rst {
 
 TEST(Format, Escape) {
@@ -326,6 +328,11 @@ TEST(Format, ScopedEnum) {
 TEST(Format, StringCapacity) {
   static constexpr char kStr[] = "abcdefghijklmno";
   EXPECT_EQ(Format(kStr), kStr);
+}
+
+TEST(Format, NotNullStr) {
+  static constexpr char kStr[] = "abcdefghijklmno";
+  EXPECT_EQ(Format("{}", NotNull(kStr)), kStr);
 }
 
 }  // namespace rst

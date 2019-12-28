@@ -29,6 +29,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <cstddef>
 #include <mutex>
 #include <string>
 #include <thread>

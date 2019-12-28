@@ -289,4 +289,9 @@ TEST(StrCat, StringCapacity) {
   EXPECT_EQ(StrCat(kStr), kStr);
 }
 
+TEST(StrCat, NotNullStr) {
+  static constexpr char kStr[] = "abcdefghijklmno";
+  EXPECT_EQ(StrCat(NotNull(kStr)), kStr);
+}
+
 }  // namespace rst

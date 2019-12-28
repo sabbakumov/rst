@@ -27,13 +27,14 @@
 
 #include "rst/files/file_utils.h"
 
+#include <cstddef>
 #include <cstdio>
 #include <memory>
 #include <optional>
 #include <utility>
 
 #include "rst/status/status_macros.h"
-#include "rst/strings/format.h"
+#include "rst/strings/str_cat.h"
 
 namespace rst {
 
@@ -60,29 +61,27 @@ Status WriteFile(const NotNull<const char*> filename,
           (void)std::fclose(f);
       });
 
-  if (file == nullptr) {
-    return MakeStatus<FileOpenError>(
-        Format("Can't open file {}", filename.get()));
-  }
+  if (file == nullptr)
+    return MakeStatus<FileOpenError>(StrCat("Can't open file ", filename));
 
   if (std::fwrite(data.data(), 1, data.size(), file.get()) != data.size())
-    return MakeStatus<FileError>(Format("Can't write file {}", filename.get()));
+    return MakeStatus<FileError>(StrCat("Can't write file ", filename));
 
   const auto raw_file = file.release();
   if (std::fclose(raw_file) != 0)
-    return MakeStatus<FileError>(Format("Can't close file {}", filename.get()));
+    return MakeStatus<FileError>(StrCat("Can't close file ", filename));
 
   return Status::OK();
 }
 
 Status WriteImportantFile(const NotNull<const char*> filename,
                           const std::string_view data) {
-  const auto temp_filename = Format("{}._tmp_", filename.get());
+  const auto temp_filename = StrCat(filename, "_tmp_");
   RST_TRY(WriteFile(temp_filename.c_str(), data));
 
   if (std::rename(temp_filename.c_str(), filename.get()) != 0) {
     return MakeStatus<FileError>(
-        Format("Can't rename temp file {}", temp_filename));
+        StrCat("Can't rename temp file ", temp_filename));
   }
 
   return Status::OK();
@@ -95,10 +94,8 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
           (void)std::fclose(f);
       });
 
-  if (file == nullptr) {
-    return MakeStatus<FileOpenError>(
-        Format("Can't open file {}", filename.get()));
-  }
+  if (file == nullptr)
+    return MakeStatus<FileOpenError>(StrCat("Can't open file ", filename));
 
   const auto get_file_size = [](const NotNull<FILE*> file)
       -> std::optional<long> {  // NOLINT(runtime/int)
@@ -135,11 +132,11 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
   }
 
   if (std::ferror(file.get()) != 0)
-    return MakeStatus<FileError>(Format("Can't read file {}", filename.get()));
+    return MakeStatus<FileError>(StrCat("Can't read file ", filename));
 
   const auto raw_file = file.release();
   if (std::fclose(raw_file) != 0)
-    return MakeStatus<FileError>(Format("Can't close file {}", filename.get()));
+    return MakeStatus<FileError>(StrCat("Can't close file ", filename));
 
   content.resize(bytes_read_so_far);
   return content;

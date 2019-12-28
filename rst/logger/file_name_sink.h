@@ -47,7 +47,7 @@ class FileNameSink : public Sink {
   static StatusOr<NotNull<std::unique_ptr<FileNameSink>>> Create(
       NotNull<const char*> filename);
 
-  ~FileNameSink();
+  ~FileNameSink() final;
 
   // Thread safe logging function.
   void Log(std::string_view message) final;

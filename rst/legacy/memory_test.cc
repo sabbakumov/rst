@@ -27,6 +27,8 @@
 
 #include "rst/legacy/memory.h"
 
+#include <cstddef>
+
 #include <gtest/gtest.h>
 
 namespace rst {

@@ -133,13 +133,35 @@ class [[nodiscard]] Status {
   static Status OK() { return Status(); }
 
   // Sets as not checked by default.
-  Status(Status && other) noexcept;
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  Status(Status && other) noexcept : error_(std::move(other.error_)) {
+    other.was_checked_ = true;
+  }
+#else
+  Status(Status&&) noexcept = default;
+#endif
 
   // Asserts that it was checked.
-  ~Status();
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  ~Status() { RST_DCHECK(was_checked_); }
+#else
+  ~Status() = default;
+#endif
 
   // Asserts that it was checked before and sets as not checked.
-  Status& operator=(Status&& rhs) noexcept;
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  Status& operator=(Status&& rhs) noexcept {
+    RST_DCHECK(was_checked_);
+
+    error_ = std::move(rhs.error_);
+    was_checked_ = false;
+    rhs.was_checked_ = true;
+
+    return *this;
+  }
+#else
+  Status& operator=(Status&&) noexcept = default;
+#endif
 
   // Sets the object to be checked and returns whether the status is error
   // object.
@@ -151,7 +173,12 @@ class [[nodiscard]] Status {
   }
 
   // Asserts that it was checked. Returns error information.
-  NotNull<const ErrorInfoBase*> GetError() const;
+  NotNull<const ErrorInfoBase*> GetError() const {
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    RST_DCHECK(was_checked_);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    return error_.get();
+  }
 
   // Sets the object to be checked.
   void Ignore() {
@@ -168,11 +195,11 @@ class [[nodiscard]] Status {
   friend Status MakeStatus(Args && ... args);
 
   // Sets the object as not checked by default and to be OK.
-  Status();
+  Status() = default;
 
   // Sets the object as not checked by default and to be the error object.
-  Status(NotNull<std::unique_ptr<ErrorInfoBase>>
-             error);  // NOLINT(runtime/explicit)
+  Status(NotNull<std::unique_ptr<ErrorInfoBase>> error)
+      : error_(std::move(error).Take()) {}
 
   // Information about the error. nullptr if the object is OK.
   Nullable<std::unique_ptr<ErrorInfoBase>> error_;

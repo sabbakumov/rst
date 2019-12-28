@@ -33,7 +33,7 @@
 #include "rst/check/check.h"
 #include "rst/logger/log_error.h"
 #include "rst/memory/memory.h"
-#include "rst/strings/format.h"
+#include "rst/strings/str_cat.h"
 
 namespace rst {
 
@@ -47,7 +47,7 @@ StatusOr<NotNull<std::unique_ptr<FileNameSink>>> FileNameSink::Create(
 
   sink->log_file_.reset(std::fopen(filename.get(), "w"));
   if (sink->log_file_ == nullptr)
-    return MakeStatus<LogError>(Format("Can't open file {}", filename.get()));
+    return MakeStatus<LogError>(StrCat("Can't open file ", filename));
 
   return sink;
 }

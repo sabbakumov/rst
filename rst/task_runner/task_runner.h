@@ -30,6 +30,7 @@
 
 #include <chrono>
 #include <functional>
+#include <utility>
 
 namespace rst {
 
@@ -46,7 +47,9 @@ class TaskRunner {
                                std::chrono::milliseconds delay) = 0;
 
   // Posts the given task to be run.
-  void PostTask(std::function<void()>&& task);
+  void PostTask(std::function<void()>&& task) {
+    PostDelayedTask(std::move(task), std::chrono::milliseconds::zero());
+  }
 };
 
 }  // namespace rst

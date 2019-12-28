@@ -41,42 +41,4 @@ bool ErrorInfoBase::IsA(const NotNull<const void*> class_id) const {
   return class_id == GetClassID();
 }
 
-Status::Status() = default;
-
-Status::Status(NotNull<std::unique_ptr<ErrorInfoBase>> error)
-    : error_(std::move(error).Take()) {}
-
-Status::Status(Status&& other) noexcept : error_(std::move(other.error_)) {
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-  other.was_checked_ = true;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-}
-
-Status& Status::operator=(Status&& rhs) noexcept {
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-  RST_DCHECK(was_checked_);
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-
-  error_ = std::move(rhs.error_);
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-  was_checked_ = false;
-  rhs.was_checked_ = true;
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-
-  return *this;
-}
-
-Status::~Status() {
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-  RST_DCHECK(was_checked_);
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-}
-
-NotNull<const ErrorInfoBase*> Status::GetError() const {
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-  RST_DCHECK(was_checked_);
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-  return error_.get();
-}
-
 }  // namespace rst

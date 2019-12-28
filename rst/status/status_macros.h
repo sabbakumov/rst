@@ -76,7 +76,7 @@ namespace rst {
 #define RST_TRY_ASSIGN(lhs, statement) \
   lhs = (statement);                   \
   if (lhs.err())                       \
-    return std::move(lhs).TakeStatus()
+  return std::move(lhs).TakeStatus()
 
 // Macro to allow exception-like handling of StatusOr return values.
 //
@@ -96,7 +96,7 @@ namespace rst {
 #define RST_TRY_CREATE(type, lhs, statement) \
   type lhs = (statement);                    \
   if (lhs.err())                             \
-    return std::move(lhs).TakeStatus()
+  return std::move(lhs).TakeStatus()
 
 }  // namespace rst
 

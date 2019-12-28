@@ -27,6 +27,7 @@
 
 #include "rst/type/type.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <map>
 #include <memory>

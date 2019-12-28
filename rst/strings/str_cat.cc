@@ -28,6 +28,7 @@
 #include "rst/strings/str_cat.h"
 
 #include <algorithm>
+#include <cstddef>
 
 #include "rst/check/check.h"
 #include "rst/not_null/not_null.h"

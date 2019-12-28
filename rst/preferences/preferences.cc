@@ -27,10 +27,6 @@
 
 #include "rst/preferences/preferences.h"
 
-#include <utility>
-
-#include "rst/check/check.h"
-
 namespace rst {
 
 Preferences::Preferences(
@@ -38,36 +34,6 @@ Preferences::Preferences(
     : preferences_store_(std::move(preferences_store)) {}
 
 Preferences::~Preferences() = default;
-
-void Preferences::RegisterBoolPreference(std::string&& path,
-                                         const bool default_value) {
-  RegisterPreference(std::move(path), Value(default_value));
-}
-
-void Preferences::RegisterIntPreference(std::string&& path,
-                                        const int default_value) {
-  RegisterPreference(std::move(path), Value(default_value));
-}
-
-void Preferences::RegisterDoublePreference(std::string&& path,
-                                           const double default_value) {
-  RegisterPreference(std::move(path), Value(default_value));
-}
-
-void Preferences::RegisterStringPreference(std::string&& path,
-                                           Value::String&& default_value) {
-  RegisterPreference(std::move(path), Value(std::move(default_value)));
-}
-
-void Preferences::RegisterArrayPreference(std::string&& path,
-                                          Value::Array&& default_value) {
-  RegisterPreference(std::move(path), Value(std::move(default_value)));
-}
-
-void Preferences::RegisterObjectPreference(std::string&& path,
-                                           Value::Object&& default_value) {
-  RegisterPreference(std::move(path), Value(std::move(default_value)));
-}
 
 bool Preferences::GetBool(const std::string_view path) const {
   RST_DCHECK((defaults_.find(path) != defaults_.cend()) &&
@@ -145,51 +111,6 @@ const Value::Object& Preferences::GetObject(const std::string_view path) const {
     return defaults_.find(path)->second.GetObject();
 
   return stored_pref->GetObject();
-}
-
-void Preferences::SetBool(const std::string_view path, const bool value) {
-  SetValue(path, Value(value));
-}
-
-void Preferences::SetInt(const std::string_view path, const int value) {
-  SetValue(path, Value(value));
-}
-
-void Preferences::SetDouble(const std::string_view path, const double value) {
-  SetValue(path, Value(value));
-}
-
-void Preferences::SetString(const std::string_view path,
-                            Value::String&& value) {
-  SetValue(path, Value(std::move(value)));
-}
-
-void Preferences::SetArray(const std::string_view path, Value::Array&& value) {
-  SetValue(path, Value(std::move(value)));
-}
-
-void Preferences::SetObject(const std::string_view path,
-                            Value::Object&& value) {
-  SetValue(path, Value(std::move(value)));
-}
-
-void Preferences::RegisterPreference(std::string&& path,
-                                     Value&& default_value) {
-  RST_DCHECK(default_value.type() != Value::Type::kNull);
-  RST_DCHECK((defaults_.find(path) == defaults_.cend()) &&
-             "Trying to register a previously registered preference");
-
-  defaults_.emplace(std::move(path), std::move(default_value));
-}
-
-void Preferences::SetValue(const std::string_view path, Value&& value) {
-  RST_DCHECK(value.type() != Value::Type::kNull);
-  RST_DCHECK((defaults_.find(path) != defaults_.cend()) &&
-             "Trying to write an unregistered preference");
-  RST_DCHECK((defaults_.find(path)->second.type() == value.type()) &&
-             "Trying to write a preference of different type");
-
-  preferences_store_->SetValue(path, std::move(value));
 }
 
 }  // namespace rst

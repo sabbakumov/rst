@@ -27,20 +27,7 @@
 
 #include "rst/value/value.h"
 
-#include <cmath>
-#include <limits>
-#include <utility>
-
-#include "rst/check/check.h"
-
 namespace rst {
-namespace {
-
-constexpr int64_t kMaxSafeInteger =
-    (int64_t{1} << std::numeric_limits<double>::digits) - 1;
-static_assert(kMaxSafeInteger == (int64_t{1} << 53) - 1);
-
-}  // namespace
 
 Value::Value(const Type type) : type_(type) {
   switch (type_) {
@@ -63,34 +50,6 @@ Value::Value(const Type type) : type_(type) {
       return;
   }
 }
-
-Value::Value() {}
-
-Value::Value(const bool value) : type_(Type::kBool), bool_(value) {}
-
-Value::Value(const int32_t value) : Value(static_cast<int64_t>(value)) {}
-
-Value::Value(const int64_t value) : Value(static_cast<double>(value)) {
-  RST_DCHECK(std::abs(value) <= kMaxSafeInteger);
-}
-
-Value::Value(const double value) : type_(Type::kNumber), number_(value) {
-  RST_DCHECK(std::isfinite(value) &&
-             "Non-finite (i.e. NaN or positive/negative infinity) values "
-             "cannot be represented in JSON");
-}
-
-Value::Value(const char* value) : Value(String(value)) {
-  RST_DCHECK(value != nullptr);
-}
-
-Value::Value(String&& value)
-    : type_(Type::kString), string_(std::move(value)) {}
-
-Value::Value(Array&& value) : type_(Type::kArray), array_(std::move(value)) {}
-
-Value::Value(Object&& value)
-    : type_(Type::kObject), object_(std::move(value)) {}
 
 Value::Value(Value&& other) noexcept { MoveConstruct(std::move(other)); }
 
@@ -144,72 +103,12 @@ Value::Object Value::Clone(const Object& object) {
   return result;
 }
 
-bool Value::IsInt64() const {
-  return IsNumber() && (std::abs(number_) <= kMaxSafeInteger);
-}
-
-bool Value::IsInt() const {
-  return IsNumber() && (number_ >= std::numeric_limits<int>::min()) &&
-         (number_ <= std::numeric_limits<int>::max());
-}
-
-bool Value::GetBool() const {
-  RST_DCHECK(IsBool());
-  return bool_;
-}
-
-int64_t Value::GetInt64() const {
-  RST_DCHECK(IsInt64());
-  return static_cast<int64_t>(number_);
-}
-
-int Value::GetInt() const {
-  RST_DCHECK(IsInt());
-  return static_cast<int>(number_);
-}
-
-double Value::GetDouble() const {
-  RST_DCHECK(IsNumber());
-  return number_;
-}
-
-const Value::String& Value::GetString() const {
-  RST_DCHECK(IsString());
-  return string_;
-}
-
-Value::String& Value::GetString() {
-  return const_cast<String&>(std::as_const(*this).GetString());
-}
-
-const Value::Array& Value::GetArray() const {
-  RST_DCHECK(IsArray());
-  return array_;
-}
-
-Value::Array& Value::GetArray() {
-  return const_cast<Array&>(std::as_const(*this).GetArray());
-}
-
-const Value::Object& Value::GetObject() const {
-  RST_DCHECK(IsObject());
-  return object_;
-}
-
-Value::Object& Value::GetObject() {
-  return const_cast<Object&>(std::as_const(*this).GetObject());
-}
-
 Nullable<const Value*> Value::FindKey(const std::string_view key) const {
   RST_DCHECK(IsObject());
   const auto it = object_.find(key);
   if (it == object_.cend())
     return nullptr;
   return &it->second;
-}
-
-Nullable<Value*> Value::FindKey(const std::string_view key) {
-  return const_cast<Value*>(std::as_const(*this).FindKey(key).get());
 }
 
 Nullable<const Value*> Value::FindKeyOfType(const std::string_view key,
@@ -222,12 +121,6 @@ Nullable<const Value*> Value::FindKeyOfType(const std::string_view key,
     return nullptr;
 
   return result;
-}
-
-Nullable<Value*> Value::FindKeyOfType(const std::string_view key,
-                                      const Type type) {
-  return const_cast<Value*>(
-      std::as_const(*this).FindKeyOfType(key, type).get());
 }
 
 std::optional<bool> Value::FindBoolKey(const std::string_view key) const {
@@ -272,14 +165,6 @@ Nullable<const Value::String*> Value::FindStringKey(
   if (result == nullptr)
     return nullptr;
   return &result->string_;
-}
-
-Nullable<const Value*> Value::FindArrayKey(const std::string_view key) const {
-  return FindKeyOfType(key, Type::kArray);
-}
-
-Nullable<const Value*> Value::FindObjectKey(const std::string_view key) const {
-  return FindKeyOfType(key, Type::kObject);
 }
 
 NotNull<Value*> Value::SetKey(std::string&& key, Value&& value) {
@@ -339,10 +224,6 @@ Nullable<const Value*> Value::FindPath(const std::string_view path) const {
   }
 
   return current_object->FindKey(current_path);
-}
-
-Nullable<Value*> Value::FindPath(const std::string_view path) {
-  return const_cast<Value*>(std::as_const(*this).FindPath(path).get());
 }
 
 void Value::MoveConstruct(Value&& other) {
@@ -435,8 +316,6 @@ bool operator==(const Value& lhs, const Value& rhs) {
   return false;
 }
 
-bool operator!=(const Value& lhs, const Value& rhs) { return !(lhs == rhs); }
-
 bool operator<(const Value& lhs, const Value& rhs) {
   if (lhs.type_ != rhs.type_)
     return lhs.type_ < rhs.type_;
@@ -459,11 +338,5 @@ bool operator<(const Value& lhs, const Value& rhs) {
   RST_NOTREACHED();
   return false;
 }
-
-bool operator>(const Value& lhs, const Value& rhs) { return rhs < lhs; }
-
-bool operator<=(const Value& lhs, const Value& rhs) { return !(rhs < lhs); }
-
-bool operator>=(const Value& lhs, const Value& rhs) { return !(lhs < rhs); }
 
 }  // namespace rst

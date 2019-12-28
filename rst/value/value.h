@@ -28,14 +28,18 @@
 #ifndef RST_VALUE_VALUE_H_
 #define RST_VALUE_VALUE_H_
 
+#include <cmath>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <map>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
+#include "rst/check/check.h"
 #include "rst/macros/macros.h"
 #include "rst/not_null/not_null.h"
 
@@ -74,19 +78,34 @@ class Value {
   // Constructs the default value of a given type.
   explicit Value(Type type);
 
-  Value();  // A null value.
-  explicit Value(bool value);
-  explicit Value(int32_t value);
+  Value(){};  // A null value.
+  explicit Value(bool value) : type_(Type::kBool), bool_(value) {}
+  explicit Value(int32_t value) : Value(static_cast<int64_t>(value)) {}
   // Can store |2^53 - 1| at maximum since it's a max safe integer that can be
   // stored in JavaScript.
-  explicit Value(int64_t value);
-  explicit Value(double value);
+  explicit Value(int64_t value) : Value(static_cast<double>(value)) {
+    RST_DCHECK(std::abs(value) <= kMaxSafeInteger);
+  }
+
+  explicit Value(double value) : type_(Type::kNumber), number_(value) {
+    RST_DCHECK(std::isfinite(value) &&
+               "Non-finite (i.e. NaN or positive/negative infinity) values "
+               "cannot be represented in JSON");
+  }
+
   // Provides const char* overload since otherwise it will be implicitly
   // converted to bool.
-  explicit Value(const char* value);
-  explicit Value(String&& value);
-  explicit Value(Array&& value);
-  explicit Value(Object&& value);
+  explicit Value(const char* value) : Value(String(value)) {
+    RST_DCHECK(value != nullptr);
+  }
+
+  explicit Value(String&& value)
+      : type_(Type::kString), string_(std::move(value)) {}
+
+  explicit Value(Array&& value)
+      : type_(Type::kArray), array_(std::move(value)) {}
+  explicit Value(Object&& value)
+      : type_(Type::kObject), object_(std::move(value)) {}
 
   // Prevents Value(pointer) from accidentally producing a bool.
   explicit Value(void*) = delete;
@@ -109,33 +128,70 @@ class Value {
   bool IsNull() const { return type() == Type::kNull; }
   bool IsBool() const { return type() == Type::kBool; }
   bool IsNumber() const { return type() == Type::kNumber; }
-  bool IsInt64() const;
-  bool IsInt() const;
+  bool IsInt64() const {
+    return IsNumber() && (std::abs(number_) <= kMaxSafeInteger);
+  }
+  bool IsInt() const {
+    return IsNumber() && (number_ >= std::numeric_limits<int>::min()) &&
+           (number_ <= std::numeric_limits<int>::max());
+  }
   bool IsString() const { return type() == Type::kString; }
   bool IsArray() const { return type() == Type::kArray; }
   bool IsObject() const { return type() == Type::kObject; }
 
   // These will all assert that the type matches.
-  bool GetBool() const;
-  int64_t GetInt64() const;
-  int GetInt() const;
-  double GetDouble() const;
-  const String& GetString() const;
-  String& GetString();
-  const Array& GetArray() const;
-  Array& GetArray();
-  const Object& GetObject() const;
-  Object& GetObject();
+  bool GetBool() const {
+    RST_DCHECK(IsBool());
+    return bool_;
+  }
+  int64_t GetInt64() const {
+    RST_DCHECK(IsInt64());
+    return static_cast<int64_t>(number_);
+  }
+  int GetInt() const {
+    RST_DCHECK(IsInt());
+    return static_cast<int>(number_);
+  }
+  double GetDouble() const {
+    RST_DCHECK(IsNumber());
+    return number_;
+  }
+  const String& GetString() const {
+    RST_DCHECK(IsString());
+    return string_;
+  }
+  String& GetString() {
+    return const_cast<String&>(std::as_const(*this).GetString());
+  }
+  const Array& GetArray() const {
+    RST_DCHECK(IsArray());
+    return array_;
+  }
+  Array& GetArray() {
+    return const_cast<Array&>(std::as_const(*this).GetArray());
+  }
+  const Object& GetObject() const {
+    RST_DCHECK(IsObject());
+    return object_;
+  }
+  Object& GetObject() {
+    return const_cast<Object&>(std::as_const(*this).GetObject());
+  }
 
   // Looks up |key| in the underlying dictionary. Asserts that the value is
   // object.
   Nullable<const Value*> FindKey(std::string_view key) const;
-  Nullable<Value*> FindKey(std::string_view key);
+  Nullable<Value*> FindKey(std::string_view key) {
+    return const_cast<Value*>(std::as_const(*this).FindKey(key).get());
+  }
 
   // Similar to FindKey(), but it also requires the found value to have type
   // |type|. Asserts that the value is object.
   Nullable<const Value*> FindKeyOfType(std::string_view key, Type type) const;
-  Nullable<Value*> FindKeyOfType(std::string_view key, Type type);
+  Nullable<Value*> FindKeyOfType(std::string_view key, Type type) {
+    return const_cast<Value*>(
+        std::as_const(*this).FindKeyOfType(key, type).get());
+  }
 
   // These are convenience forms of FindKeyOfType(). Asserts that the value is
   // object.
@@ -144,8 +200,12 @@ class Value {
   std::optional<int> FindIntKey(std::string_view key) const;
   std::optional<double> FindDoubleKey(std::string_view key) const;
   Nullable<const String*> FindStringKey(std::string_view key) const;
-  Nullable<const Value*> FindArrayKey(std::string_view key) const;
-  Nullable<const Value*> FindObjectKey(std::string_view key) const;
+  Nullable<const Value*> FindArrayKey(std::string_view key) const {
+    return FindKeyOfType(key, Type::kArray);
+  }
+  Nullable<const Value*> FindObjectKey(std::string_view key) const {
+    return FindKeyOfType(key, Type::kObject);
+  }
 
   // Looks up |key| in the underlying dictionary and sets the mapped value to
   // |value|. If |key| could not be found, a new element is inserted. A pointer
@@ -171,9 +231,15 @@ class Value {
   // object. A |path| has the form "<key>" or "<key>.<key>.[...]", where "."
   // indexes into the next Value down. Asserts that the value is object.
   Nullable<const Value*> FindPath(std::string_view path) const;
-  Nullable<Value*> FindPath(std::string_view path);
+  Nullable<Value*> FindPath(std::string_view path) {
+    return const_cast<Value*>(std::as_const(*this).FindPath(path).get());
+  }
 
  private:
+  static constexpr int64_t kMaxSafeInteger =
+      (int64_t{1} << std::numeric_limits<double>::digits) - 1;
+  static_assert(kMaxSafeInteger == (int64_t{1} << 53) - 1);
+
   friend bool operator==(const Value& lhs, const Value& rhs);
   friend bool operator<(const Value& lhs, const Value& rhs);
 
@@ -194,11 +260,17 @@ class Value {
 };
 
 bool operator==(const Value& lhs, const Value& rhs);
-bool operator!=(const Value& lhs, const Value& rhs);
+inline bool operator!=(const Value& lhs, const Value& rhs) {
+  return !(lhs == rhs);
+}
 bool operator<(const Value& lhs, const Value& rhs);
-bool operator>(const Value& lhs, const Value& rhs);
-bool operator<=(const Value& lhs, const Value& rhs);
-bool operator>=(const Value& lhs, const Value& rhs);
+inline bool operator>(const Value& lhs, const Value& rhs) { return rhs < lhs; }
+inline bool operator<=(const Value& lhs, const Value& rhs) {
+  return !(rhs < lhs);
+}
+inline bool operator>=(const Value& lhs, const Value& rhs) {
+  return !(lhs < rhs);
+}
 
 }  // namespace rst
 

@@ -27,16 +27,10 @@
 
 #include "rst/task_runner/task_runner.h"
 
-#include <utility>
-
 namespace chrono = std::chrono;
 
 namespace rst {
 
 TaskRunner::~TaskRunner() = default;
-
-void TaskRunner::PostTask(std::function<void()>&& task) {
-  PostDelayedTask(std::move(task), chrono::milliseconds::zero());
-}
 
 }  // namespace rst

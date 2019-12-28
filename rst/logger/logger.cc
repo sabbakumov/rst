@@ -28,7 +28,6 @@
 #include "rst/logger/logger.h"
 
 #include <cstdlib>
-#include <utility>
 
 #include "rst/logger/log_error.h"
 #include "rst/strings/format.h"
@@ -39,10 +38,6 @@ namespace {
 Logger* g_logger = nullptr;
 
 }  // namespace
-
-Logger::Logger(NotNull<std::unique_ptr<Sink>> sink) : sink_(std::move(sink)) {}
-
-Logger::~Logger() = default;
 
 // static
 void Logger::Log(const Level level, const NotNull<const char*> filename,
@@ -83,7 +78,7 @@ void Logger::Log(const Level level, const NotNull<const char*> filename,
   RST_DCHECK(level_str != nullptr);
 
   g_logger->sink_->Log(
-      Format("[{}:{}({})] {}", level_str, filename.get(), line, message));
+      Format("[{}:{}({})] {}", level_str, filename, line, message));
 
   if (level == Level::kFatal)
     std::abort();

@@ -27,6 +27,7 @@
 
 #include "rst/task_runner/polling_task_runner.h"
 
+#include <cstddef>
 #include <string>
 #include <thread>
 #include <utility>

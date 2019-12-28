@@ -48,7 +48,7 @@ class FilePtrSink : public Sink {
   // |file| pointer (e.g. stdout, stderr).
   explicit FilePtrSink(NotNull<std::FILE*> file,
                        ShouldClose should_close = ShouldClose(true));
-  ~FilePtrSink();
+  ~FilePtrSink() final;
 
   // Thread safe logging function.
   void Log(std::string_view message) final;

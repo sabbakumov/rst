@@ -31,6 +31,7 @@
 #include <cstdint>
 #include <memory>
 #include <string_view>
+#include <utility>
 
 #include "rst/check/check.h"
 #include "rst/logger/sink.h"
@@ -99,8 +100,9 @@ class Logger {
     kOff,
   };
 
-  explicit Logger(NotNull<std::unique_ptr<Sink>> sink);
-  ~Logger();
+  explicit Logger(NotNull<std::unique_ptr<Sink>> sink)
+      : sink_(std::move(sink)) {}
+  ~Logger() = default;
 
   // Logs a |message|. If the |level| is less than |level_| nothing gets logged.
   static void Log(Level level, NotNull<const char*> filename, int line,
