@@ -71,25 +71,59 @@
 namespace rst {
 namespace internal {
 
+template <class Int, size_t N>
+std::string_view IntToString(char (&str)[N], Int val);
+
+template <class Float, size_t N>
+std::string_view FloatToString(char (&str)[N], NotNull<const char*> format,
+                               Float val);
+
 class Arg {
  public:
-  explicit Arg(bool value);
-  explicit Arg(char value);
-  explicit Arg(short value);           // NOLINT(runtime/int)
-  explicit Arg(unsigned short value);  // NOLINT(runtime/int)
-  explicit Arg(int value);
-  explicit Arg(unsigned int value);
-  explicit Arg(long value);                // NOLINT(runtime/int)
-  explicit Arg(unsigned long value);       // NOLINT(runtime/int)
-  explicit Arg(long long value);           // NOLINT(runtime/int)
-  explicit Arg(unsigned long long value);  // NOLINT(runtime/int)
-  explicit Arg(float value);
-  explicit Arg(double value);
-  explicit Arg(long double value);
-  explicit Arg(std::string_view value);
+  static constexpr size_t kBufferSize = 21;
+
+  explicit Arg(const bool value) : view_(value ? "true" : "false") {}
+
+  explicit Arg(const char value) : view_(buffer_, 1) { buffer_[0] = value; }
+
+  explicit Arg(const short value)  // NOLINT(runtime/int)
+      : view_(IntToString(buffer_, value)) {}
+
+  explicit Arg(const unsigned short value)  // NOLINT(runtime/int)
+      : view_(IntToString(buffer_, value)) {}
+
+  explicit Arg(const int value) : view_(IntToString(buffer_, value)) {}
+
+  explicit Arg(const unsigned int value) : view_(IntToString(buffer_, value)) {}
+
+  explicit Arg(const long value)  // NOLINT(runtime/int)
+      : view_(IntToString(buffer_, value)) {}
+
+  explicit Arg(const unsigned long value)  // NOLINT(runtime/int)
+      : view_(IntToString(buffer_, value)) {}
+
+  explicit Arg(const long long value)  // NOLINT(runtime/int)
+      : view_(IntToString(buffer_, value)) {}
+
+  explicit Arg(const unsigned long long value)  // NOLINT(runtime/int)
+      : view_(IntToString(buffer_, value)) {}
+
+  explicit Arg(const float value)
+      : view_(FloatToString(buffer_, "%g", value)) {}
+
+  explicit Arg(const double value)
+      : view_(FloatToString(buffer_, "%lg", value)) {}
+
+  explicit Arg(const long double value)
+      : view_(FloatToString(buffer_, "%Lg", value)) {}
+
+  explicit Arg(const std::string_view value) : view_(value) {}
+
   // Provides const char* overload since otherwise it will be implicitly
   // converted to bool.
-  explicit Arg(const char* value);
+  explicit Arg(const char* value) : view_(value) {
+    RST_DCHECK(value != nullptr);
+  }
 
   template <class T, class = typename std::enable_if<std::is_enum<T>{}>::type>
   explicit Arg(const T e)
@@ -98,14 +132,14 @@ class Arg {
   // Prevents Arg(pointer) from accidentally producing a bool.
   explicit Arg(void*) = delete;
 
-  ~Arg();
+  ~Arg() = default;
 
   std::string_view view() const { return view_; }
 
  private:
-  char buffer_[21];  // Can store 2^64 - 1 that is 18,446,744,073,709,551,615
-                     // with '\0'.
   const std::string_view view_;
+  char buffer_[kBufferSize];  // Can store 2^64 - 1 that is
+                              // 18,446,744,073,709,551,615 with '\0'.
 
   RST_DISALLOW_COPY_AND_ASSIGN(Arg);
 };

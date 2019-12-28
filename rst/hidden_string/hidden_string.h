@@ -113,7 +113,7 @@ class HiddenString<IndexList<Index...>> {
   std::string Decrypt() const {
     std::string result(str_, sizeof...(Index));
     for (size_t i = 0; i < sizeof...(Index); i++)
-      result[i] ^= (static_cast<size_t>(kXorKey) + i);
+      result[i] ^= static_cast<char>(static_cast<size_t>(kXorKey) + i);
     return result;
   }
 

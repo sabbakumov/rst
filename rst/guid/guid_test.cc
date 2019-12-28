@@ -44,11 +44,11 @@ bool IsGuidv4(const std::string_view guid) {
 }
 
 char ToLowerASCII(const char c) {
-  return (c >= 'A' && c <= 'Z') ? (c + ('a' - 'A')) : c;
+  return (c >= 'A' && c <= 'Z') ? static_cast<char>(c + ('a' - 'A')) : c;
 }
 
 char ToUpperASCII(const char c) {
-  return (c >= 'a' && c <= 'z') ? (c + ('A' - 'a')) : c;
+  return (c >= 'a' && c <= 'z') ? static_cast<char>(c + ('A' - 'a')) : c;
 }
 
 std::string ToLowerASCII(const std::string_view str) {

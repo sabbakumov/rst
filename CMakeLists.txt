@@ -64,6 +64,7 @@ rst/status/status_or.h
 
 rst/stl/adapters.h
 rst/stl/algorithm.h
+rst/stl/resize_uninitialized.h
 
 rst/threading/barrier.h
 rst/threading/barrier.cc
@@ -130,6 +131,7 @@ rst/status/status_test.cc
 
 rst/stl/adapters_test.cc
 rst/stl/algorithm_test.cc
+rst/stl/resize_uninitialized_test.cc
 
 rst/task_runner/polling_task_runner_test.cc
 rst/task_runner/thread_task_runner_test.cc
@@ -143,4 +145,4 @@ rst/value/value_test.cc
 
 TARGET_LINK_LIBRARIES(rst_tests rst pthread gtest gmock)
 
-set(CMAKE_CXX_FLAGS "-Wconversion -Wsign-conversion -Wweak-vtables -Winconsistent-missing-destructor-override -Wall -Wextra -pedantic -std=c++17 -O2 -g -fsanitize=address -pthread -fno-exceptions -fno-rtti -Wexit-time-destructors")
+set(CMAKE_CXX_FLAGS "-Werror -Wconversion -Wsign-conversion -Wweak-vtables -Winconsistent-missing-destructor-override -Wall -Wextra -pedantic -std=c++17 -O2 -g -fsanitize=address -pthread -fno-exceptions -fno-rtti -Wexit-time-destructors")

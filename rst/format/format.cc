@@ -27,27 +27,77 @@
 
 #include "rst/format/format.h"
 
+#include <algorithm>
 #include <cstring>
 
 #include "rst/check/check.h"
+#include "rst/stl/resize_uninitialized.h"
 
 namespace rst {
 namespace internal {
-namespace {
 
-template <class T, size_t N>
-NotNull<char*> FormatAndWrite(char (&str)[N], const NotNull<const char*> format,
-                              const T val) {
-  static_assert(std::is_arithmetic<T>::value, "Not an arithmetic type");
+template <class Int, size_t N>
+std::string_view IntToString(char (&str)[N], const Int val) {
+  static_assert(std::is_integral<Int>::value);
+
+  auto res = static_cast<typename std::make_unsigned<Int>::type>(val);
+
+  auto p = str + N;
+  do {
+    --p;
+    RST_DCHECK(p != str);
+    *p = static_cast<char>((res % 10) + '0');
+    res /= 10;
+  } while (res != 0);
+
+  if (val < 0) {
+    --p;
+    RST_DCHECK(p != str);
+    *p = '-';
+  }
+  return std::string_view(p, static_cast<size_t>(str + N - p));
+}
+
+template std::string_view IntToString(char (&str)[Arg::kBufferSize],
+                                      short val);  // NOLINT(runtime/int)
+template std::string_view IntToString(
+    char (&str)[Arg::kBufferSize],
+    unsigned short val);  // NOLINT(runtime/int)
+template std::string_view IntToString(char (&str)[Arg::kBufferSize], int val);
+template std::string_view IntToString(char (&str)[Arg::kBufferSize],
+                                      unsigned int val);
+template std::string_view IntToString(char (&str)[Arg::kBufferSize],
+                                      long val);  // NOLINT(runtime/int)
+template std::string_view IntToString(
+    char (&str)[Arg::kBufferSize],
+    unsigned long val);  // NOLINT(runtime/int)
+template std::string_view IntToString(char (&str)[Arg::kBufferSize],
+                                      long long val);  // NOLINT(runtime/int)
+template std::string_view IntToString(
+    char (&str)[Arg::kBufferSize],
+    unsigned long long val);  // NOLINT(runtime/int)
+
+template <class Float, size_t N>
+std::string_view FloatToString(char (&str)[N],
+                               const NotNull<const char*> format,
+                               const Float val) {
+  static_assert(std::is_floating_point<Float>::value);
   const auto bytes_written =
       std::sprintf(str, format.get(), val);  // NOLINT(runtime/printf)
   RST_DCHECK(bytes_written > 0);
   RST_DCHECK(static_cast<size_t>(bytes_written) < N);
   RST_DCHECK(str[bytes_written] == '\0');
-  return str + bytes_written;
+  return std::string_view(str, static_cast<size_t>(bytes_written));
 }
 
-}  // namespace
+template std::string_view FloatToString(char (&str)[Arg::kBufferSize],
+                                        NotNull<const char*> format, float val);
+template std::string_view FloatToString(char (&str)[Arg::kBufferSize],
+                                        NotNull<const char*> format,
+                                        double val);
+template std::string_view FloatToString(char (&str)[Arg::kBufferSize],
+                                        NotNull<const char*> format,
+                                        long double val);
 
 std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
                                   const size_t format_size,
@@ -55,21 +105,20 @@ std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
                                   const size_t size) {
   auto format = not_null_format.get();
 
-  std::string output;
   RST_DCHECK(format_size == std::strlen(format));
-  auto capacity = format_size;
+  auto new_size = format_size;
   for (size_t i = 0; i < size; i++) {
     RST_DCHECK(values != nullptr);
-    capacity += values[i].view().size();
+    new_size += values[i].view().size();
   }
-  RST_DCHECK(capacity >= size * 2);
-  capacity -= size * 2;
-  output.reserve(capacity);
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-  const auto old_capacity = output.capacity();
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  RST_DCHECK(new_size >= size * 2);
+  new_size -= size * 2;
+
+  std::string output;
+  StringResizeUninitialized(NotNull(&output), new_size);
 
   size_t arg_idx = 0;
+  auto target = output.data();
   for (auto c = '\0'; (c = *format) != '\0'; format++) {
     switch (c) {
       case '{': {
@@ -80,7 +129,8 @@ std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
           }
           case '}': {
             RST_DCHECK(arg_idx < size && "Extra arguments");
-            output.append(values[arg_idx].view());
+            const auto src = values[arg_idx].view();
+            target = std::copy_n(src.data(), src.size(), target);
             format++;
             arg_idx++;
             continue;
@@ -101,83 +151,14 @@ std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
       }
     }
 
-    output.push_back(c);
+    *target++ = c;
   }
 
   RST_DCHECK(arg_idx == size && "Numbers of parameters should match");
 
-#if RST_BUILDFLAG(DCHECK_IS_ON)
-  RST_DCHECK(output.capacity() == old_capacity);
-#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-
+  output.resize(static_cast<size_t>(target - output.data()));
   return output;
 }
 
-Arg::Arg(const bool value) : view_(value ? "true" : "false") {}
-
-Arg::Arg(const char value) : view_(buffer_, 1) { buffer_[0] = value; }
-
-Arg::Arg(const short value)  // NOLINT(runtime/int)
-    : view_(buffer_,
-            static_cast<size_t>(FormatAndWrite(buffer_, "%hd", value).get() -
-                                buffer_)) {}
-
-Arg::Arg(const unsigned short value)  // NOLINT(runtime/int)
-    : view_(buffer_,
-            static_cast<size_t>(FormatAndWrite(buffer_, "%hu", value).get() -
-                                buffer_)) {}
-
-Arg::Arg(const int value)
-    : view_(buffer_,
-            static_cast<size_t>(FormatAndWrite(buffer_, "%d", value).get() -
-                                buffer_)) {}
-
-Arg::Arg(const unsigned int value)
-    : view_(buffer_,
-            static_cast<size_t>(FormatAndWrite(buffer_, "%u", value).get() -
-                                buffer_)) {}
-
-Arg::Arg(const long value)  // NOLINT(runtime/int)
-    : view_(buffer_,
-            static_cast<size_t>(FormatAndWrite(buffer_, "%ld", value).get() -
-                                buffer_)) {}
-
-Arg::Arg(const unsigned long value)  // NOLINT(runtime/int)
-    : view_(buffer_,
-            static_cast<size_t>(FormatAndWrite(buffer_, "%lu", value).get() -
-                                buffer_)) {}
-
-Arg::Arg(const long long value)  // NOLINT(runtime/int)
-    : view_(buffer_,
-            static_cast<size_t>(FormatAndWrite(buffer_, "%lld", value).get() -
-                                buffer_)) {}
-
-Arg::Arg(const unsigned long long value)  // NOLINT(runtime/int)
-    : view_(buffer_,
-            static_cast<size_t>(FormatAndWrite(buffer_, "%llu", value).get() -
-                                buffer_)) {}
-
-Arg::Arg(const float value)
-    : view_(buffer_,
-            static_cast<size_t>(FormatAndWrite(buffer_, "%g", value).get() -
-                                buffer_)) {}
-
-Arg::Arg(const double value)
-    : view_(buffer_,
-            static_cast<size_t>(FormatAndWrite(buffer_, "%lg", value).get() -
-                                buffer_)) {}
-
-Arg::Arg(const long double value)
-    : view_(buffer_,
-            static_cast<size_t>(FormatAndWrite(buffer_, "%Lg", value).get() -
-                                buffer_)) {}
-
-Arg::Arg(const std::string_view value) : view_(value) {}
-
-Arg::Arg(const char* value) : view_(value) { RST_DCHECK(value != nullptr); }
-
-Arg::~Arg() = default;
-
 }  // namespace internal
-
 }  // namespace rst
