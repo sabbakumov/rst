@@ -28,15 +28,13 @@
 #ifndef RST_STRINGS_FORMAT_H_
 #define RST_STRINGS_FORMAT_H_
 
+#include <cstddef>
 #include <initializer_list>
-#include <iterator>
 #include <string>
 #include <string_view>
-#include <type_traits>
-#include <utility>
 
-#include "rst/macros/macros.h"
 #include "rst/not_null/not_null.h"
+#include "rst/strings/arg.h"
 
 // This component is for efficiently performing string formatting.
 //
@@ -71,79 +69,6 @@
 // If an invalid format string is provided, Format() asserts in a debug build.
 namespace rst {
 namespace internal {
-
-template <class Int, size_t N>
-std::string_view IntToString(char (&str)[N], Int val);
-
-template <class Float, size_t N>
-std::string_view FloatToString(char (&str)[N], NotNull<const char*> format,
-                               Float val);
-
-class Arg {
- public:
-  static constexpr size_t kBufferSize = 21;
-
-  explicit Arg(const bool value) : view_(value ? "true" : "false") {}
-
-  explicit Arg(const char value) : view_(buffer_, 1) { buffer_[0] = value; }
-
-  explicit Arg(const short value)  // NOLINT(runtime/int)
-      : view_(IntToString(buffer_, value)) {}
-
-  explicit Arg(const unsigned short value)  // NOLINT(runtime/int)
-      : view_(IntToString(buffer_, value)) {}
-
-  explicit Arg(const int value) : view_(IntToString(buffer_, value)) {}
-
-  explicit Arg(const unsigned int value) : view_(IntToString(buffer_, value)) {}
-
-  explicit Arg(const long value)  // NOLINT(runtime/int)
-      : view_(IntToString(buffer_, value)) {}
-
-  explicit Arg(const unsigned long value)  // NOLINT(runtime/int)
-      : view_(IntToString(buffer_, value)) {}
-
-  explicit Arg(const long long value)  // NOLINT(runtime/int)
-      : view_(IntToString(buffer_, value)) {}
-
-  explicit Arg(const unsigned long long value)  // NOLINT(runtime/int)
-      : view_(IntToString(buffer_, value)) {}
-
-  explicit Arg(const float value)
-      : view_(FloatToString(buffer_, "%g", value)) {}
-
-  explicit Arg(const double value)
-      : view_(FloatToString(buffer_, "%lg", value)) {}
-
-  explicit Arg(const long double value)
-      : view_(FloatToString(buffer_, "%Lg", value)) {}
-
-  explicit Arg(const std::string_view value) : view_(value) {}
-
-  // Provides const char* overload since otherwise it will be implicitly
-  // converted to bool.
-  explicit Arg(const char* value) : view_(value) {
-    RST_DCHECK(value != nullptr);
-  }
-
-  template <class T, class = typename std::enable_if<std::is_enum<T>{}>::type>
-  explicit Arg(const T e)
-      : Arg(static_cast<typename std::underlying_type<T>::type>(e)) {}
-
-  // Prevents Arg(pointer) from accidentally producing a bool.
-  explicit Arg(void*) = delete;
-
-  ~Arg() = default;
-
-  std::string_view view() const { return view_; }
-
- private:
-  const std::string_view view_;
-  char buffer_[kBufferSize];  // Can store 2^64 - 1 that is
-                              // 18,446,744,073,709,551,615 with '\0'.
-
-  RST_DISALLOW_COPY_AND_ASSIGN(Arg);
-};
 
 std::string FormatAndReturnString(NotNull<const char*> format,
                                   size_t format_size,

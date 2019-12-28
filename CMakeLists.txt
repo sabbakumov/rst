@@ -63,8 +63,12 @@ rst/stl/adapters.h
 rst/stl/algorithm.h
 rst/stl/resize_uninitialized.h
 
+rst/strings/arg.cc
+rst/strings/arg.h
 rst/strings/format.cc
 rst/strings/format.h
+rst/strings/str_cat.cc
+rst/strings/str_cat.h
 
 rst/threading/barrier.h
 rst/threading/barrier.cc
@@ -132,6 +136,7 @@ rst/stl/algorithm_test.cc
 rst/stl/resize_uninitialized_test.cc
 
 rst/strings/format_test.cc
+rst/strings/str_cat_test.cc
 
 rst/task_runner/polling_task_runner_test.cc
 rst/task_runner/thread_task_runner_test.cc
