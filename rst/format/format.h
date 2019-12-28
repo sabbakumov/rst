@@ -28,6 +28,7 @@
 #ifndef RST_FORMAT_FORMAT_H_
 #define RST_FORMAT_FORMAT_H_
 
+#include <initializer_list>
 #include <iterator>
 #include <string>
 #include <string_view>
@@ -146,7 +147,15 @@ class Arg {
 
 std::string FormatAndReturnString(NotNull<const char*> format,
                                   size_t format_size,
-                                  Nullable<const Arg*> values, size_t size);
+                                  Nullable<const std::string_view*> values,
+                                  size_t size);
+
+inline std::string FormatAndReturnString(
+    NotNull<const char*> format, size_t format_size,
+    std::initializer_list<std::string_view> values) {
+  return FormatAndReturnString(format, format_size, values.begin(),
+                               values.size());
+}
 
 }  // namespace internal
 
@@ -157,11 +166,10 @@ inline std::string Format(const char (&format)[N]) {
 }
 
 template <size_t N, class... Args>
-inline std::string Format(const char (&format)[N], Args&&... args) {
+inline std::string Format(const char (&format)[N], const Args&... args) {
   static_assert(N > 0);
-  const internal::Arg values[] = {internal::Arg(std::forward<Args>(args))...};
-  return internal::FormatAndReturnString(format, N - 1, values,
-                                         std::size(values));
+  return internal::FormatAndReturnString(
+      format, N - 1, {static_cast<internal::Arg>(args).view()...});
 }
 
 }  // namespace rst

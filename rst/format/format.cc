@@ -99,17 +99,16 @@ template std::string_view FloatToString(char (&str)[Arg::kBufferSize],
                                         NotNull<const char*> format,
                                         long double val);
 
-std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
-                                  const size_t format_size,
-                                  const Nullable<const Arg*> values,
-                                  const size_t size) {
+std::string FormatAndReturnString(
+    const NotNull<const char*> not_null_format, const size_t format_size,
+    const Nullable<const std::string_view*> values, const size_t size) {
   auto format = not_null_format.get();
 
   RST_DCHECK(format_size == std::strlen(format));
   auto new_size = format_size;
   for (size_t i = 0; i < size; i++) {
     RST_DCHECK(values != nullptr);
-    new_size += values[i].view().size();
+    new_size += values[i].size();
   }
   RST_DCHECK(new_size >= size * 2);
   new_size -= size * 2;
@@ -129,7 +128,7 @@ std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
           }
           case '}': {
             RST_DCHECK(arg_idx < size && "Extra arguments");
-            const auto src = values[arg_idx].view();
+            const auto src = values[arg_idx];
             target = std::copy_n(src.data(), src.size(), target);
             format++;
             arg_idx++;
