@@ -124,6 +124,7 @@ std::string FormatAndReturnString(
         switch (*(format + 1)) {
           case '{': {
             format++;
+            *target++ = '{';
             break;
           }
           case '}': {
@@ -132,7 +133,7 @@ std::string FormatAndReturnString(
             target = std::copy_n(src.data(), src.size(), target);
             format++;
             arg_idx++;
-            continue;
+            break;
           }
           default: { RST_DCHECK(false && "Invalid format string"); }
         }
@@ -142,15 +143,18 @@ std::string FormatAndReturnString(
         switch (*(format + 1)) {
           case '}': {
             format++;
+            *target++ = '}';
             break;
           }
           default: { RST_DCHECK(false && "Unmatched '}' in format string"); }
         }
         break;
       }
+      default: {
+        *target++ = c;
+        break;
+      }
     }
-
-    *target++ = c;
   }
 
   RST_DCHECK(arg_idx == size && "Numbers of parameters should match");
