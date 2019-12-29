@@ -78,7 +78,7 @@ void Logger::Log(const Level level, const NotNull<const char*> filename,
   RST_DCHECK(level_str != nullptr);
 
   g_logger->sink_->Log(
-      Format("[{}:{}({})] {}", level_str, filename, line, message));
+      Format("[{}:{}({})] {}", {level_str, filename, line, message}));
 
   if (level == Level::kFatal)
     std::abort();

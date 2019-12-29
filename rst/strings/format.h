@@ -54,7 +54,7 @@
 // be output.
 //
 // Example:
-//   std::string s = Format("{} purchased {} {}", "Bob", 5, "Apples");
+//   std::string s = Format("{} purchased {} {}", {"Bob", 5, "Apples"});
 //   assert(s == "Bob purchased 5 Apples");
 //
 // Supported types:
@@ -72,29 +72,19 @@ namespace internal {
 
 std::string FormatAndReturnString(NotNull<const char*> format,
                                   size_t format_size,
-                                  Nullable<const std::string_view*> values,
-                                  size_t size);
-
-inline std::string FormatAndReturnString(
-    NotNull<const char*> format, size_t format_size,
-    std::initializer_list<std::string_view> values) {
-  return FormatAndReturnString(format, format_size, values.begin(),
-                               values.size());
-}
-
+                                  Nullable<const Arg*> values, size_t size);
 }  // namespace internal
 
 template <size_t N>
 inline std::string Format(const char (&format)[N]) {
-  static_assert(N > 0);
   return internal::FormatAndReturnString(format, N - 1, nullptr, 0);
 }
 
 template <size_t N, class... Args>
-inline std::string Format(const char (&format)[N], const Args&... args) {
-  static_assert(N > 0);
-  return internal::FormatAndReturnString(
-      format, N - 1, {static_cast<internal::Arg>(args).view()...});
+inline std::string Format(const char (&format)[N],
+                          const std::initializer_list<internal::Arg> values) {
+  return internal::FormatAndReturnString(format, N - 1, values.begin(),
+                                         values.size());
 }
 
 }  // namespace rst

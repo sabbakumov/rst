@@ -36,9 +36,10 @@
 namespace rst {
 namespace internal {
 
-std::string FormatAndReturnString(
-    const NotNull<const char*> not_null_format, const size_t format_size,
-    const Nullable<const std::string_view*> values, const size_t size) {
+std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
+                                  const size_t format_size,
+                                  const Nullable<const Arg*> values,
+                                  const size_t size) {
   auto format = not_null_format.get();
 
   RST_DCHECK(format_size == std::strlen(format));
@@ -66,7 +67,7 @@ std::string FormatAndReturnString(
           }
           case '}': {
             RST_DCHECK(arg_idx < size && "Extra arguments");
-            const auto src = values[arg_idx];
+            const auto src = values[arg_idx].view();
             target = std::copy_n(src.data(), src.size(), target);
             format++;
             arg_idx++;

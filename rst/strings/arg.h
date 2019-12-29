@@ -30,6 +30,7 @@
 
 #include <cstddef>
 #include <cstdio>
+#include <string>
 #include <string_view>
 #include <type_traits>
 
@@ -60,60 +61,69 @@ class Arg {
  public:
   static constexpr size_t kBufferSize = 21;
 
-  explicit Arg(const bool value) : view_(value ? "true" : "false") {}
+  Arg(const bool value)  // NOLINT(runtime/explicit)
+      : view_(value ? "true" : "false") {}
 
-  explicit Arg(const char value) : view_(buffer_, 1) { buffer_[0] = value; }
+  Arg(const char value)  // NOLINT(runtime/explicit)
+      : view_(buffer_, 1) {
+    buffer_[0] = value;
+  }
 
-  explicit Arg(const short value)  // NOLINT(runtime/int)
+  Arg(const short value) : view_(IntToString(buffer_, value)) {}  // NOLINT(*)
+
+  Arg(const unsigned short value)  // NOLINT(*)
       : view_(IntToString(buffer_, value)) {}
 
-  explicit Arg(const unsigned short value)  // NOLINT(runtime/int)
+  Arg(const int value)  // NOLINT(runtime/explicit)
       : view_(IntToString(buffer_, value)) {}
 
-  explicit Arg(const int value) : view_(IntToString(buffer_, value)) {}
-
-  explicit Arg(const unsigned int value) : view_(IntToString(buffer_, value)) {}
-
-  explicit Arg(const long value)  // NOLINT(runtime/int)
+  Arg(const unsigned int value)  // NOLINT(runtime/explicit)
       : view_(IntToString(buffer_, value)) {}
 
-  explicit Arg(const unsigned long value)  // NOLINT(runtime/int)
+  Arg(const long value) : view_(IntToString(buffer_, value)) {}  // NOLINT(*)
+
+  Arg(const unsigned long value)  // NOLINT(*)
       : view_(IntToString(buffer_, value)) {}
 
-  explicit Arg(const long long value)  // NOLINT(runtime/int)
+  Arg(const long long value)  // NOLINT(*)
       : view_(IntToString(buffer_, value)) {}
 
-  explicit Arg(const unsigned long long value)  // NOLINT(runtime/int)
+  Arg(const unsigned long long value)  // NOLINT(*)
       : view_(IntToString(buffer_, value)) {}
 
-  explicit Arg(const float value)
+  Arg(const float value)  // NOLINT(runtime/explicit)
       : view_(FloatToString(buffer_, "%g", value)) {}
 
-  explicit Arg(const double value)
+  Arg(const double value)  // NOLINT(runtime/explicit)
       : view_(FloatToString(buffer_, "%lg", value)) {}
 
-  explicit Arg(const long double value)
+  Arg(const long double value)  // NOLINT(runtime/explicit)
       : view_(FloatToString(buffer_, "%Lg", value)) {}
 
-  explicit Arg(const std::string_view value) : view_(value) {}
+  Arg(const std::string_view value)  // NOLINT(runtime/explicit)
+      : view_(value) {}
+  Arg(const std::string& value) : view_(value) {}  // NOLINT(runtime/explicit)
 
   // Provides const char* overload since otherwise it will be implicitly
   // converted to bool.
-  explicit Arg(const char* value) : view_(value) {
+  Arg(const char* value)  // NOLINT(runtime/explicit)
+      : view_(value) {
     RST_DCHECK(value != nullptr);
   }
-  explicit Arg(const NotNull<const char*> value) : view_(value.get()) {}
+  Arg(const NotNull<const char*> value)  // NOLINT(runtime/explicit)
+      : view_(value.get()) {}
 
   template <class T, class = typename std::enable_if<std::is_enum<T>{}>::type>
-  explicit Arg(const T e)
+  Arg(const T e)  // NOLINT(runtime/explicit)
       : Arg(static_cast<typename std::underlying_type<T>::type>(e)) {}
 
   // Prevents Arg(pointer) from accidentally producing a bool.
-  explicit Arg(void*) = delete;
+  Arg(void*) = delete;  // NOLINT(runtime/explicit)
 
   ~Arg() = default;
 
   std::string_view view() const { return view_; }
+  size_t size() const { return view_.size(); }
 
  private:
   const std::string_view view_;
