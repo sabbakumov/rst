@@ -30,7 +30,6 @@
 
 #include <initializer_list>
 #include <string>
-#include <string_view>
 
 #include "rst/strings/arg.h"
 
@@ -47,7 +46,7 @@
 // below for a full list of supported types.
 //
 // Example:
-//   std::string s = StrCat("Bob", " purchased ", 5, " ", Apples");
+//   std::string s = StrCat({"Bob", " purchased ", 5, " ", Apples"});
 //   assert(s == "Bob purchased 5 Apples");
 //
 // Supported types:
@@ -59,16 +58,8 @@
 //   * char
 //   * enums (printed as underlying integer type)
 namespace rst {
-namespace internal {
 
-std::string CatViews(std::initializer_list<std::string_view> values);
-
-}  // namespace internal
-
-template <class... Args>
-inline std::string StrCat(const Args&... args) {
-  return internal::CatViews({static_cast<internal::Arg>(args).view()...});
-}
+std::string StrCat(std::initializer_list<internal::Arg> values);
 
 }  // namespace rst
 

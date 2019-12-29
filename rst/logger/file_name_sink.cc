@@ -47,7 +47,7 @@ StatusOr<NotNull<std::unique_ptr<FileNameSink>>> FileNameSink::Create(
 
   sink->log_file_.reset(std::fopen(filename.get(), "w"));
   if (sink->log_file_ == nullptr)
-    return MakeStatus<LogError>(StrCat("Can't open file ", filename));
+    return MakeStatus<LogError>(StrCat({"Can't open file ", filename}));
 
   return sink;
 }

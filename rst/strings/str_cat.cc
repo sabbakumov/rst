@@ -35,23 +35,23 @@
 #include "rst/stl/resize_uninitialized.h"
 
 namespace rst {
-namespace internal {
 
-std::string CatViews(std::initializer_list<std::string_view> values) {
+std::string StrCat(std::initializer_list<internal::Arg> values) {
   size_t new_size = 0;
-  for (const auto val : values)
+  for (const auto& val : values)
     new_size += val.size();
 
   std::string output;
   StringResizeUninitialized(NotNull(&output), new_size);
 
   auto out = output.data();
-  for (const auto val : values)
-    out = std::copy_n(val.data(), val.size(), out);
+  for (const auto& val : values) {
+    const auto src = val.view();
+    out = std::copy_n(src.data(), src.size(), out);
+  }
 
   RST_DCHECK(out == output.data() + output.size());
   return output;
 }
 
-}  // namespace internal
 }  // namespace rst

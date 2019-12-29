@@ -62,26 +62,26 @@ Status WriteFile(const NotNull<const char*> filename,
       });
 
   if (file == nullptr)
-    return MakeStatus<FileOpenError>(StrCat("Can't open file ", filename));
+    return MakeStatus<FileOpenError>(StrCat({"Can't open file ", filename}));
 
   if (std::fwrite(data.data(), 1, data.size(), file.get()) != data.size())
-    return MakeStatus<FileError>(StrCat("Can't write file ", filename));
+    return MakeStatus<FileError>(StrCat({"Can't write file ", filename}));
 
   const auto raw_file = file.release();
   if (std::fclose(raw_file) != 0)
-    return MakeStatus<FileError>(StrCat("Can't close file ", filename));
+    return MakeStatus<FileError>(StrCat({"Can't close file ", filename}));
 
   return Status::OK();
 }
 
 Status WriteImportantFile(const NotNull<const char*> filename,
                           const std::string_view data) {
-  const auto temp_filename = StrCat(filename, "_tmp_");
+  const auto temp_filename = StrCat({filename, "_tmp_"});
   RST_TRY(WriteFile(temp_filename.c_str(), data));
 
   if (std::rename(temp_filename.c_str(), filename.get()) != 0) {
     return MakeStatus<FileError>(
-        StrCat("Can't rename temp file ", temp_filename));
+        StrCat({"Can't rename temp file ", temp_filename}));
   }
 
   return Status::OK();
@@ -95,7 +95,7 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
       });
 
   if (file == nullptr)
-    return MakeStatus<FileOpenError>(StrCat("Can't open file ", filename));
+    return MakeStatus<FileOpenError>(StrCat({"Can't open file ", filename}));
 
   const auto get_file_size = [](const NotNull<FILE*> file)
       -> std::optional<long> {  // NOLINT(runtime/int)
@@ -132,11 +132,11 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
   }
 
   if (std::ferror(file.get()) != 0)
-    return MakeStatus<FileError>(StrCat("Can't read file ", filename));
+    return MakeStatus<FileError>(StrCat({"Can't read file ", filename}));
 
   const auto raw_file = file.release();
   if (std::fclose(raw_file) != 0)
-    return MakeStatus<FileError>(StrCat("Can't close file ", filename));
+    return MakeStatus<FileError>(StrCat({"Can't close file ", filename}));
 
   content.resize(bytes_read_so_far);
   return content;

@@ -31,7 +31,6 @@
 #include <cstddef>
 #include <initializer_list>
 #include <string>
-#include <string_view>
 
 #include "rst/not_null/not_null.h"
 #include "rst/strings/arg.h"
@@ -80,7 +79,7 @@ inline std::string Format(const char (&format)[N]) {
   return internal::FormatAndReturnString(format, N - 1, nullptr, 0);
 }
 
-template <size_t N, class... Args>
+template <size_t N>
 inline std::string Format(const char (&format)[N],
                           const std::initializer_list<internal::Arg> values) {
   return internal::FormatAndReturnString(format, N - 1, values.begin(),

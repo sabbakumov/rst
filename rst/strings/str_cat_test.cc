@@ -37,36 +37,36 @@
 
 namespace rst {
 
-TEST(StrCat, NoArgs) { EXPECT_EQ(StrCat("test"), "test"); }
+TEST(StrCat, NoArgs) { EXPECT_EQ(StrCat({"test"}), "test"); }
 
 TEST(StrCat, ArgsInDifferentPositions) {
-  EXPECT_EQ(StrCat(42), "42");
-  EXPECT_EQ(StrCat("before ", 42), "before 42");
-  EXPECT_EQ(StrCat(42, " after"), "42 after");
-  EXPECT_EQ(StrCat("before ", 42, " after"), "before 42 after");
-  EXPECT_EQ(StrCat("answer", " = ", 42), "answer = 42");
-  EXPECT_EQ(StrCat("abra", "cad", "abra"), "abracadabra");
+  EXPECT_EQ(StrCat({42}), "42");
+  EXPECT_EQ(StrCat({"before ", 42}), "before 42");
+  EXPECT_EQ(StrCat({42, " after"}), "42 after");
+  EXPECT_EQ(StrCat({"before ", 42, " after"}), "before 42 after");
+  EXPECT_EQ(StrCat({"answer", " = ", 42}), "answer = 42");
+  EXPECT_EQ(StrCat({"abra", "cad", "abra"}), "abracadabra");
 }
 
-TEST(StrCat, Variadic) { EXPECT_EQ(StrCat("ab", "c", 1), "abc1"); }
+TEST(StrCat, Variadic) { EXPECT_EQ(StrCat({"ab", "c", 1}), "abc1"); }
 
 TEST(StrCat, MaxArgs) {
-  EXPECT_EQ(StrCat(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 1.23,
-                   1.23f),
+  EXPECT_EQ(StrCat({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 1.23,
+                    1.23f}),
             "0123456789abcde1.231.23");
 }
 
 TEST(StrCat, Strings) {
   const std::string s = "string";
-  EXPECT_EQ(StrCat(s), "string");
-  EXPECT_EQ(StrCat(s, s), "stringstring");
-  EXPECT_EQ(StrCat(std::string("temp")), "temp");
-  EXPECT_EQ(StrCat(std::string_view("temp")), "temp");
+  EXPECT_EQ(StrCat({s}), "string");
+  EXPECT_EQ(StrCat({s, s}), "stringstring");
+  EXPECT_EQ(StrCat({std::string("temp")}), "temp");
+  EXPECT_EQ(StrCat({std::string_view("temp")}), "temp");
 }
 
 TEST(StrCat, Common) {
-  EXPECT_EQ(StrCat(), std::string());
-  EXPECT_EQ(StrCat(1234, " Hello, ", "wor", 'l', 'd'), "1234 Hello, world");
+  EXPECT_EQ(StrCat({}), std::string());
+  EXPECT_EQ(StrCat({1234, " Hello, ", "wor", 'l', 'd'}), "1234 Hello, world");
 }
 
 TEST(StrCat, Numbers) {
@@ -84,44 +84,56 @@ TEST(StrCat, Numbers) {
   static constexpr long double kLongDouble = 10.0L;
 
   EXPECT_EQ(
-      StrCat(kShort, kInt, kLong, kLongLong, kUnsignedShort, kUnsignedInt,
-             kUnsignedLong, kUnsignedLongLong, kFloat, kDouble, kLongDouble),
+      StrCat({kShort, kInt, kLong, kLongLong, kUnsignedShort, kUnsignedInt,
+              kUnsignedLong, kUnsignedLongLong, kFloat, kDouble, kLongDouble}),
       "012345678910");
 }
 
 TEST(StrCat, MinMax) {
   const auto string = StrCat(
-      std::numeric_limits<short>::min(),  // NOLINT(runtime/int)
-      " ",
-      std::numeric_limits<short>::max(),  // NOLINT(runtime/int)
-      " ", std::numeric_limits<int>::min(), " ",
-      std::numeric_limits<int>::max(), " ",
-      std::numeric_limits<long>::min(),  // NOLINT(runtime/int)
-      " ",
-      std::numeric_limits<long>::max(),  // NOLINT(runtime/int)
-      " ",
-      std::numeric_limits<long long>::min(),  // NOLINT(runtime/int)
-      " ",
-      std::numeric_limits<long long>::max(),  // NOLINT(runtime/int)
-      " ",
-      std::numeric_limits<unsigned short>::min(),  // NOLINT(runtime/int)
-      " ",
-      std::numeric_limits<unsigned short>::max(),  // NOLINT(runtime/int)
-      " ", std::numeric_limits<unsigned int>::min(), " ",
-      std::numeric_limits<unsigned int>::max(), " ",
-      std::numeric_limits<unsigned long>::min(),  // NOLINT(runtime/int)
-      " ",
-      std::numeric_limits<unsigned long>::max(),  // NOLINT(runtime/int)
-      " ",
-      std::numeric_limits<unsigned long long>::min(),  // NOLINT(runtime/int)
-      " ",
-      std::numeric_limits<unsigned long long>::max(),  // NOLINT(runtime/int)
-      " ", std::numeric_limits<float>::min(), " ",
-      std::numeric_limits<float>::max(), " ",
-      std::numeric_limits<double>::min(), " ",
-      std::numeric_limits<double>::max(), " ",
-      std::numeric_limits<long double>::min(), " ",
-      std::numeric_limits<long double>::max());
+      {std::numeric_limits<short>::min(),  // NOLINT(runtime/int)
+       " ",
+       std::numeric_limits<short>::max(),  // NOLINT(runtime/int)
+       " ",
+       std::numeric_limits<int>::min(),
+       " ",
+       std::numeric_limits<int>::max(),
+       " ",
+       std::numeric_limits<long>::min(),  // NOLINT(runtime/int)
+       " ",
+       std::numeric_limits<long>::max(),  // NOLINT(runtime/int)
+       " ",
+       std::numeric_limits<long long>::min(),  // NOLINT(runtime/int)
+       " ",
+       std::numeric_limits<long long>::max(),  // NOLINT(runtime/int)
+       " ",
+       std::numeric_limits<unsigned short>::min(),  // NOLINT(runtime/int)
+       " ",
+       std::numeric_limits<unsigned short>::max(),  // NOLINT(runtime/int)
+       " ",
+       std::numeric_limits<unsigned int>::min(),
+       " ",
+       std::numeric_limits<unsigned int>::max(),
+       " ",
+       std::numeric_limits<unsigned long>::min(),  // NOLINT(runtime/int)
+       " ",
+       std::numeric_limits<unsigned long>::max(),  // NOLINT(runtime/int)
+       " ",
+       std::numeric_limits<unsigned long long>::min(),  // NOLINT(runtime/int)
+       " ",
+       std::numeric_limits<unsigned long long>::max(),  // NOLINT(runtime/int)
+       " ",
+       std::numeric_limits<float>::min(),
+       " ",
+       std::numeric_limits<float>::max(),
+       " ",
+       std::numeric_limits<double>::min(),
+       " ",
+       std::numeric_limits<double>::max(),
+       " ",
+       std::numeric_limits<long double>::min(),
+       " ",
+       std::numeric_limits<long double>::max()});
 
   std::string result;
   result +=
@@ -189,67 +201,67 @@ TEST(StrCat, MinMax) {
 
 TEST(StrCat, EmptyStdString) {
   const std::string str;
-  EXPECT_EQ(StrCat(str), std::string());
+  EXPECT_EQ(StrCat({str}), std::string());
 }
 
 TEST(StrCat, EmptyCharPtr) {
   static constexpr auto kStr = "";
-  EXPECT_EQ(StrCat(kStr), std::string());
+  EXPECT_EQ(StrCat({kStr}), std::string());
 }
 
 TEST(StrCat, NormalStdString) {
   const std::string str = "Normal";
-  EXPECT_EQ(StrCat(str), "Normal");
+  EXPECT_EQ(StrCat({str}), "Normal");
 }
 
 TEST(StrCat, NormalCharPtr) {
   static constexpr auto kStr = "Normal";
-  EXPECT_EQ(StrCat(kStr), "Normal");
+  EXPECT_EQ(StrCat({kStr}), "Normal");
 }
 
 TEST(StrCat, StringView) {
   static constexpr std::string_view kStr = "Normal";
-  EXPECT_EQ(StrCat(kStr), "Normal");
+  EXPECT_EQ(StrCat({kStr}), "Normal");
 }
 
 TEST(StrCat, NormalChar) {
   static constexpr auto kC = 'C';
-  EXPECT_EQ(StrCat(kC), "C");
+  EXPECT_EQ(StrCat({kC}), "C");
 }
 
 TEST(StrCat, BigStdString) {
   const std::string str(1024, 'A');
-  EXPECT_EQ(StrCat(str), str);
+  EXPECT_EQ(StrCat({str}), str);
 }
 
 TEST(StrCat, BigCharPtr) {
   const std::string str(1024, 'A');
-  EXPECT_EQ(StrCat(str.c_str()), str);
+  EXPECT_EQ(StrCat({str.c_str()}), str);
 }
 
 TEST(StrCat, AppendBigStdString) {
   const std::string initial_str = "Initial";
   const std::string str(1024, 'A');
-  EXPECT_EQ(StrCat(initial_str, str, initial_str),
+  EXPECT_EQ(StrCat({initial_str, str, initial_str}),
             initial_str + str + initial_str);
 }
 
 TEST(StrCat, AppendBigCharPtr) {
   static constexpr auto kInitialStr = "Initial";
   const std::string str(1024, 'A');
-  EXPECT_EQ(StrCat(kInitialStr, str.c_str(), kInitialStr),
+  EXPECT_EQ(StrCat({kInitialStr, str.c_str(), kInitialStr}),
             kInitialStr + str + kInitialStr);
 }
 
 TEST(StrCat, AppendBigChar) {
   const std::string str(1024, 'A');
   static constexpr auto kC = 'C';
-  EXPECT_EQ(StrCat(str, kC), str + kC);
+  EXPECT_EQ(StrCat({str, kC}), str + kC);
 }
 
 TEST(StrCat, Bool) {
-  EXPECT_EQ(StrCat(false), "false");
-  EXPECT_EQ(StrCat(true), "true");
+  EXPECT_EQ(StrCat({false}), "false");
+  EXPECT_EQ(StrCat({true}), "true");
 }
 
 TEST(StrCat, Doubles) {
@@ -258,7 +270,7 @@ TEST(StrCat, Doubles) {
   for (int64_t i = -1100000; i < 1100000; i++) {
     stream.str(std::string());
     stream << static_cast<double>(i);
-    EXPECT_EQ(StrCat(static_cast<double>(i)), stream.str());
+    EXPECT_EQ(StrCat({static_cast<double>(i)}), stream.str());
   }
 }
 
@@ -270,7 +282,7 @@ TEST(StrCat, Enum) {
     kThree,
   };
 
-  EXPECT_EQ(StrCat(kZero, kOne, kTwo, kThree), "0123");
+  EXPECT_EQ(StrCat({kZero, kOne, kTwo, kThree}), "0123");
 }
 
 TEST(StrCat, ScopedEnum) {
@@ -281,17 +293,17 @@ TEST(StrCat, ScopedEnum) {
     kThree,
   };
 
-  EXPECT_EQ(StrCat(New::kZero, New::kOne, New::kTwo, New::kThree), "0123");
+  EXPECT_EQ(StrCat({New::kZero, New::kOne, New::kTwo, New::kThree}), "0123");
 }
 
 TEST(StrCat, StringCapacity) {
   static constexpr char kStr[] = "abcdefghijklmno";
-  EXPECT_EQ(StrCat(kStr), kStr);
+  EXPECT_EQ(StrCat({kStr}), kStr);
 }
 
 TEST(StrCat, NotNullStr) {
   static constexpr char kStr[] = "abcdefghijklmno";
-  EXPECT_EQ(StrCat(NotNull(kStr)), kStr);
+  EXPECT_EQ(StrCat({NotNull(kStr)}), kStr);
 }
 
 }  // namespace rst
