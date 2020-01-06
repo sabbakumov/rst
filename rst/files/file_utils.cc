@@ -97,12 +97,12 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
   if (file == nullptr)
     return MakeStatus<FileOpenError>(StrCat({"Can't open file ", filename}));
 
-  const auto get_file_size = [](const NotNull<FILE*> file)
+  const auto get_file_size = [](const NotNull<FILE*> f)
       -> std::optional<long> {  // NOLINT(runtime/int)
-    if (std::fseek(file.get(), 0, SEEK_END) != 0)
+    if (std::fseek(f.get(), 0, SEEK_END) != 0)
       return std::nullopt;
 
-    const auto size = std::ftell(file.get());
+    const auto size = std::ftell(f.get());
     if (size == -1)
       return std::nullopt;
 

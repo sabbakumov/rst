@@ -30,28 +30,6 @@
 namespace rst {
 namespace internal {
 
-template <class Int, size_t N>
-std::string_view IntToString(char (&str)[N], const Int val) {
-  static_assert(std::is_integral<Int>::value);
-
-  auto res = static_cast<typename std::make_unsigned<Int>::type>(val);
-
-  auto p = str + N;
-  do {
-    --p;
-    RST_DCHECK(p != str);
-    *p = static_cast<char>((res % 10) + '0');
-    res /= 10;
-  } while (res != 0);
-
-  if (val < 0) {
-    --p;
-    RST_DCHECK(p != str);
-    *p = '-';
-  }
-  return std::string_view(p, static_cast<size_t>(str + N - p));
-}
-
 template std::string_view IntToString(char (&str)[Arg::kBufferSize],
                                       short val);  // NOLINT(runtime/int)
 template std::string_view IntToString(
@@ -70,5 +48,6 @@ template std::string_view IntToString(char (&str)[Arg::kBufferSize],
 template std::string_view IntToString(
     char (&str)[Arg::kBufferSize],
     unsigned long long val);  // NOLINT(runtime/int)
+
 }  // namespace internal
 }  // namespace rst

@@ -49,12 +49,37 @@ std::string_view FloatToString(char (&str)[N],
                                const NotNull<const char*> format,
                                const Float val) {
   static_assert(std::is_floating_point<Float>::value);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
   const auto bytes_written =
       std::sprintf(str, format.get(), val);  // NOLINT(runtime/printf)
+#pragma clang diagnostic pop
   RST_DCHECK(bytes_written > 0);
   RST_DCHECK(static_cast<size_t>(bytes_written) < N);
   RST_DCHECK(str[bytes_written] == '\0');
   return std::string_view(str, static_cast<size_t>(bytes_written));
+}
+
+template <class Int, size_t N>
+std::string_view IntToString(char (&str)[N], const Int val) {
+  static_assert(std::is_integral<Int>::value);
+
+  auto res = static_cast<typename std::make_unsigned<Int>::type>(val);
+
+  auto p = str + N;
+  do {
+    --p;
+    RST_DCHECK(p != str);
+    *p = static_cast<char>((res % 10) + '0');
+    res /= 10;
+  } while (res != 0);
+
+  if (val < 0) {
+    --p;
+    RST_DCHECK(p != str);
+    *p = '-';
+  }
+  return std::string_view(p, static_cast<size_t>(str + N - p));
 }
 
 class Arg {
@@ -92,10 +117,10 @@ class Arg {
       : view_(IntToString(buffer_, value)) {}
 
   Arg(const float value)  // NOLINT(runtime/explicit)
-      : view_(FloatToString(buffer_, "%g", value)) {}
+      : view_(FloatToString(buffer_, "%g", static_cast<double>(value))) {}
 
   Arg(const double value)  // NOLINT(runtime/explicit)
-      : view_(FloatToString(buffer_, "%lg", value)) {}
+      : view_(FloatToString(buffer_, "%g", value)) {}
 
   Arg(const long double value)  // NOLINT(runtime/explicit)
       : view_(FloatToString(buffer_, "%Lg", value)) {}
@@ -132,6 +157,27 @@ class Arg {
 
   RST_DISALLOW_COPY_AND_ASSIGN(Arg);
 };
+
+extern template std::string_view IntToString(char (&str)[Arg::kBufferSize],
+                                             short val);  // NOLINT(runtime/int)
+extern template std::string_view IntToString(
+    char (&str)[Arg::kBufferSize],
+    unsigned short val);  // NOLINT(runtime/int)
+extern template std::string_view IntToString(char (&str)[Arg::kBufferSize],
+                                             int val);
+extern template std::string_view IntToString(char (&str)[Arg::kBufferSize],
+                                             unsigned int val);
+extern template std::string_view IntToString(char (&str)[Arg::kBufferSize],
+                                             long val);  // NOLINT(runtime/int)
+extern template std::string_view IntToString(
+    char (&str)[Arg::kBufferSize],
+    unsigned long val);  // NOLINT(runtime/int)
+extern template std::string_view IntToString(
+    char (&str)[Arg::kBufferSize],
+    long long val);  // NOLINT(runtime/int)
+extern template std::string_view IntToString(
+    char (&str)[Arg::kBufferSize],
+    unsigned long long val);  // NOLINT(runtime/int)
 
 }  // namespace internal
 }  // namespace rst

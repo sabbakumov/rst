@@ -97,7 +97,7 @@ TEST(Status, OK) {
   auto status = Status::OK();
   EXPECT_FALSE(status.err());
 
-  EXPECT_DEATH({ auto status = Status::OK(); }, "");
+  EXPECT_DEATH({ auto s = Status::OK(); }, "");
 }
 
 TEST(Status, Err) {

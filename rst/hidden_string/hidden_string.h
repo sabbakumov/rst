@@ -53,12 +53,15 @@ namespace rst {
 namespace internal {
 
 constexpr uint64_t GetSeed() {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdate-time"
   return (__TIME__[7] - '0') * uint64_t{1} +
          (__TIME__[6] - '0') * uint64_t{10} +
          (__TIME__[4] - '0') * uint64_t{60} +
          (__TIME__[3] - '0') * uint64_t{600} +
          (__TIME__[1] - '0') * uint64_t{3600} +
          (__TIME__[0] - '0') * uint64_t{36000};
+#pragma clang diagnostic pop
 }
 
 constexpr uint64_t LinearCongruentGenerator(const int rounds) {

@@ -69,6 +69,8 @@ namespace rst {
 //     std::function<void(const Result&)> callback_;
 //   };
 //
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow-uncaptured-local"
 template <class F, class T, class... Args>
 auto Bind(F&& f, WeakPtr<T>&& weak_ptr, Args&&... args) {
   return std::bind(
@@ -79,6 +81,7 @@ auto Bind(F&& f, WeakPtr<T>&& weak_ptr, Args&&... args) {
       },
       std::forward<F>(f), std::move(weak_ptr), std::forward<Args>(args)...);
 }
+#pragma clang diagnostic pop
 
 }  // namespace rst
 
