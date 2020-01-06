@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8.2)
 
 project(rst)
 
@@ -150,13 +150,38 @@ add_executable(rst_tests
   rst/value/value_test.cc
 )
 
-target_include_directories(rst_tests PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(rst_tests rst pthread gtest gmock)
+configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+endif()
+
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "Build step for googletest failed: ${result}")
+endif()
+
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+                 ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+                 EXCLUDE_FROM_ALL)
+
+target_link_libraries(rst_tests PRIVATE rst gtest gmock)
 
 option(RST_ENABLE_CXX_EXCEPTIONS "Enable C++ exception support" OFF)
 option(RST_ENABLE_CXX_RTTI "Enable C++ RTTI support" OFF)
 
+option(RST_ENABLE_ASAN "Enable Address Sanitizer" OFF)
+option(RST_ENABLE_TSAN "Enable Thread Sanitizer" OFF)
+option(RST_ENABLE_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
+
 set(cxx_rst_public_flags "")
+set(cxx_rst_public_link_flags "")
 
 if (NOT RST_ENABLE_CXX_EXCEPTIONS)
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
@@ -170,6 +195,39 @@ if (NOT RST_ENABLE_CXX_RTTI)
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
       CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(cxx_rst_public_flags "${cxx_rst_public_flags};-fno-rtti")
+  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  endif()
+endif()
+
+if (RST_ENABLE_ASAN)
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
+      CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(cxx_rst_public_flags "${cxx_rst_public_flags};-fsanitize=address;"
+        "-fno-omit-frame-pointer")
+    set(cxx_rst_public_link_flags "${cxx_rst_public_link_flags};"
+        "-fsanitize=address")
+  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  endif()
+endif()
+
+if (RST_ENABLE_TSAN)
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
+      CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(cxx_rst_public_flags "${cxx_rst_public_flags};-fsanitize=thread;"
+        "-fno-omit-frame-pointer")
+    set(cxx_rst_public_link_flags "${cxx_rst_public_link_flags};"
+        "-fsanitize=thread")
+  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  endif()
+endif()
+
+if (RST_ENABLE_UBSAN)
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
+      CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(cxx_rst_public_flags "${cxx_rst_public_flags};-fsanitize=undefined;"
+        "-fno-omit-frame-pointer")
+    set(cxx_rst_public_link_flags "${cxx_rst_public_link_flags};"
+        "-fsanitize=undefined")
   elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   endif()
 endif()
@@ -195,4 +253,4 @@ target_compile_options(rst PRIVATE ${cxx_rst_flags})
 target_compile_options(rst_tests PRIVATE ${cxx_rst_tests_flags})
 
 target_compile_options(rst PUBLIC ${cxx_rst_public_flags})
-target_compile_options(rst_tests PUBLIC ${cxx_rst_public_flags})
+target_link_libraries(rst PUBLIC ${cxx_rst_public_link_flags})
