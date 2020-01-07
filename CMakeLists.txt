@@ -254,7 +254,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   set(cxx_rst_tests_flags "${cxx_rst_flags}")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(cxx_rst_flags "/Wall;/WX;/wd4068;/wd4996;/wd4018;/wd4820;/wd4514;/wd4710;"
-      "/wd4582;/wd4583;/wd5045;/wd4668;/wd4577;/wd4530")
+      "/wd4582;/wd4583;/wd5045;/wd4668;/wd4577;/wd4530;/wd5039")
   set(cxx_rst_tests_flags "${cxx_rst_flags};/wd4834;/wd4625;/wd4626;/wd5026;"
       "/wd5027;/wd4571")
 endif()
