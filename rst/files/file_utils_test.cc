@@ -57,7 +57,7 @@ class File {
 
 TEST(FileUtils, WriteRead) {
   std::string content;
-  for (auto i = 0; i < 15000; content += std::to_string(i), i++) {
+  for (auto i = 0; i < 150; content += std::to_string(i), i++) {
     File file;
     auto status = WriteFile(file.FileName(), content);
     ASSERT_FALSE(status.err());
@@ -71,7 +71,7 @@ TEST(FileUtils, WriteRead) {
 TEST(FileUtils, WriteReadToTheSameFile) {
   File file;
   std::string content;
-  for (auto i = 0; i < 15000; content += std::to_string(i), i++) {
+  for (auto i = 0; i < 150; content += std::to_string(i), i++) {
     auto status = WriteFile(file.FileName(), content);
     ASSERT_FALSE(status.err());
 
@@ -83,7 +83,7 @@ TEST(FileUtils, WriteReadToTheSameFile) {
 
 TEST(FileUtils, WriteImportantRead) {
   std::string content;
-  for (auto i = 0; i < 15000; content += std::to_string(i), i++) {
+  for (auto i = 0; i < 150; content += std::to_string(i), i++) {
     File file;
     auto status = WriteImportantFile(file.FileName(), content);
     ASSERT_FALSE(status.err());
@@ -97,7 +97,7 @@ TEST(FileUtils, WriteImportantRead) {
 TEST(FileUtils, WriteImportantReadToTheSameFile) {
   File file;
   std::string content;
-  for (auto i = 0; i < 15000; content += std::to_string(i), i++) {
+  for (auto i = 0; i < 150; content += std::to_string(i), i++) {
     auto status = WriteImportantFile(file.FileName(), content);
     ASSERT_FALSE(status.err());
 

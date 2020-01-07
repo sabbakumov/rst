@@ -51,8 +51,11 @@ std::string_view FloatToString(char (&str)[N],
   static_assert(std::is_floating_point<Float>::value);
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
+#pragma warning(push)
+#pragma warning(disable : 4774)
   const auto bytes_written =
       std::sprintf(str, format.get(), val);  // NOLINT(runtime/printf)
+#pragma warning(pop)
 #pragma clang diagnostic pop
   RST_DCHECK(bytes_written > 0);
   RST_DCHECK(static_cast<size_t>(bytes_written) < N);

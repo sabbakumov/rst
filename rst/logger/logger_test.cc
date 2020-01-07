@@ -312,7 +312,7 @@ TEST(FilePtrSink, Log) {
   size_t i = 0;
   std::string str_line;
   for (char line[256]; std::feof(file) == 0 &&
-                       std::fgets(line, std::size(line), file) != nullptr;
+                       std::fgets(line, int{std::size(line)}, file) != nullptr;
        i++) {
     str_line = line;
     if (!str_line.empty() && str_line.back() == '\n')
@@ -337,7 +337,7 @@ TEST(FilePtrSink, LogNonClosing) {
   size_t i = 0;
   std::string str_line;
   for (char line[256]; std::feof(file) == 0 &&
-                       std::fgets(line, std::size(line), file) != nullptr;
+                       std::fgets(line, int{std::size(line)}, file) != nullptr;
        i++) {
     str_line = line;
     if (!str_line.empty() && str_line.back() == '\n')
@@ -369,8 +369,9 @@ TEST(FilePtrSink, LogThreadSafe) {
   std::vector<std::string> strings;
   std::rewind(file);
 
-  for (char line[256]; std::feof(file) == 0 &&
-                       std::fgets(line, std::size(line), file) != nullptr;) {
+  for (char line[256];
+       std::feof(file) == 0 &&
+       std::fgets(line, int{std::size(line)}, file) != nullptr;) {
     std::string str_line = line;
     if (!str_line.empty() && str_line.back() == '\n')
       str_line.erase(str_line.size() - 1);

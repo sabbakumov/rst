@@ -314,6 +314,8 @@ class NotNull<std::unique_ptr<T>> {
 
  private:
   std::unique_ptr<T> ptr_;
+
+  RST_DISALLOW_COPY_AND_ASSIGN(NotNull);
 };
 
 template <class T>
@@ -398,6 +400,8 @@ class Nullable<std::unique_ptr<T>> {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
   mutable bool was_checked_ = false;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+
+  RST_DISALLOW_COPY_AND_ASSIGN(Nullable);
 };
 
 template <class T>

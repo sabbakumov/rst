@@ -187,6 +187,7 @@ if (NOT RST_ENABLE_CXX_EXCEPTIONS)
       CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(cxx_rst_public_flags "${cxx_rst_public_flags};-fno-exceptions")
   elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(cxx_rst_public_flags "${cxx_rst_public_flags};/D_HAS_EXCEPTIONS=0")
   endif()
 endif()
 
@@ -195,6 +196,7 @@ if (NOT RST_ENABLE_CXX_RTTI)
       CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(cxx_rst_public_flags "${cxx_rst_public_flags};-fno-rtti")
   elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(cxx_rst_public_flags "${cxx_rst_public_flags};/GR-")
   endif()
 endif()
 
@@ -205,7 +207,6 @@ if (RST_ENABLE_ASAN)
         "-fno-omit-frame-pointer")
     set(cxx_rst_public_link_flags "${cxx_rst_public_link_flags};"
         "-fsanitize=address")
-  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   endif()
 endif()
 
@@ -216,7 +217,6 @@ if (RST_ENABLE_TSAN)
         "-fno-omit-frame-pointer")
     set(cxx_rst_public_link_flags "${cxx_rst_public_link_flags};"
         "-fsanitize=thread")
-  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   endif()
 endif()
 
@@ -227,7 +227,6 @@ if (RST_ENABLE_UBSAN)
         "-fno-omit-frame-pointer")
     set(cxx_rst_public_link_flags "${cxx_rst_public_link_flags};"
         "-fsanitize=undefined")
-  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   endif()
 endif()
 
@@ -235,7 +234,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(cxx_rst_flags "-Werror;-Wall;-Wextra;-pedantic;-Weverything;"
       "-Wno-c++98-compat;-Wno-c++98-c++11-c++14-compat;"
       "-Wno-c++98-compat-pedantic;-Wno-padded;-Wno-return-std-move-in-c++11;"
-      "-Wno-shadow-field-in-constructor")
+      "-Wno-shadow-field-in-constructor;-Wno-unknown-pragmas")
   set(cxx_rst_tests_flags "${cxx_rst_flags};-Wno-global-constructors;"
       "-Wno-used-but-marked-unused;-Wno-covered-switch-default;"
       "-Wno-unused-member-function")
@@ -246,6 +245,10 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
       "-Wunused-result;-Wvarargs;-Wvla;-Wwrite-strings")
   set(cxx_rst_tests_flags "${cxx_rst_flags}")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  set(cxx_rst_flags "/Wall;/WX;/wd4068;/wd4996;/wd4018;/wd4820;/wd4514;/wd4710;"
+      "/wd4582;/wd4583;/wd5045;/wd4668;/wd4577;/wd4530")
+  set(cxx_rst_tests_flags "${cxx_rst_flags};/wd4834;/wd4625;/wd4626;/wd5026;"
+      "/wd5027;/wd4571")
 endif()
 
 target_compile_options(rst PRIVATE ${cxx_rst_flags})

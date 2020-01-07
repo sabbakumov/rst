@@ -235,7 +235,7 @@ TEST(Value, ConstructArray) {
   {
     Value value(Value::Clone(storage));
     ASSERT_EQ(value.type(), Value::Type::kArray);
-    ASSERT_EQ(value.GetArray().size(), 1);
+    ASSERT_EQ(value.GetArray().size(), 1U);
     ASSERT_EQ(value.GetArray()[0].type(), Value::Type::kString);
     EXPECT_EQ(value.GetArray()[0].GetString(), "foo");
   }
@@ -244,7 +244,7 @@ TEST(Value, ConstructArray) {
   {
     Value value(std::move(storage));
     ASSERT_EQ(value.type(), Value::Type::kArray);
-    ASSERT_EQ(value.GetArray().size(), 1);
+    ASSERT_EQ(value.GetArray().size(), 1U);
     ASSERT_EQ(value.GetArray()[0].type(), Value::Type::kString);
     EXPECT_EQ(value.GetArray()[0].GetString(), "bar");
   }

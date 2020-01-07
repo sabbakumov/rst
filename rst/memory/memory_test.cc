@@ -51,18 +51,18 @@ size_t DeleteCounter::count_ = 0;
 }  // namespace
 
 TEST(Memory, WrapUnique) {
-  EXPECT_EQ(DeleteCounter::count(), 0);
+  EXPECT_EQ(DeleteCounter::count(), 0U);
 
   auto counter = new DeleteCounter;
-  EXPECT_EQ(DeleteCounter::count(), 1);
+  EXPECT_EQ(DeleteCounter::count(), 1U);
 
   {
     const NotNull<std::unique_ptr<DeleteCounter>> owned_counter =
         WrapUnique(NotNull(counter));
-    EXPECT_EQ(DeleteCounter::count(), 1);
+    EXPECT_EQ(DeleteCounter::count(), 1U);
   }
 
-  EXPECT_EQ(DeleteCounter::count(), 0);
+  EXPECT_EQ(DeleteCounter::count(), 0U);
 }
 
 }  // namespace rst

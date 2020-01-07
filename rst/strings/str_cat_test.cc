@@ -267,7 +267,7 @@ TEST(StrCat, Bool) {
 TEST(StrCat, Doubles) {
   std::ostringstream stream;
 
-  for (int64_t i = -1100000; i < 1100000; i++) {
+  for (int64_t i = -11000; i < 11000; i++) {
     stream.str(std::string());
     stream << static_cast<double>(i);
     EXPECT_EQ(StrCat({static_cast<double>(i)}), stream.str());
