@@ -98,8 +98,6 @@ add_executable(rst_tests
   rst/check/check_test.cc
   rst/check/check_ndebug_test.cc
   
-  rst/test.cc
-  
   rst/defer/defer_test.cc
   
   rst/files/file_utils_test.cc
@@ -171,7 +169,7 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
                  ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
                  EXCLUDE_FROM_ALL)
 
-target_link_libraries(rst_tests PRIVATE rst gtest gmock)
+target_link_libraries(rst_tests PRIVATE rst gtest_main gmock)
 
 option(RST_ENABLE_CXX_EXCEPTIONS "Enable C++ exception support" OFF)
 option(RST_ENABLE_CXX_RTTI "Enable C++ RTTI support" OFF)
