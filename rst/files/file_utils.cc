@@ -28,6 +28,7 @@
 #include "rst/files/file_utils.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <memory>
 #include <optional>
@@ -39,7 +40,9 @@
 
 #if RST_BUILDFLAG(OS_WIN)
 #include <Windows.h>
-#endif  // RST_BUILDFLAG(OS_WIN)
+#else
+#include <sys/stat.h>
+#endif
 
 namespace rst {
 namespace {
@@ -50,10 +53,31 @@ bool Replace(const NotNull<const char*> old_filename,
   return ::MoveFileEx(old_filename.get(), new_filename.get(),
                       MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
 }
+
+std::optional<int64_t> GetFileSize(const NotNull<const char*> filename) {
+  ::WIN32_FILE_ATTRIBUTE_DATA attr;
+  if (::GetFileAttributesEx(filename.get(), ::GetFileExInfoStandard, &attr) ==
+      0) {
+    return std::nullopt;
+  }
+
+  return static_cast<int64_t>(attr.nFileSizeHigh) << 32 |
+         static_cast<int64_t>(attr.nFileSizeLow);
+}
+
 #else
+
 bool Replace(const NotNull<const char*> old_filename,
              const NotNull<const char*> new_filename) {
   return std::rename(old_filename.get(), new_filename.get()) == 0;
+}
+
+std::optional<int64_t> GetFileSize(const NotNull<const char*> filename) {
+  struct ::stat buf;
+  if (::stat(filename.get(), &buf) != 0)
+    return std::nullopt;
+
+  return buf.st_size;
 }
 #endif
 
@@ -119,21 +143,8 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
   if (file == nullptr)
     return MakeStatus<FileOpenError>(StrCat({"Can't open file ", filename}));
 
-  const auto get_file_size = [](const NotNull<FILE*> f)
-      -> std::optional<long> {  // NOLINT(runtime/int)
-    if (std::fseek(f.get(), 0, SEEK_END) != 0)
-      return std::nullopt;
-
-    const auto size = std::ftell(f.get());
-    if (size == -1)
-      return std::nullopt;
-
-    return size;
-  };
-
-  static constexpr long kDefaultChunkSize =  // NOLINT(runtime/int)
-      128 * 1024 - 1;
-  auto chunk_size = get_file_size(file.get()).value_or(kDefaultChunkSize);
+  static constexpr int64_t kDefaultChunkSize = 128 * 1024 - 1;
+  auto chunk_size = GetFileSize(filename).value_or(kDefaultChunkSize);
   RST_DCHECK(chunk_size >= 0);
   if (chunk_size == 0)  // Some files return 0 bytes (/etc/*).
     chunk_size = kDefaultChunkSize;
