@@ -33,10 +33,31 @@
 #include <optional>
 #include <utility>
 
+#include "rst/macros/os.h"
 #include "rst/status/status_macros.h"
 #include "rst/strings/str_cat.h"
 
+#if RST_BUILDFLAG(OS_WIN)
+#include <Windows.h>
+#endif  // RST_BUILDFLAG(OS_WIN)
+
 namespace rst {
+namespace {
+
+#if RST_BUILDFLAG(OS_WIN)
+bool Replace(const NotNull<const char*> old_filename,
+             const NotNull<const char*> new_filename) {
+  return ::MoveFileEx(old_filename.get(), new_filename.get(),
+                      MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
+}
+#else
+bool Replace(const NotNull<const char*> old_filename,
+             const NotNull<const char*> new_filename) {
+  return std::rename(old_filename.get(), new_filename.get()) == 0;
+}
+#endif
+
+}  // namespace
 
 char FileError::id_ = '\0';
 
@@ -79,7 +100,7 @@ Status WriteImportantFile(const NotNull<const char*> filename,
   const auto temp_filename = StrCat({filename, "_tmp_"});
   RST_TRY(WriteFile(temp_filename.c_str(), data));
 
-  if (std::rename(temp_filename.c_str(), filename.get()) != 0) {
+  if (!Replace(temp_filename.c_str(), filename.get())) {
     return MakeStatus<FileError>(
         StrCat({"Can't rename temp file ", temp_filename}));
   }
