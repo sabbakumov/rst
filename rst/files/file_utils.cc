@@ -101,6 +101,7 @@ Status WriteImportantFile(const NotNull<const char*> filename,
   RST_TRY(WriteFile(temp_filename.c_str(), data));
 
   if (!Replace(temp_filename.c_str(), filename.get())) {
+    (void)std::remove(temp_filename.c_str());
     return MakeStatus<FileError>(
         StrCat({"Can't rename temp file ", temp_filename}));
   }
