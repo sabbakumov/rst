@@ -190,6 +190,13 @@ option(RST_ENABLE_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
 set(cxx_rst_public_flags "")
 set(cxx_rst_public_link_flags "")
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
+    CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(cxx_rst_public_flags "${cxx_rst_public_flags};-Wno-unknown-pragmas")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  set(cxx_rst_public_flags "${cxx_rst_public_flags};/wd4068")
+endif()
+
 if (NOT RST_ENABLE_CXX_EXCEPTIONS)
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
       CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -239,22 +246,22 @@ if (RST_ENABLE_UBSAN)
 endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(cxx_rst_flags "-Werror;-Wall;-Wextra;-pedantic;-Weverything;"
-      "-Wno-c++98-compat;-Wno-c++98-c++11-c++14-compat;"
+  set(cxx_rst_flags "${cxx_rst_flags};-Werror;-Wall;-Wextra;-pedantic;"
+      "-Weverything;-Wno-c++98-compat;-Wno-c++98-c++11-c++14-compat;"
       "-Wno-c++98-compat-pedantic;-Wno-padded;-Wno-return-std-move-in-c++11;"
       "-Wno-shadow-field-in-constructor;-Wno-unknown-pragmas")
   set(cxx_rst_tests_flags "${cxx_rst_flags};-Wno-global-constructors;"
       "-Wno-used-but-marked-unused;-Wno-covered-switch-default;"
       "-Wno-unused-member-function")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(cxx_rst_flags "-Werror;-Wall;-Wextra;-pedantic;-Wno-unknown-pragmas;"
-      "-Wcast-qual;-Wconversion-null;-Wmissing-declarations;"
-      "-Woverlength-strings;-Wpointer-arith;-Wunused-local-typedefs;"
-      "-Wunused-result;-Wvarargs;-Wvla;-Wwrite-strings")
+  set(cxx_rst_flags "${cxx_rst_flags};-Werror;-Wall;-Wextra;-pedantic;"
+      "-Wno-unknown-pragmas;-Wcast-qual;-Wconversion-null;"
+      "-Wmissing-declarations;-Woverlength-strings;-Wpointer-arith;"
+      "-Wunused-local-typedefs;-Wunused-result;-Wvarargs;-Wvla;-Wwrite-strings")
   set(cxx_rst_tests_flags "${cxx_rst_flags}")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  set(cxx_rst_flags "/Wall;/WX;/wd4068;/wd4996;/wd4018;/wd4820;/wd4514;/wd4710;"
-      "/wd4582;/wd4583;/wd5045;/wd4668;/wd4577;/wd4530;/wd5039")
+  set(cxx_rst_flags "${cxx_rst_flags};/Wall;/WX;/wd4996;/wd4018;/wd4820;"
+      "/wd4514;/wd4710;/wd4582;/wd4583;/wd5045;/wd4668;/wd4577;/wd4530;/wd5039")
   set(cxx_rst_tests_flags "${cxx_rst_flags};/wd4834;/wd4625;/wd4626;/wd5026;"
       "/wd5027;/wd4571")
 endif()
