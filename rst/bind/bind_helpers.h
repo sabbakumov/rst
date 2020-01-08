@@ -67,7 +67,7 @@ class DoNothing {
   // deduce it.
   template <class... Args>
   static std::function<void(Args...)> Function() {
-    return std::function([](Args...) {});
+    return std::function<void(Args...)>([](Args...) {});
   }
 };
 

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.2)
 
-project(rst)
+project(rst CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -249,7 +249,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(cxx_rst_flags "${cxx_rst_flags};-Werror;-Wall;-Wextra;-pedantic;"
       "-Weverything;-Wno-c++98-compat;-Wno-c++98-c++11-c++14-compat;"
       "-Wno-c++98-compat-pedantic;-Wno-padded;-Wno-return-std-move-in-c++11;"
-      "-Wno-shadow-field-in-constructor;-Wno-unknown-pragmas")
+      "-Wno-shadow-field-in-constructor;-Wno-unknown-pragmas;"
+      "-Wno-deprecated-declarations")
   set(cxx_rst_tests_flags "${cxx_rst_flags};-Wno-global-constructors;"
       "-Wno-used-but-marked-unused;-Wno-covered-switch-default;"
       "-Wno-unused-member-function")
