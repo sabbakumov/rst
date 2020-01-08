@@ -73,7 +73,9 @@ std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
             arg_idx++;
             break;
           }
-          default: { RST_DCHECK(false && "Invalid format string"); }
+          default: {
+            RST_DCHECK(false && "Invalid format string");
+          }
         }
         break;
       }
@@ -84,7 +86,9 @@ std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
             *target++ = '}';
             break;
           }
-          default: { RST_DCHECK(false && "Unmatched '}' in format string"); }
+          default: {
+            RST_DCHECK(false && "Unmatched '}' in format string");
+          }
         }
         break;
       }
