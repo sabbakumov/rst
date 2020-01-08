@@ -34,6 +34,7 @@
 #include <optional>
 #include <utility>
 
+#include "rst/guid/guid.h"
 #include "rst/macros/os.h"
 #include "rst/status/status_macros.h"
 #include "rst/strings/str_cat.h"
@@ -121,7 +122,7 @@ Status WriteFile(const NotNull<const char*> filename,
 
 Status WriteImportantFile(const NotNull<const char*> filename,
                           const std::string_view data) {
-  const auto temp_filename = StrCat({filename, "_tmp_"});
+  const auto temp_filename = StrCat({filename, GenerateGuid(), ".tmp"});
   RST_TRY(WriteFile(temp_filename.c_str(), data));
 
   if (!Replace(temp_filename.c_str(), filename.get())) {
