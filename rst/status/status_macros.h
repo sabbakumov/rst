@@ -31,6 +31,7 @@
 #include <utility>
 
 #include "rst/macros/macros.h"
+#include "rst/macros/optimization.h"
 #include "rst/status/status.h"
 #include "rst/status/status_or.h"
 
@@ -38,10 +39,10 @@ namespace rst {
 
 // Evaluates |statement| to a Status object and if it results in an error,
 // returns that error. Uses |status| as a variable name to avoid shadowing.
-#define RST_INTERNAL_TRY(status, statement)      \
-  do {                                           \
-    if (auto status = (statement); status.err()) \
-      return status;                             \
+#define RST_INTERNAL_TRY(status, statement)                    \
+  do {                                                         \
+    if (auto status = (statement); RST_UNLIKELY(status.err())) \
+      return status;                                           \
   } while (false)
 
 // Macro to allow exception-like handling of Status return values.
@@ -75,7 +76,7 @@ namespace rst {
 // single statement (e.g. as the body of an if statement without {})!
 #define RST_TRY_ASSIGN(lhs, statement) \
   lhs = (statement);                   \
-  if (lhs.err())                       \
+  if (RST_UNLIKELY(lhs.err()))         \
   return std::move(lhs).TakeStatus()
 
 // Macro to allow exception-like handling of StatusOr return values.
@@ -95,7 +96,7 @@ namespace rst {
 // single statement (e.g. as the body of an if statement without {})!
 #define RST_TRY_CREATE(type, lhs, statement) \
   type lhs = (statement);                    \
-  if (lhs.err())                             \
+  if (RST_UNLIKELY(lhs.err()))               \
   return std::move(lhs).TakeStatus()
 
 }  // namespace rst

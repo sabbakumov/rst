@@ -31,6 +31,8 @@
 #include <cassert>
 #include <cstdlib>
 
+#include "rst/macros/optimization.h"
+
 // Chromium-like checking macros.
 //
 // The RST_CHECK() macro will cause an immediate crash if its condition is not
@@ -94,10 +96,10 @@
 
 #define RST_NOTREACHED() RST_DCHECK(false)
 
-#define RST_CHECK(condition) \
-  do {                       \
-    if (!(condition))        \
-      std::abort();          \
+#define RST_CHECK(condition)        \
+  do {                              \
+    if (RST_UNLIKELY(!(condition))) \
+      std::abort();                 \
   } while (false)
 
 #endif  // RST_CHECK_CHECK_H_

@@ -31,6 +31,7 @@
 #include <cstring>
 
 #include "rst/check/check.h"
+#include "rst/macros/optimization.h"
 #include "rst/stl/resize_uninitialized.h"
 
 namespace rst {
@@ -59,7 +60,7 @@ std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
   for (auto c = '\0'; (c = *format) != '\0'; format++) {
     switch (c) {
       case '{': {
-        switch (*(format + 1)) {
+        switch (RST_LIKELY_EQ(*(format + 1), '}')) {
           case '{': {
             format++;
             *target++ = '{';

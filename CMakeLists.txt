@@ -36,6 +36,7 @@ add_library(rst
   rst/logger/sink.h
   
   rst/macros/macros.h
+  rst/macros/optimization.h
   rst/macros/os.h
   
   rst/memory/memory.h
