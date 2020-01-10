@@ -150,14 +150,6 @@ add_executable(rst_tests
   rst/value/value_test.cc
 )
 
-if (POLICY CMP0054)
-  cmake_policy(SET CMP0054 NEW)
-endif()
-
-if (POLICY CMP0048)
-  cmake_policy(SET CMP0048 NEW)
-endif()
-
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
   RESULT_VARIABLE result
