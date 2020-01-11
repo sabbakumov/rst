@@ -12,15 +12,15 @@ matrix:
             - ninja-build
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-    
+
       before_install:
           - eval "${MATRIX_EVAL}"
-    
+
       before_script:
         - mkdir build
         - cd build
         - cmake .. -GNinja
-    
+
       script: ninja && ./rst_tests
 
     # Clang Exceptions + RTTI
@@ -33,15 +33,15 @@ matrix:
             - ninja-build
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-    
+
       before_install:
           - eval "${MATRIX_EVAL}"
-    
+
       before_script:
         - mkdir build
         - cd build
         - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON
-    
+
       script: ninja && ./rst_tests
 
     # Clang ASAN
@@ -54,15 +54,15 @@ matrix:
             - ninja-build
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-    
+
       before_install:
           - eval "${MATRIX_EVAL}"
-    
+
       before_script:
         - mkdir build
         - cd build
         - cmake .. -GNinja -DRST_ENABLE_ASAN=ON
-    
+
       script: ninja && ./rst_tests
 
     # Clang TSAN
@@ -75,15 +75,15 @@ matrix:
             - ninja-build
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-    
+
       before_install:
           - eval "${MATRIX_EVAL}"
-    
+
       before_script:
         - mkdir build
         - cd build
         - cmake .. -GNinja -DRST_ENABLE_TSAN=ON
-    
+
       script: ninja && ./rst_tests
 
     # Clang UBSAN
@@ -96,15 +96,15 @@ matrix:
             - ninja-build
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-    
+
       before_install:
           - eval "${MATRIX_EVAL}"
-    
+
       before_script:
         - mkdir build
         - cd build
         - cmake .. -GNinja -DRST_ENABLE_UBSAN=ON
-    
+
       script: ninja && ./rst_tests
 
     # Clang Release
@@ -117,15 +117,15 @@ matrix:
             - ninja-build
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-    
+
       before_install:
           - eval "${MATRIX_EVAL}"
-    
+
       before_script:
         - mkdir build
         - cd build
         - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
-    
+
       script: ninja
 
     # GCC
@@ -139,15 +139,15 @@ matrix:
             - ninja-build
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-    
+
       before_install:
           - eval "${MATRIX_EVAL}"
-    
+
       before_script:
         - mkdir build
         - cd build
         - cmake .. -GNinja
-    
+
       script: ninja && ./rst_tests
 
     # GCC Exceptions + RTTI
@@ -161,15 +161,15 @@ matrix:
             - ninja-build
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-    
+
       before_install:
           - eval "${MATRIX_EVAL}"
-    
+
       before_script:
         - mkdir build
         - cd build
         - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON
-    
+
       script: ninja && ./rst_tests
 
     # GCC Release
@@ -183,13 +183,136 @@ matrix:
             - ninja-build
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-    
+
       before_install:
           - eval "${MATRIX_EVAL}"
-    
+
       before_script:
         - mkdir build
         - cd build
         - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
-    
+
+      script: ninja
+
+    # OS X Clang
+    - os: osx
+      osx_image: xcode11.3
+      addons:
+        homebrew:
+          packages:
+            - ninja
+      env:
+        - MATRIX_EVAL="CC=clang && CXX=clang++"
+
+      before_install:
+          - eval "${MATRIX_EVAL}"
+
+      before_script:
+        - mkdir build
+        - cd build
+        - cmake .. -GNinja
+
+      script: ninja && ./rst_tests
+
+    # OS X Clang Exceptions + RTTI
+    - os: osx
+      osx_image: xcode11.3
+      addons:
+        homebrew:
+          packages:
+            - ninja
+      env:
+        - MATRIX_EVAL="CC=clang && CXX=clang++"
+
+      before_install:
+          - eval "${MATRIX_EVAL}"
+
+      before_script:
+        - mkdir build
+        - cd build
+        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON
+
+      script: ninja && ./rst_tests
+
+    # OS X Clang Release
+    - os: osx
+      osx_image: xcode11.3
+      addons:
+        homebrew:
+          packages:
+            - ninja
+      env:
+        - MATRIX_EVAL="CC=clang && CXX=clang++"
+
+      before_install:
+          - eval "${MATRIX_EVAL}"
+
+      before_script:
+        - mkdir build
+        - cd build
+        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
+
+      script: ninja
+
+    # OS X GCC
+    - os: osx
+      osx_image: xcode11.3
+      addons:
+        homebrew:
+          packages:
+            - gcc@8
+            - ninja
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+
+      before_install:
+          - eval "${MATRIX_EVAL}"
+
+      before_script:
+        - mkdir build
+        - cd build
+        - cmake .. -GNinja
+
+      script: ninja && ./rst_tests
+
+    # OS X GCC Exceptions + RTTI
+    - os: osx
+      osx_image: xcode11.3
+      addons:
+        homebrew:
+          packages:
+            - gcc@8
+            - ninja
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+
+      before_install:
+          - eval "${MATRIX_EVAL}"
+
+      before_script:
+        - mkdir build
+        - cd build
+        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON
+
+      script: ninja && ./rst_tests
+
+    # OS X GCC Release
+    - os: osx
+      osx_image: xcode11.3
+      addons:
+        homebrew:
+          packages:
+            - gcc@8
+            - ninja
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+
+      before_install:
+          - eval "${MATRIX_EVAL}"
+
+      before_script:
+        - mkdir build
+        - cd build
+        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
+
       script: ninja

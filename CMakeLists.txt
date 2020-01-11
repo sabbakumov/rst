@@ -251,7 +251,8 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   set(cxx_rst_flags "${cxx_rst_flags};-Werror;-Wall;-Wextra;-pedantic;"
       "-Wno-unknown-pragmas;-Wcast-qual;-Wconversion-null;"
       "-Wmissing-declarations;-Woverlength-strings;-Wpointer-arith;"
-      "-Wunused-local-typedefs;-Wunused-result;-Wvarargs;-Wvla;-Wwrite-strings")
+      "-Wunused-local-typedefs;-Wunused-result;-Wvarargs;-Wvla;-Wwrite-strings"
+      "-Wno-deprecated-declarations")
   set(cxx_rst_tests_flags "${cxx_rst_flags}")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(cxx_rst_flags "${cxx_rst_flags};/Wall;/WX;/wd4996;/wd4018;/wd4820;"
