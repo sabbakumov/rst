@@ -34,12 +34,18 @@
 #include <gtest/gtest.h>
 
 #include "rst/check/check.h"
+#include "rst/macros/macros.h"
 
 namespace rst {
 namespace {
 
 struct CheckOnDestroy {
-  ~CheckOnDestroy() { RST_NOTREACHED(); }
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+  [[noreturn]]
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+  ~CheckOnDestroy() {
+    RST_NOTREACHED();
+  }
 };
 
 struct CopyOnly {
