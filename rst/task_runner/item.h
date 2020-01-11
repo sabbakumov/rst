@@ -32,6 +32,7 @@
 #include <cstdint>
 #include <functional>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 
 #include "rst/macros/macros.h"
@@ -42,13 +43,17 @@ namespace internal {
 // Used in implementations of TaskRunner interface to maintain an ordered queue
 // of tasks.
 struct Item {
+  using Function = std::function<void()>;
+
   Item(const std::chrono::milliseconds time_point, const uint64_t task_id,
        std::function<void()>&& task)
       : time_point(time_point), task_id(task_id), task(std::move(task)) {}
-  Item(Item&&) noexcept = default;
+  Item(Item&&) noexcept(std::is_nothrow_move_constructible<Function>::value) =
+      default;
   ~Item() = default;
 
-  Item& operator=(Item&&) noexcept = default;
+  Item& operator=(Item&&) noexcept(
+      std::is_nothrow_move_assignable<Function>::value) = default;
   bool operator>(const Item& item) const {
     return std::make_tuple(time_point, task_id) >
            std::make_tuple(item.time_point, item.task_id);
@@ -56,7 +61,7 @@ struct Item {
 
   std::chrono::milliseconds time_point;
   uint64_t task_id = 0;
-  std::function<void()> task;
+  Function task;
 
  private:
   RST_DISALLOW_COPY_AND_ASSIGN(Item);
