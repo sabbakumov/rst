@@ -2,16 +2,203 @@ language: cpp
 
 matrix:
   include:
+    #    # Clang
+    #    - os: linux
+    #      dist: bionic
+    #      addons:
+    #        apt:
+    #          packages:
+    #            - clang-8
+    #            - ninja-build
+    #      env:
+    #        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+    #    
+    #      before_install:
+    #          - eval "${MATRIX_EVAL}"
+    #    
+    #      before_script:
+    #        - mkdir build
+    #        - cd build
+    #        - cmake .. -GNinja
+    #    
+    #      script: ninja && ./rst_tests
+    #
+    #    # Clang Exceptions + RTTI
+    #    - os: linux
+    #      dist: bionic
+    #      addons:
+    #        apt:
+    #          packages:
+    #            - clang-8
+    #            - ninja-build
+    #      env:
+    #        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+    #    
+    #      before_install:
+    #          - eval "${MATRIX_EVAL}"
+    #    
+    #      before_script:
+    #        - mkdir build
+    #        - cd build
+    #        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON
+    #    
+    #      script: ninja && ./rst_tests
+    #
+    #    # Clang ASAN
+    #    - os: linux
+    #      dist: bionic
+    #      addons:
+    #        apt:
+    #          packages:
+    #            - clang-8
+    #            - ninja-build
+    #      env:
+    #        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+    #    
+    #      before_install:
+    #          - eval "${MATRIX_EVAL}"
+    #    
+    #      before_script:
+    #        - mkdir build
+    #        - cd build
+    #        - cmake .. -GNinja -DRST_ENABLE_ASAN=ON
+    #    
+    #      script: ninja && ./rst_tests
+    #
+    #    # Clang TSAN
+    #    - os: linux
+    #      dist: bionic
+    #      addons:
+    #        apt:
+    #          packages:
+    #            - clang-8
+    #            - ninja-build
+    #      env:
+    #        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+    #    
+    #      before_install:
+    #          - eval "${MATRIX_EVAL}"
+    #    
+    #      before_script:
+    #        - mkdir build
+    #        - cd build
+    #        - cmake .. -GNinja -DRST_ENABLE_TSAN=ON
+    #    
+    #      script: ninja && ./rst_tests
+    #
+    #    # Clang UBSAN
+    #    - os: linux
+    #      dist: bionic
+    #      addons:
+    #        apt:
+    #          packages:
+    #            - clang-8
+    #            - ninja-build
+    #      env:
+    #        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+    #    
+    #      before_install:
+    #          - eval "${MATRIX_EVAL}"
+    #    
+    #      before_script:
+    #        - mkdir build
+    #        - cd build
+    #        - cmake .. -GNinja -DRST_ENABLE_UBSAN=ON
+    #    
+    #      script: ninja && ./rst_tests
+    #
+    #    # Clang Release
+    #    - os: linux
+    #      dist: bionic
+    #      addons:
+    #        apt:
+    #          packages:
+    #            - clang-8
+    #            - ninja-build
+    #      env:
+    #        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+    #    
+    #      before_install:
+    #          - eval "${MATRIX_EVAL}"
+    #    
+    #      before_script:
+    #        - mkdir build
+    #        - cd build
+    #        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
+    #    
+    #      script: ninja
+    #
+    #    # GCC
+    #    - os: linux
+    #      dist: bionic
+    #      addons:
+    #        apt:
+    #          packages:
+    #            - g++-8
+    #            - gcc-8
+    #            - ninja-build
+    #      env:
+    #        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+    #    
+    #      before_install:
+    #          - eval "${MATRIX_EVAL}"
+    #    
+    #      before_script:
+    #        - mkdir build
+    #        - cd build
+    #        - cmake .. -GNinja
+    #    
+    #      script: ninja && ./rst_tests
+    #
+    #    # GCC Exceptions + RTTI
+    #    - os: linux
+    #      dist: bionic
+    #      addons:
+    #        apt:
+    #          packages:
+    #            - g++-8
+    #            - gcc-8
+    #            - ninja-build
+    #      env:
+    #        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+    #    
+    #      before_install:
+    #          - eval "${MATRIX_EVAL}"
+    #    
+    #      before_script:
+    #        - mkdir build
+    #        - cd build
+    #        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON
+    #    
+    #      script: ninja && ./rst_tests
+    #
+    #    # GCC Release
+    #    - os: linux
+    #      dist: bionic
+    #      addons:
+    #        apt:
+    #          packages:
+    #            - g++-8
+    #            - gcc-8
+    #            - ninja-build
+    #      env:
+    #        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+    #    
+    #      before_install:
+    #          - eval "${MATRIX_EVAL}"
+    #    
+    #      before_script:
+    #        - mkdir build
+    #        - cd build
+    #        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
+    #    
+    #      script: ninja
+
     # Clang
-    - os: linux
-      dist: bionic
-      addons:
-        apt:
-          packages:
-            - clang-8
-            - ninja-build
+    - os: osx
+      osx_image: xcode11.3
       env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+        - MATRIX_EVAL="brew install ninja && CC=clang-8 && CXX=clang++-8"
     
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -22,174 +209,3 @@ matrix:
         - cmake .. -GNinja
     
       script: ninja && ./rst_tests
-
-    # Clang Exceptions + RTTI
-    - os: linux
-      dist: bionic
-      addons:
-        apt:
-          packages:
-            - clang-8
-            - ninja-build
-      env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-    
-      before_install:
-          - eval "${MATRIX_EVAL}"
-    
-      before_script:
-        - mkdir build
-        - cd build
-        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON
-    
-      script: ninja && ./rst_tests
-
-    # Clang ASAN
-    - os: linux
-      dist: bionic
-      addons:
-        apt:
-          packages:
-            - clang-8
-            - ninja-build
-      env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-    
-      before_install:
-          - eval "${MATRIX_EVAL}"
-    
-      before_script:
-        - mkdir build
-        - cd build
-        - cmake .. -GNinja -DRST_ENABLE_ASAN=ON
-    
-      script: ninja && ./rst_tests
-
-    # Clang TSAN
-    - os: linux
-      dist: bionic
-      addons:
-        apt:
-          packages:
-            - clang-8
-            - ninja-build
-      env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-    
-      before_install:
-          - eval "${MATRIX_EVAL}"
-    
-      before_script:
-        - mkdir build
-        - cd build
-        - cmake .. -GNinja -DRST_ENABLE_TSAN=ON
-    
-      script: ninja && ./rst_tests
-
-    # Clang UBSAN
-    - os: linux
-      dist: bionic
-      addons:
-        apt:
-          packages:
-            - clang-8
-            - ninja-build
-      env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-    
-      before_install:
-          - eval "${MATRIX_EVAL}"
-    
-      before_script:
-        - mkdir build
-        - cd build
-        - cmake .. -GNinja -DRST_ENABLE_UBSAN=ON
-    
-      script: ninja && ./rst_tests
-
-    # Clang Release
-    - os: linux
-      dist: bionic
-      addons:
-        apt:
-          packages:
-            - clang-8
-            - ninja-build
-      env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-    
-      before_install:
-          - eval "${MATRIX_EVAL}"
-    
-      before_script:
-        - mkdir build
-        - cd build
-        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
-    
-      script: ninja
-
-    # GCC
-    - os: linux
-      dist: bionic
-      addons:
-        apt:
-          packages:
-            - g++-8
-            - gcc-8
-            - ninja-build
-      env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-    
-      before_install:
-          - eval "${MATRIX_EVAL}"
-    
-      before_script:
-        - mkdir build
-        - cd build
-        - cmake .. -GNinja
-    
-      script: ninja && ./rst_tests
-
-    # GCC Exceptions + RTTI
-    - os: linux
-      dist: bionic
-      addons:
-        apt:
-          packages:
-            - g++-8
-            - gcc-8
-            - ninja-build
-      env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-    
-      before_install:
-          - eval "${MATRIX_EVAL}"
-    
-      before_script:
-        - mkdir build
-        - cd build
-        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON
-    
-      script: ninja && ./rst_tests
-
-    # GCC Release
-    - os: linux
-      dist: bionic
-      addons:
-        apt:
-          packages:
-            - g++-8
-            - gcc-8
-            - ninja-build
-      env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-    
-      before_install:
-          - eval "${MATRIX_EVAL}"
-    
-      before_script:
-        - mkdir build
-        - cd build
-        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
-    
-      script: ninja
