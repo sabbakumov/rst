@@ -255,10 +255,10 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
       "-Wno-deprecated-declarations")
   set(cxx_rst_tests_flags "${cxx_rst_flags}")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  set(cxx_rst_flags "${cxx_rst_flags};/Wall;/WX;/wd4996;/wd4018;/wd4820;"
-      "/wd4514;/wd4710;/wd4582;/wd4583;/wd5045;/wd4668;/wd4577;/wd4530;/wd5039")
-  set(cxx_rst_tests_flags "${cxx_rst_flags};/wd4834;/wd4625;/wd4626;/wd5026;"
-      "/wd5027;/wd4571")
+  set(cxx_rst_flags "${cxx_rst_flags};/Wall;/WX;/MP;/wd4996;/wd4018;/wd4820;"
+      "/wd4514;/wd4710;/wd4582;/wd4583;/wd5045;/wd4668;/wd4577;/wd4530;/wd5039"
+      "/wd4711;/wd4625;/wd4626;/wd5026;/wd5027;/wd4774;/wd4623;/wd4388")
+  set(cxx_rst_tests_flags "${cxx_rst_flags};/wd4834;/wd4571;/wd4003;/wd4307")
 endif()
 
 target_compile_options(rst PRIVATE ${cxx_rst_flags})

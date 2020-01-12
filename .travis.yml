@@ -316,3 +316,39 @@ matrix:
         - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
 
       script: ninja
+
+    # MSVC 2017 Win32
+    - os: windows
+      before_script:
+        - mkdir build
+        - cd build
+        - cmake .. -G"Visual Studio 15 2017"
+
+      script: cmake --build . && ./Debug/rst_tests.exe
+
+    # MSVC 2017 Win32 Release
+    - os: windows
+      before_script:
+        - mkdir build
+        - cd build
+        - cmake .. -G"Visual Studio 15 2017"
+
+      script: cmake --build . --config Release
+
+    # MSVC 2017 Win64
+    - os: windows
+      before_script:
+        - mkdir build
+        - cd build
+        - cmake .. -G"Visual Studio 15 2017 Win64"
+
+      script: cmake --build . && ./Debug/rst_tests.exe
+
+    # MSVC 2017 Win64 Release
+    - os: windows
+      before_script:
+        - mkdir build
+        - cd build
+        - cmake .. -G"Visual Studio 15 2017 Win64"
+
+      script: cmake --build . --config Release
