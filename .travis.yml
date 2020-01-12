@@ -352,3 +352,47 @@ matrix:
         - cmake .. -G"Visual Studio 15 2017 Win64"
 
       script: cmake --build . --config Release
+
+    # MSVC 2019 Win32
+    - os: windows
+      before_script:
+        - choco install visualstudio2019buildtools
+        - choco install visualstudio2019-workload-vctools
+        - mkdir build
+        - cd build
+        - cmake .. -G"Visual Studio 16 2019" -A Win32
+
+      script: cmake --build . && ./Debug/rst_tests.exe
+
+    # MSVC 2019 Win32 Release
+    - os: windows
+      before_script:
+        - choco install visualstudio2019buildtools
+        - choco install visualstudio2019-workload-vctools
+        - mkdir build
+        - cd build
+        - cmake .. -G"Visual Studio 16 2019" -A Win32
+
+      script: cmake --build . --config Release
+
+    # MSVC 2019 Win64
+    - os: windows
+      before_script:
+        - choco install visualstudio2019buildtools
+        - choco install visualstudio2019-workload-vctools
+        - mkdir build
+        - cd build
+        - cmake .. -G"Visual Studio 16 2019" -A x64
+
+      script: cmake --build . && ./Debug/rst_tests.exe
+
+    # MSVC 2019 Win64 Release
+    - os: windows
+      before_script:
+        - choco install visualstudio2019buildtools
+        - choco install visualstudio2019-workload-vctools
+        - mkdir build
+        - cd build
+        - cmake .. -G"Visual Studio 16 2019" -A x64
+
+      script: cmake --build . --config Release
