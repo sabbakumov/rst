@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/sabbakumov/rst.svg?branch=master)](https://travis-ci.org/sabbakumov/rst)
+
 # RST C++ library
 
 This is the RST C++11 library.
