@@ -58,39 +58,25 @@ std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
   size_t arg_idx = 0;
   auto target = output.data();
   for (auto c = '\0'; (c = *format) != '\0'; format++) {
-    switch (c) {
+    switch (RST_LIKELY_EQ(c, ' ')) {
       case '{': {
-        switch (RST_LIKELY_EQ(*(format + 1), '}')) {
-          case '{': {
-            format++;
-            *target++ = '{';
-            break;
-          }
-          case '}': {
-            RST_DCHECK(arg_idx < size && "Extra arguments");
-            const auto src = values[arg_idx].view();
-            target = std::copy_n(src.data(), src.size(), target);
-            format++;
-            arg_idx++;
-            break;
-          }
-          default: {
-            RST_DCHECK(false && "Invalid format string");
-          }
+        if (RST_LIKELY(*(format + 1) == '}')) {
+          RST_DCHECK(arg_idx < size && "Extra arguments");
+          const auto src = values[arg_idx].view();
+          target = std::copy_n(src.data(), src.size(), target);
+          arg_idx++;
+        } else {
+          RST_DCHECK((*(format + 1) == '{') && "Invalid format string");
+          *target++ = '{';
         }
+
+        format++;
         break;
       }
       case '}': {
-        switch (*(format + 1)) {
-          case '}': {
-            format++;
-            *target++ = '}';
-            break;
-          }
-          default: {
-            RST_DCHECK(false && "Unmatched '}' in format string");
-          }
-        }
+        RST_DCHECK((*(format + 1) == '}') && "Unmatched '}' in format string");
+        format++;
+        *target++ = '}';
         break;
       }
       default: {
