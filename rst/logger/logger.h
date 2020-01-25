@@ -38,7 +38,7 @@
 #include "rst/macros/macros.h"
 #include "rst/not_null/not_null.h"
 
-// General logger component.
+// General logger component. Note that fatal logs exit the program.
 //
 // Example:
 //
@@ -50,7 +50,8 @@
 //   Logger::SetGlobalLogger(&logger);
 //
 //   RST_LOG_INFO("Init subsystem A");
-//   RST_DLOG_WARNING("Init subsystem A.B");  // Logs only in a debug build.
+//   // DLOG versions log only in a debug build.
+//   RST_DLOG_WARNING("Init subsystem A.B");
 
 // Helper macros for logging with the specified level.
 #define RST_LOG_DEBUG(message) \

@@ -33,7 +33,7 @@
 
 #include "rst/macros/optimization.h"
 
-// Chromium-like checking macros.
+// Chromium-like checking macros for better programming error handling.
 //
 // The RST_CHECK() macro will cause an immediate crash if its condition is not
 // met. RST_DCHECK() is like RST_CHECK() but is only compiled in debug build.

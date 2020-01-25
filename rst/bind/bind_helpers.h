@@ -33,6 +33,17 @@
 namespace rst {
 
 // Creates a null function.
+//
+// Example:
+//
+//   using MyCallback = std::function<void(bool arg)>;
+//   void MyFunction(MyCallback&& callback) {
+//     if (callback != nullptr)
+//       callback(true);
+//   }
+//
+//   MyFunction(NullFunction());
+//
 class NullFunction {
  public:
   template <class R, class... Args>
@@ -41,7 +52,7 @@ class NullFunction {
   }
 };
 
-// Creates a callback that does nothing when called.
+// Creates a function that does nothing when called.
 //
 // Example:
 //

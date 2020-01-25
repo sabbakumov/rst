@@ -109,7 +109,8 @@ class ErrorInfo : public Parent {
   RST_DISALLOW_COPY_AND_ASSIGN(ErrorInfo);
 };
 
-// A Google-like Status class for error handling.
+// A Google-like Status class for recoverable error handling. It's impossible to
+// ignore an error.
 //
 // Example:
 //

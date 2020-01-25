@@ -34,7 +34,6 @@
 
 // Container-based versions of algorithmic functions within the C++ standard
 // library.
-
 namespace rst {
 
 template <class C>
