@@ -16,7 +16,7 @@ It is licensed under the Simplified BSD License.
   * [Defer](#Defer)
   * [Files](#Files)
   * [GUID](#GUID)
-  * [Hidden Strings](#HiddenStrings)
+  * [Hidden String](#HiddenString)
   * [Legacy](#Legacy)
   * [Logger](#Logger)
   * [Macros](#Macros)
@@ -146,7 +146,6 @@ void MyFunction(MyCallback&& callback) {
 MyFunction(MyCallback());  // ... this will crash!
 
 // Instead, use DoNothing():
-
 MyFunction(DoNothing());  // Can be run, will no-op.
 ```
 
@@ -280,17 +279,17 @@ RST_LOG_INFO("Init subsystem A");
 // DLOG versions log only in a debug build.
 RST_DLOG_WARNING("Init subsystem A.B");
 
-RST_LOG_DEBUG("message")
-RST_LOG_INFO("message")
-RST_LOG_WARNING("message")
-RST_LOG_ERROR("message")
-RST_LOG_FATAL("message")
+RST_LOG_DEBUG("message");
+RST_LOG_INFO("message");
+RST_LOG_WARNING("message");
+RST_LOG_ERROR("message");
+RST_LOG_FATAL("message");
 
-RST_DLOG_DEBUG("message")
-RST_DLOG_INFO("message")
-RST_DLOG_WARNING("message")
-RST_DLOG_ERROR("message")
-RST_DLOG_FATAL("message")
+RST_DLOG_DEBUG("message");
+RST_DLOG_INFO("message");
+RST_DLOG_WARNING("message");
+RST_DLOG_ERROR("message");
+RST_DLOG_FATAL("message");
 ```
 
 <a name="Macros"></a>

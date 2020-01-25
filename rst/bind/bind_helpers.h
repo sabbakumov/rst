@@ -64,7 +64,6 @@ class NullFunction {
 //   MyFunction(MyCallback());  // ... this will crash!
 //
 //   // Instead, use DoNothing():
-//
 //   MyFunction(DoNothing());  // Can be run, will no-op.
 //
 class DoNothing {
