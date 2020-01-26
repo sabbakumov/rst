@@ -34,6 +34,7 @@ It is licensed under the Simplified BSD License.
   * [STL](#STL)
     * [Reversed](#Reversed)
     * [Algorithm](#Algorithm)
+    * [StringResizeUninitialized](#StringResizeUninitialized)
   * [Status](#Status)
     * [Status](#Status2)
     * [Status Macros](#StatusMacros)
@@ -621,6 +622,18 @@ void c_push_heap(C& c, Compare&& comp);
 
 template <class C, class Compare>
 void c_pop_heap(C& c, Compare&& comp);
+```
+
+<a name="StringResizeUninitialized"></a>
+### StringResizeUninitialized
+```cpp
+// Like |std::string::resize()|, except any new characters added to string as a
+// result of resizing may be left uninitialized, rather than being filled with
+// '\0' bytes. Typically used when code is then going to overwrite the backing
+// store of the std::string with known data.
+template <class String>
+void StringResizeUninitialized(const NotNull<String*> s,
+                               const size_t new_size);
 ```
 
 <a name="Status"></a>

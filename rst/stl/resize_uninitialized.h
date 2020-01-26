@@ -62,7 +62,7 @@ struct ResizeUninitializedTraits<
 // result of resizing may be left uninitialized, rather than being filled with
 // '\0' bytes. Typically used when code is then going to overwrite the backing
 // store of the std::string with known data.
-template <class String, class = void>
+template <class String>
 void StringResizeUninitialized(const NotNull<String*> s,
                                const size_t new_size) {
   internal::ResizeUninitializedTraits<String>::Resize(s, new_size);
