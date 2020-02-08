@@ -78,7 +78,7 @@ class File {
 
 class SinkMock : public Sink {
  public:
-  MOCK_METHOD1(Log, void(std::string_view message));
+  MOCK_METHOD(void, Log, (std::string_view message), (override));
 };
 
 }  // namespace

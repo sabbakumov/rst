@@ -43,7 +43,7 @@ class Mock {
   bool IsA() {
     return DoIsA();
   }
-  MOCK_METHOD0(DoIsA, bool());
+  MOCK_METHOD(bool, DoIsA, ());
 };
 
 class ConstMock {
@@ -52,7 +52,7 @@ class ConstMock {
   bool IsA() const {
     return DoIsA();
   }
-  MOCK_CONST_METHOD0(DoIsA, bool());
+  MOCK_METHOD(bool, DoIsA, (), (const));
 };
 
 }  // namespace

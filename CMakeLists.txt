@@ -246,7 +246,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       "-Wno-deprecated-declarations")
   set(cxx_rst_tests_flags "${cxx_rst_flags};-Wno-global-constructors;"
       "-Wno-used-but-marked-unused;-Wno-covered-switch-default;"
-      "-Wno-unused-member-function")
+      "-Wno-unused-member-function;-Wno-gnu-zero-variadic-macro-arguments")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   set(cxx_rst_flags "${cxx_rst_flags};-Werror;-Wall;-Wextra;-pedantic;"
       "-Wno-unknown-pragmas;-Wcast-qual;-Wconversion-null;"

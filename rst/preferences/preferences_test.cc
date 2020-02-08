@@ -44,9 +44,11 @@ namespace {
 
 class MockPreferencesStore : public PreferencesStore {
  public:
-  MOCK_CONST_METHOD1(GetValue, Nullable<const Value*>(std::string_view path));
+  MOCK_METHOD(Nullable<const Value*>, GetValue, (std::string_view path),
+              (const, override));
 
-  MOCK_METHOD2(SetValue, void(std::string_view path, Value&& value));
+  MOCK_METHOD(void, SetValue, (std::string_view path, Value&& value),
+              (override));
 };
 
 }  // namespace
