@@ -19,7 +19,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja
+        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug
 
       script: ninja && ./rst_tests
 
@@ -40,7 +40,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON
+        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON -DCMAKE_BUILD_TYPE=Debug
 
       script: ninja && ./rst_tests
 
@@ -61,7 +61,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_ASAN=ON
+        - cmake .. -GNinja -DRST_ENABLE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug
 
       script: ninja && ./rst_tests
 
@@ -82,7 +82,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_TSAN=ON
+        - cmake .. -GNinja -DRST_ENABLE_TSAN=ON -DCMAKE_BUILD_TYPE=Debug
 
       script: ninja && ./rst_tests
 
@@ -103,7 +103,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_UBSAN=ON
+        - cmake .. -GNinja -DRST_ENABLE_UBSAN=ON -DCMAKE_BUILD_TYPE=Debug
 
       script: ninja && ./rst_tests
 
@@ -146,7 +146,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja
+        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug
 
       script: ninja && ./rst_tests
 
@@ -168,7 +168,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON
+        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON -DCMAKE_BUILD_TYPE=Debug
 
       script: ninja && ./rst_tests
 
@@ -210,7 +210,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja
+        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug
 
       script: ninja && ./rst_tests
 
@@ -230,7 +230,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON
+        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON -DCMAKE_BUILD_TYPE=Debug
 
       script: ninja && ./rst_tests
 
@@ -271,7 +271,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja
+        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug
 
       script: ninja && ./rst_tests
 
@@ -292,7 +292,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON
+        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON -DCMAKE_BUILD_TYPE=Debug
 
       script: ninja && ./rst_tests
 
