@@ -65,7 +65,7 @@
 //   class Worker {
 //    public:
 //     static void StartNew(WeakPtr<Controller>&& controller) {
-//       auto worker = new Worker(std::move(controller));
+//       new Worker(std::move(controller));
 //       // Asynchronous processing...
 //     }
 //
@@ -74,12 +74,13 @@
 //         : controller_(std::move(controller)) {}
 //
 //     void DidCompleteAsynchronousProcessing(const Result& result) {
-//       Nullable<Controller*> controller = controller_.get();
+//       Nullable<Controller*> controller = controller_.GetNullable();
 //       if (controller != nullptr)
 //         controller->WorkComplete(result);
+//       delete this;
 //     }
 //
-//     WeakPtr<Controller> controller_;
+//     const WeakPtr<Controller> controller_;
 //   };
 //
 // With this implementation a caller may use SpawnWorker() to dispatch multiple
@@ -137,7 +138,7 @@ class WeakPtr {
     return *this;
   }
 
-  Nullable<T*> get() const { return IsValid() ? ptr_ : nullptr; }
+  Nullable<T*> GetNullable() const { return IsValid() ? ptr_ : nullptr; }
 
  private:
   template <class U>

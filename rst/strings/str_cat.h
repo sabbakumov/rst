@@ -47,7 +47,7 @@
 //
 // Example:
 //   std::string s = StrCat({"Bob", " purchased ", 5, " ", Apples"});
-//   assert(s == "Bob purchased 5 Apples");
+//   RST_DCHECK(s == "Bob purchased 5 Apples");
 //
 // Supported types:
 //   * std::string_view, std::string, const char*

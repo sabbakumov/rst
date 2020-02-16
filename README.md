@@ -104,7 +104,7 @@ class Controller {
 class Worker {
  public:
   static void StartNew(std::function<void(const Result&)>&& callback) {
-    auto worker = new Worker(std::move(callback));
+    new Worker(std::move(callback));
     // Asynchronous processing...
   }
 
@@ -114,9 +114,10 @@ class Worker {
 
   void DidCompleteAsynchronousProcessing(const Result& result) {
     callback_(result);  // Does nothing if controller has been deleted.
+    delete this;
   }
 
-  std::function<void(const Result&)> callback_;
+  const std::function<void(const Result&)> callback_;
 };
 ```
 
@@ -126,7 +127,7 @@ Creates a null function.
 
 ```cpp
 using MyCallback = std::function<void(bool arg)>;
-void MyFunction(MyCallback&& callback) {
+void MyFunction(const MyCallback& callback) {
   if (callback != nullptr)
     callback(true);
 }
@@ -140,7 +141,7 @@ Creates a function that does nothing when called.
 
 ```cpp
 using MyCallback = std::function<void(bool arg)>;
-void MyFunction(MyCallback&& callback) {
+void MyFunction(const MyCallback& callback) {
   callback(true);  // Uh oh...
 }
 
@@ -252,7 +253,7 @@ Strings encrypted with this method are not visible directly in the binary.
 
 ```cpp
 RST_HIDDEN_STRING(kHidden, "Not visible");
-assert(kHidden.Decrypt() == "Not visible");
+RST_DCHECK(kHidden.Decrypt() == "Not visible");
 ```
 
 <a name="Legacy"></a>
@@ -268,7 +269,8 @@ General logger component. Note that fatal logs exit the program.
 ```cpp
 // Construct logger with a custom sink.
 auto sink = FileNameSink::Create("log.txt");
-Logger logger(std::move(sink).Take());
+RST_DCHECK(!sink.err());
+Logger logger(std::move(*sink).Take());
 
 auto sink = std::make_unique<FilePtrSink>(stderr);
 Logger logger(std::move(sink));
@@ -425,7 +427,7 @@ class Controller {
 class Worker {
  public:
   static void StartNew(WeakPtr<Controller>&& controller) {
-    auto worker = new Worker(std::move(controller));
+    new Worker(std::move(controller));
     // Asynchronous processing...
   }
 
@@ -434,12 +436,12 @@ class Worker {
       : controller_(std::move(controller)) {}
 
   void DidCompleteAsynchronousProcessing(const Result& result) {
-    Nullable<Controller*> controller = controller_.get();
+    Nullable<Controller*> controller = controller_.GetNullable();
     if (controller != nullptr)
       controller->WorkComplete(result);
   }
 
-  WeakPtr<Controller> controller_;
+  const WeakPtr<Controller> controller_;
 };
 ```
 
@@ -543,10 +545,10 @@ are used.
 Preferences preferences(std::make_unique<MemoryPreferencesStore>());
 
 preferences.RegisterIntPreference("int.preference", 10);
-assert(preferences.GetInt("int.preference") == 10);
+RST_DCHECK(preferences.GetInt("int.preference") == 10);
 
 preferences.SetInt("int.preference", 20);
-assert(preferences.GetInt("int.preference") == 20);
+RST_DCHECK(preferences.GetInt("int.preference") == 20);
 ```
 
 <a name="Random"></a>
@@ -627,7 +629,7 @@ void c_pop_heap(C& c, Compare&& comp);
 <a name="StringResizeUninitialized"></a>
 ### StringResizeUninitialized
 ```cpp
-// Like |std::string::resize()|, except any new characters added to string as a
+// Like std::string::resize(), except any new characters added to string as a
 // result of resizing may be left uninitialized, rather than being filled with
 // '\0' bytes. Typically used when code is then going to overwrite the backing
 // store of the std::string with known data.
@@ -748,7 +750,7 @@ be output.
 
 ```cpp
 std::string s = Format("{} purchased {} {}", {"Bob", 5, "Apples"});
-assert(s == "Bob purchased 5 Apples");
+RST_DCHECK(s == "Bob purchased 5 Apples");
 ```
 
 Supported types:
@@ -779,7 +781,7 @@ process. See below for a full list of supported types.
 
 ```cpp
 std::string s = StrCat({"Bob", " purchased ", 5, " ", Apples"});
-assert(s == "Bob purchased 5 Apples");
+RST_DCHECK(s == "Bob purchased 5 Apples");
 ```
 
 Supported types:
@@ -799,10 +801,12 @@ Supported types:
 Task runner that is supposed to run tasks on the same thread.
 
 ```cpp
-PollingTaskRunner task_runner(...);
+std::function<std::chrono::milliseconds()> time_function = ...;
+PollingTaskRunner task_runner(std::move(time_function));
 for (;; task_runner.RunPendingTasks()) {
   ...
-  task_runner.PostTask(...);
+  std::function<void()> task = ...;
+  task_runner.PostTask(std::move(task));
   ...
 }
 ```
@@ -812,10 +816,12 @@ for (;; task_runner.RunPendingTasks()) {
 Task runner that is supposed to run tasks on the dedicated thread.
 
 ```cpp
-ThreadTaskRunner task_runner(...);
+std::function<std::chrono::milliseconds()> time_function = ...;
+ThreadTaskRunner task_runner(std::move(time_function));
 task_runner.Detach();
 ...
-task_runner.PostTask(...);
+std::function<void()> task = ...;
+task_runner.PostTask(std::move(task));
 ...
 ```
 

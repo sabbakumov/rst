@@ -149,9 +149,7 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
   RST_DCHECK(chunk_size >= 0);
   if (chunk_size == 0)  // Some files return 0 bytes (/etc/*).
     chunk_size = kDefaultChunkSize;
-  chunk_size++;
-
-  std::rewind(file.get());
+  chunk_size++;  // Try to read file at once including the EOF flag.
 
   std::string content;
   size_t bytes_read_so_far = 0;

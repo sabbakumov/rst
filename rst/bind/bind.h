@@ -54,7 +54,7 @@ namespace rst {
 //   class Worker {
 //    public:
 //     static void StartNew(std::function<void(const Result&)>&& callback) {
-//       auto worker = new Worker(std::move(callback));
+//       new Worker(std::move(callback));
 //       // Asynchronous processing...
 //     }
 //
@@ -64,9 +64,10 @@ namespace rst {
 //
 //     void DidCompleteAsynchronousProcessing(const Result& result) {
 //       callback_(result);  // Does nothing if controller has been deleted.
+//       delete this;
 //     }
 //
-//     std::function<void(const Result&)> callback_;
+//     const std::function<void(const Result&)> callback_;
 //   };
 //
 #pragma clang diagnostic push
@@ -75,8 +76,8 @@ template <class F, class T, class... Args>
 auto Bind(F&& f, WeakPtr<T>&& weak_ptr, Args&&... args) {
   return std::bind(
       [](const F& f, const WeakPtr<T>& weak_ptr, auto&&... args) {
-        const auto nullable_self = weak_ptr.get();
-        if (const auto self = nullable_self.get())
+        const auto nullable_self = weak_ptr.GetNullable();
+        if (const auto self = nullable_self.get(); self != nullptr)
           std::invoke(f, self, std::forward<decltype(args)>(args)...);
       },
       std::forward<F>(f), std::move(weak_ptr), std::forward<Args>(args)...);

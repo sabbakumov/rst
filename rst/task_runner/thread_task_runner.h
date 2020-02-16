@@ -48,10 +48,12 @@ namespace rst {
 //
 // Example:
 //
-//   ThreadTaskRunner task_runner(...);
+//   std::function<std::chrono::milliseconds()> time_function = ...;
+//   ThreadTaskRunner task_runner(std::move(time_function));
 //   task_runner.Detach();
 //   ...
-//   task_runner.PostTask(...);
+//   std::function<void()> task = ...;
+//   task_runner.PostTask(std::move(task));
 //   ...
 //
 class ThreadTaskRunner : public TaskRunner {

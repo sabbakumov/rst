@@ -41,9 +41,6 @@
 namespace rst {
 namespace internal {
 
-template <class Int, size_t N>
-std::string_view IntToString(char (&str)[N], Int val);
-
 template <class Float, size_t N>
 std::string_view FloatToString(char (&str)[N],
                                const NotNull<const char*> format,
@@ -120,7 +117,7 @@ class Arg {
       : view_(IntToString(buffer_, value)) {}
 
   Arg(const float value)  // NOLINT(runtime/explicit)
-      : view_(FloatToString(buffer_, "%g", static_cast<double>(value))) {}
+      : Arg(static_cast<double>(value)) {}
 
   Arg(const double value)  // NOLINT(runtime/explicit)
       : view_(FloatToString(buffer_, "%g", value)) {}

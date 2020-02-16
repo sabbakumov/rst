@@ -53,10 +53,10 @@ namespace rst {
 //   Preferences preferences(...);
 //
 //   preferences.RegisterIntPreference("int.preference", 10);
-//   assert(preferences.GetInt("int.preference") == 10);
+//   RST_DCHECK(preferences.GetInt("int.preference") == 10);
 //
 //   preferences.SetInt("int.preference", 20);
-//   assert(preferences.GetInt("int.preference") == 20);
+//   RST_DCHECK(preferences.GetInt("int.preference") == 20);
 //
 class Preferences {
  public:

@@ -46,7 +46,7 @@ struct Item {
   using Function = std::function<void()>;
 
   Item(const std::chrono::milliseconds time_point, const uint64_t task_id,
-       std::function<void()>&& task)
+       Function&& task)
       : time_point(time_point), task_id(task_id), task(std::move(task)) {}
   Item(Item&&) noexcept(std::is_nothrow_move_constructible<Function>::value) =
       default;

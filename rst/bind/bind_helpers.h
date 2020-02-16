@@ -37,7 +37,7 @@ namespace rst {
 // Example:
 //
 //   using MyCallback = std::function<void(bool arg)>;
-//   void MyFunction(MyCallback&& callback) {
+//   void MyFunction(const MyCallback& callback) {
 //     if (callback != nullptr)
 //       callback(true);
 //   }
@@ -57,7 +57,7 @@ class NullFunction {
 // Example:
 //
 //   using MyCallback = std::function<void(bool arg)>;
-//   void MyFunction(MyCallback&& callback) {
+//   void MyFunction(const MyCallback& callback) {
 //     callback(true);  // Uh oh...
 //   }
 //

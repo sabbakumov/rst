@@ -64,7 +64,7 @@
 #if defined(__GNUC__) || defined(__clang__)
 #define RST_LIKELY_EQ(x, val) __builtin_expect(x, val)
 #else
-#define RST_LIKELY_EQ(x, val) (x)
+#define RST_LIKELY_EQ(x, val) (static_cast<void>(val), x)
 #endif
 
 #define RST_LIKELY(x) RST_LIKELY_EQ(x, 1)

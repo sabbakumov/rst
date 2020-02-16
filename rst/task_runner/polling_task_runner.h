@@ -44,10 +44,12 @@ namespace rst {
 //
 // Example:
 //
-//   PollingTaskRunner task_runner(...);
+//   std::function<std::chrono::milliseconds()> time_function = ...;
+//   PollingTaskRunner task_runner(std::move(time_function));
 //   for (;; task_runner.RunPendingTasks()) {
 //     ...
-//     task_runner.PostTask(...);
+//     std::function<void()> task = ...;
+//     task_runner.PostTask(std::move(task));
 //     ...
 //   }
 //

@@ -42,7 +42,7 @@
 // Example:
 //
 //   RST_HIDDEN_STRING(kHidden, "Not visible");
-//   assert(kHidden.Decrypt() == "Not visible");
+//   RST_DCHECK(kHidden.Decrypt() == "Not visible");
 //
 #define RST_HIDDEN_STRING(var, str)                                 \
   static constexpr ::rst::internal::HiddenString<                   \

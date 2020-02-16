@@ -46,7 +46,7 @@ struct ResizeUninitializedTraits {
   }
 };
 
-// |__resize_default_init()| is provided by libc++ >= 8.0.
+// __resize_default_init() is provided by libc++ >= 8.0.
 template <class String>
 struct ResizeUninitializedTraits<
     String,
@@ -58,7 +58,7 @@ struct ResizeUninitializedTraits<
 
 }  // namespace internal
 
-// Like |std::string::resize()|, except any new characters added to string as a
+// Like std::string::resize(), except any new characters added to string as a
 // result of resizing may be left uninitialized, rather than being filled with
 // '\0' bytes. Typically used when code is then going to overwrite the backing
 // store of the std::string with known data.

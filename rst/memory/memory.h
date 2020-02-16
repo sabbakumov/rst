@@ -35,7 +35,7 @@
 
 namespace rst {
 
-// Chromium-like WrapUnique.
+// Chromium-like WrapUnique().
 //
 // Helper to transfer ownership of a raw pointer to a std::unique_ptr<T>. It is
 // usually used inside factory methods.
