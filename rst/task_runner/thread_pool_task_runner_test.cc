@@ -25,7 +25,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/task_runner/thread_task_runner.h"
+#include "rst/task_runner/thread_pool_task_runner.h"
 
 #include <atomic>
 #include <condition_variable>
@@ -45,24 +45,24 @@ namespace chrono = std::chrono;
 
 namespace rst {
 
-TEST(ThreadTaskRunner, IsTaskRunner) {
-  const ThreadTaskRunner task_runner(
-      []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+TEST(ThreadPoolTaskRunner, IsTaskRunner) {
+  const ThreadPoolTaskRunner task_runner(
+      1, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
   const TaskRunner& i_task_runner = task_runner;
   (void)i_task_runner;
 }
 
-TEST(ThreadTaskRunner, InvalidPostTaskDelay) {
-  ThreadTaskRunner task_runner(
-      []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+TEST(ThreadPoolTaskRunner, InvalidPostTaskDelay) {
+  ThreadPoolTaskRunner task_runner(
+      1, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
   EXPECT_DEATH(
       task_runner.PostDelayedTask(DoNothing(), chrono::milliseconds(-1)), "");
 }
 
-TEST(ThreadTaskRunner, PostTaskInOrder) {
+TEST(ThreadPoolTaskRunner, PostTaskInOrder) {
   std::mutex mtx;
-  ThreadTaskRunner task_runner(
-      []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+  ThreadPoolTaskRunner task_runner(
+      1, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
 
   std::string str, expected;
   for (auto i = 0; i < 1000; i++) {
@@ -74,19 +74,19 @@ TEST(ThreadTaskRunner, PostTaskInOrder) {
   }
 
   while (true) {
-    std::unique_lock lock(mtx);
+    std::lock_guard lock(mtx);
     if (str == expected)
       break;
   }
 }
 
-TEST(ThreadTaskRunner, DestructorRunsPendingTasks) {
+TEST(ThreadPoolTaskRunner, DestructorRunsPendingTasks) {
   std::string str, expected;
 
   {
     std::mutex mtx;
-    ThreadTaskRunner task_runner(
-        []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+    ThreadPoolTaskRunner task_runner(
+        1, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
 
     for (auto i = 0; i < 1000; i++) {
       task_runner.PostTask([i, &mtx, &str]() {
@@ -100,11 +100,11 @@ TEST(ThreadTaskRunner, DestructorRunsPendingTasks) {
   EXPECT_EQ(str, expected);
 }
 
-TEST(ThreadTaskRunner, PostDelayedTaskInOrder) {
+TEST(ThreadPoolTaskRunner, PostDelayedTaskInOrder) {
   std::mutex mtx;
   std::atomic<int> ms = 0;
-  ThreadTaskRunner task_runner(
-      [&ms]() -> chrono::milliseconds { return chrono::milliseconds(ms); });
+  ThreadPoolTaskRunner task_runner(
+      1, [&ms]() -> chrono::milliseconds { return chrono::milliseconds(ms); });
 
   std::string str, first_half;
   for (auto i = 0; i < 500; i++) {
@@ -149,10 +149,10 @@ TEST(ThreadTaskRunner, PostDelayedTaskInOrder) {
   }
 }
 
-TEST(ThreadTaskRunner, PostTaskConcurrently) {
+TEST(ThreadPoolTaskRunner, PostTaskConcurrently) {
   std::mutex mtx;
-  ThreadTaskRunner task_runner(
-      []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+  ThreadPoolTaskRunner task_runner(
+      1, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
 
   std::string str, expected;
   std::vector<std::thread> threads;
@@ -172,19 +172,55 @@ TEST(ThreadTaskRunner, PostTaskConcurrently) {
   for (auto& t : threads)
     t.join();
 
+  c_sort(expected);
   while (true) {
     std::lock_guard lock(mtx);
     c_sort(str);
-    c_sort(expected);
     if (str == expected)
       break;
   }
 }
 
-TEST(ThreadTaskRunner, Detached) {
-  ThreadTaskRunner task_runner(
-      []() -> chrono::milliseconds { return chrono::milliseconds(0); });
-  task_runner.Detach();
+TEST(ThreadPoolTaskRunner, MultipleThreads) {
+  for (size_t t = 1; t <= 24; t++) {
+    std::mutex mtx;
+    ThreadPoolTaskRunner task_runner(
+        t, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+
+    std::string str, expected;
+    for (auto i = 0; i < 100; i++) {
+      task_runner.PostTask([i, &mtx, &str]() {
+        std::lock_guard lock(mtx);
+        str += std::to_string(i);
+      });
+      expected += std::to_string(i);
+    }
+
+    {
+      std::mutex ending_task_mutex;
+      std::condition_variable ending_task_cv;
+      auto should_continue = false;
+
+      task_runner.PostTask(
+          [&ending_task_mutex, &ending_task_cv, &should_continue]() {
+            std::lock_guard lock(ending_task_mutex);
+            should_continue = true;
+            ending_task_cv.notify_one();
+          });
+
+      std::unique_lock lock(ending_task_mutex);
+      while (!should_continue)
+        ending_task_cv.wait(lock);
+    }
+
+    c_sort(expected);
+    while (true) {
+      std::unique_lock lock(mtx);
+      c_sort(str);
+      if (str == expected)
+        break;
+    }
+  }
 }
 
 }  // namespace rst

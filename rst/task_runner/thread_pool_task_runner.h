@@ -25,11 +25,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_TASK_RUNNER_THREAD_TASK_RUNNER_H_
-#define RST_TASK_RUNNER_THREAD_TASK_RUNNER_H_
+#ifndef RST_TASK_RUNNER_THREAD_POOL_TASK_RUNNER_H_
+#define RST_TASK_RUNNER_THREAD_POOL_TASK_RUNNER_H_
 
 #include <chrono>
 #include <condition_variable>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -44,29 +45,29 @@
 
 namespace rst {
 
-// Task runner that is supposed to run tasks on the dedicated thread.
+// Task runner that is supposed to run tasks on dedicated threads.
 //
 // Example:
 //
 //   std::function<std::chrono::milliseconds()> time_function = ...;
-//   ThreadTaskRunner task_runner(std::move(time_function));
-//   task_runner.Detach();
+//   size_t threads_num = ...;
+//   ThreadPoolTaskRunner task_runner(threads_num, std::move(time_function));
 //   ...
 //   std::function<void()> task = ...;
 //   task_runner.PostTask(std::move(task));
 //   ...
 //
-class ThreadTaskRunner : public TaskRunner {
+class ThreadPoolTaskRunner : public TaskRunner {
  public:
-  // Takes |time_function| that returns current time.
-  explicit ThreadTaskRunner(
+  // Takes |time_function| that returns current time and creates |threads_num|
+  // threads.
+  ThreadPoolTaskRunner(
+      size_t threads_num,
       std::function<std::chrono::milliseconds()>&& time_function);
-  ~ThreadTaskRunner();
+  ~ThreadPoolTaskRunner();
 
   void PostDelayedTask(std::function<void()>&& task,
                        std::chrono::milliseconds delay) final;
-  // Detaches internal thread in order not to block in destructor.
-  void Detach();
 
  private:
   class InternalTaskRunner {
@@ -77,9 +78,6 @@ class ThreadTaskRunner : public TaskRunner {
 
     // Worker method.
     void WaitAndRunTasks();
-
-   private:
-    friend class ThreadTaskRunner;
 
     // Returns current time.
     const std::function<std::chrono::milliseconds()> time_function_;
@@ -93,18 +91,15 @@ class ThreadTaskRunner : public TaskRunner {
     // Increasing task counter.
     uint64_t task_id_ = 0;
 
-    // Used to not to allocate memory on every RunPendingTasks() call.
-    std::vector<std::function<void()>> pending_tasks_;
-
     RST_DISALLOW_COPY_AND_ASSIGN(InternalTaskRunner);
   };
 
   const NotNull<std::shared_ptr<InternalTaskRunner>> task_runner_;
-  std::thread thread_;
+  std::vector<std::thread> threads_;
 
-  RST_DISALLOW_COPY_AND_ASSIGN(ThreadTaskRunner);
+  RST_DISALLOW_COPY_AND_ASSIGN(ThreadPoolTaskRunner);
 };
 
 }  // namespace rst
 
-#endif  // RST_TASK_RUNNER_THREAD_TASK_RUNNER_H_
+#endif  // RST_TASK_RUNNER_THREAD_POOL_TASK_RUNNER_H_

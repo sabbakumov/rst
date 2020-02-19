@@ -25,25 +25,31 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "rst/task_runner/thread_task_runner.h"
+#include "rst/task_runner/thread_pool_task_runner.h"
 
 #include <utility>
 
 #include "rst/check/check.h"
+#include "rst/defer/defer.h"
 #include "rst/stl/algorithm.h"
 
 namespace chrono = std::chrono;
 
 namespace rst {
 
-ThreadTaskRunner::InternalTaskRunner::InternalTaskRunner(
+ThreadPoolTaskRunner::InternalTaskRunner::InternalTaskRunner(
     std::function<chrono::milliseconds()>&& time_function)
     : time_function_(std::move(time_function)) {}
 
-ThreadTaskRunner::InternalTaskRunner::~InternalTaskRunner() = default;
+ThreadPoolTaskRunner::InternalTaskRunner::~InternalTaskRunner() = default;
 
-void ThreadTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
+void ThreadPoolTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
+  std::function<void()> task;
+  RST_DEFER([this]() { thread_cv_.notify_one(); });
+
   while (true) {
+    task = nullptr;
+
     {
       std::unique_lock lock(thread_mutex_);
 
@@ -64,45 +70,48 @@ void ThreadTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
       if (should_exit_)
         return;
 
-      const auto now = time_function_();
-      while (!queue_.empty()) {
-        auto& item = queue_.front();
-        if (now < item.time_point)
-          break;
+      if (queue_.empty())
+        continue;
 
-        auto task = std::move(item.task);
-        c_pop_heap(queue_, std::greater<>());
-        queue_.pop_back();
-        pending_tasks_.emplace_back(std::move(task));
-      }
+      auto& item = queue_.front();
+      const auto now = time_function_();
+      if (now < item.time_point)
+        continue;
+
+      task = std::move(item.task);
+      c_pop_heap(queue_, std::greater<>());
+      queue_.pop_back();
     }
 
-    for (const auto& task : pending_tasks_)
+    if (task != nullptr)
       task();
-
-    pending_tasks_.clear();
   }
 }
 
-ThreadTaskRunner::ThreadTaskRunner(
+ThreadPoolTaskRunner::ThreadPoolTaskRunner(
+    const size_t threads_num,
     std::function<chrono::milliseconds()>&& time_function)
     : task_runner_(
-          std::make_shared<InternalTaskRunner>(std::move(time_function))),
-      thread_(&InternalTaskRunner::WaitAndRunTasks,
-              NotNull(task_runner_).Take()) {}
+          std::make_shared<InternalTaskRunner>(std::move(time_function))) {
+  RST_DCHECK(threads_num > 0);
+  threads_.reserve(threads_num);
+  for (size_t i = 0; i < threads_num; i++) {
+    threads_.emplace_back(&InternalTaskRunner::WaitAndRunTasks,
+                          NotNull(task_runner_).Take());
+  }
+}
 
-ThreadTaskRunner::~ThreadTaskRunner() {
-  if (thread_.joinable()) {
+ThreadPoolTaskRunner::~ThreadPoolTaskRunner() {
+  {
     std::mutex ending_task_mutex;
     std::condition_variable ending_task_cv;
     auto should_continue = false;
 
-    PostTask(
-        std::bind([&ending_task_mutex, &ending_task_cv, &should_continue]() {
-          std::lock_guard lock(ending_task_mutex);
-          should_continue = true;
-          ending_task_cv.notify_one();
-        }));
+    PostTask([&ending_task_mutex, &ending_task_cv, &should_continue]() {
+      std::lock_guard lock(ending_task_mutex);
+      should_continue = true;
+      ending_task_cv.notify_one();
+    });
 
     std::unique_lock lock(ending_task_mutex);
     while (!should_continue)
@@ -115,26 +124,25 @@ ThreadTaskRunner::~ThreadTaskRunner() {
   }
 
   task_runner_->thread_cv_.notify_one();
-  if (thread_.joinable())
-    thread_.join();
+  for (auto& thread : threads_) {
+    if (thread.joinable())
+      thread.join();
+  }
 }
 
-void ThreadTaskRunner::PostDelayedTask(std::function<void()>&& task,
-                                       const chrono::milliseconds delay) {
+void ThreadPoolTaskRunner::PostDelayedTask(std::function<void()>&& task,
+                                           const chrono::milliseconds delay) {
   RST_DCHECK(delay.count() >= 0);
 
   const auto now = task_runner_->time_function_();
   const auto future_time_point = now + delay;
   {
     std::lock_guard lock(task_runner_->thread_mutex_);
-    task_runner_->queue_.emplace_back(future_time_point, task_runner_->task_id_,
-                                      std::move(task));
+    task_runner_->queue_.emplace_back(
+        future_time_point, task_runner_->task_id_++, std::move(task));
     c_push_heap(task_runner_->queue_, std::greater<>());
-    task_runner_->task_id_++;
   }
   task_runner_->thread_cv_.notify_one();
 }
-
-void ThreadTaskRunner::Detach() { thread_.detach(); }
 
 }  // namespace rst

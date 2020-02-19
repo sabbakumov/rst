@@ -84,8 +84,8 @@ add_library(rst
   rst/task_runner/item.h
   rst/task_runner/polling_task_runner.cc
   rst/task_runner/polling_task_runner.h
-  rst/task_runner/thread_task_runner.cc
-  rst/task_runner/thread_task_runner.h
+  rst/task_runner/thread_pool_task_runner.cc
+  rst/task_runner/thread_pool_task_runner.h
   
   rst/value/value.h
   rst/value/value.cc
@@ -141,7 +141,7 @@ add_executable(rst_tests
   rst/strings/str_cat_test.cc
   
   rst/task_runner/polling_task_runner_test.cc
-  rst/task_runner/thread_task_runner_test.cc
+  rst/task_runner/thread_pool_task_runner_test.cc
   
   rst/threading/barrier_test.cc
   

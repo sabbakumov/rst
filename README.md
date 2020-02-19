@@ -44,7 +44,7 @@ It is licensed under the Simplified BSD License.
     * [StrCat](#StrCat)
   * [TaskRunner](#TaskRunner)
     * [PollingTaskRunner](#PollingTaskRunner)
-    * [ThreadTaskRunner](#ThreadTaskRunner)
+    * [ThreadPoolTaskRunner](#ThreadPoolTaskRunner)
   * [Threading](#Threading)
     * [Barrier](#Barrier)
   * [Type](#Type)
@@ -811,14 +811,14 @@ for (;; task_runner.RunPendingTasks()) {
 }
 ```
 
-<a name="ThreadTaskRunner"></a>
-### ThreadTaskRunner
-Task runner that is supposed to run tasks on the dedicated thread.
+<a name="ThreadPoolTaskRunner"></a>
+### ThreadPoolTaskRunner
+Task runner that is supposed to run tasks on dedicated threads.
 
 ```cpp
 std::function<std::chrono::milliseconds()> time_function = ...;
-ThreadTaskRunner task_runner(std::move(time_function));
-task_runner.Detach();
+size_t threads_num = ...;
+ThreadPoolTaskRunner task_runner(threads_num, std::move(time_function));
 ...
 std::function<void()> task = ...;
 task_runner.PostTask(std::move(task));
