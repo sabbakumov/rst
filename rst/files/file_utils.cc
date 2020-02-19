@@ -37,6 +37,7 @@
 #include "rst/guid/guid.h"
 #include "rst/macros/os.h"
 #include "rst/status/status_macros.h"
+#include "rst/stl/resize_uninitialized.h"
 #include "rst/strings/str_cat.h"
 
 #if RST_BUILDFLAG(OS_WIN)
@@ -157,7 +158,8 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
        std::feof(file.get()) == 0 && std::ferror(file.get()) == 0;
        bytes_read_so_far += bytes_read_this_pass) {
     RST_DCHECK(content.size() == bytes_read_so_far);
-    content.resize(bytes_read_so_far + static_cast<size_t>(chunk_size));
+    StringResizeUninitialized(
+        NotNull(&content), bytes_read_so_far + static_cast<size_t>(chunk_size));
     bytes_read_this_pass =
         std::fread(content.data() + bytes_read_so_far, 1,
                    static_cast<size_t>(chunk_size), file.get());
