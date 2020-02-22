@@ -95,10 +95,8 @@ ThreadPoolTaskRunner::ThreadPoolTaskRunner(
           std::make_shared<InternalTaskRunner>(std::move(time_function))) {
   RST_DCHECK(threads_num > 0);
   threads_.reserve(threads_num);
-  for (size_t i = 0; i < threads_num; i++) {
-    threads_.emplace_back(&InternalTaskRunner::WaitAndRunTasks,
-                          NotNull(task_runner_).Take());
-  }
+  for (size_t i = 0; i < threads_num; i++)
+    threads_.emplace_back(&InternalTaskRunner::WaitAndRunTasks, task_runner_);
 }
 
 ThreadPoolTaskRunner::~ThreadPoolTaskRunner() {

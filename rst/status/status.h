@@ -200,7 +200,7 @@ class [[nodiscard]] Status {
 
   // Sets the object as not checked by default and to be the error object.
   explicit Status(NotNull<std::unique_ptr<ErrorInfoBase>> error)
-      : error_(std::move(error).Take()) {}
+      : error_(std::move(error)) {}
 
   // Information about the error. nullptr if the object is OK.
   Nullable<std::unique_ptr<ErrorInfoBase>> error_;
