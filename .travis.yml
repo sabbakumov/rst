@@ -199,6 +199,7 @@ matrix:
       osx_image: xcode11.3
       addons:
         homebrew:
+          update: true
           packages:
             - ninja
       env:
@@ -219,6 +220,7 @@ matrix:
       osx_image: xcode11.3
       addons:
         homebrew:
+          update: true
           packages:
             - ninja
       env:
@@ -239,6 +241,7 @@ matrix:
       osx_image: xcode11.3
       addons:
         homebrew:
+          update: true
           packages:
             - ninja
       env:
@@ -259,6 +262,7 @@ matrix:
       osx_image: xcode11.3
       addons:
         homebrew:
+          update: true
           packages:
             - gcc@8
             - ninja
@@ -280,6 +284,7 @@ matrix:
       osx_image: xcode11.3
       addons:
         homebrew:
+          update: true
           packages:
             - gcc@8
             - ninja
@@ -301,6 +306,7 @@ matrix:
       osx_image: xcode11.3
       addons:
         homebrew:
+          update: true
           packages:
             - gcc@8
             - ninja
