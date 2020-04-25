@@ -374,6 +374,10 @@ Macros to test the current OS.
 #if RST_BUILDFLAG(OS_WIN)
 Windows code.
 #endif
+
+#if RST_BUILDFLAG(OS_ANDROID)
+Android code.
+#endif
 ```
 
 <a name="Memory"></a>

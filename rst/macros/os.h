@@ -38,10 +38,20 @@
 //   Windows code.
 //   #endif
 //
+//   #if RST_BUILDFLAG(OS_ANDROID)
+//   Android code.
+//   #endif
+//
 #if defined(_WIN32)
 #define RST_BUILDFLAG_OS_WIN() (true)
 #else
 #define RST_BUILDFLAG_OS_WIN() (false)
+#endif
+
+#if defined(__ANDROID__)
+#define RST_BUILDFLAG_OS_ANDROID() (true)
+#else
+#define RST_BUILDFLAG_OS_ANDROID() (false)
 #endif
 
 #endif  // RST_MACROS_OS_H_
