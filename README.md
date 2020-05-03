@@ -472,13 +472,13 @@ const std::string& GetLineSeparator() {
 
 More complex initialization with a lambda:
 ```cpp
-const std::string& GetSessionNonce() {
-  static const base::NoDestructor<std::string> nonce([] {
+const std::string& GetSession() {
+  static const base::NoDestructor<std::string> session([] {
     std::string s(16);
     ...
     return s;
   }());
-  return *nonce;
+  return *session;
 }
 ```
 
