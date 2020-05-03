@@ -83,6 +83,27 @@ std::optional<int64_t> GetFileSize(const NotNull<const char*> filename) {
 }
 #endif
 
+Status WriteFile(const NotNull<const char*> filename,
+                 const NotNull<const char*> mode, const std::string_view data) {
+  std::unique_ptr<std::FILE, void (*)(std::FILE*)> file(
+      std::fopen(filename.get(), mode.get()), [](std::FILE* f) {
+        if (f != nullptr)
+          (void)std::fclose(f);
+      });
+
+  if (file == nullptr)
+    return MakeStatus<FileOpenError>(StrCat({"Can't open file ", filename}));
+
+  if (std::fwrite(data.data(), 1, data.size(), file.get()) != data.size())
+    return MakeStatus<FileError>(StrCat({"Can't write file ", filename}));
+
+  const auto raw_file = file.release();
+  if (std::fclose(raw_file) != 0)
+    return MakeStatus<FileError>(StrCat({"Can't close file ", filename}));
+
+  return Status::OK();
+}
+
 }  // namespace
 
 char FileError::id_ = '\0';
@@ -102,29 +123,13 @@ FileOpenError::~FileOpenError() = default;
 
 Status WriteFile(const NotNull<const char*> filename,
                  const std::string_view data) {
-  std::unique_ptr<std::FILE, void (*)(std::FILE*)> file(
-      std::fopen(filename.get(), "wb"), [](std::FILE* f) {
-        if (f != nullptr)
-          (void)std::fclose(f);
-      });
-
-  if (file == nullptr)
-    return MakeStatus<FileOpenError>(StrCat({"Can't open file ", filename}));
-
-  if (std::fwrite(data.data(), 1, data.size(), file.get()) != data.size())
-    return MakeStatus<FileError>(StrCat({"Can't write file ", filename}));
-
-  const auto raw_file = file.release();
-  if (std::fclose(raw_file) != 0)
-    return MakeStatus<FileError>(StrCat({"Can't close file ", filename}));
-
-  return Status::OK();
+  return WriteFile(filename, "wb", data);
 }
 
 Status WriteImportantFile(const NotNull<const char*> filename,
                           const std::string_view data) {
   const auto temp_filename = StrCat({filename, GenerateGuid(), ".tmp"});
-  RST_TRY(WriteFile(temp_filename.c_str(), data));
+  RST_TRY(WriteFile(temp_filename.c_str(), "wxb", data));
 
   if (!Replace(temp_filename.c_str(), filename.get())) {
     (void)std::remove(temp_filename.c_str());

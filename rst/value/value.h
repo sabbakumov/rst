@@ -62,7 +62,6 @@ class Value {
  public:
   using String = std::string;
   using Array = std::vector<Value>;
-  // std::less allows to use heterogeneous lookup.
   using Object = std::map<std::string, Value, std::less<>>;
 
   // Types supported by JSON.
@@ -78,7 +77,7 @@ class Value {
   // Constructs the default value of a given type.
   explicit Value(Type type);
 
-  Value() {}  // A null value.
+  Value() : type_(Type::kNull) {}
   explicit Value(bool value) : type_(Type::kBool), bool_(value) {}
   explicit Value(int32_t value) : Value(static_cast<int64_t>(value)) {}
   // Can store |2^53 - 1| at maximum since it's a max safe integer that can be
@@ -101,7 +100,6 @@ class Value {
 
   explicit Value(String&& value)
       : type_(Type::kString), string_(std::move(value)) {}
-
   explicit Value(Array&& value)
       : type_(Type::kArray), array_(std::move(value)) {}
   explicit Value(Object&& value)
@@ -247,7 +245,7 @@ class Value {
   void MoveAssign(Value&& rhs);
   void Cleanup();
 
-  Type type_ = Type::kNull;
+  Type type_;
   union {
     bool bool_;
     double number_;

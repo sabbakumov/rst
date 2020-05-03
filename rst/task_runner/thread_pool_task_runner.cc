@@ -48,8 +48,6 @@ void ThreadPoolTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
   RST_DEFER([this]() { thread_cv_.notify_one(); });
 
   while (true) {
-    task = nullptr;
-
     {
       std::unique_lock lock(thread_mutex_);
 
@@ -83,8 +81,8 @@ void ThreadPoolTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
       queue_.pop_back();
     }
 
-    if (task != nullptr)
-      task();
+    task();
+    task = nullptr;
   }
 }
 
@@ -122,10 +120,8 @@ ThreadPoolTaskRunner::~ThreadPoolTaskRunner() {
   }
 
   task_runner_->thread_cv_.notify_one();
-  for (auto& thread : threads_) {
-    if (thread.joinable())
-      thread.join();
-  }
+  for (auto& thread : threads_)
+    thread.join();
 }
 
 void ThreadPoolTaskRunner::PostDelayedTask(std::function<void()>&& task,

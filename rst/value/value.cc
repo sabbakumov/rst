@@ -90,16 +90,16 @@ Value Value::Clone() const {
 Value::Array Value::Clone(const Array& array) {
   Array result;
   result.reserve(array.size());
-  for (const auto& val : array)
-    result.emplace_back(val.Clone());
+  for (const auto& value : array)
+    result.emplace_back(value.Clone());
   return result;
 }
 
 // static
 Value::Object Value::Clone(const Object& object) {
   Object result;
-  for (const auto& pair : object)
-    result.try_emplace(result.cend(), pair.first, pair.second.Clone());
+  for (const auto& [key, value] : object)
+    result.try_emplace(result.cend(), key, value.Clone());
   return result;
 }
 
@@ -169,8 +169,9 @@ Nullable<const Value::String*> Value::FindStringKey(
 
 NotNull<Value*> Value::SetKey(std::string&& key, Value&& value) {
   RST_DCHECK(IsObject());
-  auto ret = object_.insert_or_assign(std::move(key), std::move(value));
-  return &ret.first->second;
+  const auto [it, _] =
+      object_.insert_or_assign(std::move(key), std::move(value));
+  return &it->second;
 }
 
 bool Value::RemoveKey(const std::string_view key) {
@@ -215,7 +216,7 @@ Nullable<const Value*> Value::FindPath(const std::string_view path) const {
        delimiter_position != std::string_view::npos;
        delimiter_position = current_path.find('.')) {
     const auto key = current_path.substr(0, delimiter_position);
-    auto child_object = current_object->FindKeyOfType(key, Type::kObject);
+    const auto child_object = current_object->FindKeyOfType(key, Type::kObject);
     if (child_object == nullptr)
       return nullptr;
 

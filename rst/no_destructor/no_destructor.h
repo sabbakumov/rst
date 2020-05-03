@@ -50,13 +50,13 @@ namespace rst {
 // }
 //
 // More complex initialization with a lambda:
-// const std::string& GetSessionNonce() {
-//   static const base::NoDestructor<std::string> nonce([] {
+// const std::string& GetSession() {
+//   static const base::NoDestructor<std::string> session([] {
 //     std::string s(16);
 //     ...
 //     return s;
 //   }());
-//   return *nonce;
+//   return *session;
 // }
 //
 // NoDestructor<T> stores the object inline, so it also avoids a pointer

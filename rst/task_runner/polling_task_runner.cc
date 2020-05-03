@@ -58,6 +58,7 @@ void PollingTaskRunner::RunPendingTasks() {
     std::lock_guard lock(mutex_);
 
     const auto now = time_function_();
+    RST_DCHECK(pending_tasks_.empty());
     while (!queue_.empty()) {
       auto& item = queue_.front();
       if (now < item.time_point)
