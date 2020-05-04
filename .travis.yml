@@ -8,10 +8,10 @@ matrix:
       addons:
         apt:
           packages:
-            - clang-8
+            - clang-9
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -29,10 +29,10 @@ matrix:
       addons:
         apt:
           packages:
-            - clang-8
+            - clang-9
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -50,10 +50,10 @@ matrix:
       addons:
         apt:
           packages:
-            - clang-8
+            - clang-9
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -71,10 +71,10 @@ matrix:
       addons:
         apt:
           packages:
-            - clang-8
+            - clang-9
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -92,10 +92,10 @@ matrix:
       addons:
         apt:
           packages:
-            - clang-8
+            - clang-9
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -113,10 +113,10 @@ matrix:
       addons:
         apt:
           packages:
-            - clang-8
+            - clang-9
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
 
       before_install:
           - eval "${MATRIX_EVAL}"

@@ -27,9 +27,9 @@
 
 #undef NDEBUG
 #define NDEBUG
-#include "rst/check/check.h"
-
 #include <gtest/gtest.h>
+
+#include "rst/check/check.h"
 
 namespace rst {
 namespace {

@@ -25,6 +25,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "rst/preferences/preferences.h"
+
 #include <utility>
 
 #include <gmock/gmock.h>
@@ -33,7 +35,6 @@
 #include "rst/memory/memory.h"
 #include "rst/not_null/not_null.h"
 #include "rst/preferences/memory_preferences_store.h"
-#include "rst/preferences/preferences.h"
 #include "rst/preferences/preferences_store.h"
 
 using testing::_;

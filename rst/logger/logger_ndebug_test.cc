@@ -27,14 +27,14 @@
 
 #undef NDEBUG
 #define NDEBUG
-#include "rst/logger/logger.h"
-#include "rst/logger/sink.h"
-
 #include <memory>
 #include <utility>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+#include "rst/logger/logger.h"
+#include "rst/logger/sink.h"
 
 using testing::_;
 

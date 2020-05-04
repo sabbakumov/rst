@@ -4,6 +4,7 @@ project(rst CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(rst
   rst/bind/bind.h
@@ -232,7 +233,7 @@ if (RST_ENABLE_UBSAN)
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
       CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(cxx_rst_public_flags "${cxx_rst_public_flags};-fsanitize=undefined;"
-        "-fno-omit-frame-pointer")
+        "-fno-sanitize-recover=undefined;-fno-omit-frame-pointer")
     set(cxx_rst_public_link_flags "${cxx_rst_public_link_flags};"
         "-fsanitize=undefined")
   endif()
@@ -243,7 +244,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       "-Weverything;-Wno-c++98-compat;-Wno-c++98-c++11-c++14-compat;"
       "-Wno-c++98-compat-pedantic;-Wno-padded;-Wno-return-std-move-in-c++11;"
       "-Wno-shadow-field-in-constructor;-Wno-unknown-pragmas;"
-      "-Wno-deprecated-declarations")
+      "-Wno-deprecated-declarations;-Wno-ctad-maybe-unsupported")
   set(cxx_rst_tests_flags "${cxx_rst_flags};-Wno-global-constructors;"
       "-Wno-used-but-marked-unused;-Wno-covered-switch-default;"
       "-Wno-unused-member-function;-Wno-gnu-zero-variadic-macro-arguments")
