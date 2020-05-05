@@ -244,7 +244,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       "-Weverything;-Wno-c++98-compat;-Wno-c++98-c++11-c++14-compat;"
       "-Wno-c++98-compat-pedantic;-Wno-padded;-Wno-return-std-move-in-c++11;"
       "-Wno-shadow-field-in-constructor;-Wno-unknown-pragmas;"
-      "-Wno-deprecated-declarations;-Wno-ctad-maybe-unsupported")
+      "-Wno-deprecated-declarations;-Wno-ctad-maybe-unsupported;"
+      "-Wno-unknown-warning-option")
   set(cxx_rst_tests_flags "${cxx_rst_flags};-Wno-global-constructors;"
       "-Wno-used-but-marked-unused;-Wno-covered-switch-default;"
       "-Wno-unused-member-function;-Wno-gnu-zero-variadic-macro-arguments")
