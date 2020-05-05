@@ -28,9 +28,8 @@
 #ifndef RST_PREFERENCES_MEMORY_PREFERENCES_STORE_H_
 #define RST_PREFERENCES_MEMORY_PREFERENCES_STORE_H_
 
-#include "rst/preferences/preferences_store.h"
-
 #include "rst/macros/macros.h"
+#include "rst/preferences/preferences_store.h"
 #include "rst/value/value.h"
 
 namespace rst {

@@ -26,10 +26,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "rst/logger/logger.h"
-#include "rst/logger/file_name_sink.h"
-#include "rst/logger/file_ptr_sink.h"
-#include "rst/logger/log_error.h"
-#include "rst/logger/sink.h"
 
 #include <algorithm>
 #include <cstdarg>
@@ -48,6 +44,10 @@
 #include <gtest/gtest.h>
 
 #include "rst/check/check.h"
+#include "rst/logger/file_name_sink.h"
+#include "rst/logger/file_ptr_sink.h"
+#include "rst/logger/log_error.h"
+#include "rst/logger/sink.h"
 #include "rst/macros/macros.h"
 #include "rst/not_null/not_null.h"
 
