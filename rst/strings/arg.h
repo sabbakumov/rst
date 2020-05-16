@@ -68,15 +68,15 @@ std::string_view IntToString(char (&str)[N], const Int val) {
 
   auto p = str + N;
   do {
-    --p;
     RST_DCHECK(p != str);
+    --p;
     *p = static_cast<char>((res % 10) + '0');
     res /= 10;
   } while (res != 0);
 
   if (val < 0) {
-    --p;
     RST_DCHECK(p != str);
+    --p;
     *p = '-';
   }
   return std::string_view(p, static_cast<size_t>(str + N - p));
@@ -84,7 +84,7 @@ std::string_view IntToString(char (&str)[N], const Int val) {
 
 class Arg {
  public:
-  static constexpr size_t kBufferSize = 21;
+  static constexpr size_t kBufferSize = 20;
 
   // NOLINTNEXTLINE(runtime/explicit)
   Arg(const bool value) : view_(value ? "true" : "false") {}
@@ -149,7 +149,7 @@ class Arg {
  private:
   const std::string_view view_;
   char buffer_[kBufferSize];  // Can store 2^64 - 1 that is
-                              // 18,446,744,073,709,551,615 with '\0'.
+                              // 18,446,744,073,709,551,615 (without '\0').
 
   RST_DISALLOW_COPY_AND_ASSIGN(Arg);
 };
