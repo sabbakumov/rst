@@ -45,7 +45,7 @@ void Logger::Log(const Level level, const NotNull<const char*> filename,
   RST_DCHECK(g_logger != nullptr);
   RST_DCHECK(line > 0);
 
-  if (static_cast<int>(level) < static_cast<int>(g_logger->level_))
+  if (level < g_logger->level_)
     return;
 
   const char* level_str = nullptr;
