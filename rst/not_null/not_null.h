@@ -90,10 +90,8 @@ class NotNull {
 
   NotNull() = delete;
 
-  NotNull(T ptr)  // NOLINT(runtime/explicit)
-      : ptr_(ptr) {
-    RST_DCHECK(ptr_ != nullptr);
-  }
+  // NOLINTNEXTLINE(runtime/explicit)
+  NotNull(T ptr) : ptr_(ptr) { RST_DCHECK(ptr_ != nullptr); }
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
   NotNull(const NotNull& other) : NotNull(other.ptr_) {}
@@ -109,8 +107,8 @@ class NotNull {
   }
 
   template <class U>
-  NotNull(const Nullable<U>& nullable)  // NOLINT(runtime/explicit)
-      : NotNull(nullable.ptr_) {
+  // NOLINTNEXTLINE(runtime/explicit)
+  NotNull(const Nullable<U>& nullable) : NotNull(nullable.ptr_) {
     static_assert(std::is_pointer<U>::value);
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(nullable.was_checked_);
@@ -196,8 +194,8 @@ class Nullable {
   }
 
   template <class U>
-  Nullable(const NotNull<U>& not_null)  // NOLINT(runtime/explicit)
-      : Nullable(not_null.ptr_) {
+  // NOLINTNEXTLINE(runtime/explicit)
+  Nullable(const NotNull<U>& not_null) : Nullable(not_null.ptr_) {
     static_assert(std::is_pointer<U>::value);
   }
 
@@ -287,8 +285,8 @@ class NotNull<std::unique_ptr<T>> {
   NotNull() = delete;
 
   template <class U>
-  NotNull(std::unique_ptr<U> ptr)  // NOLINT(runtime/explicit)
-      : ptr_(std::move(ptr)) {
+  // NOLINTNEXTLINE(runtime/explicit)
+  NotNull(std::unique_ptr<U> ptr) : ptr_(std::move(ptr)) {
     RST_DCHECK(ptr_ != nullptr);
   }
 
@@ -299,13 +297,13 @@ class NotNull<std::unique_ptr<T>> {
 #endif
 
   template <class U>
-  NotNull(
-      NotNull<std::unique_ptr<U>>&& other) noexcept  // NOLINT(runtime/explicit)
+  // NOLINTNEXTLINE(runtime/explicit)
+  NotNull(NotNull<std::unique_ptr<U>>&& other) noexcept
       : NotNull(std::move(other).Take()) {}
 
   template <class U>
-  NotNull(Nullable<std::unique_ptr<U>>&&
-              nullable) noexcept  // NOLINT(runtime/explicit)
+  // NOLINTNEXTLINE(runtime/explicit)
+  NotNull(Nullable<std::unique_ptr<U>>&& nullable) noexcept
       : NotNull(std::move(nullable).Take()) {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(nullable.was_checked_);
@@ -371,19 +369,19 @@ class Nullable<std::unique_ptr<T>> {
   Nullable() = default;
 
   template <class U>
-  Nullable(std::unique_ptr<U> ptr)  // NOLINT(runtime/explicit)
-      : ptr_(std::move(ptr)) {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  Nullable(std::unique_ptr<U> ptr) : ptr_(std::move(ptr)) {}
 
   Nullable(Nullable&&) noexcept = default;
 
   template <class U>
-  Nullable(Nullable<std::unique_ptr<U>>&&
-               other) noexcept  // NOLINT(runtime/explicit)
+  // NOLINTNEXTLINE(runtime/explicit)
+  Nullable(Nullable<std::unique_ptr<U>>&& other) noexcept
       : Nullable(std::move(other).Take()) {}
 
   template <class U>
-  Nullable(NotNull<std::unique_ptr<U>>&&
-               not_null) noexcept  // NOLINT(runtime/explicit)
+  // NOLINTNEXTLINE(runtime/explicit)
+  Nullable(NotNull<std::unique_ptr<U>>&& not_null) noexcept
       : Nullable(std::move(not_null).Take()) {}
 
   Nullable(std::nullptr_t) {}  // NOLINT(runtime/explicit)
@@ -461,20 +459,21 @@ class NotNull<std::shared_ptr<T>> {
   NotNull() = delete;
 
   template <class U>
-  NotNull(std::shared_ptr<U>&& ptr)  // NOLINT(runtime/explicit)
-      : ptr_(std::move(ptr)) {
+  // NOLINTNEXTLINE(runtime/explicit)
+  NotNull(std::shared_ptr<U>&& ptr) : ptr_(std::move(ptr)) {
     RST_DCHECK(ptr_ != nullptr);
   }
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
-  NotNull(const NotNull& other)  // NOLINT(runtime/explicit)
-      : NotNull(std::shared_ptr(other.ptr_)) {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  NotNull(const NotNull& other) : NotNull(std::shared_ptr(other.ptr_)) {}
 #else
   NotNull(const NotNull&) = default;
 #endif
 
   template <class U>
-  NotNull(const NotNull<std::shared_ptr<U>>& other)  // NOLINT(runtime/explicit)
+  // NOLINTNEXTLINE(runtime/explicit)
+  NotNull(const NotNull<std::shared_ptr<U>>& other)
       : NotNull(std::shared_ptr(other.ptr_)) {}
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
@@ -484,13 +483,13 @@ class NotNull<std::shared_ptr<T>> {
 #endif
 
   template <class U>
-  NotNull(
-      NotNull<std::shared_ptr<U>>&& other) noexcept  // NOLINT(runtime/explicit)
+  // NOLINTNEXTLINE(runtime/explicit)
+  NotNull(NotNull<std::shared_ptr<U>>&& other) noexcept
       : NotNull(std::move(other).Take()) {}
 
   template <class U>
-  NotNull(
-      const Nullable<std::shared_ptr<U>>& nullable)  // NOLINT(runtime/explicit)
+  // NOLINTNEXTLINE(runtime/explicit)
+  NotNull(const Nullable<std::shared_ptr<U>>& nullable)
       : NotNull(std::shared_ptr(nullable.ptr_)) {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(nullable.was_checked_);
@@ -498,8 +497,8 @@ class NotNull<std::shared_ptr<T>> {
   }
 
   template <class U>
-  NotNull(Nullable<std::shared_ptr<U>>&&
-              nullable) noexcept  // NOLINT(runtime/explicit)
+  // NOLINTNEXTLINE(runtime/explicit)
+  NotNull(Nullable<std::shared_ptr<U>>&& nullable) noexcept
       : NotNull(std::move(nullable).Take()) {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(nullable.was_checked_);
@@ -590,31 +589,31 @@ class Nullable<std::shared_ptr<T>> {
   Nullable() = default;
 
   template <class U>
-  Nullable(std::shared_ptr<U>&& ptr)  // NOLINT(runtime/explicit)
-      : ptr_(std::move(ptr)) {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  Nullable(std::shared_ptr<U>&& ptr) : ptr_(std::move(ptr)) {}
 
   Nullable(const Nullable&) = default;
 
   template <class U>
-  Nullable(
-      const Nullable<std::shared_ptr<U>>& other)  // NOLINT(runtime/explicit)
+  // NOLINTNEXTLINE(runtime/explicit)
+  Nullable(const Nullable<std::shared_ptr<U>>& other)
       : Nullable(std::shared_ptr(other.ptr_)) {}
 
   Nullable(Nullable&&) noexcept = default;
 
   template <class U>
-  Nullable(Nullable<std::shared_ptr<U>>&&
-               other) noexcept  // NOLINT(runtime/explicit)
+  // NOLINTNEXTLINE(runtime/explicit)
+  Nullable(Nullable<std::shared_ptr<U>>&& other) noexcept
       : Nullable(std::move(other).Take()) {}
 
   template <class U>
-  Nullable(
-      const NotNull<std::shared_ptr<U>>& not_null)  // NOLINT(runtime/explicit)
+  // NOLINTNEXTLINE(runtime/explicit)
+  Nullable(const NotNull<std::shared_ptr<U>>& not_null)
       : Nullable(std::shared_ptr(not_null.ptr_)) {}
 
   template <class U>
-  Nullable(NotNull<std::shared_ptr<U>>&&
-               not_null) noexcept  // NOLINT(runtime/explicit)
+  // NOLINTNEXTLINE(runtime/explicit)
+  Nullable(NotNull<std::shared_ptr<U>>&& not_null) noexcept
       : Nullable(std::move(not_null).Take()) {}
 
   Nullable(std::nullptr_t) {}  // NOLINT(runtime/explicit)
