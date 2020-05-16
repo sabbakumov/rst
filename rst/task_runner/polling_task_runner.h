@@ -53,15 +53,15 @@ namespace rst {
 //     ...
 //   }
 //
-class PollingTaskRunner : public TaskRunner {
+class PollingTaskRunner final : public TaskRunner {
  public:
   // Takes |time_function| that returns current time.
   explicit PollingTaskRunner(
       std::function<std::chrono::milliseconds()>&& time_function);
-  ~PollingTaskRunner();
+  ~PollingTaskRunner() override;
 
   void PostDelayedTask(std::function<void()>&& task,
-                       std::chrono::milliseconds delay) final;
+                       std::chrono::milliseconds delay) override;
 
   // Runs all pending tasks in interval (-inf, time_function_()].
   void RunPendingTasks();

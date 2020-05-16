@@ -40,7 +40,7 @@
 namespace rst {
 
 // The class for sinking to a FILE* (can be stdout or stderr).
-class FilePtrSink : public Sink {
+class FilePtrSink final : public Sink {
  public:
   using ShouldClose = Type<class ShouldCloseTag, bool>;
 
@@ -48,10 +48,10 @@ class FilePtrSink : public Sink {
   // |file| pointer (e.g. stdout, stderr).
   explicit FilePtrSink(NotNull<std::FILE*> file,
                        ShouldClose should_close = ShouldClose(true));
-  ~FilePtrSink() final;
+  ~FilePtrSink() override;
 
   // Thread safe logging function.
-  void Log(std::string_view message) final;
+  void Log(std::string_view message) override;
 
  private:
   // A RAII-wrapper around std::FILE.

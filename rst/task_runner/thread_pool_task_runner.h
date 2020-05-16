@@ -57,17 +57,17 @@ namespace rst {
 //   task_runner.PostTask(std::move(task));
 //   ...
 //
-class ThreadPoolTaskRunner : public TaskRunner {
+class ThreadPoolTaskRunner final : public TaskRunner {
  public:
   // Takes |time_function| that returns current time and creates |threads_num|
   // threads.
   ThreadPoolTaskRunner(
       size_t threads_num,
       std::function<std::chrono::milliseconds()>&& time_function);
-  ~ThreadPoolTaskRunner();
+  ~ThreadPoolTaskRunner() override;
 
   void PostDelayedTask(std::function<void()>&& task,
-                       std::chrono::milliseconds delay) final;
+                       std::chrono::milliseconds delay) override;
 
  private:
   class InternalTaskRunner {
