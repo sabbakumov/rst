@@ -212,8 +212,9 @@ endif()
 if (RST_ENABLE_ASAN)
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
       CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(cxx_rst_public_flags "${cxx_rst_public_flags};-fsanitize=address;"
-        "-fno-omit-frame-pointer")
+    set(cxx_rst_public_flags "${cxx_rst_public_flags};"
+        "-fsanitize=address;-fsanitize-address-use-after-scope;"
+        "-fno-omit-frame-pointer;-fno-optimize-sibling-calls")
     set(cxx_rst_public_link_flags "${cxx_rst_public_link_flags};"
         "-fsanitize=address")
   endif()
@@ -223,7 +224,7 @@ if (RST_ENABLE_TSAN)
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
       CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(cxx_rst_public_flags "${cxx_rst_public_flags};-fsanitize=thread;"
-        "-fno-omit-frame-pointer")
+        "-fno-omit-frame-pointer;-fno-optimize-sibling-calls")
     set(cxx_rst_public_link_flags "${cxx_rst_public_link_flags};"
         "-fsanitize=thread")
   endif()
@@ -232,8 +233,23 @@ endif()
 if (RST_ENABLE_UBSAN)
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
       CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(cxx_rst_public_flags "${cxx_rst_public_flags};-fsanitize=undefined;"
-        "-fno-sanitize-recover=undefined;-fno-omit-frame-pointer")
+    set(cxx_rst_public_flags "${cxx_rst_public_flags};"
+        "-fsanitize=undefined;-fno-sanitize-recover=undefined;"
+
+        "-fsanitize=implicit-integer-truncation;"
+        "-fno-sanitize-recover=implicit-integer-truncation;"
+
+        "-fsanitize=float-divide-by-zero;"
+        "-fno-sanitize-recover=float-divide-by-zero;"
+
+        "-fsanitize=local-bounds;-fno-sanitize-recover=local-bounds;"
+
+        "-fsanitize=nullability;-fno-sanitize-recover=nullability;"
+
+        "-fsanitize=signed-integer-overflow;"
+        "-fno-sanitize-recover=signed-integer-overflow;"
+
+        "-fno-omit-frame-pointer;-fno-optimize-sibling-calls")
     set(cxx_rst_public_link_flags "${cxx_rst_public_link_flags};"
         "-fsanitize=undefined")
   endif()
