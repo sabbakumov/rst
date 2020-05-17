@@ -57,7 +57,7 @@ namespace rst {
 //   task_runner.PostTask(std::move(task));
 //   ...
 //
-class ThreadPoolTaskRunner final : public TaskRunner {
+class ThreadPoolTaskRunner : public TaskRunner {
  public:
   // Takes |time_function| that returns current time and creates |threads_num|
   // threads.

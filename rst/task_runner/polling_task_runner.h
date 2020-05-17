@@ -53,7 +53,7 @@ namespace rst {
 //     ...
 //   }
 //
-class PollingTaskRunner final : public TaskRunner {
+class PollingTaskRunner : public TaskRunner {
  public:
   // Takes |time_function| that returns current time.
   explicit PollingTaskRunner(
