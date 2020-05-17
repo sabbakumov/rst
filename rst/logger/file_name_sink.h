@@ -41,16 +41,16 @@
 namespace rst {
 
 // The class for sinking to a file by its filename.
-class FileNameSink : public Sink {
+class FileNameSink final : public Sink {
  public:
   // Opens a |filename| for writing. Returns LogError on error.
   static StatusOr<NotNull<std::unique_ptr<FileNameSink>>> Create(
       NotNull<const char*> filename);
 
-  ~FileNameSink() final;
+  ~FileNameSink() override;
 
   // Thread safe logging function.
-  void Log(std::string_view message) final;
+  void Log(std::string_view message) override;
 
  private:
   FileNameSink();

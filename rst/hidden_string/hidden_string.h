@@ -30,9 +30,12 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <string>
 
 #include "rst/macros/macros.h"
+#include "rst/not_null/not_null.h"
+#include "rst/stl/resize_uninitialized.h"
 
 // Compile time encrypted string modified implementation originally taken from
 // https://stackoverflow.com/questions/7270473/compile-time-string-encryption.
@@ -65,9 +68,12 @@ constexpr uint64_t GetSeed() {
 }
 
 constexpr uint64_t LinearCongruentGenerator(const int rounds) {
-  return uint64_t{1013904223} +
-         uint64_t{1664525} *
-             ((rounds > 0) ? LinearCongruentGenerator(rounds - 1) : GetSeed());
+  auto result = GetSeed();
+
+  for (auto i = 0; i < rounds; i++)
+    result = result * uint64_t{1664525} + uint64_t{1013904223};
+
+  return result;
 }
 
 constexpr uint64_t Random() { return LinearCongruentGenerator(10); }
@@ -98,9 +104,11 @@ struct ConstructIndexList<0> {
   using Result = IndexList<>;
 };
 
-constexpr auto kXorKey = static_cast<char>(RandomNumber(0x00, 0xFF));
+constexpr auto kXorKey =
+    static_cast<char>(RandomNumber(std::numeric_limits<unsigned char>::min(),
+                                   std::numeric_limits<unsigned char>::max()));
 
-constexpr char EncryptCharacter(const char c, const size_t i) {
+constexpr char ProcessCharacter(const char c, const size_t i) {
   return c ^ static_cast<char>(static_cast<size_t>(kXorKey) + i);
 }
 
@@ -111,17 +119,20 @@ template <size_t... Index>
 class HiddenString<IndexList<Index...>> {
  public:
   explicit constexpr HiddenString(const char* str)
-      : str_{EncryptCharacter(str[Index], Index)...} {}
+      : str_{ProcessCharacter(str[Index], Index)...} {}
 
   std::string Decrypt() const {
-    std::string result(str_, sizeof...(Index));
-    for (size_t i = 0; i < sizeof...(Index); i++)
-      result[i] ^= static_cast<char>(static_cast<size_t>(kXorKey) + i);
+    std::string result;
+    StringResizeUninitialized(NotNull(&result), sizeof(str_));
+
+    for (size_t i = 0; i < sizeof(str_); i++)
+      result[i] = ProcessCharacter(str_[i], i);
+
     return result;
   }
 
  private:
-  const char str_[sizeof...(Index) + 1];
+  const char str_[sizeof...(Index)];
 
   RST_DISALLOW_COPY_AND_ASSIGN(HiddenString);
 };

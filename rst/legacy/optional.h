@@ -45,10 +45,10 @@ constexpr nullopt_t nullopt(0);
 template <class T>
 class [[nodiscard]] optional {
  public:
-  optional(const T& value)  // NOLINT(runtime/explicit)
-      : value_(value), is_valid_(true) {}
-  optional(T && value)  // NOLINT(runtime/explicit)
-      : value_(std::move(value)), is_valid_(true) {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  optional(const T& value) : value_(value), is_valid_(true) {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  optional(T && value) : value_(std::move(value)), is_valid_(true) {}
 
   optional(const optional& other) : is_valid_(other.is_valid_) {
     if (is_valid_)

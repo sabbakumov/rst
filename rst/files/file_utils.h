@@ -53,7 +53,7 @@ class FileError : public ErrorInfo<FileError> {
   RST_DISALLOW_COPY_AND_ASSIGN(FileError);
 };
 
-class FileOpenError : public ErrorInfo<FileOpenError, FileError> {
+class FileOpenError final : public ErrorInfo<FileOpenError, FileError> {
  public:
   explicit FileOpenError(std::string&& message);
   ~FileOpenError() override;

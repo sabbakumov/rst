@@ -50,8 +50,8 @@ std::string_view FloatToString(char (&str)[N],
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
 #pragma warning(push)
 #pragma warning(disable : 4774)
-  const auto bytes_written =
-      std::sprintf(str, format.get(), val);  // NOLINT(runtime/printf)
+  // NOLINTNEXTLINE(runtime/printf)
+  const auto bytes_written = std::sprintf(str, format.get(), val);
 #pragma warning(pop)
 #pragma clang diagnostic pop
   RST_DCHECK(bytes_written > 0);
@@ -68,15 +68,15 @@ std::string_view IntToString(char (&str)[N], const Int val) {
 
   auto p = str + N;
   do {
-    --p;
     RST_DCHECK(p != str);
+    --p;
     *p = static_cast<char>((res % 10) + '0');
     res /= 10;
   } while (res != 0);
 
   if (val < 0) {
-    --p;
     RST_DCHECK(p != str);
+    --p;
     *p = '-';
   }
   return std::string_view(p, static_cast<size_t>(str + N - p));
@@ -84,59 +84,55 @@ std::string_view IntToString(char (&str)[N], const Int val) {
 
 class Arg {
  public:
-  static constexpr size_t kBufferSize = 21;
+  static constexpr size_t kBufferSize = 20;
 
-  Arg(const bool value)  // NOLINT(runtime/explicit)
-      : view_(value ? "true" : "false") {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  Arg(const bool value) : view_(value ? "true" : "false") {}
 
-  Arg(const char value)  // NOLINT(runtime/explicit)
-      : view_(buffer_, 1) {
-    buffer_[0] = value;
-  }
+  // NOLINTNEXTLINE(runtime/explicit)
+  Arg(const char value) : view_(buffer_, 1) { buffer_[0] = value; }
 
   Arg(const short value) : view_(IntToString(buffer_, value)) {}  // NOLINT(*)
 
-  Arg(const unsigned short value)  // NOLINT(*)
-      : view_(IntToString(buffer_, value)) {}
+  // NOLINTNEXTLINE(*)
+  Arg(const unsigned short value) : view_(IntToString(buffer_, value)) {}
 
-  Arg(const int value)  // NOLINT(runtime/explicit)
-      : view_(IntToString(buffer_, value)) {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  Arg(const int value) : view_(IntToString(buffer_, value)) {}
 
-  Arg(const unsigned int value)  // NOLINT(runtime/explicit)
-      : view_(IntToString(buffer_, value)) {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  Arg(const unsigned int value) : view_(IntToString(buffer_, value)) {}
 
   Arg(const long value) : view_(IntToString(buffer_, value)) {}  // NOLINT(*)
 
-  Arg(const unsigned long value)  // NOLINT(*)
-      : view_(IntToString(buffer_, value)) {}
+  // NOLINTNEXTLINE(*)
+  Arg(const unsigned long value) : view_(IntToString(buffer_, value)) {}
 
-  Arg(const long long value)  // NOLINT(*)
-      : view_(IntToString(buffer_, value)) {}
+  // NOLINTNEXTLINE(*)
+  Arg(const long long value) : view_(IntToString(buffer_, value)) {}
 
-  Arg(const unsigned long long value)  // NOLINT(*)
-      : view_(IntToString(buffer_, value)) {}
+  // NOLINTNEXTLINE(*)
+  Arg(const unsigned long long value) : view_(IntToString(buffer_, value)) {}
 
-  Arg(const float value)  // NOLINT(runtime/explicit)
-      : Arg(static_cast<double>(value)) {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  Arg(const float value) : Arg(static_cast<double>(value)) {}
 
-  Arg(const double value)  // NOLINT(runtime/explicit)
-      : view_(FloatToString(buffer_, "%g", value)) {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  Arg(const double value) : view_(FloatToString(buffer_, "%g", value)) {}
 
-  Arg(const long double value)  // NOLINT(runtime/explicit)
-      : view_(FloatToString(buffer_, "%Lg", value)) {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  Arg(const long double value) : view_(FloatToString(buffer_, "%Lg", value)) {}
 
-  Arg(const std::string_view value)  // NOLINT(runtime/explicit)
-      : view_(value) {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  Arg(const std::string_view value) : view_(value) {}
   Arg(const std::string& value) : view_(value) {}  // NOLINT(runtime/explicit)
 
   // Provides const char* overload since otherwise it will be implicitly
   // converted to bool.
-  Arg(const char* value)  // NOLINT(runtime/explicit)
-      : view_(value) {
-    RST_DCHECK(value != nullptr);
-  }
-  Arg(const NotNull<const char*> value)  // NOLINT(runtime/explicit)
-      : view_(value.get()) {}
+  // NOLINTNEXTLINE(runtime/explicit)
+  Arg(const char* value) : view_(value) { RST_DCHECK(value != nullptr); }
+  // NOLINTNEXTLINE(runtime/explicit)
+  Arg(const NotNull<const char*> value) : view_(value.get()) {}
 
   template <class T, class = typename std::enable_if<std::is_enum<T>{}>::type>
   Arg(const T e)  // NOLINT(runtime/explicit)
@@ -153,7 +149,7 @@ class Arg {
  private:
   const std::string_view view_;
   char buffer_[kBufferSize];  // Can store 2^64 - 1 that is
-                              // 18,446,744,073,709,551,615 with '\0'.
+                              // 18,446,744,073,709,551,615 (without '\0').
 
   RST_DISALLOW_COPY_AND_ASSIGN(Arg);
 };
