@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
+cmake_policy(SET CMP0069 NEW)
+
 project(rst CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -112,7 +114,6 @@ add_executable(rst_tests
   rst/legacy/memory_test.cc
   rst/legacy/optional_test.cc
   
-  rst/logger/logger_ndebug_test.cc
   rst/logger/logger_test.cc
   
   rst/macros/macros_test.cc
@@ -151,18 +152,25 @@ add_executable(rst_tests
   rst/value/value_test.cc
 )
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported)
+if (ipo_supported)
+  set_property(TARGET rst PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+  set_property(TARGET rst_tests PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
   RESULT_VARIABLE result
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
+if (result)
   message(FATAL_ERROR "CMake step for googletest failed: ${result}")
 endif()
 
 execute_process(COMMAND ${CMAKE_COMMAND} --build .
   RESULT_VARIABLE result
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
+if (result)
   message(FATAL_ERROR "Build step for googletest failed: ${result}")
 endif()
 
