@@ -291,6 +291,11 @@ TEST(NotNull, Operators) {
     EXPECT_NE(str_ptr, str_ptr2);
     EXPECT_NE(str_ptr2, str_ptr);
 
+    Nullable<std::string*> nullable_str_ptr;
+    EXPECT_NE(str_ptr2, nullable_str_ptr);
+    nullable_str_ptr = &str2;
+    EXPECT_EQ(str_ptr2, nullable_str_ptr);
+
     NotNull<std::string*> str_ptr3(&str);
     EXPECT_EQ(str_ptr, str_ptr3);
     EXPECT_EQ(str_ptr3, str_ptr);
@@ -322,6 +327,11 @@ TEST(NotNull, Operators) {
     const NotNull<std::string*> str_ptr2(&str2);
     EXPECT_NE(str_ptr, str_ptr2);
     EXPECT_NE(str_ptr2, str_ptr);
+
+    const Nullable<std::string*> nullable_str_ptr;
+    EXPECT_NE(str_ptr2, nullable_str_ptr);
+    const Nullable<std::string*> nullable_str_ptr2 = &str2;
+    EXPECT_EQ(str_ptr2, nullable_str_ptr2);
 
     const NotNull<std::string*> str_ptr3(&str);
     EXPECT_EQ(str_ptr, str_ptr3);
@@ -779,6 +789,11 @@ TEST(Nullable, Operators) {
 
     EXPECT_NE(str_ptr, &str2);
     EXPECT_NE(&str2, str_ptr);
+
+    NotNull<std::string*> not_null_str_ptr = &str2;
+    EXPECT_NE(str_ptr3, not_null_str_ptr);
+    not_null_str_ptr = &str;
+    EXPECT_EQ(str_ptr3, not_null_str_ptr);
   }
 
   {
@@ -825,6 +840,11 @@ TEST(Nullable, Operators) {
 
     EXPECT_NE(str_ptr, &str2);
     EXPECT_NE(&str2, str_ptr);
+
+    const NotNull<std::string*> not_null_str_ptr = &str2;
+    EXPECT_NE(str_ptr3, not_null_str_ptr);
+    const NotNull<std::string*> not_null_str_ptr2 = &str;
+    EXPECT_EQ(str_ptr3, not_null_str_ptr2);
   }
 
   {

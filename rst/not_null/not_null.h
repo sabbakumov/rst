@@ -719,6 +719,26 @@ bool operator<(const NotNull<T>& lhs, const NotNull<U>& rhs) {
   return lhs.get() < rhs.get();
 }
 
+template <class T, class U>
+bool operator==(const NotNull<T>& lhs, const Nullable<U>& rhs) {
+  return lhs.get() == rhs.get();
+}
+
+template <class T, class U>
+bool operator!=(const NotNull<T>& lhs, const Nullable<U>& rhs) {
+  return !(lhs == rhs);
+}
+
+template <class T, class U>
+bool operator==(const Nullable<T>& lhs, const NotNull<U>& rhs) {
+  return lhs.get() == rhs.get();
+}
+
+template <class T, class U>
+bool operator!=(const Nullable<T>& lhs, const NotNull<U>& rhs) {
+  return !(lhs == rhs);
+}
+
 template <class T>
 bool operator==(const Nullable<T>& lhs, std::nullptr_t) {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
