@@ -628,6 +628,9 @@ void c_push_heap(C& c, Compare&& comp);
 
 template <class C, class Compare>
 void c_pop_heap(C& c, Compare&& comp);
+
+template <class C, class Compare>
+bool c_is_sorted(const C& c, Compare&& comp);
 ```
 
 <a name="StringResizeUninitialized"></a>

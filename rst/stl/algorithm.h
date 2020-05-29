@@ -72,6 +72,12 @@ void c_pop_heap(C& c, Compare&& comp) {  // NOLINT(runtime/references)
   std::pop_heap(std::begin(c), std::end(c), std::forward<Compare>(comp));
 }
 
+template <class C, class Compare>
+bool c_is_sorted(const C& c, Compare&& comp) {
+  return std::is_sorted(std::begin(c), std::end(c),
+                        std::forward<Compare>(comp));
+}
+
 }  // namespace rst
 
 #endif  // RST_STL_ALGORITHM_H_

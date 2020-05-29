@@ -65,6 +65,7 @@ TEST(FindIf, Vector) {
       c_find_if(vec, [](const int val) -> bool { return val == -1; });
   ASSERT_NE(it, std::cend(vec));
   EXPECT_EQ(*it, -1);
+  *it = -1;
 
   const std::vector<int> const_vec = {-1, 400, 10, 0, 3, -5};
   const auto const_it =
@@ -79,6 +80,7 @@ TEST(FindIf, Array) {
       c_find_if(arr, [](const int val) -> bool { return val == -1; });
   ASSERT_NE(it, std::cend(arr));
   EXPECT_EQ(*it, -1);
+  *it = -1;
 
   const int const_arr[] = {-1, 400, 10, 0, 3, -5};
   const auto const_it =
@@ -137,6 +139,34 @@ TEST(Heap, Vector) {
   c_pop_heap(vec, std::greater<>());
   vec.pop_back();
   EXPECT_TRUE(vec.empty());
+}
+
+TEST(IsSorted, Vector) {
+  std::vector<int> vec = {-1, 400, 10, 0, 3, -5};
+  EXPECT_FALSE(c_is_sorted(vec, std::less<>()));
+
+  std::vector<int> sorted_vec = {-5, -1, 0, 3, 10, 400};
+  EXPECT_TRUE(c_is_sorted(sorted_vec, std::less<>()));
+
+  const std::vector<int> const_vec = {-1, 400, 10, 0, 3, -5};
+  EXPECT_FALSE(c_is_sorted(const_vec, std::less<>()));
+
+  const std::vector<int> const_sorted_vec = {-5, -1, 0, 3, 10, 400};
+  EXPECT_TRUE(c_is_sorted(const_sorted_vec, std::less<>()));
+}
+
+TEST(IsSorted, Array) {
+  int vec[] = {-1, 400, 10, 0, 3, -5};
+  EXPECT_FALSE(c_is_sorted(vec, std::less<>()));
+
+  int sorted_vec[] = {-5, -1, 0, 3, 10, 400};
+  EXPECT_TRUE(c_is_sorted(sorted_vec, std::less<>()));
+
+  const int const_vec[] = {-1, 400, 10, 0, 3, -5};
+  EXPECT_FALSE(c_is_sorted(const_vec, std::less<>()));
+
+  const int const_sorted_vec[] = {-5, -1, 0, 3, 10, 400};
+  EXPECT_TRUE(c_is_sorted(const_sorted_vec, std::less<>()));
 }
 
 }  // namespace rst
