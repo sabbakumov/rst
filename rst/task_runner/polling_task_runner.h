@@ -60,6 +60,7 @@ class PollingTaskRunner : public TaskRunner {
       std::function<std::chrono::milliseconds()>&& time_function);
   ~PollingTaskRunner() override;
 
+  // TaskRunner:
   void PostDelayedTask(std::function<void()>&& task,
                        std::chrono::milliseconds delay) override;
 

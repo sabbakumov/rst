@@ -50,6 +50,7 @@ class FilePtrSink final : public Sink {
                        ShouldClose should_close = ShouldClose(true));
   ~FilePtrSink() override;
 
+  // Sink:
   // Thread safe logging function.
   void Log(std::string_view message) override;
 

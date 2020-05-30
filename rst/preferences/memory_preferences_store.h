@@ -41,6 +41,7 @@ class MemoryPreferencesStore final : public PreferencesStore {
   MemoryPreferencesStore();
   ~MemoryPreferencesStore() override;
 
+  // PreferencesStore:
   Nullable<const Value*> GetValue(std::string_view path) const override;
   void SetValue(std::string_view path, Value&& value) override;
 

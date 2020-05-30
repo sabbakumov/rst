@@ -49,6 +49,7 @@ class FileNameSink final : public Sink {
 
   ~FileNameSink() override;
 
+  // Sink:
   // Thread safe logging function.
   void Log(std::string_view message) override;
 

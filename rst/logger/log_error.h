@@ -41,6 +41,7 @@ class LogError final : public ErrorInfo<LogError> {
   explicit LogError(std::string&& message);
   ~LogError() override;
 
+  // ErrorInfo:
   const std::string& AsString() const override;
 
   static char id_;

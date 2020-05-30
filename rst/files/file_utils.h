@@ -43,6 +43,7 @@ class FileError : public ErrorInfo<FileError> {
   explicit FileError(std::string&& message);
   ~FileError() override;
 
+  // ErrorInfo:
   const std::string& AsString() const override;
 
   static char id_;

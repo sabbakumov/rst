@@ -99,6 +99,7 @@ class ErrorInfo : public Parent {
 
   static NotNull<const void*> GetClassID() { return &T::id_; }
 
+  // Parent:
   NotNull<const void*> GetDynamicClassID() const override { return &T::id_; }
 
   bool IsA(const NotNull<const void*> class_id) const override {

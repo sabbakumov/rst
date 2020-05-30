@@ -66,6 +66,7 @@ class ThreadPoolTaskRunner : public TaskRunner {
       std::function<std::chrono::milliseconds()>&& time_function);
   ~ThreadPoolTaskRunner() override;
 
+  // TaskRunner:
   void PostDelayedTask(std::function<void()>&& task,
                        std::chrono::milliseconds delay) override;
 
