@@ -70,6 +70,8 @@ class ThreadPoolTaskRunner : public TaskRunner {
   void PostDelayedTask(std::function<void()>&& task,
                        std::chrono::milliseconds delay) override;
 
+  size_t threads_num() const { return threads_.size(); }
+
  private:
   class InternalTaskRunner {
    public:

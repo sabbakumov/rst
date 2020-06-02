@@ -186,6 +186,7 @@ TEST(ThreadPoolTaskRunner, MultipleThreads) {
     std::mutex mtx;
     ThreadPoolTaskRunner task_runner(
         t, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+    EXPECT_EQ(task_runner.threads_num(), t);
 
     std::string str, expected;
     for (auto i = 0; i < 100; i++) {
