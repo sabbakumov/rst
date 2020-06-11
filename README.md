@@ -699,6 +699,21 @@ StatusOr<MyType> existing_var = ...;
 RST_TRY_ASSIGN(existing_var, Foo());
 ```
 
+Macro to allow exception-like handling of StatusOr return values.
+
+Assigns the unwrapped result of evaluation of statement to lvalue and if it
+results in an error, returns that error from the current function.
+
+lvalue should be an existing non-const variable accessible in the current
+scope.
+
+```cpp
+StatusOr<MyType> Foo();
+
+MyType existing_var = ...;
+RST_TRY_ASSIGN_UNWRAP(existing_var, Foo());
+```
+
 Macro to allow exception-like handling of `StatusOr` return values.
 
 Creates lvalue and assigns the result of evaluation of statement to it and

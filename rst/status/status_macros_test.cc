@@ -67,6 +67,8 @@ StatusOr<int> StatusOrIntOK() { return 0; }
 Status CheckStatusOrIntOK() {
   RST_TRY_CREATE(auto, i, StatusOrIntOK());
   RST_TRY_ASSIGN(i, StatusOrIntOK());
+  auto int_i = 0;
+  RST_TRY_ASSIGN_UNWRAP(int_i, StatusOrIntOK());
   return Status::OK();
 }
 
@@ -75,6 +77,8 @@ StatusOr<std::string> StatusOrStringOK() { return std::string(); }
 Status CheckStatusOrStringOK() {
   RST_TRY_CREATE(StatusOr<std::string>, s, StatusOrStringOK());
   RST_TRY_ASSIGN(s, StatusOrStringOK());
+  std::string string_s;
+  RST_TRY_ASSIGN_UNWRAP(string_s, StatusOrStringOK());
   return StatusOK();
 }
 
@@ -85,6 +89,8 @@ StatusOr<std::unique_ptr<int>> StatusOrUniquePtrOK() {
 Status CheckStatusOrUniquePtrOK() {
   RST_TRY_CREATE(StatusOr<std::unique_ptr<int>>, p, StatusOrUniquePtrOK());
   RST_TRY_ASSIGN(p, StatusOrUniquePtrOK());
+  std::unique_ptr<int> unique_ptr_p;
+  RST_TRY_ASSIGN_UNWRAP(unique_ptr_p, StatusOrUniquePtrOK());
   return Status::OK();
 }
 
@@ -105,6 +111,8 @@ Status CheckStatusOrIntErrorCreate() {
 Status CheckStatusOrIntErrorAssign() {
   RST_TRY_CREATE(auto, i, StatusOrIntOK());
   RST_TRY_ASSIGN(i, StatusOrIntError());
+  auto int_i = 0;
+  RST_TRY_ASSIGN_UNWRAP(int_i, StatusOrIntError());
   return Status::OK();
 }
 
@@ -118,6 +126,8 @@ Status CheckStatusOrStringErrorCreate() {
 Status CheckStatusOrStringErrorAssign() {
   RST_TRY_CREATE(StatusOr<std::string>, s, StatusOrStringOK());
   RST_TRY_ASSIGN(s, StatusOrStringError());
+  std::string string_s;
+  RST_TRY_ASSIGN_UNWRAP(string_s, StatusOrStringError());
   return Status::OK();
 }
 
@@ -133,6 +143,8 @@ Status CheckStatusOrUniquePtrErrorCreate() {
 Status CheckStatusOrUniquePtrErrorAssign() {
   RST_TRY_CREATE(StatusOr<std::unique_ptr<int>>, p, StatusOrUniquePtrOK());
   RST_TRY_ASSIGN(p, StatusOrUniquePtrError());
+  std::unique_ptr<int> unique_ptr_p;
+  RST_TRY_ASSIGN_UNWRAP(unique_ptr_p, StatusOrUniquePtrError());
   return Status::OK();
 }
 

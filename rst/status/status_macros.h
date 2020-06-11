@@ -79,6 +79,36 @@ namespace rst {
   if (RST_UNLIKELY(lhs.err()))         \
   return std::move(lhs).TakeStatus()
 
+// Evaluates |statement| to a StatusOr object and if it results in an error,
+// returns that error. Otherwise assings the result to |lhs|. Uses |status_or|
+// as a variable name to avoid shadowing.
+#define RST_INTERNAL_TRY_ASSIGN_UNWRAP(lhs, status_or, statement)    \
+  do {                                                               \
+    if (auto status_or = (statement); RST_UNLIKELY(status_or.err())) \
+      return std::move(status_or).TakeStatus();                      \
+    else                                                             \
+      lhs = std::move(*status_or);                                   \
+  } while (false)
+
+// Macro to allow exception-like handling of StatusOr return values.
+//
+// Assigns the unwrapped result of evaluation of |statement| to |lhs| and if it
+// results in an error, returns that error from the current function.
+//
+// |lhs| should be an existing non-const variable accessible in the current
+// scope.
+//
+// Example:
+//   StatusOr<MyType> Foo();
+//
+//   MyType existing_var = ...;
+//   RST_TRY_ASSIGN_UNWRAP(existing_var, Foo());
+//
+#define RST_TRY_ASSIGN_UNWRAP(lhs, statement)                                \
+  RST_INTERNAL_TRY_ASSIGN_UNWRAP(                                            \
+      lhs, RST_CAT(RST_INTERNAL_TRY_ASSIGN_UNWRAP_STATUS_OR_NAME, __LINE__), \
+      statement)
+
 // Macro to allow exception-like handling of StatusOr return values.
 //
 // Creates |lhs| and assigns the result of evaluation of |statement| to it and
