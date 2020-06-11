@@ -69,6 +69,7 @@ Status CheckStatusOrIntOK() {
   RST_TRY_ASSIGN(i, StatusOrIntOK());
   auto int_i = 0;
   RST_TRY_ASSIGN_UNWRAP(int_i, StatusOrIntOK());
+  (void)int_i;
   return Status::OK();
 }
 
@@ -113,6 +114,7 @@ Status CheckStatusOrIntErrorAssign() {
   RST_TRY_ASSIGN(i, StatusOrIntError());
   auto int_i = 0;
   RST_TRY_ASSIGN_UNWRAP(int_i, StatusOrIntError());
+  (void)int_i;
   return Status::OK();
 }
 
