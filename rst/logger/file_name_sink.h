@@ -56,15 +56,15 @@ class FileNameSink final : public Sink {
  private:
   FileNameSink();
 
+  // Mutex for thread-safe Log() function.
+  std::mutex mutex_;
+
   // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
       nullptr, [](std::FILE* f) {
         if (f != nullptr)
           (void)std::fclose(f);
       }};
-
-  // Mutex for thread-safe Log() function.
-  std::mutex mutex_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(FileNameSink);
 };

@@ -49,7 +49,7 @@ void PollingTaskRunner::PostDelayedTask(std::function<void()>&& task,
   const auto now = time_function_();
   const auto future_time_point = now + delay;
   std::lock_guard lock(mutex_);
-  queue_.emplace_back(future_time_point, task_id_++, std::move(task));
+  queue_.emplace_back(std::move(task), future_time_point, task_id_++);
   c_push_heap(queue_, std::greater<>());
 }
 

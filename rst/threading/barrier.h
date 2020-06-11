@@ -63,9 +63,9 @@ class Barrier {
   void CountDownAndWait();
 
  private:
-  size_t counter_ = 0;
-  std::mutex mutex_;
   std::condition_variable cv_;
+  std::mutex mutex_;
+  size_t counter_ = 0;
 
   RST_DISALLOW_COPY_AND_ASSIGN(Barrier);
 };

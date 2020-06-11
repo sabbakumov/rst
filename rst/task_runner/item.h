@@ -45,9 +45,9 @@ namespace internal {
 struct Item {
   using Function = std::function<void()>;
 
-  Item(const std::chrono::milliseconds time_point, const uint64_t task_id,
-       Function&& task)
-      : time_point(time_point), task_id(task_id), task(std::move(task)) {}
+  Item(Function&& task, const std::chrono::milliseconds time_point,
+       const uint64_t task_id)
+      : task(std::move(task)), time_point(time_point), task_id(task_id) {}
   Item(Item&&) noexcept(std::is_nothrow_move_constructible<Function>::value) =
       default;
   ~Item() = default;
@@ -59,9 +59,9 @@ struct Item {
            std::make_tuple(item.time_point, item.task_id);
   }
 
+  Function task;
   std::chrono::milliseconds time_point;
   uint64_t task_id = 0;
-  Function task;
 
  private:
   RST_DISALLOW_COPY_AND_ASSIGN(Item);

@@ -55,6 +55,9 @@ class FilePtrSink final : public Sink {
   void Log(std::string_view message) override;
 
  private:
+  // Mutex for thread-safe Log function.
+  std::mutex mutex_;
+
   // A RAII-wrapper around std::FILE.
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
       nullptr, [](std::FILE* f) {
@@ -63,9 +66,6 @@ class FilePtrSink final : public Sink {
       }};
 
   const NotNull<std::FILE*> file_;
-
-  // Mutex for thread-safe Log function.
-  std::mutex mutex_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(FilePtrSink);
 };

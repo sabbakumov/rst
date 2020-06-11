@@ -68,11 +68,11 @@ class PollingTaskRunner : public TaskRunner {
   void RunPendingTasks();
 
  private:
+  std::mutex mutex_;
   // Returns current time.
   const std::function<std::chrono::milliseconds()> time_function_;
   // Used to not to allocate memory on every RunPendingTasks() call.
   std::vector<std::function<void()>> pending_tasks_;
-  std::mutex mutex_;
   // Priority queue of tasks.
   std::vector<internal::Item> queue_;
   // Increasing task counter.

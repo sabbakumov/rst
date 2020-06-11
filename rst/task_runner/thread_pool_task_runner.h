@@ -82,23 +82,25 @@ class ThreadPoolTaskRunner : public TaskRunner {
     // Worker method.
     void WaitAndRunTasks();
 
+    std::condition_variable thread_cv_;
+    std::mutex thread_mutex_;
+
     // Returns current time.
     const std::function<std::chrono::milliseconds()> time_function_;
 
-    std::mutex thread_mutex_;
-    std::condition_variable thread_cv_;
-    bool should_exit_ = false;
-
     // Priority queue of tasks.
     std::vector<internal::Item> queue_;
+
     // Increasing task counter.
     uint64_t task_id_ = 0;
+
+    bool should_exit_ = false;
 
     RST_DISALLOW_COPY_AND_ASSIGN(InternalTaskRunner);
   };
 
-  const NotNull<std::shared_ptr<InternalTaskRunner>> task_runner_;
   std::vector<std::thread> threads_;
+  const NotNull<std::shared_ptr<InternalTaskRunner>> task_runner_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(ThreadPoolTaskRunner);
 };

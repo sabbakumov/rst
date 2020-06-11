@@ -132,8 +132,8 @@ void ThreadPoolTaskRunner::PostDelayedTask(std::function<void()>&& task,
   const auto future_time_point = now + delay;
   {
     std::lock_guard lock(task_runner_->thread_mutex_);
-    task_runner_->queue_.emplace_back(
-        future_time_point, task_runner_->task_id_++, std::move(task));
+    task_runner_->queue_.emplace_back(std::move(task), future_time_point,
+                                      task_runner_->task_id_++);
     c_push_heap(task_runner_->queue_, std::greater<>());
   }
   task_runner_->thread_cv_.notify_one();
