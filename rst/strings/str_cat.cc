@@ -31,7 +31,6 @@
 #include <cstddef>
 
 #include "rst/check/check.h"
-#include "rst/not_null/not_null.h"
 #include "rst/stl/resize_uninitialized.h"
 
 namespace rst {
@@ -42,7 +41,7 @@ std::string StrCat(std::initializer_list<internal::Arg> values) {
     new_size += val.size();
 
   std::string output;
-  StringResizeUninitialized(NotNull(&output), new_size);
+  StringResizeUninitialized(&output, new_size);
 
   auto out = output.data();
   for (const auto& val : values) {

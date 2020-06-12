@@ -164,7 +164,7 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
        bytes_read_so_far += bytes_read_this_pass) {
     RST_DCHECK(content.size() == bytes_read_so_far);
     StringResizeUninitialized(
-        NotNull(&content), bytes_read_so_far + static_cast<size_t>(chunk_size));
+        &content, bytes_read_so_far + static_cast<size_t>(chunk_size));
     bytes_read_this_pass =
         std::fread(content.data() + bytes_read_so_far, 1,
                    static_cast<size_t>(chunk_size), file.get());

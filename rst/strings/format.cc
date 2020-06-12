@@ -53,7 +53,7 @@ std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
   new_size -= size * 2;
 
   std::string output;
-  StringResizeUninitialized(NotNull(&output), new_size);
+  StringResizeUninitialized(&output, new_size);
 
   size_t arg_idx = 0;
   auto target = output.data();

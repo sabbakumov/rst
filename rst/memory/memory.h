@@ -43,7 +43,11 @@ namespace rst {
 // Example:
 //   class Foo {
 //    public:
-//     std::unique_ptr<Foo> Create() {
+//     NotNull<std::unique_ptr<Foo>> Create() {
+//       return WrapUnique(new Foo());
+//     }
+//
+//     NotNull<std::unique_ptr<Foo>> CreateFromNotNull() {
 //       return WrapUnique(NotNull(new Foo()));
 //     }
 //
@@ -55,6 +59,11 @@ template <class T>
 NotNull<std::unique_ptr<T>> WrapUnique(const NotNull<T*> ptr) {
   static_assert(!std::is_array<T>::value);
   return std::unique_ptr<T>(ptr.get());
+}
+
+template <class T>
+NotNull<std::unique_ptr<T>> WrapUnique(T* ptr) {
+  return WrapUnique(NotNull(ptr));
 }
 
 }  // namespace rst

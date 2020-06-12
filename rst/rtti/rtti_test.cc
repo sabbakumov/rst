@@ -32,6 +32,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "rst/not_null/not_null.h"
+
 using testing::Return;
 
 namespace rst {
@@ -69,6 +71,18 @@ TEST(RTTI, Check) {
   testing::Mock::VerifyAndClearExpectations(&mock);
 }
 
+TEST(RTTI, CheckRawPointer) {
+  Mock mock;
+
+  EXPECT_CALL(mock, DoIsA()).WillOnce(Return(false));
+  EXPECT_EQ(dyn_cast<void>(&mock), nullptr);
+  testing::Mock::VerifyAndClearExpectations(&mock);
+
+  EXPECT_CALL(mock, DoIsA()).WillOnce(Return(true));
+  EXPECT_NE(dyn_cast<void>(&mock), nullptr);
+  testing::Mock::VerifyAndClearExpectations(&mock);
+}
+
 TEST(RTTI, ConstCheck) {
   ConstMock mock;
 
@@ -78,6 +92,18 @@ TEST(RTTI, ConstCheck) {
 
   EXPECT_CALL(mock, DoIsA()).WillOnce(Return(true));
   EXPECT_NE(dyn_cast<void>(NotNull(&std::as_const(mock))), nullptr);
+  testing::Mock::VerifyAndClearExpectations(&mock);
+}
+
+TEST(RTTI, ConstCheckRawPointer) {
+  ConstMock mock;
+
+  EXPECT_CALL(mock, DoIsA()).WillOnce(Return(false));
+  EXPECT_EQ(dyn_cast<void>(&std::as_const(mock)), nullptr);
+  testing::Mock::VerifyAndClearExpectations(&mock);
+
+  EXPECT_CALL(mock, DoIsA()).WillOnce(Return(true));
+  EXPECT_NE(dyn_cast<void>(&std::as_const(mock)), nullptr);
   testing::Mock::VerifyAndClearExpectations(&mock);
 }
 

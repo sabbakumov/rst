@@ -78,4 +78,24 @@ TEST_F(StringResizeUninitializedTest, ResizeDefaultInitString) {
   EXPECT_EQ(g_resize_default_init_call_count, 1);
 }
 
+TEST_F(StringResizeUninitializedTest, ResizableStringRawPointer) {
+  ResizableString rs;
+
+  EXPECT_EQ(g_resize_call_count, 0);
+  EXPECT_EQ(g_resize_default_init_call_count, 0);
+  StringResizeUninitialized(&rs, 237);
+  EXPECT_EQ(g_resize_call_count, 1);
+  EXPECT_EQ(g_resize_default_init_call_count, 0);
+}
+
+TEST_F(StringResizeUninitializedTest, ResizeDefaultInitStringRawPointer) {
+  ResizeDefaultInitString rus;
+
+  EXPECT_EQ(g_resize_call_count, 0);
+  EXPECT_EQ(g_resize_default_init_call_count, 0);
+  StringResizeUninitialized(&rus, 237);
+  EXPECT_EQ(g_resize_call_count, 0);
+  EXPECT_EQ(g_resize_default_init_call_count, 1);
+}
+
 }  // namespace rst

@@ -32,6 +32,8 @@
 
 #include <gtest/gtest.h>
 
+#include "rst/not_null/not_null.h"
+
 namespace rst {
 namespace {
 
@@ -59,6 +61,21 @@ TEST(Memory, WrapUnique) {
   {
     const NotNull<std::unique_ptr<DeleteCounter>> owned_counter =
         WrapUnique(NotNull(counter));
+    EXPECT_EQ(DeleteCounter::count(), 1U);
+  }
+
+  EXPECT_EQ(DeleteCounter::count(), 0U);
+}
+
+TEST(Memory, WrapUniqueRawPointer) {
+  EXPECT_EQ(DeleteCounter::count(), 0U);
+
+  auto counter = new DeleteCounter;
+  EXPECT_EQ(DeleteCounter::count(), 1U);
+
+  {
+    const NotNull<std::unique_ptr<DeleteCounter>> owned_counter =
+        WrapUnique(counter);
     EXPECT_EQ(DeleteCounter::count(), 1U);
   }
 

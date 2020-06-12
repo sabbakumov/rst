@@ -43,7 +43,7 @@ FileNameSink::~FileNameSink() = default;
 // static
 StatusOr<NotNull<std::unique_ptr<FileNameSink>>> FileNameSink::Create(
     const NotNull<const char*> filename) {
-  auto sink = WrapUnique(NotNull(new FileNameSink()));
+  auto sink = WrapUnique(new FileNameSink());
 
   sink->log_file_.reset(std::fopen(filename.get(), "w"));
   if (sink->log_file_ == nullptr)

@@ -392,7 +392,11 @@ usually used inside factory methods.
 ```cpp
 class Foo {
  public:
-  std::unique_ptr<Foo> Create() {
+  NotNull<std::unique_ptr<Foo>> Create() {
+    return WrapUnique(new Foo());
+  }
+
+  NotNull<std::unique_ptr<Foo>> CreateFromNotNull() {
     return WrapUnique(NotNull(new Foo()));
   }
 
@@ -643,6 +647,8 @@ bool c_is_sorted(const C& c, Compare&& comp);
 template <class String>
 void StringResizeUninitialized(const NotNull<String*> s,
                                const size_t new_size);
+template <class String>
+void StringResizeUninitialized(String* s, const size_t new_size);
 ```
 
 <a name="Status"></a>

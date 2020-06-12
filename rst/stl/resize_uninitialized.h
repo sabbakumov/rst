@@ -68,6 +68,11 @@ void StringResizeUninitialized(const NotNull<String*> s,
   internal::ResizeUninitializedTraits<String>::Resize(s, new_size);
 }
 
+template <class String>
+void StringResizeUninitialized(String* s, const size_t new_size) {
+  StringResizeUninitialized(NotNull(s), new_size);
+}
+
 }  // namespace rst
 
 #endif  // RST_STL_RESIZE_UNINITIALIZED_H_

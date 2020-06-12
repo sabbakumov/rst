@@ -35,6 +35,8 @@
 
 #include <gtest/gtest.h>
 
+#include "rst/not_null/not_null.h"
+
 namespace rst {
 
 TEST(StrCat, NoArgs) { EXPECT_EQ(StrCat({"test"}), "test"); }
