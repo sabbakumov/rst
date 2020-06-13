@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Sergey Abbakumov
+// Copyright (c) 2020, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,32 +25,48 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_PREFERENCES_MEMORY_PREFERENCES_STORE_H_
-#define RST_PREFERENCES_MEMORY_PREFERENCES_STORE_H_
+#include "rst/timer/one_shot_timer.h"
 
-#include "rst/macros/macros.h"
-#include "rst/preferences/preferences_store.h"
-#include "rst/value/value.h"
+#include <utility>
+
+#include "rst/bind/bind.h"
+#include "rst/check/check.h"
+
+namespace chrono = std::chrono;
 
 namespace rst {
 
-// A lightweight preferences store that keeps preferences in a memory backed
-// store.
-class MemoryPreferencesStore final : public PreferencesStore {
- public:
-  MemoryPreferencesStore();
-  ~MemoryPreferencesStore() override;
+OneShotTimer::OneShotTimer(const NotNull<TaskRunner*> task_runner)
+    : task_runner_(task_runner) {}
 
-  // PreferencesStore:
-  Nullable<const Value*> GetValue(std::string_view path) const override;
-  void SetValue(std::string_view path, Value&& value) override;
+OneShotTimer::~OneShotTimer() = default;
 
- private:
-  Value values_{Value::Type::kObject};
+void OneShotTimer::Start(std::function<void()>&& task,
+                         const chrono::milliseconds delay) {
+  RST_DCHECK(task != nullptr);
+  task_ = std::move(task);
+  is_running_ = true;
+  task_runner_->PostDelayedTask(
+      Bind(&OneShotTimer::RunTask, weak_factory_.GetWeakPtr(), ++task_id_),
+      delay);
+}
 
-  RST_DISALLOW_COPY_AND_ASSIGN(MemoryPreferencesStore);
-};
+void OneShotTimer::FireNow() {
+  RST_DCHECK(IsRunning());
+  RunTask(task_id_);
+  is_running_ = false;
+}
+
+void OneShotTimer::RunTask(const uint64_t task_id) {
+  if (!is_running_ || task_id != task_id_)
+    return;
+
+  RST_DCHECK(task_ != nullptr);
+  auto task = std::move(task_);
+  task_ = nullptr;
+
+  is_running_ = false;
+  task();
+}
 
 }  // namespace rst
-
-#endif  // RST_PREFERENCES_MEMORY_PREFERENCES_STORE_H_

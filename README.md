@@ -47,6 +47,8 @@ It is licensed under the Simplified BSD License.
     * [ThreadPoolTaskRunner](#ThreadPoolTaskRunner)
   * [Threading](#Threading)
     * [Barrier](#Barrier)
+  * [Timer](#Timer)
+    * [OneShotTimer](#OneShotTimer)
   * [Type](#Type)
   * [Value](#Value)
 
@@ -871,6 +873,35 @@ for (auto i = 0; i < 5; i++)
 
 barrier.CountDownAndWait();
 // Synchronization point.
+```
+
+<a name="Timer"></a>
+## Timer
+<a name="OneShotTimer"></a>
+### OneShotTimer
+OneShotTimer provides a simple timer API. As the name suggests, OneShotTimer
+calls back once after a time delay expires.
+
+OneShotTimer cancels the timer when it goes out of scope, which makes it
+easy to ensure that you do not get called when your object has gone out of
+scope. Just instantiate a timer as a member variable of the class for which
+you wish to receive timer events.
+
+```cpp
+class MyClass {
+ public:
+  void DelayDoingStuff() {
+    timer_.Start(std::bind(&MyClass::DoStuff, this),
+                 std::chrono::seconds(1));
+  }
+
+ private:
+  void DoStuff() {
+    // This method is called after 1 second.
+  }
+
+  OneShotTimer timer_{GetTaskRunner()};
+};
 ```
 
 <a name="Type"></a>
