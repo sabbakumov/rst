@@ -4,14 +4,14 @@ matrix:
   include:
     # Clang
     - os: linux
-      dist: bionic
+      dist: focal
       addons:
         apt:
           packages:
-            - clang-9
+            - clang-10
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -25,14 +25,14 @@ matrix:
 
     # Clang Exceptions + RTTI
     - os: linux
-      dist: bionic
+      dist: focal
       addons:
         apt:
           packages:
-            - clang-9
+            - clang-10
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -46,14 +46,14 @@ matrix:
 
     # Clang ASAN
     - os: linux
-      dist: bionic
+      dist: focal
       addons:
         apt:
           packages:
-            - clang-9
+            - clang-10
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9 && ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1"
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10 && ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -67,14 +67,14 @@ matrix:
 
     # Clang TSAN
     - os: linux
-      dist: bionic
+      dist: focal
       addons:
         apt:
           packages:
-            - clang-9
+            - clang-10
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -88,14 +88,14 @@ matrix:
 
     # Clang UBSAN
     - os: linux
-      dist: bionic
+      dist: focal
       addons:
         apt:
           packages:
-            - clang-9
+            - clang-10
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -109,14 +109,14 @@ matrix:
 
     # Clang Release
     - os: linux
-      dist: bionic
+      dist: focal
       addons:
         apt:
           packages:
-            - clang-9
+            - clang-10
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -130,15 +130,15 @@ matrix:
 
     # GCC
     - os: linux
-      dist: bionic
+      dist: focal
       addons:
         apt:
           packages:
-            - g++-8
-            - gcc-8
+            - g++-10
+            - gcc-10
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -152,15 +152,15 @@ matrix:
 
     # GCC Exceptions + RTTI
     - os: linux
-      dist: bionic
+      dist: focal
       addons:
         apt:
           packages:
-            - g++-8
-            - gcc-8
+            - g++-10
+            - gcc-10
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -174,15 +174,15 @@ matrix:
 
     # GCC Release
     - os: linux
-      dist: bionic
+      dist: focal
       addons:
         apt:
           packages:
-            - g++-8
-            - gcc-8
+            - g++-10
+            - gcc-10
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -196,7 +196,7 @@ matrix:
 
     # OS X Clang
     - os: osx
-      osx_image: xcode11.3
+      osx_image: xcode12u
       addons:
         homebrew:
           update: true
@@ -217,7 +217,7 @@ matrix:
 
     # OS X Clang Exceptions + RTTI
     - os: osx
-      osx_image: xcode11.3
+      osx_image: xcode12u
       addons:
         homebrew:
           update: true
@@ -238,7 +238,7 @@ matrix:
 
     # OS X Clang Release
     - os: osx
-      osx_image: xcode11.3
+      osx_image: xcode12u
       addons:
         homebrew:
           update: true
@@ -259,15 +259,15 @@ matrix:
 
     # OS X GCC
     - os: osx
-      osx_image: xcode11.3
+      osx_image: xcode12u
       addons:
         homebrew:
           update: true
           packages:
-            - gcc@8
+            - gcc@10
             - ninja
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -281,15 +281,15 @@ matrix:
 
     # OS X GCC Exceptions + RTTI
     - os: osx
-      osx_image: xcode11.3
+      osx_image: xcode12u
       addons:
         homebrew:
           update: true
           packages:
-            - gcc@8
+            - gcc@10
             - ninja
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -303,15 +303,15 @@ matrix:
 
     # OS X GCC Release
     - os: osx
-      osx_image: xcode11.3
+      osx_image: xcode12u
       addons:
         homebrew:
           update: true
           packages:
-            - gcc@8
+            - gcc@10
             - ninja
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10"
 
       before_install:
           - eval "${MATRIX_EVAL}"

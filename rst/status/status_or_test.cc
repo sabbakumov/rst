@@ -113,7 +113,7 @@ TEST(StatusOr, ValueCtor) {
     EXPECT_TRUE(status_or.err());
 
     auto status = Status::OK();
-    EXPECT_DEATH(StatusOr<int>(std::move(status)), "");
+    EXPECT_DEATH(StatusOr<int> s(std::move(status)), "");
     status.Ignore();
   }
 }
@@ -154,7 +154,7 @@ TEST(StatusOr, Dtor) {
 
   EXPECT_EQ(DtorHelper::counter(), 0);
 
-  { EXPECT_DEATH((StatusOr<int>(0)), ""); }
+  { EXPECT_DEATH(StatusOr<int> s(0), ""); }
 }
 
 TEST(StatusOr, OperatorEquals) {
