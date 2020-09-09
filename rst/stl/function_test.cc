@@ -34,10 +34,10 @@
 
 namespace rst {
 
-TEST(MoveFunction, Test) {
+TEST(TakeFunction, Test) {
   auto run = false;
   std::function<void()> f = [&run]() { run = true; };
-  auto moved_f = MoveFunction(std::move(f));
+  auto moved_f = TakeFunction(std::move(f));
 
   EXPECT_TRUE(f == nullptr);
   EXPECT_TRUE(moved_f != nullptr);
