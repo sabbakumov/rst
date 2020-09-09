@@ -35,6 +35,7 @@ It is licensed under the Simplified BSD License.
     * [Reversed](#Reversed)
     * [Algorithm](#Algorithm)
     * [StringResizeUninitialized](#StringResizeUninitialized)
+    * [MoveFunction](#MoveFunction)
   * [Status](#Status)
     * [Status](#Status2)
     * [Status Macros](#StatusMacros)
@@ -651,6 +652,18 @@ void StringResizeUninitialized(const NotNull<String*> s,
                                const size_t new_size);
 template <class String>
 void StringResizeUninitialized(String* s, const size_t new_size);
+```
+
+<a name="MoveFunction"></a>
+### MoveFunction
+Like std::move() for std::function except that it also assigns nullptr to a
+moved argument.
+```cpp
+std::function<void()> f = ...;
+auto moved_f = std::move(f);  // f is in a valid but unspecified state
+                              // after the call.
+std::function<void()> f = ...;
+auto moved_f = MoveFunction(f);  // f is nullptr.
 ```
 
 <a name="Status"></a>

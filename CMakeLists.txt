@@ -68,6 +68,7 @@ add_library(rst
 
   rst/stl/adapters.h
   rst/stl/algorithm.h
+  rst/stl/function.h
   rst/stl/resize_uninitialized.h
 
   rst/strings/arg.cc
@@ -140,6 +141,7 @@ add_executable(rst_tests
 
   rst/stl/adapters_test.cc
   rst/stl/algorithm_test.cc
+  rst/stl/function_test.cc
   rst/stl/resize_uninitialized_test.cc
 
   rst/strings/format_test.cc
