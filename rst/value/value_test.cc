@@ -161,6 +161,20 @@ TEST(Value, ConstructInt) {
   EXPECT_EQ(value.GetInt64(), -37);
 }
 
+TEST(Value, ConstructGoodDoubleInt) {
+  Value value(-37.0);
+  ASSERT_EQ(value.type(), Value::Type::kNumber);
+  EXPECT_EQ(value.GetInt(), -37);
+  EXPECT_EQ(value.GetInt64(), -37);
+}
+
+TEST(Value, ConstructBadDoubleInt) {
+  Value value(-37.1);
+  ASSERT_EQ(value.type(), Value::Type::kNumber);
+  EXPECT_FALSE(value.IsInt());
+  EXPECT_FALSE(value.IsInt64());
+}
+
 TEST(Value, ConstructBigInt64) {
   Value value(kMaxSafeInteger);
   ASSERT_EQ(value.type(), Value::Type::kNumber);
