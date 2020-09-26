@@ -127,11 +127,19 @@ class Value {
   bool IsBool() const { return type() == Type::kBool; }
   bool IsNumber() const { return type() == Type::kNumber; }
   bool IsInt64() const {
-    return IsNumber() && (std::abs(number_) <= kMaxSafeInteger);
+    return IsNumber() && (std::abs(number_) <= kMaxSafeInteger) &&
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wfloat-equal"
+           (static_cast<double>(static_cast<int64_t>(number_)) == number_);
+#pragma clang diagnostic pop
   }
   bool IsInt() const {
     return IsNumber() && (number_ >= std::numeric_limits<int>::min()) &&
-           (number_ <= std::numeric_limits<int>::max());
+           (number_ <= std::numeric_limits<int>::max()) &&
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wfloat-equal"
+           (static_cast<double>(static_cast<int>(number_)) == number_);
+#pragma clang diagnostic pop
   }
   bool IsString() const { return type() == Type::kString; }
   bool IsArray() const { return type() == Type::kArray; }
