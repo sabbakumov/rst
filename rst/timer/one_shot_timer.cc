@@ -31,6 +31,7 @@
 
 #include "rst/bind/bind.h"
 #include "rst/check/check.h"
+#include "rst/stl/function.h"
 
 namespace chrono = std::chrono;
 
@@ -62,8 +63,7 @@ void OneShotTimer::RunTask(const uint64_t task_id) {
     return;
 
   RST_DCHECK(task_ != nullptr);
-  auto task = std::move(task_);
-  task_ = nullptr;
+  const auto task = TakeFunction(std::move(task_));
 
   is_running_ = false;
   task();
