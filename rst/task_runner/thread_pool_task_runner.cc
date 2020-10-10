@@ -37,15 +37,103 @@ namespace chrono = std::chrono;
 
 namespace rst {
 
-ThreadPoolTaskRunner::InternalTaskRunner::InternalTaskRunner(
-    std::function<chrono::milliseconds()>&& time_function)
-    : time_function_(std::move(time_function)) {}
+ThreadPoolTaskRunner::DelayedTaskRunner::DelayedTaskRunner(
+    const size_t threads_num) {
+  RST_DCHECK(threads_num > 0);
+  threads_.reserve(threads_num);
+  for (size_t i = 0; i < threads_num; i++)
+    threads_.emplace_back(&DelayedTaskRunner::WaitAndRunTasks, this);
+}
 
-ThreadPoolTaskRunner::InternalTaskRunner::~InternalTaskRunner() = default;
+ThreadPoolTaskRunner::DelayedTaskRunner::~DelayedTaskRunner() {
+  {
+    std::lock_guard lock(thread_mutex_);
+    should_exit_ = true;
+  }
 
-void ThreadPoolTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
+  thread_cv_.notify_one();
+  for (auto& thread : threads_)
+    thread.join();
+}
+
+void ThreadPoolTaskRunner::DelayedTaskRunner::WaitAndRunTasks() {
   std::function<void()> task;
   RST_DEFER([this]() { thread_cv_.notify_one(); });
+
+  while (true) {
+    auto had_items = false;
+
+    {
+      std::unique_lock lock(thread_mutex_);
+
+      while (tasks_.empty() && !should_exit_)
+        thread_cv_.wait(lock);
+
+      if (should_exit_)
+        return;
+
+      RST_DCHECK(!tasks_.empty());
+      task = std::move(tasks_.front());
+      tasks_.pop();
+
+      had_items = !tasks_.empty();
+    }
+
+    if (had_items)
+      thread_cv_.notify_one();
+
+    task();
+    task = nullptr;
+  }
+}
+
+void ThreadPoolTaskRunner::DelayedTaskRunner::PushTasks(
+    const NotNull<std::vector<std::function<void()>>*> tasks) {
+  RST_DCHECK(!tasks->empty());
+
+  {
+    std::lock_guard lock(thread_mutex_);
+    for (auto& task : *tasks)
+      tasks_.emplace(std::move(task));
+  }
+
+  thread_cv_.notify_one();
+}
+
+void ThreadPoolTaskRunner::DelayedTaskRunner::PushTask(
+    std::function<void()>&& task) {
+  {
+    std::lock_guard lock(thread_mutex_);
+    tasks_.emplace(std::move(task));
+  }
+
+  thread_cv_.notify_one();
+}
+
+ThreadPoolTaskRunner::ServiceTaskRunner::ServiceTaskRunner(
+    const NotNull<DelayedTaskRunner*> delayed_task_runner,
+    std::function<std::chrono::milliseconds()>&& time_function)
+    : time_function_(std::move(time_function)),
+      delayed_task_runner_(delayed_task_runner),
+#pragma warning(push)
+#pragma warning(disable : 4355)
+      thread_(&ServiceTaskRunner::WaitAndScheduleTasks, this)
+#pragma warning(pop)
+{
+}
+
+ThreadPoolTaskRunner::ServiceTaskRunner::~ServiceTaskRunner() {
+  {
+    std::lock_guard lock(thread_mutex_);
+    should_exit_ = true;
+  }
+
+  thread_cv_.notify_one();
+  thread_.join();
+}
+
+void ThreadPoolTaskRunner::ServiceTaskRunner::WaitAndScheduleTasks() {
+  std::vector<std::function<void()>> tasks;
 
   while (true) {
     {
@@ -54,8 +142,8 @@ void ThreadPoolTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
       if (should_exit_)
         return;
 
-      if (!queue_.empty()) {
-        const auto& item = queue_.front();
+      if (!delayed_tasks_.empty()) {
+        const auto& item = delayed_tasks_.front();
         const auto now = time_function_();
         if (now < item.time_point) {
           const auto wait_duration = item.time_point - now;
@@ -68,75 +156,74 @@ void ThreadPoolTaskRunner::InternalTaskRunner::WaitAndRunTasks() {
       if (should_exit_)
         return;
 
-      if (queue_.empty())
+      if (delayed_tasks_.empty())
         continue;
 
-      auto& item = queue_.front();
       const auto now = time_function_();
-      if (now < item.time_point)
-        continue;
+      RST_DCHECK(tasks.empty());
+      while (!delayed_tasks_.empty()) {
+        auto& item = delayed_tasks_.front();
+        if (now < item.time_point)
+          break;
 
-      task = std::move(item.task);
-      c_pop_heap(queue_, std::greater<>());
-      queue_.pop_back();
+        tasks.emplace_back(std::move(item.task));
+        c_pop_heap(delayed_tasks_, std::greater<>());
+        delayed_tasks_.pop_back();
+      }
     }
 
-    task();
-    task = nullptr;
+    if (!tasks.empty()) {
+      delayed_task_runner_->PushTasks(&tasks);
+      tasks.clear();
+    }
   }
+}
+
+void ThreadPoolTaskRunner::ServiceTaskRunner::PushTask(
+    std::function<void()>&& task, const std::chrono::milliseconds delay) {
+  RST_DCHECK(delay.count() >= 0);
+
+  const auto now = time_function_();
+  const auto future_time_point = now + delay;
+  {
+    std::lock_guard lock(thread_mutex_);
+    delayed_tasks_.emplace_back(std::move(task), future_time_point, task_id_++);
+    c_push_heap(delayed_tasks_, std::greater<>());
+  }
+
+  thread_cv_.notify_one();
 }
 
 ThreadPoolTaskRunner::ThreadPoolTaskRunner(
     const size_t threads_num,
     std::function<chrono::milliseconds()>&& time_function)
-    : task_runner_(
-          std::make_shared<InternalTaskRunner>(std::move(time_function))) {
-  RST_DCHECK(threads_num > 0);
-  threads_.reserve(threads_num);
-  for (size_t i = 0; i < threads_num; i++)
-    threads_.emplace_back(&InternalTaskRunner::WaitAndRunTasks, task_runner_);
-}
+    : delayed_task_runner_(threads_num),
+      service_task_runner_(std::in_place, &*delayed_task_runner_,
+                           std::move(time_function)) {}
 
 ThreadPoolTaskRunner::~ThreadPoolTaskRunner() {
-  {
-    std::mutex ending_task_mutex;
-    std::condition_variable ending_task_cv;
-    auto should_continue = false;
+  std::mutex ending_task_mutex;
+  std::condition_variable ending_task_cv;
+  auto should_continue = false;
 
-    PostTask([&ending_task_mutex, &ending_task_cv, &should_continue]() {
-      std::lock_guard lock(ending_task_mutex);
-      should_continue = true;
-      ending_task_cv.notify_one();
-    });
+  PostTask([&ending_task_mutex, &ending_task_cv, &should_continue]() {
+    std::lock_guard lock(ending_task_mutex);
+    should_continue = true;
+    // Notify under the lock since the cv can be destroyed otherwise.
+    ending_task_cv.notify_one();
+  });
 
-    std::unique_lock lock(ending_task_mutex);
-    while (!should_continue)
-      ending_task_cv.wait(lock);
-  }
-
-  {
-    std::lock_guard lock(task_runner_->thread_mutex_);
-    task_runner_->should_exit_ = true;
-  }
-
-  task_runner_->thread_cv_.notify_one();
-  for (auto& thread : threads_)
-    thread.join();
+  std::unique_lock lock(ending_task_mutex);
+  while (!should_continue)
+    ending_task_cv.wait(lock);
 }
 
 void ThreadPoolTaskRunner::PostDelayedTask(std::function<void()>&& task,
                                            const chrono::milliseconds delay) {
-  RST_DCHECK(delay.count() >= 0);
-
-  const auto now = task_runner_->time_function_();
-  const auto future_time_point = now + delay;
-  {
-    std::lock_guard lock(task_runner_->thread_mutex_);
-    task_runner_->queue_.emplace_back(std::move(task), future_time_point,
-                                      task_runner_->task_id_++);
-    c_push_heap(task_runner_->queue_, std::greater<>());
-  }
-  task_runner_->thread_cv_.notify_one();
+  if (delay == chrono::milliseconds::zero())
+    delayed_task_runner_->PushTask(std::move(task));
+  else
+    service_task_runner_->PushTask(std::move(task), delay);
 }
 
 }  // namespace rst

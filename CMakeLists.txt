@@ -24,9 +24,6 @@ add_library(rst
 
   rst/hidden_string/hidden_string.h
 
-  rst/legacy/memory.h
-  rst/legacy/optional.h
-
   rst/logger/file_name_sink.cc
   rst/logger/file_name_sink.h
   rst/logger/file_ptr_sink.cc
@@ -114,9 +111,6 @@ add_executable(rst_tests
   rst/guid/guid_test.cc
 
   rst/hidden_string/hidden_string_test.cc
-
-  rst/legacy/memory_test.cc
-  rst/legacy/optional_test.cc
 
   rst/logger/logger_test.cc
 

@@ -54,6 +54,8 @@
 using testing::_;
 using testing::Eq;
 
+namespace this_thread = std::this_thread;
+
 namespace rst {
 namespace {
 
@@ -272,7 +274,7 @@ TEST(FileNameSink, LogThreadSafe) {
   ASSERT_FALSE(sink.err());
 
   std::thread t1([&sink]() {
-    std::this_thread::yield();
+    this_thread::yield();
     (*sink)->Log("Message1");
   });
   std::thread t2([&sink]() { (*sink)->Log("Message2"); });
@@ -354,7 +356,7 @@ TEST(FilePtrSink, LogThreadSafe) {
   FilePtrSink sink(file);
 
   std::thread t1([&sink]() {
-    std::this_thread::yield();
+    this_thread::yield();
     sink.Log("Message1");
   });
   std::thread t2([&sink]() { sink.Log("Message2"); });

@@ -9,6 +9,8 @@ matrix:
         apt:
           packages:
             - clang-10
+            - libc++-10-dev
+            - libc++abi-10-dev
             - ninja-build
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
@@ -19,7 +21,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug
+        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++"
 
       script: ninja && ./rst_tests
 
@@ -30,6 +32,8 @@ matrix:
         apt:
           packages:
             - clang-10
+            - libc++-10-dev
+            - libc++abi-10-dev
             - ninja-build
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
@@ -40,7 +44,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON -DCMAKE_BUILD_TYPE=Debug
+        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++"
 
       script: ninja && ./rst_tests
 
@@ -51,6 +55,8 @@ matrix:
         apt:
           packages:
             - clang-10
+            - libc++-10-dev
+            - libc++abi-10-dev
             - ninja-build
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10 && ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1"
@@ -61,7 +67,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug
+        - cmake .. -GNinja -DRST_ENABLE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++"
 
       script: ninja && ./rst_tests
 
@@ -72,6 +78,8 @@ matrix:
         apt:
           packages:
             - clang-10
+            - libc++-10-dev
+            - libc++abi-10-dev
             - ninja-build
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
@@ -82,7 +90,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_TSAN=ON -DCMAKE_BUILD_TYPE=Debug
+        - cmake .. -GNinja -DRST_ENABLE_TSAN=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++"
 
       script: ninja && ./rst_tests
 
@@ -93,6 +101,8 @@ matrix:
         apt:
           packages:
             - clang-10
+            - libc++-10-dev
+            - libc++abi-10-dev
             - ninja-build
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
@@ -103,7 +113,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_UBSAN=ON -DCMAKE_BUILD_TYPE=Debug
+        - cmake .. -GNinja -DRST_ENABLE_UBSAN=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++"
 
       script: ninja && ./rst_tests
 
@@ -114,6 +124,8 @@ matrix:
         apt:
           packages:
             - clang-10
+            - libc++-10-dev
+            - libc++abi-10-dev
             - ninja-build
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
@@ -124,7 +136,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
+        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-stdlib=libc++"
 
       script: ninja
 
