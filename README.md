@@ -17,7 +17,6 @@ It is licensed under the Simplified BSD License.
   * [Files](#Files)
   * [GUID](#GUID)
   * [Hidden String](#HiddenString)
-  * [Legacy](#Legacy)
   * [Logger](#Logger)
   * [Macros](#Macros)
     * [Macros](#Macros2)
@@ -258,12 +257,6 @@ Strings encrypted with this method are not visible directly in the binary.
 RST_HIDDEN_STRING(kHidden, "Not visible");
 RST_DCHECK(kHidden.Decrypt() == "Not visible");
 ```
-
-<a name="Legacy"></a>
-## Legacy
-A set of features unavaliable for C++11 compilers:
-* `make_unique<T>`
-* `Optional<T>`
 
 <a name="Logger"></a>
 ## Logger

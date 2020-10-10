@@ -31,7 +31,6 @@
 #include <condition_variable>
 #include <cstddef>
 #include <mutex>
-#include <string>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -39,11 +38,31 @@
 #include <gtest/gtest.h>
 
 #include "rst/bind/bind_helpers.h"
+#include "rst/not_null/not_null.h"
 #include "rst/stl/algorithm.h"
 
 namespace chrono = std::chrono;
 
 namespace rst {
+namespace {
+
+void Wait(const NotNull<ThreadPoolTaskRunner*> task_runner) {
+  std::mutex mtx;
+  std::condition_variable cv;
+  auto should_continue = false;
+
+  task_runner->PostTask([&mtx, &cv, &should_continue]() {
+    std::lock_guard lock(mtx);
+    should_continue = true;
+    cv.notify_one();
+  });
+
+  std::unique_lock lock(mtx);
+  while (!should_continue)
+    cv.wait(lock);
+}
+
+}  // namespace
 
 TEST(ThreadPoolTaskRunner, IsTaskRunner) {
   const ThreadPoolTaskRunner task_runner(
@@ -64,24 +83,21 @@ TEST(ThreadPoolTaskRunner, PostTaskInOrder) {
   ThreadPoolTaskRunner task_runner(
       1, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
 
-  std::string str, expected;
+  std::vector<int> result, expected;
   for (auto i = 0; i < 1000; i++) {
-    task_runner.PostTask([i, &mtx, &str]() {
+    task_runner.PostTask([i, &mtx, &result]() {
       std::lock_guard lock(mtx);
-      str += std::to_string(i);
+      result.emplace_back(i);
     });
-    expected += std::to_string(i);
+    expected.emplace_back(i);
   }
 
-  while (true) {
-    std::lock_guard lock(mtx);
-    if (str == expected)
-      break;
-  }
+  Wait(&task_runner);
+  EXPECT_EQ(result, expected);
 }
 
 TEST(ThreadPoolTaskRunner, DestructorRunsPendingTasks) {
-  std::string str, expected;
+  std::vector<int> result, expected;
 
   {
     std::mutex mtx;
@@ -89,15 +105,15 @@ TEST(ThreadPoolTaskRunner, DestructorRunsPendingTasks) {
         1, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
 
     for (auto i = 0; i < 1000; i++) {
-      task_runner.PostTask([i, &mtx, &str]() {
+      task_runner.PostTask([i, &mtx, &result]() {
         std::lock_guard lock(mtx);
-        str += std::to_string(i);
+        result.emplace_back(i);
       });
-      expected += std::to_string(i);
+      expected.emplace_back(i);
     }
   }
 
-  EXPECT_EQ(str, expected);
+  EXPECT_EQ(result, expected);
 }
 
 TEST(ThreadPoolTaskRunner, PostDelayedTaskInOrder) {
@@ -106,45 +122,44 @@ TEST(ThreadPoolTaskRunner, PostDelayedTaskInOrder) {
   ThreadPoolTaskRunner task_runner(
       1, [&ms]() -> chrono::milliseconds { return chrono::milliseconds(ms); });
 
-  std::string str, first_half;
+  std::vector<int> result, first_half, expected;
   for (auto i = 0; i < 500; i++) {
     task_runner.PostDelayedTask(
-        [i, &mtx, &str]() {
+        [i, &mtx, &result]() {
           std::lock_guard lock(mtx);
-          str += std::to_string(i);
+          result.emplace_back(i);
         },
         chrono::milliseconds(100));
-    first_half += std::to_string(i);
+    first_half.emplace_back(i);
+    expected.emplace_back(i);
   }
-
-  auto expected = first_half;
 
   for (auto i = 500; i < 1000; i++) {
     task_runner.PostDelayedTask(
-        [i, &mtx, &str]() {
+        [i, &mtx, &result]() {
           std::lock_guard lock(mtx);
-          str += std::to_string(i);
+          result.emplace_back(i);
         },
         chrono::milliseconds(200));
-    expected += std::to_string(i);
+    expected.emplace_back(i);
   }
 
   {
     std::lock_guard lock(mtx);
-    EXPECT_EQ(str, std::string());
+    EXPECT_TRUE(result.empty());
   }
 
   ms = 100;
   while (true) {
     std::lock_guard lock(mtx);
-    if (str == first_half)
+    if (result == first_half)
       break;
   }
 
   ms = 200;
   while (true) {
     std::lock_guard lock(mtx);
-    if (str == expected)
+    if (result == expected)
       break;
   }
 }
@@ -154,19 +169,19 @@ TEST(ThreadPoolTaskRunner, PostTaskConcurrently) {
   ThreadPoolTaskRunner task_runner(
       1, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
 
-  std::string str, expected;
+  std::vector<size_t> result, expected;
   std::vector<std::thread> threads;
   static constexpr size_t kMaxThreadNumber = 10;
   threads.reserve(kMaxThreadNumber);
   for (size_t i = 0; i < kMaxThreadNumber; i++) {
-    std::thread t([&task_runner, i, &mtx, &str]() {
-      task_runner.PostTask([i, &mtx, &str]() {
+    std::thread t([&task_runner, i, &mtx, &result]() {
+      task_runner.PostTask([i, &mtx, &result]() {
         std::lock_guard lock(mtx);
-        str += std::to_string(i);
+        result.emplace_back(i);
       });
     });
     threads.emplace_back(std::move(t));
-    expected += std::to_string(i);
+    expected.emplace_back(i);
   }
 
   for (auto& t : threads)
@@ -175,8 +190,8 @@ TEST(ThreadPoolTaskRunner, PostTaskConcurrently) {
   c_sort(expected);
   while (true) {
     std::lock_guard lock(mtx);
-    c_sort(str);
-    if (str == expected)
+    c_sort(result);
+    if (result == expected)
       break;
   }
 }
@@ -188,37 +203,20 @@ TEST(ThreadPoolTaskRunner, MultipleThreads) {
         t, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
     EXPECT_EQ(task_runner.threads_num(), t);
 
-    std::string str, expected;
+    std::vector<int> result, expected;
     for (auto i = 0; i < 100; i++) {
-      task_runner.PostTask([i, &mtx, &str]() {
+      task_runner.PostTask([i, &mtx, &result]() {
         std::lock_guard lock(mtx);
-        str += std::to_string(i);
+        result.emplace_back(i);
       });
-      expected += std::to_string(i);
-    }
-
-    {
-      std::mutex ending_task_mutex;
-      std::condition_variable ending_task_cv;
-      auto should_continue = false;
-
-      task_runner.PostTask(
-          [&ending_task_mutex, &ending_task_cv, &should_continue]() {
-            std::lock_guard lock(ending_task_mutex);
-            should_continue = true;
-            ending_task_cv.notify_one();
-          });
-
-      std::unique_lock lock(ending_task_mutex);
-      while (!should_continue)
-        ending_task_cv.wait(lock);
+      expected.emplace_back(i);
     }
 
     c_sort(expected);
     while (true) {
       std::unique_lock lock(mtx);
-      c_sort(str);
-      if (str == expected)
+      c_sort(result);
+      if (result == expected)
         break;
     }
   }

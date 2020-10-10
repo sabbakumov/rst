@@ -28,7 +28,6 @@
 #include "rst/task_runner/polling_task_runner.h"
 
 #include <cstddef>
-#include <string>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -60,30 +59,30 @@ TEST(PollingTaskRunner, PostTaskInOrder) {
   PollingTaskRunner task_runner(
       []() -> chrono::milliseconds { return chrono::milliseconds(0); });
 
-  std::string str, expected;
+  std::vector<int> result, expected;
   for (auto i = 0; i < 1000; i++) {
-    task_runner.PostTask([i, &str]() { str += std::to_string(i); });
-    expected += std::to_string(i);
+    task_runner.PostTask([i, &result]() { result.emplace_back(i); });
+    expected.emplace_back(i);
   }
 
   task_runner.RunPendingTasks();
-  EXPECT_EQ(str, expected);
+  EXPECT_EQ(result, expected);
 }
 
 TEST(PollingTaskRunner, DestructorRunsPendingTasks) {
-  std::string str, expected;
+  std::vector<int> result, expected;
 
   {
     PollingTaskRunner task_runner(
         []() -> chrono::milliseconds { return chrono::milliseconds(0); });
 
     for (auto i = 0; i < 1000; i++) {
-      task_runner.PostTask([i, &str]() { str += std::to_string(i); });
-      expected += std::to_string(i);
+      task_runner.PostTask([i, &result]() { result.emplace_back(i); });
+      expected.emplace_back(i);
     }
   }
 
-  EXPECT_EQ(str, expected);
+  EXPECT_EQ(result, expected);
 }
 
 TEST(PollingTaskRunner, PostDelayedTaskInOrder) {
@@ -91,47 +90,46 @@ TEST(PollingTaskRunner, PostDelayedTaskInOrder) {
   PollingTaskRunner task_runner(
       [&ms]() -> chrono::milliseconds { return chrono::milliseconds(ms); });
 
-  std::string str, first_half;
+  std::vector<int> result, first_half, expected;
   for (auto i = 0; i < 500; i++) {
-    task_runner.PostDelayedTask([i, &str]() { str += std::to_string(i); },
+    task_runner.PostDelayedTask([i, &result]() { result.emplace_back(i); },
                                 chrono::milliseconds(1));
-    first_half += std::to_string(i);
+    first_half.emplace_back(i);
+    expected.emplace_back(i);
   }
 
-  auto expected = first_half;
-
   for (auto i = 500; i < 1000; i++) {
-    task_runner.PostDelayedTask([i, &str]() { str += std::to_string(i); },
+    task_runner.PostDelayedTask([i, &result]() { result.emplace_back(i); },
                                 chrono::milliseconds(2));
-    expected += std::to_string(i);
+    expected.emplace_back(i);
   }
 
   task_runner.RunPendingTasks();
-  EXPECT_EQ(str, std::string());
+  EXPECT_TRUE(result.empty());
 
   ms = 1;
   task_runner.RunPendingTasks();
-  EXPECT_EQ(str, first_half);
+  EXPECT_EQ(result, first_half);
 
   ms = 2;
   task_runner.RunPendingTasks();
-  EXPECT_EQ(str, expected);
+  EXPECT_EQ(result, expected);
 }
 
 TEST(PollingTaskRunner, PostTaskConcurrently) {
   PollingTaskRunner task_runner(
       []() -> chrono::milliseconds { return chrono::milliseconds(0); });
 
-  std::string str, expected;
+  std::vector<size_t> result, expected;
   std::vector<std::thread> threads;
   static constexpr size_t kMaxThreadNumber = 10;
   threads.reserve(kMaxThreadNumber);
   for (size_t i = 0; i < kMaxThreadNumber; i++) {
-    std::thread t([&task_runner, i, &str]() {
-      task_runner.PostTask([i, &str]() { str += std::to_string(i); });
+    std::thread t([&task_runner, i, &result]() {
+      task_runner.PostTask([i, &result]() { result.emplace_back(i); });
     });
     threads.emplace_back(std::move(t));
-    expected += std::to_string(i);
+    expected.emplace_back(i);
   }
 
   task_runner.RunPendingTasks();
@@ -141,9 +139,9 @@ TEST(PollingTaskRunner, PostTaskConcurrently) {
 
   task_runner.RunPendingTasks();
 
-  c_sort(str);
+  c_sort(result);
   c_sort(expected);
-  EXPECT_EQ(str, expected);
+  EXPECT_EQ(result, expected);
 }
 
 }  // namespace rst

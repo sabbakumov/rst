@@ -64,10 +64,9 @@ void PollingTaskRunner::RunPendingTasks() {
       if (now < item.time_point)
         break;
 
-      auto task = std::move(item.task);
+      pending_tasks_.emplace_back(std::move(item.task));
       c_pop_heap(queue_, std::greater<>());
       queue_.pop_back();
-      pending_tasks_.emplace_back(std::move(task));
     }
   }
 

@@ -33,8 +33,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <memory>
 #include <mutex>
+#include <optional>
+#include <queue>
 #include <thread>
 #include <vector>
 
@@ -68,19 +69,48 @@ class ThreadPoolTaskRunner : public TaskRunner {
 
   // TaskRunner:
   void PostDelayedTask(std::function<void()>&& task,
-                       std::chrono::milliseconds delay) override;
+                       std::chrono::milliseconds delay) final;
 
-  size_t threads_num() const { return threads_.size(); }
+  size_t threads_num() const { return delayed_task_runner_->threads_num(); }
 
  private:
-  class InternalTaskRunner {
+  class DelayedTaskRunner {
    public:
-    explicit InternalTaskRunner(
-        std::function<std::chrono::milliseconds()>&& time_function);
-    ~InternalTaskRunner();
+    explicit DelayedTaskRunner(size_t threads_num);
+    ~DelayedTaskRunner();
 
-    // Worker method.
+    void PushTasks(NotNull<std::vector<std::function<void()>>*> tasks);
+    void PushTask(std::function<void()>&& task);
+
+    size_t threads_num() const { return threads_.size(); }
+
+   private:
     void WaitAndRunTasks();
+
+    std::queue<std::function<void()>> tasks_;
+
+    std::condition_variable thread_cv_;
+    std::mutex thread_mutex_;
+
+    std::vector<std::thread> threads_;
+
+    bool should_exit_ = false;
+
+    RST_DISALLOW_COPY_AND_ASSIGN(DelayedTaskRunner);
+  };
+
+  class ServiceTaskRunner {
+   public:
+    ServiceTaskRunner(
+        NotNull<DelayedTaskRunner*> delayed_task_runner,
+        std::function<std::chrono::milliseconds()>&& time_function);
+    ~ServiceTaskRunner();
+
+    void PushTask(std::function<void()>&& task,
+                  std::chrono::milliseconds delay);
+
+   private:
+    void WaitAndScheduleTasks();
 
     std::condition_variable thread_cv_;
     std::mutex thread_mutex_;
@@ -89,18 +119,22 @@ class ThreadPoolTaskRunner : public TaskRunner {
     const std::function<std::chrono::milliseconds()> time_function_;
 
     // Priority queue of tasks.
-    std::vector<internal::Item> queue_;
+    std::vector<internal::Item> delayed_tasks_;
+
+    const NotNull<DelayedTaskRunner*> delayed_task_runner_;
 
     // Increasing task counter.
     uint64_t task_id_ = 0;
 
     bool should_exit_ = false;
 
-    RST_DISALLOW_COPY_AND_ASSIGN(InternalTaskRunner);
+    std::thread thread_;
+
+    RST_DISALLOW_COPY_AND_ASSIGN(ServiceTaskRunner);
   };
 
-  std::vector<std::thread> threads_;
-  const NotNull<std::shared_ptr<InternalTaskRunner>> task_runner_;
+  std::optional<DelayedTaskRunner> delayed_task_runner_;
+  std::optional<ServiceTaskRunner> service_task_runner_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(ThreadPoolTaskRunner);
 };
