@@ -32,7 +32,6 @@
 #include <cstdint>
 #include <functional>
 #include <tuple>
-#include <type_traits>
 #include <utility>
 
 #include "rst/macros/macros.h"
@@ -48,12 +47,10 @@ struct Item {
   Item(Function&& task, const std::chrono::milliseconds time_point,
        const uint64_t task_id)
       : task(std::move(task)), time_point(time_point), task_id(task_id) {}
-  Item(Item&&) noexcept(std::is_nothrow_move_constructible<Function>::value) =
-      default;
+  Item(Item&&) noexcept = default;
   ~Item() = default;
 
-  Item& operator=(Item&&) noexcept(
-      std::is_nothrow_move_assignable<Function>::value) = default;
+  Item& operator=(Item&&) noexcept = default;
   bool operator>(const Item& item) const {
     return std::make_tuple(time_point, task_id) >
            std::make_tuple(item.time_point, item.task_id);
