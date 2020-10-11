@@ -34,6 +34,7 @@
 
 #include "rst/logger/sink.h"
 #include "rst/macros/macros.h"
+#include "rst/macros/thread_annotations.h"
 #include "rst/not_null/not_null.h"
 #include "rst/status/status.h"
 #include "rst/status/status_or.h"
@@ -60,11 +61,11 @@ class FileNameSink final : public Sink {
   std::mutex mutex_;
 
   // A RAII-wrapper around std::FILE.
-  std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
-      nullptr, [](std::FILE* f) {
-        if (f != nullptr)
-          (void)std::fclose(f);
-      }};
+  std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_
+      RST_PT_GUARDED_BY(mutex_){nullptr, [](std::FILE* f) {
+                                  if (f != nullptr)
+                                    (void)std::fclose(f);
+                                }};
 
   RST_DISALLOW_COPY_AND_ASSIGN(FileNameSink);
 };

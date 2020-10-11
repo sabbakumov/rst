@@ -38,6 +38,7 @@ add_library(rst
   rst/macros/macros.h
   rst/macros/optimization.h
   rst/macros/os.h
+  rst/macros/thread_annotations.h
 
   rst/memory/memory.h
   rst/memory/weak_ptr.h
@@ -115,6 +116,8 @@ add_executable(rst_tests
   rst/logger/logger_test.cc
 
   rst/macros/macros_test.cc
+  rst/macros/optimization_test.cc
+  rst/macros/thread_annotations_test.cc
 
   rst/memory/memory_test.cc
   rst/memory/weak_ptr_test.cc
@@ -270,7 +273,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       "-Wno-c++98-compat-pedantic;-Wno-padded;-Wno-return-std-move-in-c++11;"
       "-Wno-shadow-field-in-constructor;-Wno-unknown-pragmas;"
       "-Wno-deprecated-declarations;-Wno-ctad-maybe-unsupported;"
-      "-Wno-unknown-warning-option;-Wno-range-loop-analysis")
+      "-Wno-unknown-warning-option;-Wno-range-loop-analysis;"
+      "-D_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS;-Wno-thread-safety-negative")
   set(cxx_rst_tests_flags "${cxx_rst_flags};-Wno-global-constructors;"
       "-Wno-used-but-marked-unused;-Wno-covered-switch-default;"
       "-Wno-unused-member-function;-Wno-gnu-zero-variadic-macro-arguments")

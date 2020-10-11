@@ -35,6 +35,7 @@
 #include <vector>
 
 #include "rst/macros/macros.h"
+#include "rst/macros/thread_annotations.h"
 #include "rst/task_runner/item.h"
 #include "rst/task_runner/task_runner.h"
 
@@ -74,9 +75,9 @@ class PollingTaskRunner : public TaskRunner {
   // Used to not to allocate memory on every RunPendingTasks() call.
   std::vector<std::function<void()>> pending_tasks_;
   // Priority queue of tasks.
-  std::vector<internal::Item> queue_;
+  std::vector<internal::Item> queue_ RST_GUARDED_BY(mutex_);
   // Increasing task counter.
-  uint64_t task_id_ = 0;
+  uint64_t task_id_ RST_GUARDED_BY(mutex_) = 0;
 
   RST_DISALLOW_COPY_AND_ASSIGN(PollingTaskRunner);
 };

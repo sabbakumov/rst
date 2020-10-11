@@ -22,6 +22,7 @@ It is licensed under the Simplified BSD License.
     * [Macros](#Macros2)
     * [Optimization](#Optimization)
     * [OS](#OS)
+    * [Thread Annotations](#ThreadAnnotations)
   * [Memory](#Memory)
     * [Memory](#Memory2)
     * [WeakPtr](#WeakPtr)
@@ -374,6 +375,35 @@ Windows code.
 #if RST_BUILDFLAG(OS_ANDROID)
 Android code.
 #endif
+```
+
+<a name="ThreadAnnotations"></a>
+### Thread Annotations
+Documents if a shared field or global variable needs to be protected by a
+mutex. Allows the user to specify a particular mutex that should be held
+when accessing the annotated variable.
+
+```cpp
+std::mutex mtx;
+int i RST_GUARDED_BY(mtx);
+```
+
+Documents if the memory location pointed to by a pointer should be guarded
+by a mutex when dereferencing the pointer.
+
+```cpp
+std::mutex mtx;
+int* p RST_PT_GUARDED_BY(mtx);
+std::unique_ptr<int> p2 RST_PT_GUARDED_BY(mtx);
+```
+
+Note that a pointer variable to a shared memory location could itself be a
+shared variable.
+
+```cpp
+// |q|, guarded by |mtx1|, points to a shared memory location that is
+// guarded by |mtx2|:
+int* q RST_GUARDED_BY(mtx1) RST_PT_GUARDED_BY(mtx2);
 ```
 
 <a name="Memory"></a>
