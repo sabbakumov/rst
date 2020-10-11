@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Sergey Abbakumov
+// Copyright (c) 2020, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,52 +25,52 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_LOGGER_FILE_PTR_SINK_H_
-#define RST_LOGGER_FILE_PTR_SINK_H_
+#include "rst/macros/optimization.h"
 
-#include <cstdio>
-#include <memory>
-#include <mutex>
-
-#include "rst/logger/sink.h"
-#include "rst/macros/macros.h"
-#include "rst/macros/thread_annotations.h"
-#include "rst/not_null/not_null.h"
-#include "rst/type/type.h"
+#include <gtest/gtest.h>
 
 namespace rst {
 
-// The class for sinking to a FILE* (can be stdout or stderr).
-class FilePtrSink final : public Sink {
- public:
-  using ShouldClose = Type<class ShouldCloseTag, bool>;
+TEST(Optimization, Likely) {
+  if (RST_LIKELY(true))
+    SUCCEED();
+  else
+    FAIL();
 
-  // Saves the |file| pointer. If |should_close| is not set, doesn't close the
-  // |file| pointer (e.g. stdout, stderr).
-  explicit FilePtrSink(NotNull<std::FILE*> file,
-                       ShouldClose should_close = ShouldClose(true));
-  ~FilePtrSink() override;
+  if (RST_LIKELY(false))
+    FAIL();
+  else
+    SUCCEED();
+}
 
-  // Sink:
-  // Thread safe logging function.
-  void Log(std::string_view message) override;
+TEST(Optimization, Unlikely) {
+  if (RST_LIKELY(true))
+    SUCCEED();
+  else
+    FAIL();
 
- private:
-  // Mutex for thread-safe Log function.
-  std::mutex mutex_;
+  if (RST_LIKELY(false))
+    FAIL();
+  else
+    SUCCEED();
+}
 
-  // A RAII-wrapper around std::FILE.
-  std::unique_ptr<std::FILE, void (*)(std::FILE*)> log_file_{
-      nullptr, [](std::FILE* f) {
-        if (f != nullptr)
-          (void)std::fclose(f);
-      }};
+TEST(Optimization, LikelyEq) {
+  switch (RST_LIKELY_EQ(5, 5)) {
+    case 5:
+      SUCCEED();
+      break;
+    default:
+      FAIL();
+  }
 
-  const NotNull<std::FILE*> file_ RST_PT_GUARDED_BY(mutex_);
-
-  RST_DISALLOW_COPY_AND_ASSIGN(FilePtrSink);
-};
+  switch (RST_LIKELY_EQ(5, 6)) {
+    case 5:
+      SUCCEED();
+      break;
+    default:
+      FAIL();
+  }
+}
 
 }  // namespace rst
-
-#endif  // RST_LOGGER_FILE_PTR_SINK_H_

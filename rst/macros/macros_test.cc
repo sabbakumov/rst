@@ -27,6 +27,7 @@
 
 #include "rst/macros/macros.h"
 
+#include <string>
 #include <type_traits>
 
 #include <gtest/gtest.h>
@@ -99,6 +100,12 @@ TEST(NonCopyable, NonConstructible) {
   EXPECT_FALSE(std::is_copy_assignable<T>::value);
   EXPECT_FALSE(std::is_move_constructible<T>::value);
   EXPECT_FALSE(std::is_move_assignable<T>::value);
+}
+
+TEST(PreprocessorCat, Cat) {
+  static constexpr auto kAb = "cd";
+  const std::string s = RST_CAT(kA, b);
+  EXPECT_EQ(s, kAb);
 }
 
 #define RST_BUILDFLAG_FOO() (true)
