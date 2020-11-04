@@ -36,6 +36,7 @@ It is licensed under the Simplified BSD License.
     * [Algorithm](#Algorithm)
     * [StringResizeUninitialized](#StringResizeUninitialized)
     * [TakeFunction](#TakeFunction)
+    * [VectorBuilder](#VectorBuilder)
   * [Status](#Status)
     * [Status](#Status2)
     * [Status Macros](#StatusMacros)
@@ -690,6 +691,18 @@ auto moved_f = std::move(f);  // f is in a valid but unspecified state
                               // after the call.
 std::function<void()> f = ...;
 auto moved_f = TakeFunction(std::move(f));  // f is nullptr.
+```
+
+<a name="VectorBuilder"></a>
+### VectorBuilder
+Allows in-place initialization of a vector of movable objects.
+
+```cpp
+const std::vector<std::unique_ptr<int>> vec =
+    VectorBuilder<std::unique_ptr<int>>()
+        .emplace_back(std::make_unique<int>(1))
+        .emplace_back(std::make_unique<int>(-1))
+        .Build();
 ```
 
 <a name="Status"></a>

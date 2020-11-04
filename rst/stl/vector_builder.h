@@ -25,32 +25,41 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_STL_FUNCTION_H_
-#define RST_STL_FUNCTION_H_
+#ifndef RST_STL_VECTOR_BUILDER_H_
+#define RST_STL_VECTOR_BUILDER_H_
 
-#include <functional>
 #include <utility>
+#include <vector>
 
 namespace rst {
 
-// Like std::move() for std::function except that it also assigns nullptr to a
-// moved argument.
+// Allows in-place initialization of a vector of movable objects.
 //
 // Example:
 //
-//   std::function<void()> f = ...;
-//   auto moved_f = std::move(f);  // f is in a valid but unspecified state
-//                                 // after the call.
-//   std::function<void()> f = ...;
-//   auto moved_f = TakeFunction(std::move(f));  // f is nullptr.
+//   const std::vector<std::unique_ptr<int>> vec =
+//       VectorBuilder<std::unique_ptr<int>>()
+//           .emplace_back(std::make_unique<int>(1))
+//           .emplace_back(std::make_unique<int>(-1))
+//           .Build();
 //
-template <class R, class... Args>
-std::function<R(Args...)> TakeFunction(std::function<R(Args...)>&& f) {
-  auto moved_f = std::move(f);
-  f = nullptr;
-  return moved_f;
-}
+template <class T>
+class VectorBuilder {
+ public:
+  VectorBuilder() = default;
+
+  template <class... Args>
+  VectorBuilder&& emplace_back(Args&&... args) && {
+    vec_.emplace_back(std::forward<Args>(args)...);
+    return std::move(*this);
+  }
+
+  std::vector<T> Build() && { return std::move(vec_); }
+
+ private:
+  std::vector<T> vec_;
+};
 
 }  // namespace rst
 
-#endif  // RST_STL_FUNCTION_H_
+#endif  // RST_STL_VECTOR_BUILDER_H_
