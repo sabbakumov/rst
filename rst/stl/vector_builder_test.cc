@@ -25,32 +25,50 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_STL_FUNCTION_H_
-#define RST_STL_FUNCTION_H_
+#include "rst/stl/vector_builder.h"
 
-#include <functional>
-#include <utility>
+#include <memory>
+#include <vector>
+
+#include <gtest/gtest.h>
 
 namespace rst {
 
-// Like std::move() for std::function except that it also assigns nullptr to a
-// moved argument.
-//
-// Example:
-//
-//   std::function<void()> f = ...;
-//   auto moved_f = std::move(f);  // f is in a valid but unspecified state
-//                                 // after the call.
-//   std::function<void()> f = ...;
-//   auto moved_f = TakeFunction(std::move(f));  // f is nullptr.
-//
-template <class R, class... Args>
-std::function<R(Args...)> TakeFunction(std::function<R(Args...)>&& f) {
-  auto moved_f = std::move(f);
-  f = nullptr;
-  return moved_f;
+TEST(VectorBuilder, Copyable) {
+  {
+    const std::vector<int> vec = VectorBuilder<int>().Build();
+    EXPECT_TRUE(vec.empty());
+  }
+
+  {
+    const std::vector<int> vec =
+        VectorBuilder<int>().emplace_back(1).emplace_back(-1).Build();
+    EXPECT_EQ(vec, (std::vector<int>{1, -1}));
+  }
+}
+
+TEST(VectorBuilder, Movable) {
+  {
+    const std::vector<std::unique_ptr<int>> vec =
+        VectorBuilder<std::unique_ptr<int>>().Build();
+    EXPECT_TRUE(vec.empty());
+  }
+
+  {
+    const std::vector<std::unique_ptr<int>> vec =
+        VectorBuilder<std::unique_ptr<int>>()
+            .emplace_back(std::make_unique<int>(1))
+            .emplace_back(std::make_unique<int>(-1))
+            .Build();
+    std::vector<std::unique_ptr<int>> result;
+    result.emplace_back(std::make_unique<int>(1));
+    result.emplace_back(std::make_unique<int>(-1));
+
+    ASSERT_EQ(vec.size(), 2U);
+    EXPECT_EQ(vec.size(), result.size());
+    EXPECT_EQ(*vec[0], *result[0]);
+    EXPECT_EQ(*vec[1], *result[1]);
+  }
 }
 
 }  // namespace rst
-
-#endif  // RST_STL_FUNCTION_H_

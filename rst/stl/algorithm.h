@@ -78,6 +78,11 @@ bool c_is_sorted(const C& c, Compare&& comp) {
                         std::forward<Compare>(comp));
 }
 
+template <class C, class URBG>
+void c_shuffle(C& c, URBG&& g) {
+  std::shuffle(std::begin(c), std::end(c), std::forward<URBG>(g));
+}
+
 }  // namespace rst
 
 #endif  // RST_STL_ALGORITHM_H_
