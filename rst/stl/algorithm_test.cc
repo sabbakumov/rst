@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <random>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -42,7 +43,7 @@ TEST(Sort, Vector) {
 }
 
 TEST(Sort, Array) {
-  int arr[] = {-1, 4, 10, 400, 3, -5};
+  int arr[] = {-1, 400, 10, 0, 3, -5};
   c_sort(arr);
   EXPECT_TRUE(std::is_sorted(std::cbegin(arr), std::cend(arr)));
 }
@@ -167,6 +168,26 @@ TEST(IsSorted, Array) {
 
   const int const_sorted_vec[] = {-5, -1, 0, 3, 10, 400};
   EXPECT_TRUE(c_is_sorted(const_sorted_vec, std::less<>()));
+}
+
+TEST(Shuffle, Vector) {
+  std::vector<int> vec = {-1, 400, 10, 0, 3, -5};
+  static constexpr int kVecCopy[] = {-1, 400, 10, 0, 3, -5};
+
+  std::random_device device;
+  c_shuffle(vec, device);
+  EXPECT_TRUE(std::is_permutation(std::begin(vec), std::end(vec),
+                                  std::begin(kVecCopy), std::end(kVecCopy)));
+}
+
+TEST(Shuffle, Array) {
+  int arr[] = {-1, 400, 10, 0, 3, -5};
+  static constexpr int kArrCopy[] = {-1, 400, 10, 0, 3, -5};
+
+  std::random_device device;
+  c_shuffle(arr, device);
+  EXPECT_TRUE(std::is_permutation(std::begin(arr), std::end(arr),
+                                  std::begin(kArrCopy), std::end(kArrCopy)));
 }
 
 }  // namespace rst

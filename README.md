@@ -661,6 +661,9 @@ void c_pop_heap(C& c, Compare&& comp);
 
 template <class C, class Compare>
 bool c_is_sorted(const C& c, Compare&& comp);
+
+template <class C, class URBG>
+void c_shuffle(C& c, URBG&& g);
 ```
 
 <a name="StringResizeUninitialized"></a>
