@@ -41,7 +41,7 @@ FileNameSink::FileNameSink() = default;
 FileNameSink::~FileNameSink() = default;
 
 // static
-StatusOr<NotNull<std::unique_ptr<FileNameSink>>> FileNameSink::Create(
+StatusOr<FileNameSink::Ptr> FileNameSink::Create(
     const NotNull<const char*> filename) {
   auto sink = WrapUnique(new FileNameSink());
 
