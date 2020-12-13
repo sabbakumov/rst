@@ -105,7 +105,7 @@ class NoDestructor {
 #endif  // __has_feature(address_sanitizer)
 #elif defined(__SANITIZE_ADDRESS__)
   const NotNull<const T*> storage_ptr_ = get();
-#endif
+#endif  // defined(__has_feature)
 
   RST_DISALLOW_COPY_AND_ASSIGN(NoDestructor);
 };

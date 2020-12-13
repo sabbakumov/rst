@@ -139,16 +139,16 @@ class [[nodiscard]] Status {
   Status(Status && other) noexcept : error_(std::move(other.error_)) {
     other.was_checked_ = true;
   }
-#else
+#else   // !RST_BUILDFLAG(DCHECK_IS_ON)
   Status(Status &&) noexcept = default;
-#endif
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
   // Asserts that it was checked.
 #if RST_BUILDFLAG(DCHECK_IS_ON)
   ~Status() { RST_DCHECK(was_checked_); }
-#else
+#else   // !RST_BUILDFLAG(DCHECK_IS_ON)
   ~Status() = default;
-#endif
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
   // Asserts that it was checked before and sets as not checked.
 #if RST_BUILDFLAG(DCHECK_IS_ON)
@@ -161,9 +161,9 @@ class [[nodiscard]] Status {
 
     return *this;
   }
-#else
+#else   // !RST_BUILDFLAG(DCHECK_IS_ON)
   Status& operator=(Status&&) noexcept = default;
-#endif
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
   // Sets the object to be checked and returns whether the status is error
   // object.

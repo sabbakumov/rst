@@ -197,7 +197,7 @@ If you want to do more complex logic in a debug build write the following:
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
 Some complex logic in a debug build.
-#endif
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 ```
 
 <a name="Defer"></a>
@@ -323,7 +323,7 @@ RST_CAT(x, y);
 
 #if RST_BUILDFLAG(ENABLE_FOO)
   ...
-#endif
+#endif  // RST_BUILDFLAG(ENABLE_FOO)
 ```
 
 <a name="Optimization"></a>
@@ -371,11 +371,11 @@ Macros to test the current OS.
 
 #if RST_BUILDFLAG(OS_WIN)
 Windows code.
-#endif
+#endif  // RST_BUILDFLAG(OS_WIN)
 
 #if RST_BUILDFLAG(OS_ANDROID)
 Android code.
-#endif
+#endif  // RST_BUILDFLAG(OS_ANDROID)
 ```
 
 <a name="ThreadAnnotations"></a>

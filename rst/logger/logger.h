@@ -77,13 +77,13 @@
 #define RST_DLOG_WARNING(message) RST_LOG_WARNING(message)
 #define RST_DLOG_ERROR(message) RST_LOG_ERROR(message)
 #define RST_DLOG_FATAL(message) RST_LOG_FATAL(message)
-#else
+#else  // !RST_BUILDFLAG(DCHECK_IS_ON)
 #define RST_DLOG_DEBUG(message)
 #define RST_DLOG_INFO(message)
 #define RST_DLOG_WARNING(message)
 #define RST_DLOG_ERROR(message)
 #define RST_DLOG_FATAL(message)
-#endif
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
 namespace rst {
 

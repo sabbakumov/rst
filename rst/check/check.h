@@ -70,7 +70,7 @@
 //
 //   #if RST_BUILDFLAG(DCHECK_IS_ON)
 //   Some complex logic in a debug build.
-//   #endif
+//   #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 //
 #if defined(NDEBUG)
 
@@ -87,7 +87,7 @@
     false ? static_cast<void>(condition) : static_cast<void>(0); \
   } while (false)
 
-#else  // defined(NDEBUG)
+#else  // !defined(NDEBUG)
 
 #define RST_BUILDFLAG_DCHECK_IS_ON() (true)
 #define RST_DCHECK(condition) assert(condition)
