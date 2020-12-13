@@ -87,7 +87,7 @@
 //
 //   #if RST_BUILDFLAG(ENABLE_FOO)
 //     ...
-//   #endif
+//   #endif  // RST_BUILDFLAG(ENABLE_FOO)
 #define RST_BUILDFLAG(flag) (RST_CAT(RST_BUILDFLAG_, flag)())
 
 #endif  // RST_MACROS_MACROS_H_

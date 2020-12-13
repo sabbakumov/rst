@@ -42,9 +42,9 @@
 
 #if RST_BUILDFLAG(OS_WIN)
 #include <Windows.h>
-#else
+#else  // !RST_BUILDFLAG(OS_WIN)
 #include <sys/stat.h>
-#endif
+#endif  // RST_BUILDFLAG(OS_WIN)
 
 namespace rst {
 namespace {
@@ -67,7 +67,7 @@ std::optional<int64_t> GetFileSize(const NotNull<const char*> filename) {
          static_cast<int64_t>(attr.nFileSizeLow);
 }
 
-#else
+#else   // !RST_BUILDFLAG(OS_WIN)
 
 bool Replace(const NotNull<const char*> old_filename,
              const NotNull<const char*> new_filename) {
@@ -81,7 +81,7 @@ std::optional<int64_t> GetFileSize(const NotNull<const char*> filename) {
 
   return buf.st_size;
 }
-#endif
+#endif  // RST_BUILDFLAG(OS_WIN)
 
 Status WriteFile(const NotNull<const char*> filename,
                  const NotNull<const char*> mode, const std::string_view data) {

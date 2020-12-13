@@ -35,9 +35,9 @@
 
 #if defined(__clang__)
 #define RST_INTERNAL_THREAD_ANNOTATION_ATTRIBUTE(x) __attribute__((x))
-#else
+#else  // !defined(__clang__)
 #define RST_INTERNAL_THREAD_ANNOTATION_ATTRIBUTE(x)
-#endif
+#endif  // defined(__clang__)
 
 // Documents if a shared field or global variable needs to be protected by a
 // mutex. Allows the user to specify a particular mutex that should be held

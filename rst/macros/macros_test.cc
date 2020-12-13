@@ -114,7 +114,7 @@ TEST(PreprocessorCat, Cat) {
 TEST(BuildFlag, TurnOn) {
 #if RST_BUILDFLAG(FOO)
   SUCCEED();
-#else   // RST_BUILDFLAG(FOO)
+#else   // !RST_BUILDFLAG(FOO)
   FAIL();
 #endif  // RST_BUILDFLAG(FOO)
 }
@@ -122,7 +122,7 @@ TEST(BuildFlag, TurnOn) {
 TEST(BuildFlag, TurnOff) {
 #if !RST_BUILDFLAG(BAR)
   SUCCEED();
-#else   // !RST_BUILDFLAG(BAR)
+#else   // RST_BUILDFLAG(BAR)
   FAIL();
 #endif  // !RST_BUILDFLAG(BAR)
 }

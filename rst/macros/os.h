@@ -36,22 +36,22 @@
 //
 //   #if RST_BUILDFLAG(OS_WIN)
 //   Windows code.
-//   #endif
+//   #endif  // RST_BUILDFLAG(OS_WIN)
 //
 //   #if RST_BUILDFLAG(OS_ANDROID)
 //   Android code.
-//   #endif
+//   #endif  // RST_BUILDFLAG(OS_ANDROID)
 //
 #if defined(_WIN32)
 #define RST_BUILDFLAG_OS_WIN() (true)
-#else
+#else  // !defined(_WIN32)
 #define RST_BUILDFLAG_OS_WIN() (false)
-#endif
+#endif  // defined(_WIN32)
 
 #if defined(__ANDROID__)
 #define RST_BUILDFLAG_OS_ANDROID() (true)
-#else
+#else  // !defined(__ANDROID__)
 #define RST_BUILDFLAG_OS_ANDROID() (false)
-#endif
+#endif  // defined(__ANDROID__)
 
 #endif  // RST_MACROS_OS_H_
