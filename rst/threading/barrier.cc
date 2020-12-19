@@ -55,4 +55,29 @@ void Barrier::CountDownAndWait() {
   cv_.notify_one();
 }
 
+void Barrier::CountDown() {
+  size_t counter = 0;
+
+  {
+    std::lock_guard lock(mutex_);
+    RST_DCHECK(counter_ > 0);
+
+    counter = --counter_;
+  }
+
+  if (counter == 0)
+    cv_.notify_one();
+}
+
+void Barrier::Wait() {
+  {
+    std::unique_lock lock(mutex_);
+
+    while (counter_ != 0)
+      cv_.wait(lock);
+  }
+
+  cv_.notify_one();
+}
+
 }  // namespace rst

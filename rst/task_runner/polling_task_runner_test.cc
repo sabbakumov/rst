@@ -144,4 +144,35 @@ TEST(PollingTaskRunner, PostTaskConcurrently) {
   EXPECT_EQ(result, expected);
 }
 
+TEST(PollingTaskRunner, ApplyTaskSync) {
+  for (auto i = 1; i <= 24; i++) {
+    PollingTaskRunner task_runner(
+        []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+
+    std::vector<int> result, expected;
+    for (auto j = 0; j < i; j++)
+      expected.emplace_back(j);
+
+    std::thread t([&task_runner, &result, i]() {
+      task_runner.ApplyTaskSync(
+          [&result](const size_t iteration) {
+            result.emplace_back(static_cast<int>(iteration));
+          },
+          static_cast<size_t>(i));
+    });
+
+    while (result != expected)
+      task_runner.RunPendingTasks();
+
+    t.join();
+  }
+}
+
+TEST(PollingTaskRunner, CrashOnZeroIteration) {
+  PollingTaskRunner task_runner(
+      []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+
+  EXPECT_DEATH(task_runner.ApplyTaskSync(DoNothing(), 0), "");
+}
+
 }  // namespace rst

@@ -77,34 +77,35 @@ add_library(rst
   rst/strings/str_cat.cc
   rst/strings/str_cat.h
 
-  rst/threading/barrier.h
   rst/threading/barrier.cc
+  rst/threading/barrier.h
 
-  rst/timer/one_shot_timer.h
   rst/timer/one_shot_timer.cc
+  rst/timer/one_shot_timer.h
 
   rst/type/type.h
 
-  rst/task_runner/task_runner.cc
-  rst/task_runner/task_runner.h
   rst/task_runner/item.h
+  rst/task_runner/iteration_item.h
   rst/task_runner/polling_task_runner.cc
   rst/task_runner/polling_task_runner.h
+  rst/task_runner/task_runner.cc
+  rst/task_runner/task_runner.h
   rst/task_runner/thread_pool_task_runner.cc
   rst/task_runner/thread_pool_task_runner.h
 
-  rst/value/value.h
   rst/value/value.cc
+  rst/value/value.h
 )
 
 target_include_directories(rst PUBLIC ${PROJECT_SOURCE_DIR})
 
 add_executable(rst_tests
-  rst/bind/bind_test.cc
   rst/bind/bind_helpers_test.cc
+  rst/bind/bind_test.cc
 
-  rst/check/check_test.cc
   rst/check/check_ndebug_test.cc
+  rst/check/check_test.cc
 
   rst/defer/defer_test.cc
 

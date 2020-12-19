@@ -43,13 +43,13 @@ namespace rst {
 //
 // Example:
 //
-//   Barrier barrier(6);
+//   Barrier barrier(5);
 //
 //   std::vector<std::thread> threads;
 //   for (auto i = 0; i < 5; i++)
-//     threads.emplace_back([&barrier]() { barrier.CountDownAndWait(); });
+//     threads.emplace_back([&barrier]() { barrier.CountDown(); });
 //
-//   barrier.CountDownAndWait();
+//   barrier.Wait();
 //   // Synchronization point.
 //
 class Barrier {
@@ -57,10 +57,13 @@ class Barrier {
   explicit Barrier(size_t counter);
   ~Barrier();
 
-  // Atomically decrements the internal counter by 1 and (if necessary) blocks
-  // the calling thread until the counter reaches zero. Asserts that the
-  // internal counter is already zero.
+  // Decrements the internal counter by 1 and blocks the calling thread until
+  // the counter reaches zero.
   void CountDownAndWait();
+  // Decrements the internal counter by 1.
+  void CountDown();
+  // Blocks the calling thread until the internal counter reaches 0.
+  void Wait();
 
  private:
   std::condition_variable cv_;
