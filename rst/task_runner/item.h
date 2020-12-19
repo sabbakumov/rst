@@ -29,6 +29,7 @@
 #define RST_TASK_RUNNER_ITEM_H_
 
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <tuple>
@@ -42,11 +43,12 @@ namespace internal {
 // Used in implementations of TaskRunner interface to maintain an ordered queue
 // of tasks.
 struct Item {
-  using Function = std::function<void()>;
-
-  Item(Function&& task, const std::chrono::milliseconds time_point,
-       const uint64_t task_id)
-      : task(std::move(task)), time_point(time_point), task_id(task_id) {}
+  Item(std::function<void()>&& task, const std::chrono::milliseconds time_point,
+       const uint64_t task_id, const size_t iterations)
+      : task(std::move(task)),
+        time_point(time_point),
+        task_id(task_id),
+        iterations(iterations) {}
   Item(Item&&) noexcept = default;
   ~Item() = default;
 
@@ -56,9 +58,10 @@ struct Item {
            std::make_tuple(item.time_point, item.task_id);
   }
 
-  Function task;
+  std::function<void()> task;
   std::chrono::milliseconds time_point;
   uint64_t task_id = 0;
+  size_t iterations = 0;
 
  private:
   RST_DISALLOW_COPY_AND_ASSIGN(Item);

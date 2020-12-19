@@ -36,7 +36,25 @@
 
 namespace rst {
 
-TEST(Barrier, Normal) {
+TEST(Barrier, CountDownAndWait) {
+  static constexpr size_t kMaxThreadNumber = 20;
+  std::vector<std::thread> threads;
+  threads.reserve(kMaxThreadNumber);
+
+  for (size_t i = 1; i <= kMaxThreadNumber; i++) {
+    Barrier barrier(i + 1);
+
+    threads.clear();
+    for (size_t j = 0; j < i; j++)
+      threads.emplace_back([&barrier]() { barrier.CountDownAndWait(); });
+
+    barrier.CountDownAndWait();
+    for (auto& thread : threads)
+      thread.join();
+  }
+}
+
+TEST(Barrier, CountDown) {
   static constexpr size_t kMaxThreadNumber = 20;
   std::vector<std::thread> threads;
   threads.reserve(kMaxThreadNumber);
@@ -46,8 +64,9 @@ TEST(Barrier, Normal) {
 
     threads.clear();
     for (size_t j = 0; j < i; j++)
-      threads.emplace_back([&barrier]() { barrier.CountDownAndWait(); });
+      threads.emplace_back([&barrier]() { barrier.CountDown(); });
 
+    barrier.Wait();
     for (auto& thread : threads)
       thread.join();
   }
@@ -60,6 +79,7 @@ TEST(Barrier, CalledMoreTimesThanNeeded) {
 
   barrier.CountDownAndWait();
   EXPECT_DEATH(barrier.CountDownAndWait(), "");
+  EXPECT_DEATH(barrier.CountDown(), "");
 }
 
 TEST(Barrier, CalledLessTimesThanNeeded) { EXPECT_DEATH(Barrier(1), ""); }

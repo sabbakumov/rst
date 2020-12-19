@@ -917,13 +917,13 @@ is initialized on creation. Threads block until the counter is decremented
 to zero.
 
 ```cpp
-Barrier barrier(6);
+Barrier barrier(5);
 
 std::vector<std::thread> threads;
 for (auto i = 0; i < 5; i++)
-  threads.emplace_back([&barrier]() { barrier.CountDownAndWait(); });
+  threads.emplace_back([&barrier]() { barrier.CountDown(); });
 
-barrier.CountDownAndWait();
+barrier.Wait();
 // Synchronization point.
 ```
 

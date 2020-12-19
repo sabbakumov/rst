@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Sergey Abbakumov
+// Copyright (c) 2020, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,45 +25,34 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_TASK_RUNNER_TASK_RUNNER_H_
-#define RST_TASK_RUNNER_TASK_RUNNER_H_
+#ifndef RST_TASK_RUNNER_ITERATION_ITEM_H_
+#define RST_TASK_RUNNER_ITERATION_ITEM_H_
 
-#include <chrono>
 #include <cstddef>
 #include <functional>
 #include <utility>
 
+#include "rst/macros/macros.h"
+
 namespace rst {
+namespace internal {
 
-// An object that runs posted tasks in sequence (in the form of
-// std::function<void()> objects). All methods are thread-safe. Implementations
-// should use a tick clock, rather than wall clock time, to implement delay.
-class TaskRunner {
- public:
-  virtual ~TaskRunner();
+struct IterationItem {
+  IterationItem(std::function<void()>&& task, const size_t iterations)
+      : task(std::move(task)), iterations(iterations) {}
+  IterationItem(IterationItem&&) noexcept = default;
+  ~IterationItem() = default;
 
-  // Like |PostTask()|, but tries to run the posted |task| only after |delay|
-  // has passed.
-  void PostDelayedTask(std::function<void()>&& task,
-                       std::chrono::milliseconds delay) {
-    PostDelayedTaskWithIterations(std::move(task), delay, 0);
-  }
+  IterationItem& operator=(IterationItem&&) noexcept = default;
 
-  // Posts the given |task| to be run.
-  void PostTask(std::function<void()>&& task) {
-    PostDelayedTask(std::move(task), std::chrono::milliseconds::zero());
-  }
+  std::function<void()> task;
+  size_t iterations = 0;
 
-  // Posts a single |task| and waits for all |iterations| to complete before
-  // returning. The current index of iteration is passed to each invocation.
-  void ApplyTaskSync(std::function<void(size_t)>&& task, size_t iterations);
-
- protected:
-  virtual void PostDelayedTaskWithIterations(std::function<void()>&& task,
-                                             std::chrono::milliseconds delay,
-                                             size_t iterations) = 0;
+ private:
+  RST_DISALLOW_COPY_AND_ASSIGN(IterationItem);
 };
 
+}  // namespace internal
 }  // namespace rst
 
-#endif  // RST_TASK_RUNNER_TASK_RUNNER_H_
+#endif  // RST_TASK_RUNNER_ITERATION_ITEM_H_

@@ -27,10 +27,57 @@
 
 #include "rst/task_runner/task_runner.h"
 
+#include <atomic>
+#include <memory>
+
+#include "rst/check/check.h"
+#include "rst/macros/macros.h"
+#include "rst/threading/barrier.h"
+
 namespace chrono = std::chrono;
 
 namespace rst {
+namespace {
+
+struct AppliedItem {
+  AppliedItem(std::function<void(size_t)>&& task, const size_t iterations)
+      : barrier(iterations), task(std::move(task)) {}
+  ~AppliedItem() = default;
+
+  Barrier barrier;
+  std::function<void(size_t)> task;
+  std::atomic<size_t> i = 0;
+
+ private:
+  RST_DISALLOW_COPY_AND_ASSIGN(AppliedItem);
+};
+
+}  // namespace
 
 TaskRunner::~TaskRunner() = default;
+
+void TaskRunner::ApplyTaskSync(std::function<void(size_t)>&& task,
+                               const size_t iterations) {
+  RST_DCHECK(iterations != 0);
+
+  const auto item = std::make_shared<AppliedItem>(std::move(task), iterations);
+
+  auto f = [
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+               iterations,
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+               item]() {
+    const auto i = item->i++;
+#if RST_BUILDFLAG(DCHECK_IS_ON)
+    RST_DCHECK(i < iterations);
+#endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+    item->task(i);
+    item->barrier.CountDown();
+  };
+
+  PostDelayedTaskWithIterations(std::move(f), chrono::milliseconds::zero(),
+                                iterations - 1);
+  item->barrier.Wait();
+}
 
 }  // namespace rst

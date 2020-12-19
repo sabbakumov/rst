@@ -44,8 +44,9 @@ namespace {
 
 class MockTaskRunner : public TaskRunner {
  public:
-  MOCK_METHOD(void, PostDelayedTask,
-              (std::function<void()> && task, chrono::milliseconds delay),
+  MOCK_METHOD(void, PostDelayedTaskWithIterations,
+              (std::function<void()> && task, chrono::milliseconds delay,
+               size_t iterations),
               (override));
 };
 
@@ -72,7 +73,8 @@ TEST_F(OneShotTimerTest, Test) {
   EXPECT_FALSE(timer.IsRunning());
 
   std::function<void()> task;
-  EXPECT_CALL(task_runner_, PostDelayedTask(_, chrono::milliseconds(1)))
+  EXPECT_CALL(task_runner_,
+              PostDelayedTaskWithIterations(_, chrono::milliseconds(1), 0))
       .WillOnce(SaveArg<0>(&task));
 
   EXPECT_FALSE(timer.IsRunning());
@@ -91,7 +93,8 @@ TEST_F(OneShotTimerTest, OutOfScope) {
     OneShotTimer timer(&task_runner_);
     EXPECT_FALSE(timer.IsRunning());
 
-    EXPECT_CALL(task_runner_, PostDelayedTask(_, chrono::milliseconds(1)))
+    EXPECT_CALL(task_runner_,
+                PostDelayedTaskWithIterations(_, chrono::milliseconds(1), 0))
         .WillOnce(SaveArg<0>(&task));
 
     EXPECT_FALSE(timer.IsRunning());
@@ -108,7 +111,8 @@ TEST_F(OneShotTimerTest, Restart) {
   EXPECT_FALSE(timer.IsRunning());
 
   std::function<void()> task1, task2;
-  EXPECT_CALL(task_runner_, PostDelayedTask(_, chrono::milliseconds(1)))
+  EXPECT_CALL(task_runner_,
+              PostDelayedTaskWithIterations(_, chrono::milliseconds(1), 0))
       .WillOnce(SaveArg<0>(&task1))
       .WillOnce(SaveArg<0>(&task2));
 
@@ -133,7 +137,8 @@ TEST_F(OneShotTimerTest, FireNow) {
   EXPECT_FALSE(timer.IsRunning());
 
   std::function<void()> task;
-  EXPECT_CALL(task_runner_, PostDelayedTask(_, chrono::milliseconds(1)))
+  EXPECT_CALL(task_runner_,
+              PostDelayedTaskWithIterations(_, chrono::milliseconds(1), 0))
       .WillOnce(SaveArg<0>(&task));
 
   EXPECT_FALSE(timer.IsRunning());

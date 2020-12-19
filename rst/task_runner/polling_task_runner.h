@@ -37,6 +37,7 @@
 #include "rst/macros/macros.h"
 #include "rst/macros/thread_annotations.h"
 #include "rst/task_runner/item.h"
+#include "rst/task_runner/iteration_item.h"
 #include "rst/task_runner/task_runner.h"
 
 namespace rst {
@@ -61,19 +62,19 @@ class PollingTaskRunner : public TaskRunner {
       std::function<std::chrono::milliseconds()>&& time_function);
   ~PollingTaskRunner() override;
 
-  // TaskRunner:
-  void PostDelayedTask(std::function<void()>&& task,
-                       std::chrono::milliseconds delay) override;
-
   // Runs all pending tasks in interval (-inf, time_function_()].
   void RunPendingTasks();
 
  private:
+  // TaskRunner:
+  void PostDelayedTaskWithIterations(std::function<void()>&& task,
+                                     std::chrono::milliseconds delay,
+                                     size_t iterations) override;
   std::mutex mutex_;
   // Returns current time.
   const std::function<std::chrono::milliseconds()> time_function_;
   // Used to not to allocate memory on every RunPendingTasks() call.
-  std::vector<std::function<void()>> pending_tasks_;
+  std::vector<internal::IterationItem> pending_tasks_;
   // Priority queue of tasks.
   std::vector<internal::Item> queue_ RST_GUARDED_BY(mutex_);
   // Increasing task counter.

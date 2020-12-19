@@ -42,14 +42,16 @@ PollingTaskRunner::PollingTaskRunner(
 
 PollingTaskRunner::~PollingTaskRunner() { RunPendingTasks(); }
 
-void PollingTaskRunner::PostDelayedTask(std::function<void()>&& task,
-                                        const chrono::milliseconds delay) {
+void PollingTaskRunner::PostDelayedTaskWithIterations(
+    std::function<void()>&& task, const chrono::milliseconds delay,
+    const size_t iterations) {
   RST_DCHECK(delay.count() >= 0);
 
   const auto now = time_function_();
   const auto future_time_point = now + delay;
   std::lock_guard lock(mutex_);
-  queue_.emplace_back(std::move(task), future_time_point, task_id_++);
+  queue_.emplace_back(std::move(task), future_time_point, task_id_++,
+                      iterations);
   c_push_heap(queue_, std::greater<>());
 }
 
@@ -64,14 +66,16 @@ void PollingTaskRunner::RunPendingTasks() {
       if (now < item.time_point)
         break;
 
-      pending_tasks_.emplace_back(std::move(item.task));
+      pending_tasks_.emplace_back(std::move(item.task), item.iterations);
       c_pop_heap(queue_, std::greater<>());
       queue_.pop_back();
     }
   }
 
-  for (const auto& task : pending_tasks_)
-    task();
+  for (const auto& task : pending_tasks_) {
+    for (size_t i = 0, i_end = task.iterations + 1; i < i_end; i++)
+      task.task();
+  }
 
   pending_tasks_.clear();
 }

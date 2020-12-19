@@ -222,4 +222,37 @@ TEST(ThreadPoolTaskRunner, MultipleThreads) {
   }
 }
 
+TEST(ThreadPoolTaskRunner, ApplyTaskSync) {
+  for (size_t t = 1; t <= 24; t++) {
+    for (auto i = 1; i <= 24; i++) {
+      std::mutex mtx;
+      ThreadPoolTaskRunner task_runner(
+          t, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+      EXPECT_EQ(task_runner.threads_num(), t);
+
+      std::vector<int> result, expected;
+      for (auto j = 0; j < i; j++)
+        expected.emplace_back(j);
+
+      task_runner.ApplyTaskSync(
+          [&mtx, &result](const size_t iteration) {
+            std::lock_guard lock(mtx);
+            result.emplace_back(static_cast<int>(iteration));
+          },
+          static_cast<size_t>(i));
+
+      c_sort(expected);
+      c_sort(result);
+      EXPECT_EQ(result, expected);
+    }
+  }
+}
+
+TEST(ThreadPoolTaskRunner, CrashOnZeroIteration) {
+  ThreadPoolTaskRunner task_runner(
+      1, []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+
+  EXPECT_DEATH(task_runner.ApplyTaskSync(DoNothing(), 0), "");
+}
+
 }  // namespace rst

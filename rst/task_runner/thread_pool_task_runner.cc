@@ -73,8 +73,14 @@ void ThreadPoolTaskRunner::DelayedTaskRunner::WaitAndRunTasks() {
         return;
 
       RST_DCHECK(!tasks_.empty());
-      task = std::move(tasks_.front());
-      tasks_.pop();
+      auto& front = tasks_.front();
+      if (front.iterations == 0) {
+        task = std::move(front.task);
+        tasks_.pop();
+      } else {
+        task = front.task;
+        front.iterations--;
+      }
 
       had_items = !tasks_.empty();
     }
@@ -88,7 +94,7 @@ void ThreadPoolTaskRunner::DelayedTaskRunner::WaitAndRunTasks() {
 }
 
 void ThreadPoolTaskRunner::DelayedTaskRunner::PushTasks(
-    const NotNull<std::vector<std::function<void()>>*> tasks) {
+    const NotNull<std::vector<internal::IterationItem>*> tasks) {
   RST_DCHECK(!tasks->empty());
 
   {
@@ -101,7 +107,7 @@ void ThreadPoolTaskRunner::DelayedTaskRunner::PushTasks(
 }
 
 void ThreadPoolTaskRunner::DelayedTaskRunner::PushTask(
-    std::function<void()>&& task) {
+    internal::IterationItem task) {
   {
     std::lock_guard lock(thread_mutex_);
     tasks_.emplace(std::move(task));
@@ -133,7 +139,7 @@ ThreadPoolTaskRunner::ServiceTaskRunner::~ServiceTaskRunner() {
 }
 
 void ThreadPoolTaskRunner::ServiceTaskRunner::WaitAndScheduleTasks() {
-  std::vector<std::function<void()>> tasks;
+  std::vector<internal::IterationItem> tasks;
 
   while (true) {
     {
@@ -166,7 +172,7 @@ void ThreadPoolTaskRunner::ServiceTaskRunner::WaitAndScheduleTasks() {
         if (now < item.time_point)
           break;
 
-        tasks.emplace_back(std::move(item.task));
+        tasks.emplace_back(std::move(item.task), item.iterations);
         c_pop_heap(delayed_tasks_, std::greater<>());
         delayed_tasks_.pop_back();
       }
@@ -180,14 +186,16 @@ void ThreadPoolTaskRunner::ServiceTaskRunner::WaitAndScheduleTasks() {
 }
 
 void ThreadPoolTaskRunner::ServiceTaskRunner::PushTask(
-    std::function<void()>&& task, const std::chrono::milliseconds delay) {
-  RST_DCHECK(delay.count() >= 0);
+    std::function<void()>&& task, const std::chrono::milliseconds delay,
+    const size_t iterations) {
+  RST_DCHECK(delay.count() > 0);
 
   const auto now = time_function_();
   const auto future_time_point = now + delay;
   {
     std::lock_guard lock(thread_mutex_);
-    delayed_tasks_.emplace_back(std::move(task), future_time_point, task_id_++);
+    delayed_tasks_.emplace_back(std::move(task), future_time_point, task_id_++,
+                                iterations);
     c_push_heap(delayed_tasks_, std::greater<>());
   }
 
@@ -218,12 +226,15 @@ ThreadPoolTaskRunner::~ThreadPoolTaskRunner() {
     ending_task_cv.wait(lock);
 }
 
-void ThreadPoolTaskRunner::PostDelayedTask(std::function<void()>&& task,
-                                           const chrono::milliseconds delay) {
-  if (delay == chrono::milliseconds::zero())
-    delayed_task_runner_->PushTask(std::move(task));
-  else
-    service_task_runner_->PushTask(std::move(task), delay);
+void ThreadPoolTaskRunner::PostDelayedTaskWithIterations(
+    std::function<void()>&& task, const chrono::milliseconds delay,
+    const size_t iterations) {
+  if (delay == chrono::milliseconds::zero()) {
+    delayed_task_runner_->PushTask(
+        internal::IterationItem(std::move(task), iterations));
+  } else {
+    service_task_runner_->PushTask(std::move(task), delay, iterations);
+  }
 }
 
 }  // namespace rst

@@ -42,6 +42,7 @@
 #include "rst/macros/macros.h"
 #include "rst/not_null/not_null.h"
 #include "rst/task_runner/item.h"
+#include "rst/task_runner/iteration_item.h"
 #include "rst/task_runner/task_runner.h"
 
 namespace rst {
@@ -67,27 +68,27 @@ class ThreadPoolTaskRunner : public TaskRunner {
       std::function<std::chrono::milliseconds()>&& time_function);
   ~ThreadPoolTaskRunner() override;
 
-  // TaskRunner:
-  void PostDelayedTask(std::function<void()>&& task,
-                       std::chrono::milliseconds delay) final;
-
   size_t threads_num() const { return delayed_task_runner_->threads_num(); }
 
  private:
+  // TaskRunner:
+  void PostDelayedTaskWithIterations(std::function<void()>&& task,
+                                     std::chrono::milliseconds delay,
+                                     size_t iterations) final;
   class DelayedTaskRunner {
    public:
     explicit DelayedTaskRunner(size_t threads_num);
     ~DelayedTaskRunner();
 
-    void PushTasks(NotNull<std::vector<std::function<void()>>*> tasks);
-    void PushTask(std::function<void()>&& task);
+    void PushTasks(NotNull<std::vector<internal::IterationItem>*> items);
+    void PushTask(internal::IterationItem item);
 
     size_t threads_num() const { return threads_.size(); }
 
    private:
     void WaitAndRunTasks();
 
-    std::queue<std::function<void()>> tasks_;
+    std::queue<internal::IterationItem> tasks_;
 
     std::condition_variable thread_cv_;
     std::mutex thread_mutex_;
@@ -106,8 +107,8 @@ class ThreadPoolTaskRunner : public TaskRunner {
         std::function<std::chrono::milliseconds()>&& time_function);
     ~ServiceTaskRunner();
 
-    void PushTask(std::function<void()>&& task,
-                  std::chrono::milliseconds delay);
+    void PushTask(std::function<void()>&& task, std::chrono::milliseconds delay,
+                  size_t iterations);
 
    private:
     void WaitAndScheduleTasks();
