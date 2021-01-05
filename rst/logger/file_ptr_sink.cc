@@ -46,12 +46,10 @@ void FilePtrSink::Log(const std::string_view message) {
   std::lock_guard lock(mutex_);
 
   RST_DCHECK(message.size() <= std::numeric_limits<int>::max());
-  auto val = std::fprintf(file_.get(), "%.*s\n",
-                          static_cast<int>(message.size()), message.data());
-  RST_CHECK(val >= 0);
-
-  val = std::fflush(file_.get());
-  RST_CHECK(val == 0);
+  RST_CHECK(std::fprintf(file_.get(), "%.*s\n",
+                         static_cast<int>(message.size()),
+                         message.data()) >= 0);
+  RST_CHECK(std::fflush(file_.get()) == 0);
 }
 
 }  // namespace rst

@@ -28,7 +28,6 @@
 #ifndef RST_STATUS_STATUS_OR_H_
 #define RST_STATUS_STATUS_OR_H_
 
-#include <cstdint>
 #include <new>
 #include <type_traits>
 #include <utility>
@@ -98,7 +97,7 @@ class [[nodiscard]] StatusOr {
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
-    if (RST_LIKELY(type_ == rhs.type_)) {
+    if (RST_LIKELY(has_error_ == rhs.has_error_)) {
       MoveAssignFromStatusOr(std::move(rhs));
     } else {
       Cleanup();
@@ -118,16 +117,11 @@ class [[nodiscard]] StatusOr {
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
-    switch (static_cast<Type>(RST_LIKELY_EQ(
-        static_cast<typename std::underlying_type<Type>::type>(type_),
-        static_cast<typename std::underlying_type<Type>::type>(Type::kOk)))) {
-      case Type::kOk:
-        CopyAssignFromT(value);
-        break;
-      case Type::kError:
-        Cleanup();
-        CopyConstructFromT(value);
-        break;
+    if (RST_UNLIKELY(has_error_)) {
+      Cleanup();
+      CopyConstructFromT(value);
+    } else {
+      CopyAssignFromT(value);
     }
 
     return *this;
@@ -138,16 +132,11 @@ class [[nodiscard]] StatusOr {
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
-    switch (static_cast<Type>(RST_LIKELY_EQ(
-        static_cast<typename std::underlying_type<Type>::type>(type_),
-        static_cast<typename std::underlying_type<Type>::type>(Type::kOk)))) {
-      case Type::kOk:
-        MoveAssignFromT(std::move(value));
-        break;
-      case Type::kError:
-        Cleanup();
-        MoveConstructFromT(std::move(value));
-        break;
+    if (RST_UNLIKELY(has_error_)) {
+      Cleanup();
+      MoveConstructFromT(std::move(value));
+    } else {
+      MoveAssignFromT(std::move(value));
     }
 
     return *this;
@@ -160,16 +149,11 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(status.error_ != nullptr);
 
-    switch (static_cast<Type>(RST_LIKELY_EQ(
-        static_cast<typename std::underlying_type<Type>::type>(type_),
-        static_cast<typename std::underlying_type<Type>::type>(Type::kOk)))) {
-      case Type::kOk:
-        Cleanup();
-        MoveConstructFromStatus(std::move(status));
-        break;
-      case Type::kError:
-        MoveAssignFromStatus(std::move(status));
-        break;
+    if (RST_UNLIKELY(has_error_)) {
+      MoveAssignFromStatus(std::move(status));
+    } else {
+      Cleanup();
+      MoveConstructFromStatus(std::move(status));
     }
 
     return *this;
@@ -180,10 +164,10 @@ class [[nodiscard]] StatusOr {
   bool err() {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = true;
-    if (RST_UNLIKELY(type_ == Type::kError))
+    if (has_error_)
       (void)status_.err();
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    return type_ == Type::kError;
+    return has_error_;
   }
 
   // Asserts that it was checked.
@@ -191,7 +175,7 @@ class [[nodiscard]] StatusOr {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    RST_DCHECK(type_ == Type::kOk);
+    RST_DCHECK(!has_error_);
 
     return value_;
   }
@@ -201,7 +185,7 @@ class [[nodiscard]] StatusOr {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    RST_DCHECK(type_ == Type::kOk);
+    RST_DCHECK(!has_error_);
 
     return &value_;
   }
@@ -211,7 +195,7 @@ class [[nodiscard]] StatusOr {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    RST_DCHECK(type_ == Type::kError);
+    RST_DCHECK(has_error_);
 
     return std::move(status_);
   }
@@ -221,7 +205,7 @@ class [[nodiscard]] StatusOr {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
-    RST_DCHECK(type_ == Type::kError);
+    RST_DCHECK(has_error_);
 
     return status_;
   }
@@ -230,30 +214,19 @@ class [[nodiscard]] StatusOr {
   void Ignore() {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = true;
-    if (RST_UNLIKELY(type_ == Type::kError))
+    if (has_error_)
       status_.was_checked_ = true;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
  private:
-  enum class Type : int8_t {
-    kOk,
-    kError,
-  };
-
   void MoveConstructFromStatusOr(StatusOr && other) {
-    type_ = other.type_;
+    has_error_ = other.has_error_;
 
-    switch (static_cast<Type>(RST_LIKELY_EQ(
-        static_cast<typename std::underlying_type<Type>::type>(type_),
-        static_cast<typename std::underlying_type<Type>::type>(Type::kOk)))) {
-      case Type::kOk:
-        new (&value_) T(std::move(other.value_));
-        break;
-      case Type::kError:
-        new (&status_) Status(std::move(other.status_));
-        break;
-    }
+    if (RST_UNLIKELY(has_error_))
+      new (&status_) Status(std::move(other.status_));
+    else
+      new (&value_) T(std::move(other.value_));
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
@@ -262,18 +235,12 @@ class [[nodiscard]] StatusOr {
   }
 
   void MoveAssignFromStatusOr(StatusOr && other) {
-    RST_DCHECK(type_ == other.type_);
+    RST_DCHECK(has_error_ == other.has_error_);
 
-    switch (static_cast<Type>(RST_LIKELY_EQ(
-        static_cast<typename std::underlying_type<Type>::type>(type_),
-        static_cast<typename std::underlying_type<Type>::type>(Type::kOk)))) {
-      case Type::kOk:
-        value_ = std::move(other.value_);
-        break;
-      case Type::kError:
-        status_ = std::move(other.status_);
-        break;
-    }
+    if (RST_UNLIKELY(has_error_))
+      status_ = std::move(other.status_);
+    else
+      value_ = std::move(other.value_);
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
@@ -282,7 +249,7 @@ class [[nodiscard]] StatusOr {
   }
 
   void CopyConstructFromT(const T& value) {
-    type_ = Type::kOk;
+    has_error_ = false;
     new (&value_) T(value);
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
@@ -291,7 +258,7 @@ class [[nodiscard]] StatusOr {
   }
 
   void MoveConstructFromT(T && value) {
-    type_ = Type::kOk;
+    has_error_ = false;
     new (&value_) T(std::move(value));
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
@@ -300,7 +267,7 @@ class [[nodiscard]] StatusOr {
   }
 
   void CopyAssignFromT(const T& value) {
-    RST_DCHECK(type_ == Type::kOk);
+    RST_DCHECK(!has_error_);
     value_ = value;
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
@@ -309,7 +276,7 @@ class [[nodiscard]] StatusOr {
   }
 
   void MoveAssignFromT(T && value) {
-    RST_DCHECK(type_ == Type::kOk);
+    RST_DCHECK(!has_error_);
     value_ = std::move(value);
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
@@ -318,7 +285,7 @@ class [[nodiscard]] StatusOr {
   }
 
   void MoveConstructFromStatus(Status status) {
-    type_ = Type::kError;
+    has_error_ = true;
     new (&status_) Status(std::move(status));
     RST_DCHECK(status_.error_ != nullptr);
 
@@ -328,7 +295,7 @@ class [[nodiscard]] StatusOr {
   }
 
   void MoveAssignFromStatus(Status status) {
-    RST_DCHECK(type_ == Type::kError);
+    RST_DCHECK(has_error_);
     status_ = std::move(status);
     RST_DCHECK(status_.error_ != nullptr);
 
@@ -338,19 +305,13 @@ class [[nodiscard]] StatusOr {
   }
 
   void Cleanup() {
-    switch (static_cast<Type>(RST_LIKELY_EQ(
-        static_cast<typename std::underlying_type<Type>::type>(type_),
-        static_cast<typename std::underlying_type<Type>::type>(Type::kOk)))) {
-      case Type::kOk:
-        value_.~T();
-        break;
-      case Type::kError:
-        status_.~Status();
-        break;
-    }
+    if (RST_UNLIKELY(has_error_))
+      status_.~Status();
+    else
+      value_.~T();
   }
 
-  Type type_;
+  bool has_error_;
   union {
     Status status_;
     T value_;

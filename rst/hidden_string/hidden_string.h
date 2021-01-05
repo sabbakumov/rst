@@ -34,6 +34,7 @@
 #include <string>
 
 #include "rst/macros/macros.h"
+#include "rst/not_null/not_null.h"
 #include "rst/stl/resize_uninitialized.h"
 
 // Compile time encrypted string modified implementation originally taken from
@@ -117,14 +118,14 @@ class HiddenString;
 template <size_t... Index>
 class HiddenString<IndexList<Index...>> {
  public:
-  explicit constexpr HiddenString(const char* str)
+  explicit constexpr HiddenString(const NotNull<const char*> str)
       : str_{ProcessCharacter(str[Index], Index)...} {}
 
   std::string Decrypt() const {
     std::string result;
-    StringResizeUninitialized(&result, sizeof(str_));
+    StringResizeUninitialized(&result, sizeof str_);
 
-    for (size_t i = 0; i < sizeof(str_); i++)
+    for (size_t i = 0; i < sizeof str_; i++)
       result[i] = ProcessCharacter(str_[i], i);
 
     return result;

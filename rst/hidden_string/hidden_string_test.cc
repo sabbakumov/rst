@@ -40,6 +40,9 @@ TEST(HiddenString, Normal) {
 
   RST_HIDDEN_STRING(kThird, "0123456789");
   EXPECT_EQ(kThird.Decrypt(), "0123456789");
+
+  RST_HIDDEN_STRING(kLong, "abcDEFabcDEFabcDEFabcDEFabcDEFabcDEFabcDEFabcDE");
+  EXPECT_EQ(kLong.Decrypt(), "abcDEFabcDEFabcDEFabcDEFabcDEFabcDEFabcDEFabcDE");
 }
 
 }  // namespace rst

@@ -79,19 +79,19 @@ std::string GenerateGuid() {
   auto& random_device = GetRandomDevice();
 
   std::uniform_int_distribution<uint64_t> distribution;
-  uint64_t sixteen_bytes[2] = {distribution(random_device),
-                               distribution(random_device)};
+  std::array<uint64_t, 2> bytes = {distribution(random_device),
+                                   distribution(random_device)};
 
   // Clear the version bits and set the version to 4:
-  sixteen_bytes[0] &= 0xffffffff'ffff0fffULL;
-  sixteen_bytes[0] |= 0x00000000'00004000ULL;
+  bytes[0] &= 0xffffffff'ffff0fffULL;
+  bytes[0] |= 0x00000000'00004000ULL;
 
   // Set the two most significant bits (bits 6 and 7) of the
   // clock_seq_hi_and_reserved to zero and one, respectively:
-  sixteen_bytes[1] &= 0x3fffffff'ffffffffULL;
-  sixteen_bytes[1] |= 0x80000000'00000000ULL;
+  bytes[1] &= 0x3fffffff'ffffffffULL;
+  bytes[1] |= 0x80000000'00000000ULL;
 
-  return internal::RandomDataToGuidString(sixteen_bytes);
+  return internal::RandomDataToGuidString(bytes);
 }
 
 bool IsValidGuid(const std::string_view guid) {
@@ -104,7 +104,7 @@ bool IsValidGuidOutputString(const std::string_view guid) {
 
 namespace internal {
 
-std::string RandomDataToGuidString(const uint64_t (&bytes)[2]) {
+std::string RandomDataToGuidString(const std::array<uint64_t, 2> bytes) {
   char buffer[kGuidLength + 1];
   const auto ret = std::sprintf(  // NOLINT(runtime/printf)
       buffer, "%08x-%04x-%04x-%04x-%012llx",

@@ -27,6 +27,7 @@
 
 #include "rst/guid/guid.h"
 
+#include <array>
 #include <cstdint>
 #include <limits>
 #include <string>
@@ -70,14 +71,14 @@ std::string ToUpperASCII(const std::string_view str) {
 }  // namespace
 
 TEST(GUID, GUIDGeneratesAllZeroes) {
-  const uint64_t bytes[] = {0, 0};
+  const std::array<uint64_t, 2> bytes = {0, 0};
   const auto guid = internal::RandomDataToGuidString(bytes);
   EXPECT_EQ(guid, "00000000-0000-0000-0000-000000000000");
 }
 
 TEST(GUID, GUIDGeneratesCorrectly) {
-  const uint64_t bytes[] = {uint64_t{0x0123456789ABCDEF},
-                            uint64_t{0xFEDCBA9876543210}};
+  const std::array<uint64_t, 2> bytes = {uint64_t{0x0123456789ABCDEF},
+                                         uint64_t{0xFEDCBA9876543210}};
   const auto guid = internal::RandomDataToGuidString(bytes);
   EXPECT_EQ(guid, "01234567-89ab-cdef-fedc-ba9876543210");
 }
