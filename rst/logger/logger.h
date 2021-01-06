@@ -112,7 +112,7 @@ class Logger {
   // Sets |logger| as a global logger instance.
   static void SetGlobalLogger(NotNull<Logger*> logger);
 
-  void set_level(Level level) { level_ = level; }
+  void set_level(const Level level) { level_ = level; }
 
  private:
   const NotNull<std::unique_ptr<Sink>> sink_;

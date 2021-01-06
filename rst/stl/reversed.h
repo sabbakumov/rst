@@ -25,8 +25,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_STL_ADAPTERS_H_
-#define RST_STL_ADAPTERS_H_
+#ifndef RST_STL_REVERSED_H_
+#define RST_STL_REVERSED_H_
 
 #include <iterator>
 #include <utility>
@@ -71,4 +71,4 @@ internal::ReversedAdapter<T> Reversed(T& t) {  // NOLINT(runtime/references)
 
 }  // namespace rst
 
-#endif  // RST_STL_ADAPTERS_H_
+#endif  // RST_STL_REVERSED_H_

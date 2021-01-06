@@ -28,6 +28,7 @@
 #ifndef RST_GUID_GUID_H_
 #define RST_GUID_GUID_H_
 
+#include <array>
 #include <cstdint>
 #include <string>
 #include <string_view>
@@ -55,7 +56,7 @@ bool IsValidGuidOutputString(std::string_view guid);
 
 namespace internal {
 
-std::string RandomDataToGuidString(const uint64_t (&bytes)[2]);
+std::string RandomDataToGuidString(std::array<uint64_t, 2> bytes);
 
 }  // namespace internal
 }  // namespace rst

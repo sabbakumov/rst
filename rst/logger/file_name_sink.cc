@@ -56,12 +56,10 @@ void FileNameSink::Log(const std::string_view message) {
   std::lock_guard lock(mutex_);
 
   RST_DCHECK(message.size() <= std::numeric_limits<int>::max());
-  auto val = std::fprintf(log_file_.get(), "%.*s\n",
-                          static_cast<int>(message.size()), message.data());
-  RST_CHECK(val >= 0);
-
-  val = std::fflush(log_file_.get());
-  RST_CHECK(val == 0);
+  RST_CHECK(std::fprintf(log_file_.get(), "%.*s\n",
+                         static_cast<int>(message.size()),
+                         message.data()) >= 0);
+  RST_CHECK(std::fflush(log_file_.get()) == 0);
 }
 
 }  // namespace rst
