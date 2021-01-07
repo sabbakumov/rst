@@ -84,7 +84,7 @@ class OneShotTimer {
 
   std::function<void()> task_;
   uint64_t task_id_ = 0;
-  const NotNull<TaskRunner*> task_runner_;
+  TaskRunner& task_runner_;
   bool is_running_ = false;
 
   WeakPtrFactory<OneShotTimer> weak_factory_{this};

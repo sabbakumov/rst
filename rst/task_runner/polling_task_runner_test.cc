@@ -69,22 +69,6 @@ TEST(PollingTaskRunner, PostTaskInOrder) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(PollingTaskRunner, DestructorRunsPendingTasks) {
-  std::vector<int> result, expected;
-
-  {
-    PollingTaskRunner task_runner(
-        []() -> chrono::milliseconds { return chrono::milliseconds(0); });
-
-    for (auto i = 0; i < 1000; i++) {
-      task_runner.PostTask([i, &result]() { result.emplace_back(i); });
-      expected.emplace_back(i);
-    }
-  }
-
-  EXPECT_EQ(result, expected);
-}
-
 TEST(PollingTaskRunner, PostDelayedTaskInOrder) {
   auto ms = 0;
   PollingTaskRunner task_runner(

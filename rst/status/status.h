@@ -136,11 +136,11 @@ class [[nodiscard]] Status {
 
   // Sets as not checked by default.
 #if RST_BUILDFLAG(DCHECK_IS_ON)
-  Status(Status && other) noexcept : error_(std::move(other.error_)) {
+  Status(Status&& other) noexcept : error_(std::move(other.error_)) {
     other.was_checked_ = true;
   }
 #else   // !RST_BUILDFLAG(DCHECK_IS_ON)
-  Status(Status &&) noexcept = default;
+  Status(Status&&) noexcept = default;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 
   // Asserts that it was checked.
@@ -194,7 +194,7 @@ class [[nodiscard]] Status {
   friend class StatusOr;
 
   template <class Err, class... Args>
-  friend Status MakeStatus(Args && ... args);
+  friend Status MakeStatus(Args&&... args);
 
   // Sets the object as not checked by default and to be OK.
   Status() = default;
