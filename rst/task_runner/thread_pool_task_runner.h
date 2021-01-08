@@ -33,8 +33,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <map>
 #include <mutex>
-#include <optional>
 #include <queue>
 #include <thread>
 #include <vector>
@@ -52,8 +52,11 @@ namespace rst {
 // Example:
 //
 //   std::function<std::chrono::milliseconds()> time_function = ...;
-//   size_t threads_num = ...;
-//   ThreadPoolTaskRunner task_runner(threads_num, std::move(time_function));
+//   size_t max_threads_num = ...;
+//   std::chrono::milliseconds keep_alive_time = ...;
+//   ThreadPoolTaskRunner task_runner(max_threads_num,
+//                                    std::move(time_function),
+//                                    keep_alive_time);
 //   ...
 //   std::function<void()> task = ...;
 //   task_runner.PostTask(std::move(task));
@@ -61,14 +64,14 @@ namespace rst {
 //
 class ThreadPoolTaskRunner : public TaskRunner {
  public:
-  // Takes |time_function| that returns current time and creates |threads_num|
-  // threads.
+  // Takes |time_function| that returns current time. Up to |max_threads_num|
+  // threads can be created during the pool lifetime. Threads will be
+  // terminated if they have been idle for more than the |keep_alive_time|.
   ThreadPoolTaskRunner(
-      size_t threads_num,
-      std::function<std::chrono::milliseconds()>&& time_function);
+      size_t max_threads_num,
+      std::function<std::chrono::milliseconds()>&& time_function,
+      std::chrono::milliseconds keep_alive_time);
   ~ThreadPoolTaskRunner() override;
-
-  size_t threads_num() const { return delayed_task_runner_->threads_num(); }
 
  private:
   // TaskRunner:
@@ -77,13 +80,12 @@ class ThreadPoolTaskRunner : public TaskRunner {
                                      size_t iterations) final;
   class DelayedTaskRunner {
    public:
-    explicit DelayedTaskRunner(size_t threads_num);
+    DelayedTaskRunner(size_t max_threads_num,
+                      std::chrono::milliseconds keep_alive_time);
     ~DelayedTaskRunner();
 
     void PushTasks(NotNull<std::vector<internal::IterationItem>*> items);
     void PushTask(internal::IterationItem item);
-
-    size_t threads_num() const { return threads_.size(); }
 
    private:
     void WaitAndRunTasks();
@@ -93,7 +95,10 @@ class ThreadPoolTaskRunner : public TaskRunner {
     std::condition_variable thread_cv_;
     std::mutex thread_mutex_;
 
-    std::vector<std::thread> threads_;
+    std::map<std::thread::id, std::thread> threads_;
+    const size_t max_threads_num_;
+    const std::chrono::milliseconds keep_alive_time_;
+    size_t waiting_threads_num_ = 0;
 
     bool should_exit_ = false;
 
@@ -122,7 +127,7 @@ class ThreadPoolTaskRunner : public TaskRunner {
     // Priority queue of tasks.
     std::vector<internal::Item> delayed_tasks_;
 
-    const NotNull<DelayedTaskRunner*> delayed_task_runner_;
+    DelayedTaskRunner& delayed_task_runner_;
 
     // Increasing task counter.
     uint64_t task_id_ = 0;
@@ -134,8 +139,8 @@ class ThreadPoolTaskRunner : public TaskRunner {
     RST_DISALLOW_COPY_AND_ASSIGN(ServiceTaskRunner);
   };
 
-  std::optional<DelayedTaskRunner> delayed_task_runner_;
-  std::optional<ServiceTaskRunner> service_task_runner_;
+  DelayedTaskRunner delayed_task_runner_;
+  ServiceTaskRunner service_task_runner_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(ThreadPoolTaskRunner);
 };

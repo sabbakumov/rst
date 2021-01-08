@@ -899,8 +899,11 @@ Task runner that is supposed to run tasks on dedicated threads.
 
 ```cpp
 std::function<std::chrono::milliseconds()> time_function = ...;
-size_t threads_num = ...;
-ThreadPoolTaskRunner task_runner(threads_num, std::move(time_function));
+size_t max_threads_num = ...;
+std::chrono::milliseconds keep_alive_time = ...;
+ThreadPoolTaskRunner task_runner(max_threads_num,
+                                 std::move(time_function),
+                                 keep_alive_time);
 ...
 std::function<void()> task = ...;
 task_runner.PostTask(std::move(task));

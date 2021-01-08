@@ -61,19 +61,18 @@ class [[nodiscard]] StatusOr {
  public:
   StatusOr() = delete;
 
-  StatusOr(StatusOr && other) noexcept {
+  StatusOr(StatusOr&& other) noexcept {
     MoveConstructFromStatusOr(std::move(other));
   }
 
   // Stores success value.
-  template <class U,
-            class =
-                typename std::enable_if<std::is_trivially_copyable<U>{}>::type>
+  template <class U, class = typename std::enable_if<
+                         std::is_trivially_copyable<U>{}>::type>
   StatusOr(const U& value) {  // NOLINT(runtime/explicit)
     static_assert(std::is_same<T, U>::value);
     CopyConstructFromT(value);
   }
-  StatusOr(T && value) {  // NOLINT(runtime/explicit)
+  StatusOr(T&& value) {  // NOLINT(runtime/explicit)
     MoveConstructFromT(std::move(value));
   }
 
@@ -108,9 +107,8 @@ class [[nodiscard]] StatusOr {
   }
 
   // Asserts that it was checked before and sets as not checked.
-  template <class U,
-            class =
-                typename std::enable_if<std::is_trivially_copyable<U>{}>::type>
+  template <class U, class = typename std::enable_if<
+                         std::is_trivially_copyable<U>{}>::type>
   StatusOr& operator=(const U& value) {
     static_assert(std::is_same<T, U>::value);
 #if RST_BUILDFLAG(DCHECK_IS_ON)
@@ -191,7 +189,7 @@ class [[nodiscard]] StatusOr {
   }
 
   // Asserts that it was checked.
-  Status TakeStatus()&& {
+  Status TakeStatus() && {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
@@ -220,7 +218,7 @@ class [[nodiscard]] StatusOr {
   }
 
  private:
-  void MoveConstructFromStatusOr(StatusOr && other) {
+  void MoveConstructFromStatusOr(StatusOr&& other) {
     has_error_ = other.has_error_;
 
     if (RST_UNLIKELY(has_error_))
@@ -234,7 +232,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  void MoveAssignFromStatusOr(StatusOr && other) {
+  void MoveAssignFromStatusOr(StatusOr&& other) {
     RST_DCHECK(has_error_ == other.has_error_);
 
     if (RST_UNLIKELY(has_error_))
@@ -257,7 +255,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  void MoveConstructFromT(T && value) {
+  void MoveConstructFromT(T&& value) {
     has_error_ = false;
     new (&value_) T(std::move(value));
 
@@ -275,7 +273,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
-  void MoveAssignFromT(T && value) {
+  void MoveAssignFromT(T&& value) {
     RST_DCHECK(!has_error_);
     value_ = std::move(value);
 
