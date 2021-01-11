@@ -104,7 +104,10 @@ TEST(ThreadPoolTaskRunner, PostDelayedTaskInOrder) {
   std::mutex mtx;
   std::atomic<int> ms = 0;
   ThreadPoolTaskRunner task_runner(
-      1, [&ms]() -> chrono::milliseconds { return chrono::milliseconds(ms); },
+      1,
+      [&ms]() -> chrono::milliseconds {
+        return chrono::milliseconds(ms.load(std::memory_order_relaxed));
+      },
       chrono::seconds(60));
 
   std::vector<int> result, first_half, expected;
@@ -134,14 +137,14 @@ TEST(ThreadPoolTaskRunner, PostDelayedTaskInOrder) {
     EXPECT_TRUE(result.empty());
   }
 
-  ms = 100;
+  ms.store(100, std::memory_order_relaxed);
   while (true) {
     std::lock_guard lock(mtx);
     if (result == first_half)
       break;
   }
 
-  ms = 200;
+  ms.store(200, std::memory_order_relaxed);
   while (true) {
     std::lock_guard lock(mtx);
     if (result == expected)
