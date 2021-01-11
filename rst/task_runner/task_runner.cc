@@ -67,7 +67,7 @@ void TaskRunner::ApplyTaskSync(std::function<void(size_t)>&& task,
                iterations,
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
                item]() {
-    const auto i = item->i++;
+    const auto i = item->i.fetch_add(1, std::memory_order_relaxed);
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(i < iterations);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
