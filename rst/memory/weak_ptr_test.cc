@@ -27,8 +27,6 @@
 
 #include "rst/memory/weak_ptr.h"
 
-#include <memory>
-#include <string>
 #include <utility>
 
 #include <gtest/gtest.h>
@@ -36,93 +34,177 @@
 namespace rst {
 namespace {
 
-struct Base {
-  std::string member;
-};
-
-struct Derived : public Base {};
+struct Base : SupportsWeakPtr<Base> {};
+struct Derived : Base {};
 
 }  // namespace
 
 TEST(WeakPtr, Basic) {
-  auto data = 0;
-  const WeakPtrFactory<int> factory(&data);
-  const auto ptr = factory.GetWeakPtr();
-  EXPECT_EQ(ptr.GetNullable(), &data);
+  {
+    Base base;
+    const auto ptr = base.AsWeakPtr();
+    EXPECT_EQ(ptr.GetNullable(), &base);
+  }
+  {
+    const Base base;
+    const auto ptr = base.AsWeakPtr();
+    EXPECT_EQ(ptr.GetNullable(), &base);
+  }
 }
 
 TEST(WeakPtr, Comparison) {
-  auto data = 0;
-  const WeakPtrFactory<int> factory(&data);
-  const auto ptr = factory.GetWeakPtr();
-  const auto ptr2 = ptr;
-  EXPECT_EQ(ptr.GetNullable(), ptr2.GetNullable());
+  {
+    Base base;
+    const auto ptr = base.AsWeakPtr();
+    const auto ptr2 = ptr;
+    EXPECT_EQ(ptr.GetNullable(), ptr2.GetNullable());
+  }
+  {
+    const Base base;
+    const auto ptr = base.AsWeakPtr();
+    const auto ptr2 = ptr;
+    EXPECT_EQ(ptr.GetNullable(), ptr2.GetNullable());
+  }
 }
 
 TEST(WeakPtr, Move) {
-  auto data = 0;
-  const WeakPtrFactory<int> factory(&data);
-  const auto ptr = factory.GetWeakPtr();
-  auto ptr2 = factory.GetWeakPtr();
-  const auto ptr3 = std::move(ptr2);
-  EXPECT_EQ(ptr.GetNullable(), ptr3.GetNullable());
+  {
+    Base base;
+    const auto ptr = base.AsWeakPtr();
+    auto ptr2 = base.AsWeakPtr();
+    const auto ptr3 = std::move(ptr2);
+    EXPECT_EQ(ptr.GetNullable(), ptr3.GetNullable());
+  }
+  {
+    const Base base;
+    const auto ptr = base.AsWeakPtr();
+    auto ptr2 = base.AsWeakPtr();
+    const auto ptr3 = std::move(ptr2);
+    EXPECT_EQ(ptr.GetNullable(), ptr3.GetNullable());
+  }
 }
 
 TEST(WeakPtr, OutOfScope) {
-  WeakPtr<int> ptr;
-  EXPECT_EQ(ptr.GetNullable(), nullptr);
   {
-    auto data = 0;
-    const WeakPtrFactory<int> factory(&data);
-    ptr = factory.GetWeakPtr();
+    WeakPtr<Base> ptr;
+    EXPECT_EQ(ptr.GetNullable(), nullptr);
+    {
+      Base base;
+      ptr = base.AsWeakPtr();
+    }
+    EXPECT_EQ(ptr.GetNullable(), nullptr);
   }
-  EXPECT_EQ(ptr.GetNullable(), nullptr);
+  {
+    WeakPtr<const Base> ptr;
+    EXPECT_EQ(ptr.GetNullable(), nullptr);
+    {
+      const Base base;
+      ptr = base.AsWeakPtr();
+    }
+    EXPECT_EQ(ptr.GetNullable(), nullptr);
+  }
 }
 
 TEST(WeakPtr, Multiple) {
-  WeakPtr<int> a, b;
   {
-    auto data = 0;
-    const WeakPtrFactory<int> factory(&data);
-    a = factory.GetWeakPtr();
-    b = factory.GetWeakPtr();
-    EXPECT_EQ(a.GetNullable(), &data);
-    EXPECT_EQ(b.GetNullable(), &data);
+    WeakPtr<Base> a, b;
+    {
+      Base base;
+      a = base.AsWeakPtr();
+      b = base.AsWeakPtr();
+      EXPECT_EQ(a.GetNullable(), &base);
+      EXPECT_EQ(b.GetNullable(), &base);
+    }
+    EXPECT_EQ(a.GetNullable(), nullptr);
+    EXPECT_EQ(b.GetNullable(), nullptr);
   }
-  EXPECT_EQ(a.GetNullable(), nullptr);
-  EXPECT_EQ(b.GetNullable(), nullptr);
+  {
+    WeakPtr<const Base> a, b;
+    {
+      const Base base;
+      a = base.AsWeakPtr();
+      b = base.AsWeakPtr();
+      EXPECT_EQ(a.GetNullable(), &base);
+      EXPECT_EQ(b.GetNullable(), &base);
+    }
+    EXPECT_EQ(a.GetNullable(), nullptr);
+    EXPECT_EQ(b.GetNullable(), nullptr);
+  }
 }
 
 TEST(WeakPtr, MultipleStaged) {
-  WeakPtr<int> a;
   {
-    auto data = 0;
-    const WeakPtrFactory<int> factory(&data);
-    a = factory.GetWeakPtr();
-    { const auto b = factory.GetWeakPtr(); }
-    EXPECT_NE(a.GetNullable(), nullptr);
+    WeakPtr<Base> a;
+    {
+      Base base;
+      a = base.AsWeakPtr();
+      { const auto b = base.AsWeakPtr(); }
+      EXPECT_NE(a.GetNullable(), nullptr);
+    }
+    EXPECT_EQ(a.GetNullable(), nullptr);
   }
-  EXPECT_EQ(a.GetNullable(), nullptr);
+  {
+    WeakPtr<const Base> a;
+    {
+      const Base base;
+      a = base.AsWeakPtr();
+      { const auto b = base.AsWeakPtr(); }
+      EXPECT_NE(a.GetNullable(), nullptr);
+    }
+    EXPECT_EQ(a.GetNullable(), nullptr);
+  }
 }
 
 TEST(WeakPtr, UpCast) {
-  Derived data;
-  const WeakPtrFactory<Derived> factory(&data);
-  WeakPtr<Base> ptr = factory.GetWeakPtr();
-  EXPECT_EQ(ptr.GetNullable(), &data);
+  {
+    Derived derived;
+    WeakPtr<Base> ptr = derived.AsWeakPtr();
+    EXPECT_EQ(ptr.GetNullable(), &derived);
+  }
+  {
+    const Derived derived;
+    WeakPtr<const Base> ptr = derived.AsWeakPtr();
+    EXPECT_EQ(ptr.GetNullable(), &derived);
+  }
+}
+
+TEST(WeakPtr, DownCast) {
+  {
+    Derived derived;
+    WeakPtr<Derived> ptr = AsWeakPtr(&derived);
+    EXPECT_EQ(ptr.GetNullable(), &derived);
+  }
+  {
+    const Derived derived;
+    WeakPtr<const Derived> ptr = AsWeakPtr(&derived);
+    EXPECT_EQ(ptr.GetNullable(), &derived);
+  }
 }
 
 TEST(WeakPtr, ConstructFromNullptr) {
-  const WeakPtr<int> ptr(nullptr);
-  EXPECT_EQ(ptr.GetNullable(), nullptr);
+  {
+    const WeakPtr<Base> ptr(nullptr);
+    EXPECT_EQ(ptr.GetNullable(), nullptr);
+  }
+  {
+    const WeakPtr<const Base> ptr(nullptr);
+    EXPECT_EQ(ptr.GetNullable(), nullptr);
+  }
 }
 
 TEST(WeakPtr, AssignNullptr) {
-  Derived data;
-  const WeakPtrFactory<Derived> factory(&data);
-  WeakPtr<Base> ptr = factory.GetWeakPtr();
-  ptr = nullptr;
-  EXPECT_EQ(ptr.GetNullable(), nullptr);
+  {
+    Base base;
+    WeakPtr<Base> ptr = base.AsWeakPtr();
+    ptr = nullptr;
+    EXPECT_EQ(ptr.GetNullable(), nullptr);
+  }
+  {
+    const Base base;
+    WeakPtr<const Base> ptr = base.AsWeakPtr();
+    ptr = nullptr;
+    EXPECT_EQ(ptr.GetNullable(), nullptr);
+  }
 }
 
 }  // namespace rst

@@ -75,13 +75,13 @@ std::string FormatAndReturnString(NotNull<const char*> format,
 }  // namespace internal
 
 template <size_t N>
-inline std::string Format(const char (&format)[N]) {
+std::string Format(const char (&format)[N]) {
   return internal::FormatAndReturnString(format, N - 1, nullptr, 0);
 }
 
 template <size_t N>
-inline std::string Format(const char (&format)[N],
-                          const std::initializer_list<internal::Arg> values) {
+std::string Format(const char (&format)[N],
+                   const std::initializer_list<internal::Arg> values) {
   return internal::FormatAndReturnString(format, N - 1, values.begin(),
                                          values.size());
 }

@@ -93,16 +93,12 @@ cmake .. -DRST_ENABLE_UBSAN=ON
 Like `std::bind()` but doesn't call functor when `WeakPtr` is invalidated.
   
 ```cpp
-class Controller {
+class Controller : public SupportsWeakPtr<Controller> {
  public:
   void SpawnWorker() {
-    Worker::StartNew(Bind(&Controller::WorkComplete,
-                          weak_factory_.GetWeakPtr()));
+    Worker::StartNew(Bind(&Controller::WorkComplete, AsWeakPtr()));
   }
   void WorkComplete(const Result& result) { ... }
-
- private:
-  WeakPtrFactory<Controller> weak_factory_{this};
 };
 
 class Worker {
@@ -447,16 +443,10 @@ Reference-counting such an object would complicate the ownership graph and
 make it harder to reason about the object's lifetime.
 
 ```cpp
-class Controller {
+class Controller : public SupportsWeakPtr<Controller> {
  public:
-  void SpawnWorker() { Worker::StartNew(weak_factory_.GetWeakPtr()); }
+  void SpawnWorker() { Worker::StartNew(AsWeakPtr()); }
   void WorkComplete(const Result& result) { ... }
-
- private:
-  // Member variables should appear before the WeakPtrFactory, to ensure
-  // that any WeakPtrs to Controller are invalidated before its members
-  // variable's destructors are executed, rendering them invalid.
-  WeakPtrFactory<Controller> weak_factory_{this};
 };
 
 class Worker {

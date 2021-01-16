@@ -48,8 +48,7 @@ void OneShotTimer::Start(std::function<void()>&& task,
   task_ = std::move(task);
   is_running_ = true;
   task_runner_.PostDelayedTask(
-      Bind(&OneShotTimer::RunTask, weak_factory_.GetWeakPtr(), ++task_id_),
-      delay);
+      Bind(&OneShotTimer::RunTask, AsWeakPtr(), ++task_id_), delay);
 }
 
 void OneShotTimer::FireNow() {
