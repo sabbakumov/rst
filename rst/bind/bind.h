@@ -39,16 +39,12 @@ namespace rst {
 //
 // Example:
 //
-//   class Controller {
+//   class Controller : public SupportsWeakPtr<Controller> {
 //    public:
 //     void SpawnWorker() {
-//       Worker::StartNew(Bind(&Controller::WorkComplete,
-//                             weak_factory_.GetWeakPtr()));
+//       Worker::StartNew(Bind(&Controller::WorkComplete, AsWeakPtr()));
 //     }
 //     void WorkComplete(const Result& result) { ... }
-//
-//    private:
-//     WeakPtrFactory<Controller> weak_factory_{this};
 //   };
 //
 //   class Worker {

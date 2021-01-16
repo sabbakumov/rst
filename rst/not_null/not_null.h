@@ -722,42 +722,42 @@ class Nullable<std::shared_ptr<T>> {
 };
 
 template <class T, class U>
-inline bool operator==(const NotNull<T>& lhs, const NotNull<U>& rhs) {
+bool operator==(const NotNull<T>& lhs, const NotNull<U>& rhs) {
   return lhs.get() == rhs.get();
 }
 
 template <class T, class U>
-inline bool operator!=(const NotNull<T>& lhs, const NotNull<U>& rhs) {
+bool operator!=(const NotNull<T>& lhs, const NotNull<U>& rhs) {
   return !(lhs == rhs);
 }
 
 template <class T, class U>
-inline bool operator<(const NotNull<T>& lhs, const NotNull<U>& rhs) {
+bool operator<(const NotNull<T>& lhs, const NotNull<U>& rhs) {
   return lhs.get() < rhs.get();
 }
 
 template <class T, class U>
-inline bool operator==(const NotNull<T>& lhs, const Nullable<U>& rhs) {
+bool operator==(const NotNull<T>& lhs, const Nullable<U>& rhs) {
   return lhs.get() == rhs.get();
 }
 
 template <class T, class U>
-inline bool operator!=(const NotNull<T>& lhs, const Nullable<U>& rhs) {
+bool operator!=(const NotNull<T>& lhs, const Nullable<U>& rhs) {
   return !(lhs == rhs);
 }
 
 template <class T, class U>
-inline bool operator==(const Nullable<T>& lhs, const NotNull<U>& rhs) {
+bool operator==(const Nullable<T>& lhs, const NotNull<U>& rhs) {
   return lhs.get() == rhs.get();
 }
 
 template <class T, class U>
-inline bool operator!=(const Nullable<T>& lhs, const NotNull<U>& rhs) {
+bool operator!=(const Nullable<T>& lhs, const NotNull<U>& rhs) {
   return !(lhs == rhs);
 }
 
 template <class T>
-inline bool operator==(const Nullable<T>& lhs, std::nullptr_t) {
+bool operator==(const Nullable<T>& lhs, std::nullptr_t) {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
   lhs.was_checked_ = true;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
@@ -765,52 +765,52 @@ inline bool operator==(const Nullable<T>& lhs, std::nullptr_t) {
 }
 
 template <class T>
-inline bool operator==(std::nullptr_t, const Nullable<T>& rhs) {
+bool operator==(std::nullptr_t, const Nullable<T>& rhs) {
   return rhs == nullptr;
 }
 
 template <class T>
-inline bool operator!=(const Nullable<T>& lhs, std::nullptr_t) {
+bool operator!=(const Nullable<T>& lhs, std::nullptr_t) {
   return !(lhs == nullptr);
 }
 
 template <class T>
-inline bool operator!=(std::nullptr_t, const Nullable<T>& rhs) {
+bool operator!=(std::nullptr_t, const Nullable<T>& rhs) {
   return rhs != nullptr;
 }
 
 template <class T, class U>
-inline bool operator==(const Nullable<T>& lhs, const Nullable<U>& rhs) {
+bool operator==(const Nullable<T>& lhs, const Nullable<U>& rhs) {
   return lhs.get() == rhs.get();
 }
 
 template <class T, class U>
-inline bool operator!=(const Nullable<T>& lhs, const Nullable<U>& rhs) {
+bool operator!=(const Nullable<T>& lhs, const Nullable<U>& rhs) {
   return !(lhs == rhs);
 }
 
 template <class T, class U>
-inline bool operator<(const Nullable<T>& lhs, const Nullable<U>& rhs) {
+bool operator<(const Nullable<T>& lhs, const Nullable<U>& rhs) {
   return lhs.get() < rhs.get();
 }
 
 template <class T, class U>
-inline bool operator==(const Nullable<T>& lhs, U* rhs) {
+bool operator==(const Nullable<T>& lhs, U* rhs) {
   return lhs.get() == rhs;
 }
 
 template <class T, class U>
-inline bool operator==(U* lhs, const Nullable<T>& rhs) {
+bool operator==(U* lhs, const Nullable<T>& rhs) {
   return rhs == lhs;
 }
 
 template <class T, class U>
-inline bool operator!=(const Nullable<T>& lhs, U* rhs) {
+bool operator!=(const Nullable<T>& lhs, U* rhs) {
   return !(lhs == rhs);
 }
 
 template <class T, class U>
-inline bool operator!=(U* lhs, const Nullable<T>& rhs) {
+bool operator!=(U* lhs, const Nullable<T>& rhs) {
   return !(rhs == lhs);
 }
 

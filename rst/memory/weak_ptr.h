@@ -30,6 +30,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <type_traits>
 #include <utility>
 
 #include "rst/check/check.h"
@@ -50,16 +51,10 @@
 //
 // Example:
 //
-//   class Controller {
+//   class Controller : public SupportsWeakPtr<Controller> {
 //    public:
-//     void SpawnWorker() { Worker::StartNew(weak_factory_.GetWeakPtr()); }
+//     void SpawnWorker() { Worker::StartNew(AsWeakPtr()); }
 //     void WorkComplete(const Result& result) { ... }
-//
-//    private:
-//     // Member variables should appear before the WeakPtrFactory, to ensure
-//     // that any WeakPtrs to Controller are invalidated before its members
-//     // variable's destructors are executed, rendering them invalid.
-//     WeakPtrFactory<Controller> weak_factory_{this};
 //   };
 //
 //   class Worker {
@@ -87,9 +82,50 @@
 // Workers and subsequently delete the Controller, without waiting for all
 // Workers to have completed.
 namespace rst {
+
+template <class T>
+class WeakPtr;
+
+template <class T>
+class SupportsWeakPtr;
+
 namespace internal {
 
 struct Flag {};
+
+// This class provides a common implementation of common functions that would
+// otherwise get instantiated separately for each distinct instantiation of
+// SupportsWeakPtr.
+class SupportsWeakPtrBase {
+ public:
+  // A safe static downcast of a WeakPtr<Base> to WeakPtr<Derived>. This
+  // conversion will only compile if there is exists a Base which inherits from
+  // SupportsWeakPtr<Base>.
+  template <class Derived>
+  static WeakPtr<Derived> StaticAsWeakPtr(const NotNull<Derived*> p) {
+    static_assert(std::is_base_of<SupportsWeakPtrBase, Derived>::value,
+                  "AsWeakPtr argument must inherit from SupportsWeakPtr");
+    return AsWeakPtrImpl<Derived>(p.get());
+  }
+
+ private:
+  // Uses type inference to find a Base of Derived which is an instance of
+  // SupportsWeakPtr<Base>. We can then safely static_cast the Base* to a
+  // Derived*.
+  template <class Derived, class Base>
+  static WeakPtr<Derived> AsWeakPtrImpl(SupportsWeakPtr<Base>* p) {
+    WeakPtr<Base> ptr = p->AsWeakPtr();
+    return WeakPtr<Derived>(std::move(ptr.flag_),
+                            static_cast<Derived*>(ptr.ptr_.get()));
+  }
+
+  template <class Derived, class Base>
+  static WeakPtr<const Derived> AsWeakPtrImpl(const SupportsWeakPtr<Base>* p) {
+    WeakPtr<const Base> ptr = p->AsWeakPtr();
+    return WeakPtr<const Derived>(std::move(ptr.flag_),
+                                  static_cast<const Derived*>(ptr.ptr_.get()));
+  }
+};
 
 }  // namespace internal
 
@@ -99,9 +135,6 @@ class WeakPtr {
  public:
   WeakPtr() = default;
   WeakPtr(std::nullptr_t) {}  // NOLINT(runtime/explicit)
-
-  WeakPtr(std::weak_ptr<internal::Flag>&& flag, const NotNull<T*> ptr)
-      : flag_(std::move(flag)), ptr_(ptr.get()) {}
 
   WeakPtr(const WeakPtr&) = default;
 
@@ -144,29 +177,67 @@ class WeakPtr {
   template <class U>
   friend class WeakPtr;
 
+  template <class U>
+  friend class SupportsWeakPtr;
+
+  friend class internal::SupportsWeakPtrBase;
+
+  WeakPtr(std::weak_ptr<internal::Flag>&& flag, const NotNull<T*> ptr)
+      : flag_(std::move(flag)), ptr_(ptr.get()) {}
+
   bool IsValid() const { return !flag_.expired(); }
 
   std::weak_ptr<internal::Flag> flag_;
   Nullable<T*> ptr_;
 };
 
-// A class may be composed of a WeakPtrFactory and thereby control how it
-// exposes weak pointers to itself. This is helpful if you only need weak
-// pointers within the implementation of a class.
+// To use WeakPtr a class should extend from SupportsWeakPtr.
 template <class T>
-class WeakPtrFactory {
+class SupportsWeakPtr : public internal::SupportsWeakPtrBase {
  public:
-  explicit WeakPtrFactory(const NotNull<T*> ptr) : ptr_(ptr) {}
+  WeakPtr<T> AsWeakPtr() { return WeakPtr<T>(flag_, static_cast<T*>(this)); }
+  WeakPtr<const T> AsWeakPtr() const {
+    return WeakPtr<const T>(flag_, static_cast<const T*>(this));
+  }
 
-  WeakPtr<T> GetWeakPtr() const { return WeakPtr<T>(flag_, ptr_); }
+ protected:
+  SupportsWeakPtr() = default;
+  ~SupportsWeakPtr() = default;
 
  private:
   const std::shared_ptr<internal::Flag> flag_ =
       std::make_shared<internal::Flag>();
-  const NotNull<T*> ptr_;
 
-  RST_DISALLOW_COPY_AND_ASSIGN(WeakPtrFactory);
+  RST_DISALLOW_COPY_AND_ASSIGN(SupportsWeakPtr);
 };
+
+// Uses type deduction to safely return a WeakPtr<Derived> when Derived doesn't
+// directly extend SupportsWeakPtr<Derived>, instead it extends a Base that
+// extends SupportsWeakPtr<Base>.
+//
+// Example:
+//   class Base : public SupportsWeakPtr<Base> {};
+//   class Derived : public Base {};
+//
+//   Derived derived;
+//   WeakPtr<Derived> ptr = AsWeakPtr(&derived);
+//
+// Note that the following doesn't work (invalid type conversion) since
+// Derived::AsWeakPtr() is WeakPtr<Base> SupportsWeakPtr<Base>::AsWeakPtr(),
+// and there's no way to safely cast WeakPtr<Base> to WeakPtr<Derived> at the
+// caller.
+//
+//   WeakPtr<Derived> ptr = derived.AsWeakPtr();  // Fails.
+//
+template <class Derived>
+WeakPtr<Derived> AsWeakPtr(Derived* p) {
+  return AsWeakPtr(NotNull(p));
+}
+
+template <class Derived>
+WeakPtr<Derived> AsWeakPtr(const NotNull<Derived*> p) {
+  return internal::SupportsWeakPtrBase::StaticAsWeakPtr<Derived>(p);
+}
 
 }  // namespace rst
 

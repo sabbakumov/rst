@@ -65,7 +65,7 @@ class DeferredAction {
 };
 
 template <class F>
-inline DeferredAction<F> Defer(F&& f) {
+DeferredAction<F> Defer(F&& f) {
   return DeferredAction<F>(std::forward<F>(f));
 }
 

@@ -58,26 +58,26 @@
 namespace rst {
 
 template <class T, class U>
-inline Nullable<T*> dyn_cast(const NotNull<U*> ptr) {
+Nullable<T*> dyn_cast(const NotNull<U*> ptr) {
   if (ptr->template IsA<T>())
     return static_cast<T*>(ptr.get());
   return nullptr;
 }
 
 template <class T, class U>
-inline Nullable<T*> dyn_cast(U* ptr) {
+Nullable<T*> dyn_cast(U* ptr) {
   return dyn_cast<T, U>(NotNull(ptr));
 }
 
 template <class T, class U>
-inline Nullable<const T*> dyn_cast(const NotNull<const U*> ptr) {
+Nullable<const T*> dyn_cast(const NotNull<const U*> ptr) {
   if (ptr->template IsA<T>())
     return static_cast<const T*>(ptr.get());
   return nullptr;
 }
 
 template <class T, class U>
-inline Nullable<const T*> dyn_cast(const U* ptr) {
+Nullable<const T*> dyn_cast(const U* ptr) {
   return dyn_cast<T, U>(NotNull(ptr));
 }
 

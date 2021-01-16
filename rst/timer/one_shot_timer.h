@@ -64,7 +64,7 @@ namespace rst {
 //     OneShotTimer timer_{GetTaskRunner()};
 //   };
 //
-class OneShotTimer {
+class OneShotTimer : public SupportsWeakPtr<OneShotTimer> {
  public:
   explicit OneShotTimer(NotNull<TaskRunner*> task_runner);
   ~OneShotTimer();
@@ -86,8 +86,6 @@ class OneShotTimer {
   uint64_t task_id_ = 0;
   TaskRunner& task_runner_;
   bool is_running_ = false;
-
-  WeakPtrFactory<OneShotTimer> weak_factory_{this};
 
   RST_DISALLOW_COPY_AND_ASSIGN(OneShotTimer);
 };
