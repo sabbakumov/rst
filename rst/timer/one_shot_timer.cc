@@ -37,8 +37,8 @@ namespace chrono = std::chrono;
 
 namespace rst {
 
-OneShotTimer::OneShotTimer(const NotNull<TaskRunner*> task_runner)
-    : task_runner_(*task_runner) {}
+OneShotTimer::OneShotTimer(std::function<TaskRunner&()>&& get_task_runner_fn)
+    : get_task_runner_fn_(std::move(get_task_runner_fn)) {}
 
 OneShotTimer::~OneShotTimer() = default;
 
@@ -47,7 +47,7 @@ void OneShotTimer::Start(std::function<void()>&& task,
   RST_DCHECK(task != nullptr);
   task_ = std::move(task);
   is_running_ = true;
-  task_runner_.PostDelayedTask(
+  get_task_runner_fn_().PostDelayedTask(
       Bind(&OneShotTimer::RunTask, AsWeakPtr(), ++task_id_), delay);
 }
 

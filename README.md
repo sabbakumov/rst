@@ -945,7 +945,7 @@ class MyClass {
     // This method is called after 1 second.
   }
 
-  OneShotTimer timer_{GetTaskRunner()};
+  OneShotTimer timer_{&GetTaskRunner};
 };
 ```
 
