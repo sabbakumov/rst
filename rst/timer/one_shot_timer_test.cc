@@ -61,6 +61,8 @@ class OneShotTimerTest : public testing::Test {
  public:
   ~OneShotTimerTest() override;
 
+  MockTaskRunner& GetTaskRunner() { return task_runner_; }
+
  protected:
   MockTaskRunner task_runner_;
   Callee callee_;
@@ -69,7 +71,7 @@ class OneShotTimerTest : public testing::Test {
 OneShotTimerTest::~OneShotTimerTest() = default;
 
 TEST_F(OneShotTimerTest, Test) {
-  OneShotTimer timer(&task_runner_);
+  OneShotTimer timer(std::bind(&OneShotTimerTest::GetTaskRunner, this));
   EXPECT_FALSE(timer.IsRunning());
 
   std::function<void()> task;
@@ -90,7 +92,7 @@ TEST_F(OneShotTimerTest, OutOfScope) {
   std::function<void()> task;
 
   {
-    OneShotTimer timer(&task_runner_);
+    OneShotTimer timer(std::bind(&OneShotTimerTest::GetTaskRunner, this));
     EXPECT_FALSE(timer.IsRunning());
 
     EXPECT_CALL(task_runner_,
@@ -107,7 +109,7 @@ TEST_F(OneShotTimerTest, OutOfScope) {
 }
 
 TEST_F(OneShotTimerTest, Restart) {
-  OneShotTimer timer(&task_runner_);
+  OneShotTimer timer(std::bind(&OneShotTimerTest::GetTaskRunner, this));
   EXPECT_FALSE(timer.IsRunning());
 
   std::function<void()> task1, task2;
@@ -133,7 +135,7 @@ TEST_F(OneShotTimerTest, Restart) {
 }
 
 TEST_F(OneShotTimerTest, FireNow) {
-  OneShotTimer timer(&task_runner_);
+  OneShotTimer timer(std::bind(&OneShotTimerTest::GetTaskRunner, this));
   EXPECT_FALSE(timer.IsRunning());
 
   std::function<void()> task;
@@ -154,18 +156,13 @@ TEST_F(OneShotTimerTest, FireNow) {
 }
 
 TEST_F(OneShotTimerTest, StartNullFunction) {
-  OneShotTimer timer(&task_runner_);
+  OneShotTimer timer(std::bind(&OneShotTimerTest::GetTaskRunner, this));
   EXPECT_DEATH(timer.Start(nullptr, chrono::milliseconds(1)), "");
 }
 
 TEST_F(OneShotTimerTest, FireNowNotRunning) {
-  OneShotTimer timer(&task_runner_);
+  OneShotTimer timer(std::bind(&OneShotTimerTest::GetTaskRunner, this));
   EXPECT_DEATH(timer.FireNow(), "");
-}
-
-TEST_F(OneShotTimerTest, NullTaskRunner) {
-  TaskRunner* task_runner = nullptr;
-  EXPECT_DEATH((OneShotTimer(task_runner)), "");
 }
 
 }  // namespace rst

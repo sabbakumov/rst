@@ -34,7 +34,6 @@
 
 #include "rst/macros/macros.h"
 #include "rst/memory/weak_ptr.h"
-#include "rst/not_null/not_null.h"
 #include "rst/task_runner/task_runner.h"
 
 namespace rst {
@@ -61,12 +60,12 @@ namespace rst {
 //       // This method is called after 1 second.
 //     }
 //
-//     OneShotTimer timer_{GetTaskRunner()};
+//     OneShotTimer timer_{&GetTaskRunner};
 //   };
 //
 class OneShotTimer : public SupportsWeakPtr<OneShotTimer> {
  public:
-  explicit OneShotTimer(NotNull<TaskRunner*> task_runner);
+  explicit OneShotTimer(std::function<TaskRunner&()>&& get_task_runner_fn);
   ~OneShotTimer();
 
   // Starts the timer to run the |task| at the given |delay| from now. If the
@@ -82,9 +81,9 @@ class OneShotTimer : public SupportsWeakPtr<OneShotTimer> {
  private:
   void RunTask(uint64_t task_id);
 
+  const std::function<TaskRunner&()> get_task_runner_fn_;
   std::function<void()> task_;
   uint64_t task_id_ = 0;
-  TaskRunner& task_runner_;
   bool is_running_ = false;
 
   RST_DISALLOW_COPY_AND_ASSIGN(OneShotTimer);
