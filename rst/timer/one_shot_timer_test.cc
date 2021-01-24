@@ -45,7 +45,7 @@ namespace {
 class MockTaskRunner : public TaskRunner {
  public:
   MOCK_METHOD(void, PostDelayedTaskWithIterations,
-              (std::function<void()> && task, chrono::milliseconds delay,
+              (std::function<void()> && task, chrono::nanoseconds delay,
                size_t iterations),
               (override));
 };
@@ -76,11 +76,11 @@ TEST_F(OneShotTimerTest, Test) {
 
   std::function<void()> task;
   EXPECT_CALL(task_runner_,
-              PostDelayedTaskWithIterations(_, chrono::milliseconds(1), 0))
+              PostDelayedTaskWithIterations(_, chrono::nanoseconds(1), 0))
       .WillOnce(SaveArg<0>(&task));
 
   EXPECT_FALSE(timer.IsRunning());
-  timer.Start(std::bind(&Callee::Run, &callee_), chrono::milliseconds(1));
+  timer.Start(std::bind(&Callee::Run, &callee_), chrono::nanoseconds(1));
   EXPECT_TRUE(timer.IsRunning());
 
   EXPECT_CALL(callee_, Run());
@@ -96,11 +96,11 @@ TEST_F(OneShotTimerTest, OutOfScope) {
     EXPECT_FALSE(timer.IsRunning());
 
     EXPECT_CALL(task_runner_,
-                PostDelayedTaskWithIterations(_, chrono::milliseconds(1), 0))
+                PostDelayedTaskWithIterations(_, chrono::nanoseconds(1), 0))
         .WillOnce(SaveArg<0>(&task));
 
     EXPECT_FALSE(timer.IsRunning());
-    timer.Start(std::bind(&Callee::Run, &callee_), chrono::milliseconds(1));
+    timer.Start(std::bind(&Callee::Run, &callee_), chrono::nanoseconds(1));
     EXPECT_TRUE(timer.IsRunning());
   }
 
@@ -114,15 +114,15 @@ TEST_F(OneShotTimerTest, Restart) {
 
   std::function<void()> task1, task2;
   EXPECT_CALL(task_runner_,
-              PostDelayedTaskWithIterations(_, chrono::milliseconds(1), 0))
+              PostDelayedTaskWithIterations(_, chrono::nanoseconds(1), 0))
       .WillOnce(SaveArg<0>(&task1))
       .WillOnce(SaveArg<0>(&task2));
 
   Callee callee2;
   EXPECT_FALSE(timer.IsRunning());
-  timer.Start(std::bind(&Callee::Run, &callee_), chrono::milliseconds(1));
+  timer.Start(std::bind(&Callee::Run, &callee_), chrono::nanoseconds(1));
   EXPECT_TRUE(timer.IsRunning());
-  timer.Start(std::bind(&Callee::Run, &callee2), chrono::milliseconds(1));
+  timer.Start(std::bind(&Callee::Run, &callee2), chrono::nanoseconds(1));
   EXPECT_TRUE(timer.IsRunning());
 
   EXPECT_CALL(callee_, Run()).Times(0);
@@ -140,11 +140,11 @@ TEST_F(OneShotTimerTest, FireNow) {
 
   std::function<void()> task;
   EXPECT_CALL(task_runner_,
-              PostDelayedTaskWithIterations(_, chrono::milliseconds(1), 0))
+              PostDelayedTaskWithIterations(_, chrono::nanoseconds(1), 0))
       .WillOnce(SaveArg<0>(&task));
 
   EXPECT_FALSE(timer.IsRunning());
-  timer.Start(std::bind(&Callee::Run, &callee_), chrono::milliseconds(1));
+  timer.Start(std::bind(&Callee::Run, &callee_), chrono::nanoseconds(1));
   EXPECT_TRUE(timer.IsRunning());
 
   EXPECT_CALL(callee_, Run());
@@ -157,7 +157,7 @@ TEST_F(OneShotTimerTest, FireNow) {
 
 TEST_F(OneShotTimerTest, StartNullFunction) {
   OneShotTimer timer(std::bind(&OneShotTimerTest::GetTaskRunner, this));
-  EXPECT_DEATH(timer.Start(nullptr, chrono::milliseconds(1)), "");
+  EXPECT_DEATH(timer.Start(nullptr, chrono::nanoseconds(1)), "");
 }
 
 TEST_F(OneShotTimerTest, FireNowNotRunning) {

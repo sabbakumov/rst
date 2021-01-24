@@ -43,7 +43,7 @@ OneShotTimer::OneShotTimer(std::function<TaskRunner&()>&& get_task_runner_fn)
 OneShotTimer::~OneShotTimer() = default;
 
 void OneShotTimer::Start(std::function<void()>&& task,
-                         const chrono::milliseconds delay) {
+                         const chrono::nanoseconds delay) {
   RST_DCHECK(task != nullptr);
   task_ = std::move(task);
   is_running_ = true;

@@ -51,9 +51,9 @@ namespace rst {
 //
 // Example:
 //
-//   std::function<std::chrono::milliseconds()> time_function = ...;
+//   std::function<std::chrono::nanoseconds()> time_function = ...;
 //   size_t max_threads_num = ...;
-//   std::chrono::milliseconds keep_alive_time = ...;
+//   std::chrono::nanoseconds keep_alive_time = ...;
 //   ThreadPoolTaskRunner task_runner(max_threads_num,
 //                                    std::move(time_function),
 //                                    keep_alive_time);
@@ -69,19 +69,19 @@ class ThreadPoolTaskRunner : public TaskRunner {
   // terminated if they have been idle for more than the |keep_alive_time|.
   ThreadPoolTaskRunner(
       size_t max_threads_num,
-      std::function<std::chrono::milliseconds()>&& time_function,
-      std::chrono::milliseconds keep_alive_time);
+      std::function<std::chrono::nanoseconds()>&& time_function,
+      std::chrono::nanoseconds keep_alive_time);
   ~ThreadPoolTaskRunner() override;
 
  private:
   // TaskRunner:
   void PostDelayedTaskWithIterations(std::function<void()>&& task,
-                                     std::chrono::milliseconds delay,
+                                     std::chrono::nanoseconds delay,
                                      size_t iterations) final;
   class DelayedTaskRunner {
    public:
     DelayedTaskRunner(size_t max_threads_num,
-                      std::chrono::milliseconds keep_alive_time);
+                      std::chrono::nanoseconds keep_alive_time);
     ~DelayedTaskRunner();
 
     void PushTasks(NotNull<std::vector<internal::IterationItem>*> items);
@@ -97,7 +97,7 @@ class ThreadPoolTaskRunner : public TaskRunner {
 
     std::map<std::thread::id, std::thread> threads_;
     const size_t max_threads_num_;
-    const std::chrono::milliseconds keep_alive_time_;
+    const std::chrono::nanoseconds keep_alive_time_;
     size_t waiting_threads_num_ = 0;
 
     bool should_exit_ = false;
@@ -109,10 +109,10 @@ class ThreadPoolTaskRunner : public TaskRunner {
    public:
     ServiceTaskRunner(
         NotNull<DelayedTaskRunner*> delayed_task_runner,
-        std::function<std::chrono::milliseconds()>&& time_function);
+        std::function<std::chrono::nanoseconds()>&& time_function);
     ~ServiceTaskRunner();
 
-    void PushTask(std::function<void()>&& task, std::chrono::milliseconds delay,
+    void PushTask(std::function<void()>&& task, std::chrono::nanoseconds delay,
                   size_t iterations);
 
    private:
@@ -122,7 +122,7 @@ class ThreadPoolTaskRunner : public TaskRunner {
     std::mutex thread_mutex_;
 
     // Returns current time.
-    const std::function<std::chrono::milliseconds()> time_function_;
+    const std::function<std::chrono::nanoseconds()> time_function_;
 
     // Priority queue of tasks.
     std::vector<internal::Item> delayed_tasks_;

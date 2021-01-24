@@ -75,7 +75,7 @@ void TaskRunner::ApplyTaskSync(std::function<void(size_t)>&& task,
     item->barrier.CountDown();
   };
 
-  PostDelayedTaskWithIterations(std::move(f), chrono::milliseconds::zero(),
+  PostDelayedTaskWithIterations(std::move(f), chrono::nanoseconds::zero(),
                                 iterations - 1);
   item->barrier.Wait();
 }
