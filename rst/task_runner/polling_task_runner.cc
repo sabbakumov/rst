@@ -37,13 +37,13 @@ namespace chrono = std::chrono;
 namespace rst {
 
 PollingTaskRunner::PollingTaskRunner(
-    std::function<chrono::milliseconds()>&& time_function)
+    std::function<chrono::nanoseconds()>&& time_function)
     : time_function_(std::move(time_function)) {}
 
 PollingTaskRunner::~PollingTaskRunner() = default;
 
 void PollingTaskRunner::PostDelayedTaskWithIterations(
-    std::function<void()>&& task, const chrono::milliseconds delay,
+    std::function<void()>&& task, const chrono::nanoseconds delay,
     const size_t iterations) {
   RST_DCHECK(delay.count() >= 0);
 

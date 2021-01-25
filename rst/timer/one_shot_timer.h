@@ -70,7 +70,7 @@ class OneShotTimer : public SupportsWeakPtr<OneShotTimer> {
 
   // Starts the timer to run the |task| at the given |delay| from now. If the
   // timer is already running, it will be replaced to call the given |task|.
-  void Start(std::function<void()>&& task, std::chrono::milliseconds delay);
+  void Start(std::function<void()>&& task, std::chrono::nanoseconds delay);
 
   // Returns true if the timer is running.
   bool IsRunning() const { return is_running_; }

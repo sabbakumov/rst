@@ -67,7 +67,7 @@ void Wait(const NotNull<ThreadPoolTaskRunner*> task_runner) {
 
 TEST(ThreadPoolTaskRunner, IsTaskRunner) {
   const ThreadPoolTaskRunner task_runner(
-      1, []() -> chrono::milliseconds { return chrono::milliseconds(0); },
+      1, []() -> chrono::nanoseconds { return chrono::nanoseconds(0); },
       chrono::seconds(60));
   const TaskRunner& i_task_runner = task_runner;
   (void)i_task_runner;
@@ -75,16 +75,16 @@ TEST(ThreadPoolTaskRunner, IsTaskRunner) {
 
 TEST(ThreadPoolTaskRunner, InvalidPostTaskDelay) {
   ThreadPoolTaskRunner task_runner(
-      1, []() -> chrono::milliseconds { return chrono::milliseconds(0); },
+      1, []() -> chrono::nanoseconds { return chrono::nanoseconds(0); },
       chrono::seconds(60));
   EXPECT_DEATH(
-      task_runner.PostDelayedTask(DoNothing(), chrono::milliseconds(-1)), "");
+      task_runner.PostDelayedTask(DoNothing(), chrono::nanoseconds(-1)), "");
 }
 
 TEST(ThreadPoolTaskRunner, PostTaskInOrder) {
   std::mutex mtx;
   ThreadPoolTaskRunner task_runner(
-      1, []() -> chrono::milliseconds { return chrono::milliseconds(0); },
+      1, []() -> chrono::nanoseconds { return chrono::nanoseconds(0); },
       chrono::seconds(60));
 
   std::vector<int> result, expected;
@@ -102,11 +102,11 @@ TEST(ThreadPoolTaskRunner, PostTaskInOrder) {
 
 TEST(ThreadPoolTaskRunner, PostDelayedTaskInOrder) {
   std::mutex mtx;
-  std::atomic<int> ms = 0;
+  std::atomic<int> ns = 0;
   ThreadPoolTaskRunner task_runner(
       1,
-      [&ms]() -> chrono::milliseconds {
-        return chrono::milliseconds(ms.load(std::memory_order_relaxed));
+      [&ns]() -> chrono::nanoseconds {
+        return chrono::nanoseconds(ns.load(std::memory_order_relaxed));
       },
       chrono::seconds(60));
 
@@ -117,7 +117,7 @@ TEST(ThreadPoolTaskRunner, PostDelayedTaskInOrder) {
           std::lock_guard lock(mtx);
           result.emplace_back(i);
         },
-        chrono::milliseconds(100));
+        chrono::nanoseconds(100));
     first_half.emplace_back(i);
     expected.emplace_back(i);
   }
@@ -128,7 +128,7 @@ TEST(ThreadPoolTaskRunner, PostDelayedTaskInOrder) {
           std::lock_guard lock(mtx);
           result.emplace_back(i);
         },
-        chrono::milliseconds(200));
+        chrono::nanoseconds(200));
     expected.emplace_back(i);
   }
 
@@ -137,14 +137,14 @@ TEST(ThreadPoolTaskRunner, PostDelayedTaskInOrder) {
     EXPECT_TRUE(result.empty());
   }
 
-  ms.store(100, std::memory_order_relaxed);
+  ns.store(100, std::memory_order_relaxed);
   while (true) {
     std::lock_guard lock(mtx);
     if (result == first_half)
       break;
   }
 
-  ms.store(200, std::memory_order_relaxed);
+  ns.store(200, std::memory_order_relaxed);
   while (true) {
     std::lock_guard lock(mtx);
     if (result == expected)
@@ -155,7 +155,7 @@ TEST(ThreadPoolTaskRunner, PostDelayedTaskInOrder) {
 TEST(ThreadPoolTaskRunner, PostTaskConcurrently) {
   std::mutex mtx;
   ThreadPoolTaskRunner task_runner(
-      1, []() -> chrono::milliseconds { return chrono::milliseconds(0); },
+      1, []() -> chrono::nanoseconds { return chrono::nanoseconds(0); },
       chrono::seconds(60));
 
   std::vector<size_t> result, expected;
@@ -189,7 +189,7 @@ TEST(ThreadPoolTaskRunner, MultipleThreads) {
   for (size_t t = 1; t <= 24; t++) {
     std::mutex mtx;
     ThreadPoolTaskRunner task_runner(
-        t, []() -> chrono::milliseconds { return chrono::milliseconds(0); },
+        t, []() -> chrono::nanoseconds { return chrono::nanoseconds(0); },
         chrono::seconds(60));
 
     std::vector<int> result, expected;
@@ -216,7 +216,7 @@ TEST(ThreadPoolTaskRunner, ApplyTaskSync) {
     for (auto i = 1; i <= 24; i++) {
       std::mutex mtx;
       ThreadPoolTaskRunner task_runner(
-          t, []() -> chrono::milliseconds { return chrono::milliseconds(0); },
+          t, []() -> chrono::nanoseconds { return chrono::nanoseconds(0); },
           chrono::seconds(60));
 
       std::vector<int> result, expected;
@@ -239,7 +239,7 @@ TEST(ThreadPoolTaskRunner, ApplyTaskSync) {
 
 TEST(ThreadPoolTaskRunner, CrashOnZeroIteration) {
   ThreadPoolTaskRunner task_runner(
-      1, []() -> chrono::milliseconds { return chrono::milliseconds(0); },
+      1, []() -> chrono::nanoseconds { return chrono::nanoseconds(0); },
       chrono::seconds(60));
 
   EXPECT_DEATH(task_runner.ApplyTaskSync(DoNothing(), 0), "");
@@ -248,7 +248,7 @@ TEST(ThreadPoolTaskRunner, CrashOnZeroIteration) {
 TEST(ThreadPoolTaskRunner, Timeout) {
   std::mutex mtx;
   ThreadPoolTaskRunner task_runner(
-      1, []() -> chrono::milliseconds { return chrono::milliseconds(0); },
+      1, []() -> chrono::nanoseconds { return chrono::nanoseconds(0); },
       chrono::seconds(1));
 
   std::vector<int> result, expected{0, 1};

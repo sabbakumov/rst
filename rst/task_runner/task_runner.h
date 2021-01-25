@@ -45,13 +45,13 @@ class TaskRunner {
   // Like |PostTask()|, but tries to run the posted |task| only after |delay|
   // has passed.
   void PostDelayedTask(std::function<void()>&& task,
-                       std::chrono::milliseconds delay) {
+                       std::chrono::nanoseconds delay) {
     PostDelayedTaskWithIterations(std::move(task), delay, 0);
   }
 
   // Posts the given |task| to be run.
   void PostTask(std::function<void()>&& task) {
-    PostDelayedTask(std::move(task), std::chrono::milliseconds::zero());
+    PostDelayedTask(std::move(task), std::chrono::nanoseconds::zero());
   }
 
   // Posts a single |task| and waits for all |iterations| to complete before
@@ -60,7 +60,7 @@ class TaskRunner {
 
  protected:
   virtual void PostDelayedTaskWithIterations(std::function<void()>&& task,
-                                             std::chrono::milliseconds delay,
+                                             std::chrono::nanoseconds delay,
                                              size_t iterations) = 0;
 };
 

@@ -873,7 +873,7 @@ Supported types:
 Task runner that is supposed to run tasks on the same thread.
 
 ```cpp
-std::function<std::chrono::milliseconds()> time_function = ...;
+std::function<std::chrono::nanoseconds()> time_function = ...;
 PollingTaskRunner task_runner(std::move(time_function));
 for (;; task_runner.RunPendingTasks()) {
   ...
@@ -888,9 +888,9 @@ for (;; task_runner.RunPendingTasks()) {
 Task runner that is supposed to run tasks on dedicated threads.
 
 ```cpp
-std::function<std::chrono::milliseconds()> time_function = ...;
+std::function<std::chrono::nanoseconds()> time_function = ...;
 size_t max_threads_num = ...;
-std::chrono::milliseconds keep_alive_time = ...;
+std::chrono::nanoseconds keep_alive_time = ...;
 ThreadPoolTaskRunner task_runner(max_threads_num,
                                  std::move(time_function),
                                  keep_alive_time);

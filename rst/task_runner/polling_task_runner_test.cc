@@ -43,21 +43,21 @@ namespace rst {
 
 TEST(PollingTaskRunner, IsTaskRunner) {
   const PollingTaskRunner task_runner(
-      []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+      []() -> chrono::nanoseconds { return chrono::nanoseconds(0); });
   const TaskRunner& i_task_runner = task_runner;
   (void)i_task_runner;
 }
 
 TEST(PollingTaskRunner, InvalidPostTaskDelay) {
   PollingTaskRunner task_runner(
-      []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+      []() -> chrono::nanoseconds { return chrono::nanoseconds(0); });
   EXPECT_DEATH(
-      task_runner.PostDelayedTask(DoNothing(), chrono::milliseconds(-1)), "");
+      task_runner.PostDelayedTask(DoNothing(), chrono::nanoseconds(-1)), "");
 }
 
 TEST(PollingTaskRunner, PostTaskInOrder) {
   PollingTaskRunner task_runner(
-      []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+      []() -> chrono::nanoseconds { return chrono::nanoseconds(0); });
 
   std::vector<int> result, expected;
   for (auto i = 0; i < 1000; i++) {
@@ -70,39 +70,39 @@ TEST(PollingTaskRunner, PostTaskInOrder) {
 }
 
 TEST(PollingTaskRunner, PostDelayedTaskInOrder) {
-  auto ms = 0;
+  auto ns = 0;
   PollingTaskRunner task_runner(
-      [&ms]() -> chrono::milliseconds { return chrono::milliseconds(ms); });
+      [&ns]() -> chrono::nanoseconds { return chrono::nanoseconds(ns); });
 
   std::vector<int> result, first_half, expected;
   for (auto i = 0; i < 500; i++) {
     task_runner.PostDelayedTask([i, &result]() { result.emplace_back(i); },
-                                chrono::milliseconds(1));
+                                chrono::nanoseconds(1));
     first_half.emplace_back(i);
     expected.emplace_back(i);
   }
 
   for (auto i = 500; i < 1000; i++) {
     task_runner.PostDelayedTask([i, &result]() { result.emplace_back(i); },
-                                chrono::milliseconds(2));
+                                chrono::nanoseconds(2));
     expected.emplace_back(i);
   }
 
   task_runner.RunPendingTasks();
   EXPECT_TRUE(result.empty());
 
-  ms = 1;
+  ns = 1;
   task_runner.RunPendingTasks();
   EXPECT_EQ(result, first_half);
 
-  ms = 2;
+  ns = 2;
   task_runner.RunPendingTasks();
   EXPECT_EQ(result, expected);
 }
 
 TEST(PollingTaskRunner, PostTaskConcurrently) {
   PollingTaskRunner task_runner(
-      []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+      []() -> chrono::nanoseconds { return chrono::nanoseconds(0); });
 
   std::vector<size_t> result, expected;
   std::vector<std::thread> threads;
@@ -131,7 +131,7 @@ TEST(PollingTaskRunner, PostTaskConcurrently) {
 TEST(PollingTaskRunner, ApplyTaskSync) {
   for (auto i = 1; i <= 24; i++) {
     PollingTaskRunner task_runner(
-        []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+        []() -> chrono::nanoseconds { return chrono::nanoseconds(0); });
 
     std::vector<int> result, expected;
     for (auto j = 0; j < i; j++)
@@ -154,7 +154,7 @@ TEST(PollingTaskRunner, ApplyTaskSync) {
 
 TEST(PollingTaskRunner, CrashOnZeroIteration) {
   PollingTaskRunner task_runner(
-      []() -> chrono::milliseconds { return chrono::milliseconds(0); });
+      []() -> chrono::nanoseconds { return chrono::nanoseconds(0); });
 
   EXPECT_DEATH(task_runner.ApplyTaskSync(DoNothing(), 0), "");
 }

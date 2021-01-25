@@ -43,7 +43,7 @@ namespace internal {
 // Used in implementations of TaskRunner interface to maintain an ordered queue
 // of tasks.
 struct Item {
-  Item(std::function<void()>&& task, const std::chrono::milliseconds time_point,
+  Item(std::function<void()>&& task, const std::chrono::nanoseconds time_point,
        const uint64_t task_id, const size_t iterations)
       : task(std::move(task)),
         time_point(time_point),
@@ -59,7 +59,7 @@ struct Item {
   }
 
   std::function<void()> task;
-  std::chrono::milliseconds time_point;
+  std::chrono::nanoseconds time_point;
   uint64_t task_id = 0;
   size_t iterations = 0;
 

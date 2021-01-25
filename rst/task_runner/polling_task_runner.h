@@ -46,7 +46,7 @@ namespace rst {
 //
 // Example:
 //
-//   std::function<std::chrono::milliseconds()> time_function = ...;
+//   std::function<std::chrono::nanoseconds()> time_function = ...;
 //   PollingTaskRunner task_runner(std::move(time_function));
 //   for (;; task_runner.RunPendingTasks()) {
 //     ...
@@ -59,7 +59,7 @@ class PollingTaskRunner : public TaskRunner {
  public:
   // Takes |time_function| that returns current time.
   explicit PollingTaskRunner(
-      std::function<std::chrono::milliseconds()>&& time_function);
+      std::function<std::chrono::nanoseconds()>&& time_function);
   ~PollingTaskRunner() override;
 
   // Runs all pending tasks in interval (-inf, time_function_()].
@@ -68,11 +68,11 @@ class PollingTaskRunner : public TaskRunner {
  private:
   // TaskRunner:
   void PostDelayedTaskWithIterations(std::function<void()>&& task,
-                                     std::chrono::milliseconds delay,
+                                     std::chrono::nanoseconds delay,
                                      size_t iterations) override;
   std::mutex mutex_;
   // Returns current time.
-  const std::function<std::chrono::milliseconds()> time_function_;
+  const std::function<std::chrono::nanoseconds()> time_function_;
   // Used to not to allocate memory on every RunPendingTasks() call.
   std::vector<internal::IterationItem> pending_tasks_;
   // Priority queue of tasks.

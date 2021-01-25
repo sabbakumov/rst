@@ -38,7 +38,7 @@ namespace chrono = std::chrono;
 namespace rst {
 
 ThreadPoolTaskRunner::DelayedTaskRunner::DelayedTaskRunner(
-    const size_t max_threads_num, const chrono::milliseconds keep_alive_time)
+    const size_t max_threads_num, const chrono::nanoseconds keep_alive_time)
     : max_threads_num_(max_threads_num), keep_alive_time_(keep_alive_time) {
   RST_DCHECK(max_threads_num > 0);
   RST_DCHECK(keep_alive_time.count() > 0);
@@ -163,7 +163,7 @@ void ThreadPoolTaskRunner::DelayedTaskRunner::PushTask(
 
 ThreadPoolTaskRunner::ServiceTaskRunner::ServiceTaskRunner(
     const NotNull<DelayedTaskRunner*> delayed_task_runner,
-    std::function<std::chrono::milliseconds()>&& time_function)
+    std::function<std::chrono::nanoseconds()>&& time_function)
     : time_function_(std::move(time_function)),
       delayed_task_runner_(*delayed_task_runner),
 #pragma warning(push)
@@ -231,7 +231,7 @@ void ThreadPoolTaskRunner::ServiceTaskRunner::WaitAndScheduleTasks() {
 }
 
 void ThreadPoolTaskRunner::ServiceTaskRunner::PushTask(
-    std::function<void()>&& task, const std::chrono::milliseconds delay,
+    std::function<void()>&& task, const std::chrono::nanoseconds delay,
     const size_t iterations) {
   RST_DCHECK(delay.count() > 0);
 
@@ -249,17 +249,17 @@ void ThreadPoolTaskRunner::ServiceTaskRunner::PushTask(
 
 ThreadPoolTaskRunner::ThreadPoolTaskRunner(
     const size_t max_threads_num,
-    std::function<chrono::milliseconds()>&& time_function,
-    const std::chrono::milliseconds keep_alive_time)
+    std::function<chrono::nanoseconds()>&& time_function,
+    const std::chrono::nanoseconds keep_alive_time)
     : delayed_task_runner_(max_threads_num, keep_alive_time),
       service_task_runner_(&delayed_task_runner_, std::move(time_function)) {}
 
 ThreadPoolTaskRunner::~ThreadPoolTaskRunner() = default;
 
 void ThreadPoolTaskRunner::PostDelayedTaskWithIterations(
-    std::function<void()>&& task, const chrono::milliseconds delay,
+    std::function<void()>&& task, const chrono::nanoseconds delay,
     const size_t iterations) {
-  if (delay == chrono::milliseconds::zero()) {
+  if (delay == chrono::nanoseconds::zero()) {
     delayed_task_runner_.PushTask(
         internal::IterationItem(std::move(task), iterations));
   } else {
