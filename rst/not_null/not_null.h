@@ -86,6 +86,7 @@ class Nullable;
 template <class T>
 class NotNull {
  public:
+  using PointerType = T;
   static_assert(std::is_pointer<T>::value);
 
   NotNull() = delete;
@@ -183,6 +184,7 @@ class NotNull {
 template <class T>
 class Nullable {
  public:
+  using PointerType = T;
   static_assert(std::is_pointer<T>::value);
 
   constexpr Nullable() = default;
@@ -288,6 +290,8 @@ class Nullable {
 template <class T>
 class NotNull<std::unique_ptr<T>> {
  public:
+  using PointerType = T*;
+
   NotNull() = delete;
 
   template <class U>
@@ -374,6 +378,8 @@ class NotNull<std::unique_ptr<T>> {
 template <class T>
 class Nullable<std::unique_ptr<T>> {
  public:
+  using PointerType = T*;
+
   constexpr Nullable() = default;
 
   template <class U>
@@ -467,6 +473,8 @@ class Nullable<std::unique_ptr<T>> {
 template <class T>
 class NotNull<std::shared_ptr<T>> {
  public:
+  using PointerType = T*;
+
   NotNull() = delete;
 
   template <class U>
@@ -600,6 +608,8 @@ class NotNull<std::shared_ptr<T>> {
 template <class T>
 class Nullable<std::shared_ptr<T>> {
  public:
+  using PointerType = T*;
+
   constexpr Nullable() = default;
 
   template <class U>
@@ -737,6 +747,26 @@ bool operator<(const NotNull<T>& lhs, const NotNull<U>& rhs) {
 }
 
 template <class T, class U>
+bool operator==(const NotNull<T>& lhs, U* rhs) {
+  return lhs.get() == rhs;
+}
+
+template <class T, class U>
+bool operator==(U* lhs, const NotNull<T>& rhs) {
+  return rhs == lhs;
+}
+
+template <class T, class U>
+bool operator!=(const NotNull<T>& lhs, U* rhs) {
+  return !(lhs == rhs);
+}
+
+template <class T, class U>
+bool operator!=(U* lhs, const NotNull<T>& rhs) {
+  return !(rhs == lhs);
+}
+
+template <class T, class U>
 bool operator==(const NotNull<T>& lhs, const Nullable<U>& rhs) {
   return lhs.get() == rhs.get();
 }
@@ -815,5 +845,23 @@ bool operator!=(U* lhs, const Nullable<T>& rhs) {
 }
 
 }  // namespace rst
+
+namespace std {
+
+template <class T>
+struct hash<rst::NotNull<T>> {
+  size_t operator()(const rst::NotNull<T>& not_null) const {
+    return std::hash<typename rst::NotNull<T>::PointerType>()(not_null.get());
+  }
+};
+
+template <class T>
+struct hash<rst::Nullable<T>> {
+  size_t operator()(const rst::Nullable<T>& nullable) const {
+    return std::hash<typename rst::Nullable<T>::PointerType>()(nullable.get());
+  }
+};
+
+}  // namespace std
 
 #endif  // RST_NOT_NULL_NOT_NULL_H_

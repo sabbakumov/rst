@@ -33,10 +33,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <map>
 #include <mutex>
 #include <queue>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
 #include "rst/macros/macros.h"
@@ -95,7 +95,7 @@ class ThreadPoolTaskRunner : public TaskRunner {
     std::condition_variable thread_cv_;
     std::mutex thread_mutex_;
 
-    std::map<std::thread::id, std::thread> threads_;
+    std::unordered_map<std::thread::id, std::thread> threads_;
     const size_t max_threads_num_;
     const std::chrono::nanoseconds keep_alive_time_;
     size_t waiting_threads_num_ = 0;
