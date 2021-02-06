@@ -27,10 +27,11 @@
 
 #include "rst/not_null/not_null.h"
 
-#include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 #include <utility>
 
 #include <gtest/gtest.h>
@@ -291,6 +292,12 @@ TEST(NotNull, Operators) {
     EXPECT_NE(str_ptr, str_ptr2);
     EXPECT_NE(str_ptr2, str_ptr);
 
+    EXPECT_EQ(str_ptr, &str);
+    EXPECT_EQ(&str, str_ptr);
+
+    EXPECT_NE(str_ptr, &str2);
+    EXPECT_NE(&str2, str_ptr);
+
     Nullable<std::string*> nullable_str_ptr;
     EXPECT_NE(str_ptr2, nullable_str_ptr);
     nullable_str_ptr = &str2;
@@ -339,10 +346,57 @@ TEST(NotNull, Operators) {
   }
 
   {
-    std::map<NotNull<std::string*>, bool> map;
+    std::set<NotNull<std::string*>> set;
     std::string s1, s2;
-    map.emplace(&s1, true);
-    map.emplace(&s2, true);
+    set.emplace(&s1);
+    set.emplace(&s2);
+
+    auto it = set.find(&s1);
+    ASSERT_NE(it, set.cend());
+    EXPECT_EQ(*it, &s1);
+
+    it = set.find(&s2);
+    ASSERT_NE(it, set.cend());
+    EXPECT_EQ(*it, &s2);
+  }
+
+  {
+    std::set<NotNull<std::unique_ptr<std::string>>> set;
+    set.emplace(std::make_unique<std::string>());
+    set.emplace(std::make_unique<std::string>());
+  }
+
+  {
+    std::set<NotNull<std::shared_ptr<std::string>>> set;
+    set.emplace(std::make_shared<std::string>());
+    set.emplace(std::make_shared<std::string>());
+  }
+
+  {
+    std::unordered_set<NotNull<std::string*>> set;
+    std::string s1, s2;
+    set.emplace(&s1);
+    set.emplace(&s2);
+
+    auto it = set.find(&s1);
+    ASSERT_NE(it, set.cend());
+    EXPECT_EQ(*it, &s1);
+
+    it = set.find(&s2);
+    ASSERT_NE(it, set.cend());
+    EXPECT_EQ(*it, &s2);
+  }
+
+  {
+    std::unordered_set<NotNull<std::unique_ptr<std::string>>> set;
+    set.emplace(std::make_unique<std::string>());
+    set.emplace(std::make_unique<std::string>());
+  }
+
+  {
+    std::unordered_set<NotNull<std::shared_ptr<std::string>>> set;
+    set.emplace(std::make_shared<std::string>());
+    set.emplace(std::make_shared<std::string>());
   }
 }
 
@@ -848,10 +902,57 @@ TEST(Nullable, Operators) {
   }
 
   {
-    std::map<Nullable<std::string*>, bool> map;
+    std::set<Nullable<std::string*>> set;
     std::string s1, s2;
-    map.emplace(&s1, true);
-    map.emplace(&s2, true);
+    set.emplace(&s1);
+    set.emplace(&s2);
+
+    auto it = set.find(&s1);
+    ASSERT_NE(it, set.cend());
+    EXPECT_EQ(*it, &s1);
+
+    it = set.find(&s2);
+    ASSERT_NE(it, set.cend());
+    EXPECT_EQ(*it, &s2);
+  }
+
+  {
+    std::set<Nullable<std::unique_ptr<std::string>>> set;
+    set.emplace(std::make_unique<std::string>());
+    set.emplace(std::make_unique<std::string>());
+  }
+
+  {
+    std::set<Nullable<std::shared_ptr<std::string>>> set;
+    set.emplace(std::make_shared<std::string>());
+    set.emplace(std::make_shared<std::string>());
+  }
+
+  {
+    std::unordered_set<Nullable<std::string*>> set;
+    std::string s1, s2;
+    set.emplace(&s1);
+    set.emplace(&s2);
+
+    auto it = set.find(&s1);
+    ASSERT_NE(it, set.cend());
+    EXPECT_EQ(*it, &s1);
+
+    it = set.find(&s2);
+    ASSERT_NE(it, set.cend());
+    EXPECT_EQ(*it, &s2);
+  }
+
+  {
+    std::unordered_set<Nullable<std::unique_ptr<std::string>>> set;
+    set.emplace(std::make_unique<std::string>());
+    set.emplace(std::make_unique<std::string>());
+  }
+
+  {
+    std::unordered_set<Nullable<std::shared_ptr<std::string>>> set;
+    set.emplace(std::make_shared<std::string>());
+    set.emplace(std::make_shared<std::string>());
   }
 }
 
