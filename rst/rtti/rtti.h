@@ -35,7 +35,7 @@
 //
 // Example:
 //
-//   class FileError : public ErrorInfo<FileError> {
+//   class FileError : public rst::ErrorInfo<FileError> {
 //    public:
 //     explicit FileError(std::string&& message);
 //     ~FileError();
@@ -49,9 +49,9 @@
 //     const std::string message_;
 //   };
 //
-//   Status status = Bar();
+//   rst::Status status = Bar();
 //   if (status.err() &&
-//       dyn_cast<FileError>(status.GetError()) != nullptr) {
+//       rst::dyn_cast<FileError>(status.GetError()) != nullptr) {
 //     // File doesn't exist.
 //   }
 //

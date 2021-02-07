@@ -50,7 +50,7 @@ namespace rst {
 // are used.
 //
 // Example:
-//   Preferences preferences(...);
+//   rst::Preferences preferences(...);
 //
 //   preferences.RegisterIntPreference("int.preference", 10);
 //   RST_DCHECK(preferences.GetInt("int.preference") == 10);

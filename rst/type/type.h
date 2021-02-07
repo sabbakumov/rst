@@ -52,8 +52,8 @@ namespace rst {
 //
 // Type may instead be used as follows:
 //
-// using Orange = Type<class OrangeTag, int>;
-// using Apple = Type<class AppleTag, int>;
+// using Orange = rst::Type<class OrangeTag, int>;
+// using Apple = rst::Type<class AppleTag, int>;
 // Apple apple(2);
 // Orange orange = apple;  // Does not compile.
 // Orange other_orange = orange;  // Compiles, types match.

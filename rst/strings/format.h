@@ -53,7 +53,7 @@
 // be output.
 //
 // Example:
-//   std::string s = Format("{} purchased {} {}", {"Bob", 5, "Apples"});
+//   std::string s = rst::Format("{} purchased {} {}", {"Bob", 5, "Apples"});
 //   RST_DCHECK(s == "Bob purchased 5 Apples");
 //
 // Supported types:

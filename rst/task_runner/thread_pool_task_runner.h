@@ -54,9 +54,9 @@ namespace rst {
 //   std::function<std::chrono::nanoseconds()> time_function = ...;
 //   size_t max_threads_num = ...;
 //   std::chrono::nanoseconds keep_alive_time = ...;
-//   ThreadPoolTaskRunner task_runner(max_threads_num,
-//                                    std::move(time_function),
-//                                    keep_alive_time);
+//   rst::ThreadPoolTaskRunner task_runner(max_threads_num,
+//                                         std::move(time_function),
+//                                         keep_alive_time);
 //   ...
 //   std::function<void()> task = ...;
 //   task_runner.PostTask(std::move(task));

@@ -42,7 +42,7 @@ namespace rst {
 //       callback(true);
 //   }
 //
-//   MyFunction(NullFunction());
+//   MyFunction(rst::NullFunction());
 //
 class NullFunction {
  public:
@@ -63,8 +63,8 @@ class NullFunction {
 //
 //   MyFunction(MyCallback());  // ... this will crash!
 //
-//   // Instead, use DoNothing():
-//   MyFunction(DoNothing());  // Can be run, will no-op.
+//   // Instead, use rst::DoNothing():
+//   MyFunction(rst::DoNothing());  // Can be run, will no-op.
 //
 class DoNothing {
  public:

@@ -39,10 +39,10 @@ namespace rst {
 //
 // Example:
 //
-//   class Controller : public SupportsWeakPtr<Controller> {
+//   class Controller : public rst::SupportsWeakPtr<Controller> {
 //    public:
 //     void SpawnWorker() {
-//       Worker::StartNew(Bind(&Controller::WorkComplete, AsWeakPtr()));
+//       Worker::StartNew(rst::Bind(&Controller::WorkComplete, AsWeakPtr()));
 //     }
 //     void WorkComplete(const Result& result) { ... }
 //   };

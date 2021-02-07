@@ -51,7 +51,7 @@ namespace rst {
 // from the current function.
 //
 // Example:
-//   Status Foo();
+//   rst::Status Foo();
 //
 //   RST_TRY(Foo());
 //
@@ -67,9 +67,9 @@ namespace rst {
 // scope.
 //
 // Example:
-//   StatusOr<MyType> Foo();
+//   rst::StatusOr<MyType> Foo();
 //
-//   StatusOr<MyType> existing_var = ...;
+//   rst::StatusOr<MyType> existing_var = ...;
 //   RST_TRY_ASSIGN(existing_var, Foo());
 //
 // RST_TRY_ASSIGN() expands into multiple statements; it cannot be used in a
@@ -99,7 +99,7 @@ namespace rst {
 // scope.
 //
 // Example:
-//   StatusOr<MyType> Foo();
+//   rst::StatusOr<MyType> Foo();
 //
 //   MyType existing_var = ...;
 //   RST_TRY_ASSIGN_UNWRAP(existing_var, Foo());
@@ -117,9 +117,9 @@ namespace rst {
 // |lhs| should be a new variable.
 //
 // Example:
-//   StatusOr<MyType> Foo();
+//   rst::StatusOr<MyType> Foo();
 //
-//   RST_TRY_CREATE(StatusOr<MyType>, var1, Foo());
+//   RST_TRY_CREATE(rst::StatusOr<MyType>, var1, Foo());
 //   RST_TRY_CREATE(auto, var2, Foo());
 //
 // RST_TRY_CREATE() expands into multiple statements; it cannot be used in a

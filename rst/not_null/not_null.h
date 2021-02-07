@@ -43,7 +43,7 @@
 //
 // Example:
 //
-//   void Foo(NotNul<int*>) {}
+//   void Foo(rst::NotNul<int*>) {}
 //
 //   int i = 0;
 //   Foo(&i);  // OK.
@@ -53,7 +53,7 @@
 //
 // There are specializations for std::unique_ptr and std::shared_ptr. In order
 // to take the inner smart pointer use Take() method:
-//   NotNull<std::unique_ptr<T>> p = ...;
+//   rst::NotNull<std::unique_ptr<T>> p = ...;
 //   std::unique_ptr<T> inner = std::move(p).Take();
 //
 // Nullable is a class that explicitly state that a pointer or a smart pointer
@@ -62,18 +62,18 @@
 //
 // Example:
 //
-//   void Foo(Nullable<int*> ptr) {
+//   void Foo(rst::Nullable<int*> ptr) {
 //     if (ptr != nullptr)
 //       *ptr = 0;  // OK.
 //   }
 //
-//   void Bar(Nullable<int*> ptr) {
+//   void Bar(rst::Nullable<int*> ptr) {
 //     *ptr = 0;  // Assert.
 //   }
 //
 // There are specializations for std::unique_ptr and std::shared_ptr. In order
 // to take the inner smart pointer use Take() method:
-//   Nullable<std::unique_ptr<T>> p = ...;
+//   rst::Nullable<std::unique_ptr<T>> p = ...;
 //   std::unique_ptr<T> inner = std::move(p).Take();
 //
 // Note std::move(p) is used to call Take(). It is a sign that |p| is in valid

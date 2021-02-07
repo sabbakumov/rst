@@ -1,4 +1,4 @@
-// Copyright (c) 2020, Sergey Abbakumov
+// Copyright (c) 2021, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,41 +25,53 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_STL_VECTOR_BUILDER_H_
-#define RST_STL_VECTOR_BUILDER_H_
+#include "rst/stl/hash.h"
 
-#include <utility>
-#include <vector>
+#include <cstdint>
+#include <functional>
+#include <unordered_set>
+
+#include <gtest/gtest.h>
+
+namespace {
+
+struct Point {
+  Point(const int x, const int y) : x(x), y(y) {}
+
+  int x = 0;
+  int y = 0;
+};
+
+bool operator==(const Point lhs, const Point rhs) {
+  return (lhs.x == rhs.x) && (lhs.y == rhs.y);
+}
+
+}  // namespace
+
+namespace std {
+
+template <>
+struct hash<Point> {
+  size_t operator()(const Point point) const {
+    std::hash<int> hasher;
+    const auto hash_value = hasher(point.x);
+    return rst::HashCombine(hash_value, hasher(point.y));
+  }
+};
+
+}  // namespace std
 
 namespace rst {
 
-// Allows in-place initialization of a vector of movable objects.
-//
-// Example:
-//
-//   const std::vector<std::unique_ptr<int>> vec =
-//       rst::VectorBuilder<std::unique_ptr<int>>()
-//           .emplace_back(std::make_unique<int>(1))
-//           .emplace_back(std::make_unique<int>(-1))
-//           .Build();
-//
-template <class T>
-class VectorBuilder {
- public:
-  VectorBuilder() = default;
+TEST(Hash, size_t) {
+  static constexpr size_t kH = 1, kK = 1;
+  const size_t result = HashCombine(kH, kK);
+  (void)result;
+}
 
-  template <class... Args>
-  VectorBuilder&& emplace_back(Args&&... args) && {
-    vec_.emplace_back(std::forward<Args>(args)...);
-    return std::move(*this);
-  }
-
-  std::vector<T> Build() && { return std::move(vec_); }
-
- private:
-  std::vector<T> vec_;
-};
+TEST(Hash, Point) {
+  std::unordered_set<Point> points;
+  points.emplace(0, 0);
+}
 
 }  // namespace rst
-
-#endif  // RST_STL_VECTOR_BUILDER_H_

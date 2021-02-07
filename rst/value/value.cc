@@ -34,10 +34,10 @@ Value::Value(const Type type) : type_(type) {
     case Type::kNull:
       return;
     case Type::kBool:
-      bool_ = false;
+      get_bool() = false;
       return;
     case Type::kNumber:
-      number_ = 0.0;
+      get_number() = 0.0;
       return;
     case Type::kString:
       new (&string_) String();
@@ -71,15 +71,15 @@ Value Value::Clone() const {
     case Type::kNull:
       return Value();
     case Type::kBool:
-      return Value(bool_);
+      return Value(get_bool());
     case Type::kNumber:
-      return Value(number_);
+      return Value(get_number());
     case Type::kString:
-      return Value(String(string_));
+      return Value(String(get_string()));
     case Type::kArray:
-      return Value(Clone(array_));
+      return Value(Clone(get_array()));
     case Type::kObject:
-      return Value(Clone(object_));
+      return Value(Clone(get_object()));
   }
 
   RST_NOTREACHED();
@@ -105,8 +105,8 @@ Value::Object Value::Clone(const Object& object) {
 
 Nullable<const Value*> Value::FindKey(const std::string_view key) const {
   RST_DCHECK(IsObject());
-  const auto it = object_.find(key);
-  if (it == object_.cend())
+  const auto it = get_object().find(key);
+  if (it == get_object().cend())
     return nullptr;
   return &it->second;
 }
@@ -127,7 +127,7 @@ std::optional<bool> Value::FindBoolKey(const std::string_view key) const {
   const auto result = FindKeyOfType(key, Type::kBool);
   if (result == nullptr)
     return std::nullopt;
-  return result->bool_;
+  return result->get_bool();
 }
 
 std::optional<int64_t> Value::FindInt64Key(const std::string_view key) const {
@@ -138,7 +138,7 @@ std::optional<int64_t> Value::FindInt64Key(const std::string_view key) const {
   if (!result->IsInt64())
     return std::nullopt;
 
-  return static_cast<int64_t>(result->number_);
+  return static_cast<int64_t>(result->get_number());
 }
 
 std::optional<int> Value::FindIntKey(const std::string_view key) const {
@@ -149,14 +149,14 @@ std::optional<int> Value::FindIntKey(const std::string_view key) const {
   if (!result->IsInt())
     return std::nullopt;
 
-  return static_cast<int>(result->number_);
+  return static_cast<int>(result->get_number());
 }
 
 std::optional<double> Value::FindDoubleKey(const std::string_view key) const {
   const auto result = FindKeyOfType(key, Type::kNumber);
   if (result == nullptr)
     return std::nullopt;
-  return result->number_;
+  return result->get_number();
 }
 
 Nullable<const Value::String*> Value::FindStringKey(
@@ -164,23 +164,23 @@ Nullable<const Value::String*> Value::FindStringKey(
   const auto result = FindKeyOfType(key, Type::kString);
   if (result == nullptr)
     return nullptr;
-  return &result->string_;
+  return &result->get_string();
 }
 
 NotNull<Value*> Value::SetKey(std::string&& key, Value&& value) {
   RST_DCHECK(IsObject());
   const auto [it, _] =
-      object_.insert_or_assign(std::move(key), std::move(value));
+      get_object().insert_or_assign(std::move(key), std::move(value));
   return &it->second;
 }
 
 bool Value::RemoveKey(const std::string_view key) {
   RST_DCHECK(IsObject());
-  const auto it = object_.find(key);
-  if (it == object_.cend())
+  const auto it = get_object().find(key);
+  if (it == get_object().cend())
     return false;
 
-  object_.erase(it);
+  get_object().erase(it);
   return true;
 }
 
@@ -234,19 +234,19 @@ void Value::MoveConstruct(Value&& other) {
     case Type::kNull:
       break;
     case Type::kBool:
-      bool_ = other.bool_;
+      get_bool() = other.get_bool();
       break;
     case Type::kNumber:
-      number_ = other.number_;
+      get_number() = other.get_number();
       break;
     case Type::kString:
-      new (&string_) String(std::move(other.string_));
+      new (&string_) String(std::move(other.get_string()));
       break;
     case Type::kArray:
-      new (&array_) Array(std::move(other.array_));
+      new (&array_) Array(std::move(other.get_array()));
       break;
     case Type::kObject:
-      new (&object_) Object(std::move(other.object_));
+      new (&object_) Object(std::move(other.get_object()));
       break;
   }
 }
@@ -258,19 +258,19 @@ void Value::MoveAssign(Value&& rhs) {
     case Type::kNull:
       return;
     case Type::kBool:
-      bool_ = rhs.bool_;
+      get_bool() = rhs.get_bool();
       return;
     case Type::kNumber:
-      number_ = rhs.number_;
+      get_number() = rhs.get_number();
       return;
     case Type::kString:
-      string_ = std::move(rhs.string_);
+      get_string() = std::move(rhs.get_string());
       return;
     case Type::kArray:
-      array_ = std::move(rhs.array_);
+      get_array() = std::move(rhs.get_array());
       return;
     case Type::kObject:
-      object_ = std::move(rhs.object_);
+      get_object() = std::move(rhs.get_object());
       return;
   }
 }
@@ -282,13 +282,13 @@ void Value::Cleanup() {
     case Type::kNumber:
       return;
     case Type::kString:
-      string_.~String();
+      get_string().~String();
       return;
     case Type::kArray:
-      array_.~Array();
+      get_array().~Array();
       return;
     case Type::kObject:
-      object_.~Object();
+      get_object().~Object();
       return;
   }
 }
@@ -301,16 +301,16 @@ bool operator==(const Value& lhs, const Value& rhs) {
     case Value::Type::kNull:
       return true;
     case Value::Type::kBool:
-      return lhs.bool_ == rhs.bool_;
+      return lhs.get_bool() == rhs.get_bool();
     case Value::Type::kNumber:
-      return std::fabs(lhs.number_ - rhs.number_) <
+      return std::fabs(lhs.get_number() - rhs.get_number()) <
              std::numeric_limits<double>::epsilon();
     case Value::Type::kString:
-      return lhs.string_ == rhs.string_;
+      return lhs.get_string() == rhs.get_string();
     case Value::Type::kArray:
-      return lhs.array_ == rhs.array_;
+      return lhs.get_array() == rhs.get_array();
     case Value::Type::kObject:
-      return lhs.object_ == rhs.object_;
+      return lhs.get_object() == rhs.get_object();
   }
 
   RST_NOTREACHED();
@@ -322,18 +322,25 @@ bool operator<(const Value& lhs, const Value& rhs) {
     return lhs.type_ < rhs.type_;
 
   switch (lhs.type_) {
-    case Value::Type::kNull:
+    case Value::Type::kNull: {
       return false;
-    case Value::Type::kBool:
-      return static_cast<int>(lhs.bool_) < static_cast<int>(rhs.bool_);
-    case Value::Type::kNumber:
-      return lhs.number_ < rhs.number_;
-    case Value::Type::kString:
-      return lhs.string_ < rhs.string_;
-    case Value::Type::kArray:
-      return lhs.array_ < rhs.array_;
-    case Value::Type::kObject:
-      return lhs.object_ < rhs.object_;
+    }
+    case Value::Type::kBool: {
+      return static_cast<int>(lhs.get_bool()) <
+             static_cast<int>(rhs.get_bool());
+    }
+    case Value::Type::kNumber: {
+      return lhs.get_number() < rhs.get_number();
+    }
+    case Value::Type::kString: {
+      return lhs.get_string() < rhs.get_string();
+    }
+    case Value::Type::kArray: {
+      return lhs.get_array() < rhs.get_array();
+    }
+    case Value::Type::kObject: {
+      return lhs.get_object() < rhs.get_object();
+    }
   }
 
   RST_NOTREACHED();

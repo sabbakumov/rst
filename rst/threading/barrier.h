@@ -43,7 +43,7 @@ namespace rst {
 //
 // Example:
 //
-//   Barrier barrier(5);
+//   rst::Barrier barrier(5);
 //
 //   std::vector<std::thread> threads;
 //   for (auto i = 0; i < 5; i++)
