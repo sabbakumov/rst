@@ -44,13 +44,13 @@ namespace rst {
 //
 // Example:
 //
-//   StatusOr<std::string> foo = Foo();
+//   rst::StatusOr<std::string> foo = Foo();
 //   if (foo.err())
 //     return std::move(foo).TakeStatus();
 //
 //   // Or:
 //   RST_TRY_CREATE(auto, foo, Foo());
-//   RST_TRY_CREATE(StatusOr<std::string>, foo, Foo());
+//   RST_TRY_CREATE(rst::StatusOr<std::string>, foo, Foo());
 //   ...
 //   RST_TRY_ASSIGN(foo, Foo());
 //
@@ -163,7 +163,7 @@ class [[nodiscard]] StatusOr {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = true;
     if (has_error_)
-      (void)status_.err();
+      (void)get_status().err();
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     return has_error_;
   }
@@ -175,7 +175,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(!has_error_);
 
-    return value_;
+    return get_value();
   }
 
   // Asserts that it was checked.
@@ -185,7 +185,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(!has_error_);
 
-    return &value_;
+    return &get_value();
   }
 
   // Asserts that it was checked.
@@ -195,7 +195,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(has_error_);
 
-    return std::move(status_);
+    return std::move(get_status());
   }
 
   // Asserts that it was checked.
@@ -205,7 +205,7 @@ class [[nodiscard]] StatusOr {
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(has_error_);
 
-    return status_;
+    return get_status();
   }
 
   // Sets the object to be checked.
@@ -213,7 +213,7 @@ class [[nodiscard]] StatusOr {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = true;
     if (has_error_)
-      status_.was_checked_ = true;
+      get_status().was_checked_ = true;
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
   }
 
@@ -222,9 +222,9 @@ class [[nodiscard]] StatusOr {
     has_error_ = other.has_error_;
 
     if (RST_UNLIKELY(has_error_))
-      new (&status_) Status(std::move(other.status_));
+      new (&status_) Status(std::move(other.get_status()));
     else
-      new (&value_) T(std::move(other.value_));
+      new (&value_) T(std::move(other.get_value()));
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
@@ -236,9 +236,9 @@ class [[nodiscard]] StatusOr {
     RST_DCHECK(has_error_ == other.has_error_);
 
     if (RST_UNLIKELY(has_error_))
-      status_ = std::move(other.status_);
+      get_status() = std::move(other.get_status());
     else
-      value_ = std::move(other.value_);
+      get_value() = std::move(other.get_value());
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
@@ -266,7 +266,7 @@ class [[nodiscard]] StatusOr {
 
   void CopyAssignFromT(const T& value) {
     RST_DCHECK(!has_error_);
-    value_ = value;
+    get_value() = value;
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
@@ -275,7 +275,7 @@ class [[nodiscard]] StatusOr {
 
   void MoveAssignFromT(T&& value) {
     RST_DCHECK(!has_error_);
-    value_ = std::move(value);
+    get_value() = std::move(value);
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
@@ -285,7 +285,7 @@ class [[nodiscard]] StatusOr {
   void MoveConstructFromStatus(Status status) {
     has_error_ = true;
     new (&status_) Status(std::move(status));
-    RST_DCHECK(status_.error_ != nullptr);
+    RST_DCHECK(get_status().error_ != nullptr);
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
@@ -294,8 +294,8 @@ class [[nodiscard]] StatusOr {
 
   void MoveAssignFromStatus(Status status) {
     RST_DCHECK(has_error_);
-    status_ = std::move(status);
-    RST_DCHECK(status_.error_ != nullptr);
+    get_status() = std::move(status);
+    RST_DCHECK(get_status().error_ != nullptr);
 
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = false;
@@ -304,10 +304,17 @@ class [[nodiscard]] StatusOr {
 
   void Cleanup() {
     if (RST_UNLIKELY(has_error_))
-      status_.~Status();
+      get_status().~Status();
     else
-      value_.~T();
+      get_value().~T();
   }
+
+  const Status& get_status() const { return *std::launder(&status_); }
+  Status& get_status() {
+    return const_cast<Status&>(std::as_const(*this).get_status());
+  }
+
+  T& get_value() { return *std::launder(&value_); }
 
   bool has_error_;
   union {

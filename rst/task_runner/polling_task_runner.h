@@ -47,7 +47,7 @@ namespace rst {
 // Example:
 //
 //   std::function<std::chrono::nanoseconds()> time_function = ...;
-//   PollingTaskRunner task_runner(std::move(time_function));
+//   rst::PollingTaskRunner task_runner(std::move(time_function));
 //   for (;; task_runner.RunPendingTasks()) {
 //     ...
 //     std::function<void()> task = ...;

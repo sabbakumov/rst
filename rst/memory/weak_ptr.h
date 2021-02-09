@@ -51,7 +51,7 @@
 //
 // Example:
 //
-//   class Controller : public SupportsWeakPtr<Controller> {
+//   class Controller : public rst::SupportsWeakPtr<Controller> {
 //    public:
 //     void SpawnWorker() { Worker::StartNew(AsWeakPtr()); }
 //     void WorkComplete(const Result& result) { ... }
@@ -59,23 +59,23 @@
 //
 //   class Worker {
 //    public:
-//     static void StartNew(WeakPtr<Controller>&& controller) {
+//     static void StartNew(rst::WeakPtr<Controller>&& controller) {
 //       new Worker(std::move(controller));
 //       // Asynchronous processing...
 //     }
 //
 //    private:
-//     Worker(WeakPtr<Controller>&& controller)
+//     Worker(rst::WeakPtr<Controller>&& controller)
 //         : controller_(std::move(controller)) {}
 //
 //     void DidCompleteAsynchronousProcessing(const Result& result) {
-//       Nullable<Controller*> controller = controller_.GetNullable();
+//       rst::Nullable<Controller*> controller = controller_.GetNullable();
 //       if (controller != nullptr)
 //         controller->WorkComplete(result);
 //       delete this;
 //     }
 //
-//     const WeakPtr<Controller> controller_;
+//     const rst::WeakPtr<Controller> controller_;
 //   };
 //
 // With this implementation a caller may use SpawnWorker() to dispatch multiple
@@ -216,18 +216,18 @@ class SupportsWeakPtr : public internal::SupportsWeakPtrBase {
 // extends SupportsWeakPtr<Base>.
 //
 // Example:
-//   class Base : public SupportsWeakPtr<Base> {};
+//   class Base : public rst::SupportsWeakPtr<Base> {};
 //   class Derived : public Base {};
 //
 //   Derived derived;
-//   WeakPtr<Derived> ptr = AsWeakPtr(&derived);
+//   rst::WeakPtr<Derived> ptr = rst::AsWeakPtr(&derived);
 //
 // Note that the following doesn't work (invalid type conversion) since
 // Derived::AsWeakPtr() is WeakPtr<Base> SupportsWeakPtr<Base>::AsWeakPtr(),
 // and there's no way to safely cast WeakPtr<Base> to WeakPtr<Derived> at the
 // caller.
 //
-//   WeakPtr<Derived> ptr = derived.AsWeakPtr();  // Fails.
+//   rst::WeakPtr<Derived> ptr = derived.AsWeakPtr();  // Fails.
 //
 template <class Derived>
 WeakPtr<Derived> AsWeakPtr(Derived* p) {

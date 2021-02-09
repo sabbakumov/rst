@@ -43,11 +43,11 @@
 // Example:
 //
 //   // Construct logger with a custom sink.
-//   std::unique_ptr<Sink> sink = ...;
-//   Logger logger(std::move(sink));
+//   std::unique_ptr<rst::Sink> sink = ...;
+//   rst::Logger logger(std::move(sink));
 //
 //   // To get logger macros working.
-//   Logger::SetGlobalLogger(&logger);
+//   rst::Logger::SetGlobalLogger(&logger);
 //
 //   RST_LOG_INFO("Init subsystem A");
 //   // DLOG versions log only in a debug build.

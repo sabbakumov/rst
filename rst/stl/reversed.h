@@ -61,7 +61,7 @@ class ReversedAdapter {
 // Example:
 //
 //   std::vector<int> v = ...;
-//   for (auto i : base::Reversed(v)) {
+//   for (auto i : rst::Reversed(v)) {
 //     // Iterates through v from back to front.
 //   }
 template <class T>

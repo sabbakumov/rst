@@ -42,7 +42,7 @@ namespace rst {
 //   auto moved_f = std::move(f);  // f is in a valid but unspecified state
 //                                 // after the call.
 //   std::function<void()> f = ...;
-//   auto moved_f = TakeFunction(std::move(f));  // f is nullptr.
+//   auto moved_f = rst::TakeFunction(std::move(f));  // f is nullptr.
 //
 template <class R, class... Args>
 std::function<R(Args...)> TakeFunction(std::function<R(Args...)>&& f) {

@@ -46,7 +46,7 @@
 // below for a full list of supported types.
 //
 // Example:
-//   std::string s = StrCat({"Bob", " purchased ", 5, " ", Apples"});
+//   std::string s = rst::StrCat({"Bob", " purchased ", 5, " ", Apples"});
 //   RST_DCHECK(s == "Bob purchased 5 Apples");
 //
 // Supported types:

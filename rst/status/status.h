@@ -44,7 +44,7 @@ namespace rst {
 //
 // Example:
 //
-//   class FileError : public ErrorInfo<FileError> {
+//   class FileError : public rst::ErrorInfo<FileError> {
 //    public:
 //     explicit FileError(std::string&& message);
 //     ~FileError();
@@ -59,7 +59,7 @@ namespace rst {
 //   };
 //
 //   // Subclass of FileOpenError.
-//   class FileOpenError : public ErrorInfo<FileOpenError, FileError> {
+//   class FileOpenError : public rst::ErrorInfo<FileOpenError, FileError> {
 //    public:
 //     explicit FileOpenError(std::string&& message);
 //     ~FileOpenError();
@@ -115,7 +115,7 @@ class ErrorInfo : public Parent {
 //
 // Example:
 //
-//   Status status = Foo();
+//   rst::Status status = Foo();
 //   if (status.err())
 //     return status;
 //
@@ -123,9 +123,9 @@ class ErrorInfo : public Parent {
 //   RST_TRY(Foo());
 //
 //   // Check specific error:
-//   Status status = Bar();
+//   rst::Status status = Bar();
 //   if (status.err() &&
-//       dyn_cast<FileOpenError>(status.GetError()) != nullptr) {
+//       rst::dyn_cast<FileOpenError>(status.GetError()) != nullptr) {
 //     // File doesn't exist.
 //   }
 //

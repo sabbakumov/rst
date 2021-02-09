@@ -33,6 +33,7 @@
 #include <functional>
 #include <limits>
 #include <map>
+#include <new>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -127,18 +128,20 @@ class Value {
   bool IsBool() const { return type() == Type::kBool; }
   bool IsNumber() const { return type() == Type::kNumber; }
   bool IsInt64() const {
-    return IsNumber() && (std::abs(number_) <= kMaxSafeInteger) &&
+    return IsNumber() && (std::abs(get_number()) <= kMaxSafeInteger) &&
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wfloat-equal"
-           (static_cast<double>(static_cast<int64_t>(number_)) == number_);
+           (static_cast<double>(static_cast<int64_t>(get_number())) ==
+            get_number());
 #pragma clang diagnostic pop
   }
   bool IsInt() const {
-    return IsNumber() && (number_ >= std::numeric_limits<int>::min()) &&
-           (number_ <= std::numeric_limits<int>::max()) &&
+    return IsNumber() && (get_number() >= std::numeric_limits<int>::min()) &&
+           (get_number() <= std::numeric_limits<int>::max()) &&
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wfloat-equal"
-           (static_cast<double>(static_cast<int>(number_)) == number_);
+           (static_cast<double>(static_cast<int>(get_number())) ==
+            get_number());
 #pragma clang diagnostic pop
   }
   bool IsString() const { return type() == Type::kString; }
@@ -148,37 +151,37 @@ class Value {
   // These will all assert that the type matches.
   bool GetBool() const {
     RST_DCHECK(IsBool());
-    return bool_;
+    return get_bool();
   }
   int64_t GetInt64() const {
     RST_DCHECK(IsInt64());
-    return static_cast<int64_t>(number_);
+    return static_cast<int64_t>(get_number());
   }
   int GetInt() const {
     RST_DCHECK(IsInt());
-    return static_cast<int>(number_);
+    return static_cast<int>(get_number());
   }
   double GetDouble() const {
     RST_DCHECK(IsNumber());
-    return number_;
+    return get_number();
   }
   const String& GetString() const {
     RST_DCHECK(IsString());
-    return string_;
+    return get_string();
   }
   String& GetString() {
     return const_cast<String&>(std::as_const(*this).GetString());
   }
   const Array& GetArray() const {
     RST_DCHECK(IsArray());
-    return array_;
+    return get_array();
   }
   Array& GetArray() {
     return const_cast<Array&>(std::as_const(*this).GetArray());
   }
   const Object& GetObject() const {
     RST_DCHECK(IsObject());
-    return object_;
+    return get_object();
   }
   Object& GetObject() {
     return const_cast<Object&>(std::as_const(*this).GetObject());
@@ -252,6 +255,31 @@ class Value {
   void MoveConstruct(Value&& other);
   void MoveAssign(Value&& rhs);
   void Cleanup();
+
+  const bool& get_bool() const { return *std::launder(&bool_); }
+  bool& get_bool() {
+    return const_cast<bool&>(std::as_const(*this).get_bool());
+  }
+
+  const double& get_number() const { return *std::launder(&number_); }
+  double& get_number() {
+    return const_cast<double&>(std::as_const(*this).get_number());
+  }
+
+  const String& get_string() const { return *std::launder(&string_); }
+  String& get_string() {
+    return const_cast<String&>(std::as_const(*this).get_string());
+  }
+
+  const Array& get_array() const { return *std::launder(&array_); }
+  Array& get_array() {
+    return const_cast<Array&>(std::as_const(*this).get_array());
+  }
+
+  const Object& get_object() const { return *std::launder(&object_); }
+  Object& get_object() {
+    return const_cast<Object&>(std::as_const(*this).get_object());
+  }
 
   Type type_;
   union {

@@ -66,6 +66,7 @@ add_library(rst
 
   rst/stl/algorithm.h
   rst/stl/function.h
+  rst/stl/hash.h
   rst/stl/resize_uninitialized.h
   rst/stl/reversed.h
   rst/stl/vector_builder.h
@@ -140,6 +141,7 @@ add_executable(rst_tests
 
   rst/stl/algorithm_test.cc
   rst/stl/function_test.cc
+  rst/stl/hash_test.cc
   rst/stl/resize_uninitialized_test.cc
   rst/stl/reversed_test.cc
   rst/stl/vector_builder_test.cc

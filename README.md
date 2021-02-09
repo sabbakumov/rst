@@ -10,8 +10,8 @@ It is licensed under the Simplified BSD License.
 * [Codemap](#Codemap)
   * [Bind](#Bind)
     * [Bind](#Bind2)
-    * [NullFunction](#NullFunction)
     * [DoNothing](#DoNothing)
+    * [NullFunction](#NullFunction)
   * [Check](#Check)
   * [Defer](#Defer)
   * [Files](#Files)
@@ -20,8 +20,8 @@ It is licensed under the Simplified BSD License.
   * [Logger](#Logger)
   * [Macros](#Macros)
     * [Macros](#Macros2)
-    * [Optimization](#Optimization)
     * [OS](#OS)
+    * [Optimization](#Optimization)
     * [Thread Annotations](#ThreadAnnotations)
   * [Memory](#Memory)
     * [Memory](#Memory2)
@@ -32,15 +32,16 @@ It is licensed under the Simplified BSD License.
   * [Random](#Random)
   * [RTTI](#RTTI)
   * [STL](#STL)
-    * [Reversed](#Reversed)
     * [Algorithm](#Algorithm)
+    * [Hash](#Hash)
+    * [Reversed](#Reversed)
     * [StringResizeUninitialized](#StringResizeUninitialized)
     * [TakeFunction](#TakeFunction)
     * [VectorBuilder](#VectorBuilder)
   * [Status](#Status)
-    * [Status](#Status2)
     * [Status Macros](#StatusMacros)
     * [StatusOr](#StatusOr)
+    * [Status](#Status2)
   * [Strings](#Strings)
     * [Format](#Format)
     * [StrCat](#StrCat)
@@ -93,10 +94,10 @@ cmake .. -DRST_ENABLE_UBSAN=ON
 Like `std::bind()` but doesn't call functor when `WeakPtr` is invalidated.
   
 ```cpp
-class Controller : public SupportsWeakPtr<Controller> {
+class Controller : public rst::SupportsWeakPtr<Controller> {
  public:
   void SpawnWorker() {
-    Worker::StartNew(Bind(&Controller::WorkComplete, AsWeakPtr()));
+    Worker::StartNew(rst::Bind(&Controller::WorkComplete, AsWeakPtr()));
   }
   void WorkComplete(const Result& result) { ... }
 };
@@ -121,20 +122,6 @@ class Worker {
 };
 ```
 
-<a name="NullFunction"></a>
-### NullFunction
-Creates a null function.
-
-```cpp
-using MyCallback = std::function<void(bool arg)>;
-void MyFunction(const MyCallback& callback) {
-  if (callback != nullptr)
-    callback(true);
-}
-
-MyFunction(NullFunction());
-```
-
 <a name="DoNothing"></a>
 ### DoNothing
 Creates a function that does nothing when called.
@@ -147,8 +134,22 @@ void MyFunction(const MyCallback& callback) {
 
 MyFunction(MyCallback());  // ... this will crash!
 
-// Instead, use DoNothing():
-MyFunction(DoNothing());  // Can be run, will no-op.
+// Instead, use rst::DoNothing():
+MyFunction(rst::DoNothing());  // Can be run, will no-op.
+```
+
+<a name="NullFunction"></a>
+### NullFunction
+Creates a null function.
+
+```cpp
+using MyCallback = std::function<void(bool arg)>;
+void MyFunction(const MyCallback& callback) {
+  if (callback != nullptr)
+    callback(true);
+}
+
+MyFunction(rst::NullFunction());
 ```
 
 <a name="Check"></a>
@@ -262,15 +263,15 @@ General logger component. Note that fatal logs exit the program.
 
 ```cpp
 // Construct logger with a custom sink.
-auto sink = FileNameSink::Create("log.txt");
+auto sink = rst::FileNameSink::Create("log.txt");
 RST_DCHECK(!sink.err());
-Logger logger(std::move(*sink).Take());
+rst::Logger logger(std::move(*sink));
 
-auto sink = std::make_unique<FilePtrSink>(stderr);
-Logger logger(std::move(sink));
+auto sink = std::make_unique<rst::FilePtrSink>(stderr);
+rst::Logger logger(std::move(sink));
 
 // To get logger macros working.
-Logger::SetGlobalLogger(&logger);
+rst::Logger::SetGlobalLogger(&logger);
 
 RST_LOG_INFO("Init subsystem A");
 // DLOG versions log only in a debug build.
@@ -322,6 +323,22 @@ RST_CAT(x, y);
 #endif  // RST_BUILDFLAG(ENABLE_FOO)
 ```
 
+<a name="OS"></a>
+### OS
+Macros to test the current OS.
+
+```cpp
+#include "rst/macros/macros.h"
+
+#if RST_BUILDFLAG(OS_WIN)
+Windows code.
+#endif  // RST_BUILDFLAG(OS_WIN)
+
+#if RST_BUILDFLAG(OS_ANDROID)
+Android code.
+#endif  // RST_BUILDFLAG(OS_ANDROID)
+```
+
 <a name="Optimization"></a>
 ### Optimization
 Enables the compiler to prioritize compilation using static analysis for
@@ -357,22 +374,6 @@ typically with accuracy greater than 97%. As a result, annotating every
 branch in a codebase is likely counterproductive; however, annotating
 specific branches that are both hot and consistently mispredicted is likely
 to yield performance improvements.
-
-<a name="OS"></a>
-### OS
-Macros to test the current OS.
-
-```cpp
-#include "rst/macros/macros.h"
-
-#if RST_BUILDFLAG(OS_WIN)
-Windows code.
-#endif  // RST_BUILDFLAG(OS_WIN)
-
-#if RST_BUILDFLAG(OS_ANDROID)
-Android code.
-#endif  // RST_BUILDFLAG(OS_ANDROID)
-```
 
 <a name="ThreadAnnotations"></a>
 ### Thread Annotations
@@ -415,12 +416,12 @@ usually used inside factory methods.
 ```cpp
 class Foo {
  public:
-  NotNull<std::unique_ptr<Foo>> Create() {
-    return WrapUnique(new Foo());
+  rst::NotNull<std::unique_ptr<Foo>> Create() {
+    return rst::WrapUnique(new Foo());
   }
 
-  NotNull<std::unique_ptr<Foo>> CreateFromNotNull() {
-    return WrapUnique(NotNull(new Foo()));
+  rst::NotNull<std::unique_ptr<Foo>> CreateFromNotNull() {
+    return rst::WrapUnique(rst::NotNull(new Foo()));
   }
 
  private:
@@ -443,7 +444,7 @@ Reference-counting such an object would complicate the ownership graph and
 make it harder to reason about the object's lifetime.
 
 ```cpp
-class Controller : public SupportsWeakPtr<Controller> {
+class Controller : public rst::SupportsWeakPtr<Controller> {
  public:
   void SpawnWorker() { Worker::StartNew(AsWeakPtr()); }
   void WorkComplete(const Result& result) { ... }
@@ -451,22 +452,22 @@ class Controller : public SupportsWeakPtr<Controller> {
 
 class Worker {
  public:
-  static void StartNew(WeakPtr<Controller>&& controller) {
+  static void StartNew(rst::WeakPtr<Controller>&& controller) {
     new Worker(std::move(controller));
     // Asynchronous processing...
   }
 
  private:
-  Worker(WeakPtr<Controller>&& controller)
+  Worker(rst::WeakPtr<Controller>&& controller)
       : controller_(std::move(controller)) {}
 
   void DidCompleteAsynchronousProcessing(const Result& result) {
-    Nullable<Controller*> controller = controller_.GetNullable();
+    rst::Nullable<Controller*> controller = controller_.GetNullable();
     if (controller != nullptr)
       controller->WorkComplete(result);
   }
 
-  const WeakPtr<Controller> controller_;
+  const rst::WeakPtr<Controller> controller_;
 };
 ```
 
@@ -486,7 +487,7 @@ storage duration that:
 Runtime constant example:
 ```cpp
 const std::string& GetLineSeparator() {
-  static const base::NoDestructor<std::string> s(5, '-');
+  static const rst::NoDestructor<std::string> s(5, '-');
   return *s;
 }
 ```
@@ -494,7 +495,7 @@ const std::string& GetLineSeparator() {
 More complex initialization with a lambda:
 ```cpp
 const std::string& GetSession() {
-  static const base::NoDestructor<std::string> session([] {
+  static const rst::NoDestructor<std::string> session([] {
     std::string s(16);
     ...
     return s;
@@ -518,7 +519,7 @@ assignment from `nullptr`. Also it asserts that the passed pointer is not
 `nullptr`.
 
 ```cpp
-void Foo(NotNul<int*>) {}
+void Foo(rst::NotNul<int*>) {}
 
 int i = 0;
 Foo(&i);  // OK.
@@ -530,7 +531,7 @@ Foo(ptr);  // Asserts.
 There are specializations for `std::unique_ptr` and `std::shared_ptr`. In order
 to take the inner smart pointer use `Take()` method:
 ```cpp
-NotNull<std::unique_ptr<T>> p = ...;
+rst::NotNull<std::unique_ptr<T>> p = ...;
 std::unique_ptr<T> inner = std::move(p).Take();
 ```
 
@@ -539,12 +540,12 @@ can hold non-null values. It asserts that the object is checked for `nullptr`
 after construction.
 
 ```cpp
-void Foo(Nullable<int*> ptr) {
+void Foo(rst::Nullable<int*> ptr) {
   if (ptr != nullptr)
     *ptr = 0;  // OK.
 }
 
-void Bar(Nullable<int*> ptr) {
+void Bar(rst::Nullable<int*> ptr) {
   *ptr = 0;  // Assert.
 }
 ```
@@ -552,7 +553,7 @@ void Bar(Nullable<int*> ptr) {
 There are specializations for `std::unique_ptr` and `std::shared_ptr`. In order
 to take the inner smart pointer use `Take()` method:
 ```cpp
-Nullable<std::unique_ptr<T>> p = ...;
+rst::Nullable<std::unique_ptr<T>> p = ...;
 std::unique_ptr<T> inner = std::move(p).Take();
 ```
 
@@ -567,7 +568,7 @@ A set of preferences stored in a `PreferencesStore`.
 are used.
 
 ```cpp
-Preferences preferences(std::make_unique<MemoryPreferencesStore>());
+rst::Preferences preferences(std::make_unique<rst::MemoryPreferencesStore>());
 
 preferences.RegisterIntPreference("int.preference", 10);
 RST_DCHECK(preferences.GetInt("int.preference") == 10);
@@ -588,7 +589,7 @@ std::random_device& GetRandomDevice();
 LLVM-based RTTI.
 
 ```cpp
-class FileError : public ErrorInfo<FileError> {
+class FileError : public rst::ErrorInfo<FileError> {
  public:
   explicit FileError(std::string&& message);
   ~FileError();
@@ -602,27 +603,15 @@ class FileError : public ErrorInfo<FileError> {
   const std::string message_;
 };
 
-Status status = Bar();
+rst::Status status = Bar();
 if (status.err() &&
-    dyn_cast<FileError>(status.GetError()) != nullptr) {
+    rst::dyn_cast<FileError>(status.GetError()) != nullptr) {
   // File doesn't exist.
 }
 ```
 
 <a name="STL"></a>
 ## STL
-<a name="Reversed"></a>
-### Reversed
-Returns a Chromium-like container adapter usable in a range-based for
-statement for iterating a reversible container in reverse order.
-
-```cpp
-std::vector<int> v = ...;
-for (auto i : base::Reversed(v)) {
-  // Iterates through v from back to front.
-}
-```
-
 <a name="Algorithm"></a>
 ### Algorithm
 Container-based versions of algorithmic functions within the C++ standard
@@ -657,6 +646,46 @@ template <class C, class URBG>
 void c_shuffle(C& c, URBG&& g);
 ```
 
+<a name="Hash"></a>
+### Hash
+Boost-like functions to create a hash value from several variables.
+
+```cpp
+struct Point {
+  Point(const int x, const int y) : x(x), y(y) {}
+
+  int x = 0;
+  int y = 0;
+};
+
+bool operator==(const Point lhs, const Point rhs) {
+  return (lhs.x == rhs.x) && (lhs.y == rhs.y);
+}
+
+namespace std {
+
+template <>
+struct hash<Point> {
+  size_t operator()(const Point point) const {
+    std::hash<int> hasher;
+    const auto hash_value = hasher(point.x);
+    return rst::HashCombine(hash_value, hasher(point.y));
+  }
+};
+```
+
+<a name="Reversed"></a>
+### Reversed
+Returns a Chromium-like container adapter usable in a range-based for
+statement for iterating a reversible container in reverse order.
+
+```cpp
+std::vector<int> v = ...;
+for (auto i : rst::Reversed(v)) {
+  // Iterates through v from back to front.
+}
+```
+
 <a name="StringResizeUninitialized"></a>
 ### StringResizeUninitialized
 ```cpp
@@ -680,7 +709,7 @@ std::function<void()> f = ...;
 auto moved_f = std::move(f);  // f is in a valid but unspecified state
                               // after the call.
 std::function<void()> f = ...;
-auto moved_f = TakeFunction(std::move(f));  // f is nullptr.
+auto moved_f = rst::TakeFunction(std::move(f));  // f is nullptr.
 ```
 
 <a name="VectorBuilder"></a>
@@ -689,7 +718,7 @@ Allows in-place initialization of a vector of movable objects.
 
 ```cpp
 const std::vector<std::unique_ptr<int>> vec =
-    VectorBuilder<std::unique_ptr<int>>()
+    rst::VectorBuilder<std::unique_ptr<int>>()
         .emplace_back(std::make_unique<int>(1))
         .emplace_back(std::make_unique<int>(-1))
         .Build();
@@ -697,27 +726,6 @@ const std::vector<std::unique_ptr<int>> vec =
 
 <a name="Status"></a>
 ## Status
-<a name="Status2"></a>
-### Status
-A Google-like `Status` class for recoverable error handling. It's impossible to
-ignore an error.
-
-```cpp
-Status status = Foo();
-if (status.err())
-  return status;
-
-// Or:
-RST_TRY(Foo());
-
-// Check specific error:
-Status status = Bar();
-if (status.err() &&
-    dyn_cast<FileOpenError>(status.GetError()) != nullptr) {
-  // File doesn't exist.
-}
-```
-
 <a name="StatusMacros"></a>
 ### Status Macros
 Macro to allow exception-like handling of `Status` return values.
@@ -726,7 +734,7 @@ If the evaluation of statement results in an error, returns that error
 from the current function.
 
 ```cpp
-Status Foo();
+rst::Status Foo();
 
 RST_TRY(Foo());
 ```
@@ -743,9 +751,9 @@ scope.
 single statement (e.g. as the body of an if statement without {})!
 
 ```cpp
-StatusOr<MyType> Foo();
+rst::StatusOr<MyType> Foo();
 
-StatusOr<MyType> existing_var = ...;
+rst::StatusOr<MyType> existing_var = ...;
 RST_TRY_ASSIGN(existing_var, Foo());
 ```
 
@@ -758,7 +766,7 @@ lvalue should be an existing non-const variable accessible in the current
 scope.
 
 ```cpp
-StatusOr<MyType> Foo();
+rst::StatusOr<MyType> Foo();
 
 MyType existing_var = ...;
 RST_TRY_ASSIGN_UNWRAP(existing_var, Foo());
@@ -775,9 +783,9 @@ lvalue should be a new variable.
 single statement (e.g. as the body of an if statement without {})!
 
 ```cpp
-StatusOr<MyType> Foo();
+rst::StatusOr<MyType> Foo();
 
-RST_TRY_CREATE(StatusOr<MyType>, var1, Foo());
+RST_TRY_CREATE(rst::StatusOr<MyType>, var1, Foo());
 RST_TRY_CREATE(auto, var2, Foo());
 ```
 
@@ -786,17 +794,38 @@ RST_TRY_CREATE(auto, var2, Foo());
 A Google-like `StatusOr` class for error handling.
 
 ```cpp
-StatusOr<std::string> foo = Foo();
+rst::StatusOr<std::string> foo = Foo();
 if (foo.err())
   return std::move(foo).TakeStatus();
 
 // Or:
 RST_TRY_CREATE(auto, foo, Foo());
-RST_TRY_CREATE(StatusOr<std::string>, foo, Foo());
+RST_TRY_CREATE(rst::StatusOr<std::string>, foo, Foo());
 ...
 RST_TRY_ASSIGN(foo, Foo());
 
 std::cout << *foo << ", " << foo->size() << std::endl;
+```
+
+<a name="Status2"></a>
+### Status
+A Google-like `Status` class for recoverable error handling. It's impossible to
+ignore an error.
+
+```cpp
+rst::Status status = Foo();
+if (status.err())
+  return status;
+
+// Or:
+RST_TRY(Foo());
+
+// Check specific error:
+rst::Status status = Bar();
+if (status.err() &&
+    rst::dyn_cast<FileOpenError>(status.GetError()) != nullptr) {
+  // File doesn't exist.
+}
 ```
 
 <a name="Strings"></a>
@@ -821,7 +850,7 @@ A '{{' or '}}' sequence in the format string causes a literal '{' or '}' to
 be output.
 
 ```cpp
-std::string s = Format("{} purchased {} {}", {"Bob", 5, "Apples"});
+std::string s = rst::Format("{} purchased {} {}", {"Bob", 5, "Apples"});
 RST_DCHECK(s == "Bob purchased 5 Apples");
 ```
 
@@ -852,7 +881,7 @@ Supported arguments such as `string`s, `string_view`s, `int`s, `float`s, and
 process. See below for a full list of supported types.
 
 ```cpp
-std::string s = StrCat({"Bob", " purchased ", 5, " ", Apples"});
+std::string s = rst::StrCat({"Bob", " purchased ", 5, " ", Apples"});
 RST_DCHECK(s == "Bob purchased 5 Apples");
 ```
 
@@ -874,7 +903,7 @@ Task runner that is supposed to run tasks on the same thread.
 
 ```cpp
 std::function<std::chrono::nanoseconds()> time_function = ...;
-PollingTaskRunner task_runner(std::move(time_function));
+rst::PollingTaskRunner task_runner(std::move(time_function));
 for (;; task_runner.RunPendingTasks()) {
   ...
   std::function<void()> task = ...;
@@ -891,9 +920,9 @@ Task runner that is supposed to run tasks on dedicated threads.
 std::function<std::chrono::nanoseconds()> time_function = ...;
 size_t max_threads_num = ...;
 std::chrono::nanoseconds keep_alive_time = ...;
-ThreadPoolTaskRunner task_runner(max_threads_num,
-                                 std::move(time_function),
-                                 keep_alive_time);
+rst::ThreadPoolTaskRunner task_runner(max_threads_num,
+                                      std::move(time_function),
+                                      keep_alive_time);
 ...
 std::function<void()> task = ...;
 task_runner.PostTask(std::move(task));
@@ -910,7 +939,7 @@ is initialized on creation. Threads block until the counter is decremented
 to zero.
 
 ```cpp
-Barrier barrier(5);
+rst::Barrier barrier(5);
 
 std::vector<std::thread> threads;
 for (auto i = 0; i < 5; i++)
@@ -945,7 +974,7 @@ class MyClass {
     // This method is called after 1 second.
   }
 
-  OneShotTimer timer_{&GetTaskRunner};
+  rst::OneShotTimer timer_{&GetTaskRunner};
 };
 ```
 
@@ -971,8 +1000,8 @@ void foo(Apple);  // Redefinition.
 Type may instead be used as follows:
 
 ```cpp
-using Orange = Type<class OrangeTag, int>;
-using Apple = Type<class AppleTag, int>;
+using Orange = rst::Type<class OrangeTag, int>;
+using Apple = rst::Type<class AppleTag, int>;
 Apple apple(2);
 Orange orange = apple;  // Does not compile.
 Orange other_orange = orange;  // Compiles, types match.

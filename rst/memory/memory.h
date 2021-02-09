@@ -43,12 +43,12 @@ namespace rst {
 // Example:
 //   class Foo {
 //    public:
-//     NotNull<std::unique_ptr<Foo>> Create() {
-//       return WrapUnique(new Foo());
+//     rst::NotNull<std::unique_ptr<Foo>> Create() {
+//       return rst::WrapUnique(new Foo());
 //     }
 //
-//     NotNull<std::unique_ptr<Foo>> CreateFromNotNull() {
-//       return WrapUnique(NotNull(new Foo()));
+//     rst::NotNull<std::unique_ptr<Foo>> CreateFromNotNull() {
+//       return rst::WrapUnique(rst::NotNull(new Foo()));
 //     }
 //
 //    private:

@@ -45,13 +45,13 @@ namespace rst {
 //
 // Runtime constant example:
 // const std::string& GetLineSeparator() {
-//   static const base::NoDestructor<std::string> s(5, '-');
+//   static const rst::NoDestructor<std::string> s(5, '-');
 //   return *s;
 // }
 //
 // More complex initialization with a lambda:
 // const std::string& GetSession() {
-//   static const base::NoDestructor<std::string> session([] {
+//   static const rst::NoDestructor<std::string> session([] {
 //     std::string s(16);
 //     ...
 //     return s;
@@ -84,17 +84,19 @@ class NoDestructor {
   NotNull<const T*> operator->() const { return get(); }
   NotNull<T*> operator->() { return get(); }
 
-  NotNull<const T*> get() const { return reinterpret_cast<const T*>(storage_); }
+  NotNull<const T*> get() const {
+    return std::launder(reinterpret_cast<const T*>(storage_));
+  }
   NotNull<T*> get() { return const_cast<T*>(std::as_const(*this).get().get()); }
 
  private:
   alignas(T) char storage_[sizeof(T)];
   // This is a hack to work around the fact that LSan doesn't seem to treat
   // NoDestructor as a root for reachability analysis. This means that code:
-  //   static base::NoDestructor<std::vector<int>> v({1, 2, 3});
+  //   static rst::NoDestructor<std::vector<int>> v({1, 2, 3});
   // is considered a leak. Using the standard leak sanitizer annotations to
   // suppress leaks doesn't work: std::vector is implicitly constructed before
-  // calling the base::NoDestructor constructor.
+  // calling the rst::NoDestructor constructor.
   //
   // Hold an explicit pointer to the placement-new'd object in leak sanitizer
   // mode to help it realize that objects allocated by the contained type are

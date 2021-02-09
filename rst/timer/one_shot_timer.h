@@ -60,7 +60,7 @@ namespace rst {
 //       // This method is called after 1 second.
 //     }
 //
-//     OneShotTimer timer_{&GetTaskRunner};
+//     rst::OneShotTimer timer_{&GetTaskRunner};
 //   };
 //
 class OneShotTimer : public SupportsWeakPtr<OneShotTimer> {
