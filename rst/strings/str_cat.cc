@@ -27,8 +27,8 @@
 
 #include "rst/strings/str_cat.h"
 
-#include <algorithm>
 #include <cstddef>
+#include <cstring>
 
 #include "rst/check/check.h"
 #include "rst/stl/resize_uninitialized.h"
@@ -46,7 +46,8 @@ std::string StrCat(std::initializer_list<internal::Arg> values) {
   auto out = output.data();
   for (const auto& val : values) {
     const auto src = val.view();
-    out = std::copy_n(src.data(), src.size(), out);
+    std::memcpy(out, src.data(), src.size());
+    out += src.size();
   }
 
   RST_DCHECK(out == output.data() + output.size());

@@ -27,7 +27,6 @@
 
 #include "rst/strings/format.h"
 
-#include <algorithm>
 #include <cstring>
 
 #include "rst/check/check.h"
@@ -63,7 +62,8 @@ std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
         if (RST_LIKELY(*(format + 1) == '}')) {
           RST_DCHECK(arg_idx < size && "Extra arguments");
           const auto src = values[arg_idx++].view();
-          target = std::copy_n(src.data(), src.size(), target);
+          std::memcpy(target, src.data(), src.size());
+          target += src.size();
         } else {
           RST_DCHECK((*(format + 1) == '{') && "Invalid format string");
           *target++ = '{';
