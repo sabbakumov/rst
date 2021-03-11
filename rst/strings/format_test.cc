@@ -237,6 +237,11 @@ TEST(Format, EmptyStdString) {
   EXPECT_EQ(Format("{}", {str}), std::string());
 }
 
+TEST(Format, EmptyStringView) {
+  const std::string_view str;
+  EXPECT_EQ(Format("{}", {str}), std::string());
+}
+
 TEST(Format, EmptyCharPtr) {
   static constexpr auto kStr = "";
   EXPECT_EQ(Format("{}", {kStr}), std::string());

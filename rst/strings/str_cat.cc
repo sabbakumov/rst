@@ -46,7 +46,8 @@ std::string StrCat(std::initializer_list<internal::Arg> values) {
   auto out = output.data();
   for (const auto& val : values) {
     const auto src = val.view();
-    std::memcpy(out, src.data(), src.size());
+    if (src.size() != 0)
+      std::memcpy(out, src.data(), src.size());
     out += src.size();
   }
 
