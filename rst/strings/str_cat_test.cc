@@ -206,6 +206,11 @@ TEST(StrCat, EmptyStdString) {
   EXPECT_EQ(StrCat({str}), std::string());
 }
 
+TEST(StrCat, EmptyStringView) {
+  const std::string_view str;
+  EXPECT_EQ(StrCat({str}), std::string());
+}
+
 TEST(StrCat, EmptyCharPtr) {
   static constexpr auto kStr = "";
   EXPECT_EQ(StrCat({kStr}), std::string());
