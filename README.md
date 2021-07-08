@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/sabbakumov/rst.svg?branch=master)](https://travis-ci.org/sabbakumov/rst)
+[![Build Status](https://travis-ci.com/sabbakumov/rst.svg?branch=master)](https://travis-ci.com/sabbakumov/rst)
 
 # RST C++ library
 
