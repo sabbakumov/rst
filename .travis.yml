@@ -8,12 +8,12 @@ matrix:
       addons:
         apt:
           packages:
-            - clang-11
-            - libc++-11-dev
-            - libc++abi-11-dev
+            - clang-12
+            - libc++-12-dev
+            - libc++abi-12-dev
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11"
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -31,12 +31,12 @@ matrix:
       addons:
         apt:
           packages:
-            - clang-11
-            - libc++-11-dev
-            - libc++abi-11-dev
+            - clang-12
+            - libc++-12-dev
+            - libc++abi-12-dev
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11"
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -54,12 +54,12 @@ matrix:
       addons:
         apt:
           packages:
-            - clang-11
-            - libc++-11-dev
-            - libc++abi-11-dev
+            - clang-12
+            - libc++-12-dev
+            - libc++abi-12-dev
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11 && ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1"
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12 && ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -77,12 +77,12 @@ matrix:
       addons:
         apt:
           packages:
-            - clang-11
-            - libc++-11-dev
-            - libc++abi-11-dev
+            - clang-12
+            - libc++-12-dev
+            - libc++abi-12-dev
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11"
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -100,12 +100,12 @@ matrix:
       addons:
         apt:
           packages:
-            - clang-11
-            - libc++-11-dev
-            - libc++abi-11-dev
+            - clang-12
+            - libc++-12-dev
+            - libc++abi-12-dev
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11"
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -123,12 +123,12 @@ matrix:
       addons:
         apt:
           packages:
-            - clang-11
-            - libc++-11-dev
-            - libc++abi-11-dev
+            - clang-12
+            - libc++-12-dev
+            - libc++abi-12-dev
             - ninja-build
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11"
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12"
 
       before_install:
           - eval "${MATRIX_EVAL}"
@@ -211,7 +211,6 @@ matrix:
       osx_image: xcode12u
       addons:
         homebrew:
-          update: true
           packages:
             - ninja
       env:
@@ -232,7 +231,6 @@ matrix:
       osx_image: xcode12u
       addons:
         homebrew:
-          update: true
           packages:
             - ninja
       env:
@@ -253,7 +251,6 @@ matrix:
       osx_image: xcode12u
       addons:
         homebrew:
-          update: true
           packages:
             - ninja
       env:
@@ -274,7 +271,6 @@ matrix:
       osx_image: xcode12u
       addons:
         homebrew:
-          update: true
           packages:
             - gcc@10
             - ninja
@@ -296,7 +292,6 @@ matrix:
       osx_image: xcode12u
       addons:
         homebrew:
-          update: true
           packages:
             - gcc@10
             - ninja
@@ -318,7 +313,6 @@ matrix:
       osx_image: xcode12u
       addons:
         homebrew:
-          update: true
           packages:
             - gcc@10
             - ninja

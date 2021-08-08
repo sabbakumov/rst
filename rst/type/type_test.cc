@@ -90,8 +90,8 @@ TYPED_TEST(TypeTest, ValueAccessesUnderlyingValue) {
 
   const FooType const_type(GetExampleValue<TypeParam>(1));
   EXPECT_EQ(const_type.value(), GetExampleValue<TypeParam>(1));
-  static_assert(std::is_const<typename std::remove_reference<decltype(
-                    const_type.value())>::type>::value,
+  static_assert(std::is_const<typename std::remove_reference<
+                    decltype(const_type.value())>::type>::value,
                 "Reference returned by const value getter should be const.");
 }
 
