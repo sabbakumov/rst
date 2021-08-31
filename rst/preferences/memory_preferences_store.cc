@@ -27,7 +27,6 @@
 
 #include "rst/preferences/memory_preferences_store.h"
 
-#include <string>
 #include <utility>
 
 namespace rst {
@@ -37,12 +36,12 @@ MemoryPreferencesStore::~MemoryPreferencesStore() = default;
 
 Nullable<const Value*> MemoryPreferencesStore::GetValue(
     const std::string_view path) const {
-  return values_.FindKey(path);
+  return values_.FindPath(path);
 }
 
 void MemoryPreferencesStore::SetValue(const std::string_view path,
                                       Value&& value) {
-  values_.SetKey(std::string(path), std::move(value));
+  values_.SetPath(path, std::move(value));
 }
 
 }  // namespace rst
