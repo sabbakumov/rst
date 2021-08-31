@@ -35,30 +35,53 @@
 
 // Chromium-like GUID helpers.
 namespace rst {
-
-// Generates a 128-bit random GUID in the form of version 4 as described in RFC
-// 4122, section 4.4. The format of GUID version 4 must be
-// xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx, where y is one of [8, 9, A, B]. The
-// hexadecimal values "a" through "f" are output as lower case characters.
-std::string GenerateGuid();
-
-// Returns true if the input string conforms to the version 4 GUID format.
-// Note that this does not check if the hexadecimal values "a" through "f" are
-// in lower case characters, as Version 4 RFC says onput they're case
-// insensitive. (Use IsValidGuidOutputString() for checking if the given string
-// is valid output string)
-bool IsValidGuid(std::string_view guid);
-
-// Returns true if the input string is valid version 4 GUID output string.
-// This also checks if the hexadecimal values "a" through "f" are in lower case
-// characters.
-bool IsValidGuidOutputString(std::string_view guid);
-
 namespace internal {
 
-std::string RandomDataToGuidString(std::array<uint64_t, 2> bytes);
+inline constexpr size_t kGuidLength = 36;
+
+class GuidInternal {
+ public:
+  explicit GuidInternal(std::array<uint64_t, 2> bytes);
+  ~GuidInternal() = default;
+
+  std::string_view value() const {
+    return std::string_view(buffer_, kGuidLength);
+  }
+
+ private:
+  char buffer_[kGuidLength + 1];
+};
 
 }  // namespace internal
+
+class Guid {
+ public:
+  // Generates a 128-bit random GUID in the form of version 4 as described in
+  // RFC 4122, section 4.4. The format of GUID version 4 must be
+  // xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx, where y is one of [8, 9, A, B]. The
+  // hexadecimal values "a" through "f" are output as lower case characters.
+  Guid();
+  ~Guid() = default;
+
+  std::string AsString() const;
+  internal::GuidInternal AsStringView() const;
+
+  // Returns true if the input string conforms to the version 4 GUID format.
+  // Note that this does not check if the hexadecimal values "a" through "f" are
+  // in lower case characters, as Version 4 RFC says onput they're case
+  // insensitive. (Use IsValidGuidOutputString() for checking if the given
+  // string is valid output string)
+  static bool IsValid(std::string_view guid);
+
+  // Returns true if the input string is valid version 4 GUID output string.
+  // This also checks if the hexadecimal values "a" through "f" are in lower
+  // case characters.
+  static bool IsValidOutputString(std::string_view guid);
+
+ private:
+  std::array<uint64_t, 2> bytes_;
+};
+
 }  // namespace rst
 
 #endif  // RST_GUID_GUID_H_

@@ -128,7 +128,8 @@ Status WriteFile(const NotNull<const char*> filename,
 
 Status WriteImportantFile(const NotNull<const char*> filename,
                           const std::string_view data) {
-  const auto temp_filename = StrCat({filename, GenerateGuid(), ".tmp"});
+  const auto temp_filename =
+      StrCat({filename, Guid().AsStringView().value(), ".tmp"});
   RST_TRY(WriteFile(temp_filename.c_str(), "wxb", data));
 
   if (!Replace(temp_filename.c_str(), filename.get())) {

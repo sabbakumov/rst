@@ -39,7 +39,7 @@ namespace rst {
 namespace {
 
 bool IsGuidv4(const std::string_view guid) {
-  return IsValidGuid(guid) && guid[14] == '4' &&
+  return Guid::IsValid(guid) && guid[14] == '4' &&
          (guid[19] == '8' || guid[19] == '9' || guid[19] == 'A' ||
           guid[19] == 'a' || guid[19] == 'B' || guid[19] == 'b');
 }
@@ -72,31 +72,31 @@ std::string ToUpperASCII(const std::string_view str) {
 
 TEST(GUID, GUIDGeneratesAllZeroes) {
   const std::array<uint64_t, 2> bytes = {0, 0};
-  const auto guid = internal::RandomDataToGuidString(bytes);
-  EXPECT_EQ(guid, "00000000-0000-0000-0000-000000000000");
+  const auto guid = internal::GuidInternal(bytes);
+  EXPECT_EQ(guid.value(), "00000000-0000-0000-0000-000000000000");
 }
 
 TEST(GUID, GUIDGeneratesCorrectly) {
   const std::array<uint64_t, 2> bytes = {uint64_t{0x0123456789ABCDEF},
                                          uint64_t{0xFEDCBA9876543210}};
-  const auto guid = internal::RandomDataToGuidString(bytes);
-  EXPECT_EQ(guid, "01234567-89ab-cdef-fedc-ba9876543210");
+  const auto guid = internal::GuidInternal(bytes);
+  EXPECT_EQ(guid.value(), "01234567-89ab-cdef-fedc-ba9876543210");
 }
 
 TEST(GUID, GUIDCorrectlyFormatted) {
   for (auto i = 0; i < 10; i++) {
-    const auto guid = GenerateGuid();
-    EXPECT_TRUE(IsValidGuid(guid));
-    EXPECT_TRUE(IsValidGuidOutputString(guid));
-    EXPECT_TRUE(IsValidGuid(ToLowerASCII(guid)));
-    EXPECT_TRUE(IsValidGuid(ToUpperASCII(guid)));
+    const auto guid = Guid().AsString();
+    EXPECT_TRUE(Guid::IsValid(guid));
+    EXPECT_TRUE(Guid::IsValidOutputString(guid));
+    EXPECT_TRUE(Guid::IsValid(ToLowerASCII(guid)));
+    EXPECT_TRUE(Guid::IsValid(ToUpperASCII(guid)));
   }
 }
 
 TEST(GUID, GUIDBasicUniqueness) {
   for (auto i = 0; i < 10; i++) {
-    const auto guid1 = GenerateGuid();
-    const auto guid2 = GenerateGuid();
+    const auto guid1 = Guid().AsString();
+    const auto guid2 = Guid().AsString();
     EXPECT_EQ(guid1.size(), 36U);
     EXPECT_EQ(guid2.size(), 36U);
     EXPECT_NE(guid1, guid2);
