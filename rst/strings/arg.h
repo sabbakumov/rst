@@ -45,7 +45,7 @@ template <class Float, size_t N>
 std::string_view FloatToString(char (&str)[N],
                                const NotNull<const char*> format,
                                const Float val) {
-  static_assert(std::is_floating_point<Float>::value);
+  static_assert(std::is_floating_point_v<Float>);
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
 #pragma warning(push)
@@ -62,9 +62,9 @@ std::string_view FloatToString(char (&str)[N],
 
 template <class Int, size_t N>
 std::string_view IntToString(char (&str)[N], const Int val) {
-  static_assert(std::is_integral<Int>::value);
+  static_assert(std::is_integral_v<Int>);
 
-  auto res = static_cast<typename std::make_unsigned<Int>::type>(val);
+  auto res = static_cast<typename std::make_unsigned_t<Int>>(val);
 
   auto p = str + N;
   do {
@@ -134,9 +134,9 @@ class Arg {
   // NOLINTNEXTLINE(runtime/explicit)
   Arg(const NotNull<const char*> value) : view_(value.get()) {}
 
-  template <class T, class = typename std::enable_if<std::is_enum<T>{}>::type>
+  template <class T, class = typename std::enable_if_t<std::is_enum_v<T>>>
   Arg(const T e)  // NOLINT(runtime/explicit)
-      : Arg(static_cast<typename std::underlying_type<T>::type>(e)) {}
+      : Arg(static_cast<typename std::underlying_type_t<T>>(e)) {}
 
   // Prevents Arg(pointer) from accidentally producing a bool.
   Arg(void*) = delete;  // NOLINT(runtime/explicit)

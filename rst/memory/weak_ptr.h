@@ -103,7 +103,7 @@ class SupportsWeakPtrBase {
   // SupportsWeakPtr<Base>.
   template <class Derived>
   static WeakPtr<Derived> StaticAsWeakPtr(const NotNull<Derived*> p) {
-    static_assert(std::is_base_of<SupportsWeakPtrBase, Derived>::value,
+    static_assert(std::is_base_of_v<SupportsWeakPtrBase, Derived>,
                   "AsWeakPtr argument must inherit from SupportsWeakPtr");
     return AsWeakPtrImpl<Derived>(p.get());
   }

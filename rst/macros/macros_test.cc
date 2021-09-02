@@ -68,38 +68,38 @@ class NonConstructible {
 
 TEST(NonCopyable, NonCopyable) {
   using T = NonCopyable;
-  EXPECT_TRUE(std::is_default_constructible<T>::value);
-  EXPECT_FALSE(std::is_copy_constructible<T>::value);
-  EXPECT_TRUE(std::is_copy_assignable<T>::value);
-  EXPECT_FALSE(std::is_move_constructible<T>::value);
-  EXPECT_TRUE(std::is_move_assignable<T>::value);
+  static_assert(std::is_default_constructible_v<T>);
+  static_assert(!std::is_copy_constructible_v<T>);
+  static_assert(std::is_copy_assignable_v<T>);
+  static_assert(!std::is_move_constructible_v<T>);
+  static_assert(std::is_move_assignable_v<T>);
 }
 
 TEST(NonCopyable, NonAssignable) {
   using T = NonAssignable;
-  EXPECT_TRUE(std::is_default_constructible<T>::value);
-  EXPECT_TRUE(std::is_copy_constructible<T>::value);
-  EXPECT_FALSE(std::is_copy_assignable<T>::value);
-  EXPECT_TRUE(std::is_move_constructible<T>::value);
-  EXPECT_FALSE(std::is_move_assignable<T>::value);
+  static_assert(std::is_default_constructible_v<T>);
+  static_assert(std::is_copy_constructible_v<T>);
+  static_assert(!std::is_copy_assignable_v<T>);
+  static_assert(std::is_move_constructible_v<T>);
+  static_assert(!std::is_move_assignable_v<T>);
 }
 
 TEST(NonCopyable, NonCopyAssignable) {
   using T = NonCopyAssignable;
-  EXPECT_TRUE(std::is_default_constructible<T>::value);
-  EXPECT_FALSE(std::is_copy_constructible<T>::value);
-  EXPECT_FALSE(std::is_copy_assignable<T>::value);
-  EXPECT_FALSE(std::is_move_constructible<T>::value);
-  EXPECT_FALSE(std::is_move_assignable<T>::value);
+  static_assert(std::is_default_constructible_v<T>);
+  static_assert(!std::is_copy_constructible_v<T>);
+  static_assert(!std::is_copy_assignable_v<T>);
+  static_assert(!std::is_move_constructible_v<T>);
+  static_assert(!std::is_move_assignable_v<T>);
 }
 
 TEST(NonCopyable, NonConstructible) {
   using T = NonConstructible;
-  EXPECT_FALSE(std::is_default_constructible<T>::value);
-  EXPECT_FALSE(std::is_copy_constructible<T>::value);
-  EXPECT_FALSE(std::is_copy_assignable<T>::value);
-  EXPECT_FALSE(std::is_move_constructible<T>::value);
-  EXPECT_FALSE(std::is_move_assignable<T>::value);
+  static_assert(!std::is_default_constructible_v<T>);
+  static_assert(!std::is_copy_constructible_v<T>);
+  static_assert(!std::is_copy_assignable_v<T>);
+  static_assert(!std::is_move_constructible_v<T>);
+  static_assert(!std::is_move_assignable_v<T>);
 }
 
 TEST(PreprocessorCat, Cat) {

@@ -84,13 +84,13 @@ namespace internal {
 template <class T>
 class NotNullStorage {
  public:
-  static_assert(std::is_pointer<T>::value);
+  static_assert(std::is_pointer_v<T>);
 
   using PointerType = T;
 
   template <class U>
   constexpr explicit NotNullStorage(U ptr) : ptr_(ptr) {
-    static_assert(std::is_pointer<U>::value);
+    static_assert(std::is_pointer_v<U>);
     RST_DCHECK(ptr_ != nullptr);
   }
 
@@ -163,7 +163,7 @@ class NotNullStorage<std::shared_ptr<T>> {
 template <class T>
 class NullableStorage {
  public:
-  static_assert(std::is_pointer<T>::value);
+  static_assert(std::is_pointer_v<T>);
 
   using PointerType = T;
 
@@ -171,7 +171,7 @@ class NullableStorage {
 
   template <class U>
   constexpr explicit NullableStorage(U ptr) : ptr_(ptr) {
-    static_assert(std::is_pointer<U>::value);
+    static_assert(std::is_pointer_v<U>);
   }
 
   constexpr T get() const { return ptr_; }

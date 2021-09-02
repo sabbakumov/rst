@@ -65,11 +65,11 @@ class TypeNames {
  public:
   template <class T>
   static std::string GetName(int) {
-    if (std::is_same<T, int>())
+    if constexpr (std::is_same_v<T, int>)
       return "int";
-    if (std::is_same<T, uint64_t>())
+    if constexpr (std::is_same_v<T, uint64_t>)
       return "uint64";
-    if (std::is_same<T, std::string>())
+    if constexpr (std::is_same_v<T, std::string>)
       return "string";
 
     RST_NOTREACHED();
@@ -90,9 +90,10 @@ TYPED_TEST(TypeTest, ValueAccessesUnderlyingValue) {
 
   const FooType const_type(GetExampleValue<TypeParam>(1));
   EXPECT_EQ(const_type.value(), GetExampleValue<TypeParam>(1));
-  static_assert(std::is_const<typename std::remove_reference<
-                    decltype(const_type.value())>::type>::value,
-                "Reference returned by const value getter should be const.");
+  static_assert(
+      std::is_const_v<
+          typename std::remove_reference_t<decltype(const_type.value())>>,
+      "Reference returned by const value getter should be const.");
 }
 
 TYPED_TEST(TypeTest, ExplicitConversionToUnderlyingValue) {
@@ -144,30 +145,30 @@ TYPED_TEST(TypeTest, SizeSameAsUnderlyingType) {
 
 TYPED_TEST(TypeTest, IsDefaultConstructible) {
   using FooType = Type<class FooTag, TypeParam>;
-  static_assert(std::is_default_constructible<FooType>::value,
+  static_assert(std::is_default_constructible_v<FooType>,
                 "Should be possible to default-construct a Type.");
 }
 
 TEST(TypeTest, TrivialTypeIsStandardLayout) {
   using FooType = Type<class FooTag, int>;
-  static_assert(std::is_standard_layout<FooType>::value,
+  static_assert(std::is_standard_layout_v<FooType>,
                 "int-based type should have standard layout. ");
-  static_assert(std::is_trivially_copyable<FooType>::value,
+  static_assert(std::is_trivially_copyable_v<FooType>,
                 "int-based type should be trivially copyable. ");
 }
 
 TYPED_TEST(TypeTest, CannotBeCreatedFromDifferentType) {
   using FooType = Type<class FooTag, TypeParam>;
   using BarType = Type<class BarTag, TypeParam>;
-  static_assert(!std::is_constructible<FooType, BarType>::value,
+  static_assert(!std::is_constructible_v<FooType, BarType>,
                 "Should be impossible to construct FooType from a BarType.");
-  static_assert(!std::is_convertible<BarType, FooType>::value,
+  static_assert(!std::is_convertible_v<BarType, FooType>,
                 "Should be impossible to convert a BarType into FooType.");
 }
 
 TYPED_TEST(TypeTest, CannotBeImplicitlyConverterToUnderlyingValue) {
   using FooType = Type<class FooTag, TypeParam>;
-  static_assert(!std::is_convertible<FooType, TypeParam>::value,
+  static_assert(!std::is_convertible_v<FooType, TypeParam>,
                 "Should be impossible to implicitly convert a Type into "
                 "an underlying type.");
 }

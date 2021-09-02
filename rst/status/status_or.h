@@ -66,10 +66,10 @@ class [[nodiscard]] StatusOr {
   }
 
   // Stores success value.
-  template <class U, class = typename std::enable_if<
-                         std::is_trivially_copyable<U>{}>::type>
+  template <class U,
+            class = typename std::enable_if_t<std::is_trivially_copyable_v<U>>>
   StatusOr(const U& value) {  // NOLINT(runtime/explicit)
-    static_assert(std::is_same<T, U>::value);
+    static_assert(std::is_same_v<T, U>);
     CopyConstructFromT(value);
   }
   StatusOr(T&& value) {  // NOLINT(runtime/explicit)
@@ -107,10 +107,10 @@ class [[nodiscard]] StatusOr {
   }
 
   // Asserts that it was checked before and sets as not checked.
-  template <class U, class = typename std::enable_if<
-                         std::is_trivially_copyable<U>{}>::type>
+  template <class U,
+            class = typename std::enable_if_t<std::is_trivially_copyable_v<U>>>
   StatusOr& operator=(const U& value) {
-    static_assert(std::is_same<T, U>::value);
+    static_assert(std::is_same_v<T, U>);
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)

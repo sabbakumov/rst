@@ -57,7 +57,7 @@ namespace rst {
 //
 template <class T>
 NotNull<std::unique_ptr<T>> WrapUnique(const NotNull<T*> ptr) {
-  static_assert(!std::is_array<T>::value);
+  static_assert(!std::is_array_v<T>);
   return std::unique_ptr<T>(ptr.get());
 }
 
