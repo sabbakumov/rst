@@ -28,6 +28,7 @@
 #ifndef RST_STRINGS_ARG_H_
 #define RST_STRINGS_ARG_H_
 
+#include <charconv>
 #include <cstddef>
 #include <cstdio>
 #include <string>
@@ -62,24 +63,9 @@ std::string_view FloatToString(char (&str)[N],
 
 template <class Int, size_t N>
 std::string_view IntToString(char (&str)[N], const Int val) {
-  static_assert(std::is_integral_v<Int>);
-
-  auto res = static_cast<typename std::make_unsigned_t<Int>>(val);
-
-  auto p = str + N;
-  do {
-    RST_DCHECK(p != str);
-    --p;
-    *p = static_cast<char>((res % 10) + '0');
-    res /= 10;
-  } while (res != 0);
-
-  if (val < 0) {
-    RST_DCHECK(p != str);
-    --p;
-    *p = '-';
-  }
-  return std::string_view(p, static_cast<size_t>(str + N - p));
+  const auto result = std::to_chars(str, str + N, val);
+  RST_DCHECK(result.ec == std::errc());
+  return std::string_view(str, static_cast<size_t>(result.ptr - str));
 }
 
 class Arg {
@@ -153,27 +139,6 @@ class Arg {
 
   RST_DISALLOW_COPY_AND_ASSIGN(Arg);
 };
-
-extern template std::string_view IntToString(char (&str)[Arg::kBufferSize],
-                                             short val);  // NOLINT(runtime/int)
-extern template std::string_view IntToString(
-    char (&str)[Arg::kBufferSize],
-    unsigned short val);  // NOLINT(runtime/int)
-extern template std::string_view IntToString(char (&str)[Arg::kBufferSize],
-                                             int val);
-extern template std::string_view IntToString(char (&str)[Arg::kBufferSize],
-                                             unsigned int val);
-extern template std::string_view IntToString(char (&str)[Arg::kBufferSize],
-                                             long val);  // NOLINT(runtime/int)
-extern template std::string_view IntToString(
-    char (&str)[Arg::kBufferSize],
-    unsigned long val);  // NOLINT(runtime/int)
-extern template std::string_view IntToString(
-    char (&str)[Arg::kBufferSize],
-    long long val);  // NOLINT(runtime/int)
-extern template std::string_view IntToString(
-    char (&str)[Arg::kBufferSize],
-    unsigned long long val);  // NOLINT(runtime/int)
 
 }  // namespace internal
 }  // namespace rst

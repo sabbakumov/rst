@@ -71,7 +71,6 @@ add_library(rst
   rst/stl/reversed.h
   rst/stl/vector_builder.h
 
-  rst/strings/arg.cc
   rst/strings/arg.h
   rst/strings/format.cc
   rst/strings/format.h
