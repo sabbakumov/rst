@@ -28,6 +28,7 @@
 #ifndef RST_FILES_FILE_UTILS_H_
 #define RST_FILES_FILE_UTILS_H_
 
+#include <filesystem>
 #include <string>
 #include <string_view>
 
@@ -70,11 +71,12 @@ Status WriteFile(NotNull<const char*> filename, std::string_view data);
 
 // Like WriteFile() but ensures that the file won't be corrupted by application
 // crash during write.
-Status WriteImportantFile(NotNull<const char*> filename, std::string_view data);
+Status WriteImportantFile(const std::filesystem::path& filename,
+                          std::string_view data);
 
 // Reads content from |filename|. Returns FileOpenError if the file can not be
 // opened, FileError on other error.
-StatusOr<std::string> ReadFile(NotNull<const char*> filename);
+StatusOr<std::string> ReadFile(const std::filesystem::path& filename);
 
 }  // namespace rst
 

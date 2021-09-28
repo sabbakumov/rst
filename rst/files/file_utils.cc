@@ -35,53 +35,35 @@
 #include <utility>
 
 #include "rst/guid/guid.h"
-#include "rst/macros/os.h"
 #include "rst/status/status_macros.h"
 #include "rst/stl/resize_uninitialized.h"
 #include "rst/strings/str_cat.h"
 
-#if RST_BUILDFLAG(OS_WIN)
-#include <Windows.h>
-#else  // !RST_BUILDFLAG(OS_WIN)
-#include <sys/stat.h>
-#endif  // RST_BUILDFLAG(OS_WIN)
+namespace filesystem = std::filesystem;
 
 namespace rst {
 namespace {
 
-#if RST_BUILDFLAG(OS_WIN)
-bool Replace(const NotNull<const char*> old_filename,
-             const NotNull<const char*> new_filename) {
-  return ::MoveFileEx(old_filename.get(), new_filename.get(),
-                      MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
+[[nodiscard]] bool Rename(const filesystem::path& old_filename,
+                          const filesystem::path& new_filename) {
+  std::error_code ec;
+  filesystem::rename(old_filename, new_filename, ec);
+  return !ec;
 }
 
-std::optional<int64_t> GetFileSize(const NotNull<const char*> filename) {
-  ::WIN32_FILE_ATTRIBUTE_DATA attr;
-  if (::GetFileAttributesEx(filename.get(), ::GetFileExInfoStandard, &attr) ==
-      0) {
-    return std::nullopt;
-  }
-
-  return static_cast<int64_t>(attr.nFileSizeHigh) << 32 |
-         static_cast<int64_t>(attr.nFileSizeLow);
+[[nodiscard]] bool Remove(const filesystem::path& filename) {
+  std::error_code ec;
+  return filesystem::remove(filename, ec);
 }
 
-#else   // !RST_BUILDFLAG(OS_WIN)
-
-bool Replace(const NotNull<const char*> old_filename,
-             const NotNull<const char*> new_filename) {
-  return std::rename(old_filename.get(), new_filename.get()) == 0;
-}
-
-std::optional<int64_t> GetFileSize(const NotNull<const char*> filename) {
-  struct ::stat buf;
-  if (::stat(filename.get(), &buf) != 0)
+std::optional<size_t> GetFileSize(const filesystem::path& filename) {
+  std::error_code ec;
+  const auto size = filesystem::file_size(filename, ec);
+  if (ec)
     return std::nullopt;
 
-  return buf.st_size;
+  return size;
 }
-#endif  // RST_BUILDFLAG(OS_WIN)
 
 Status WriteFile(const NotNull<const char*> filename,
                  const NotNull<const char*> mode, const std::string_view data) {
@@ -126,34 +108,35 @@ Status WriteFile(const NotNull<const char*> filename,
   return WriteFile(filename, "wb", data);
 }
 
-Status WriteImportantFile(const NotNull<const char*> filename,
+Status WriteImportantFile(const filesystem::path& filename,
                           const std::string_view data) {
-  const auto temp_filename =
-      StrCat({filename, Guid().AsStringView().value(), ".tmp"});
+  const filesystem::path temp_filename(
+      StrCat({filename.native(), Guid().AsStringView().value(), ".tmp"}));
   RST_TRY(WriteFile(temp_filename.c_str(), "wxb", data));
 
-  if (!Replace(temp_filename.c_str(), filename.get())) {
-    (void)std::remove(temp_filename.c_str());
+  if (!Rename(temp_filename, filename)) {
+    (void)Remove(temp_filename);
     return MakeStatus<FileError>(
-        StrCat({"Can't rename temp file ", temp_filename}));
+        StrCat({"Can't rename temp file ", temp_filename.native()}));
   }
 
   return Status::OK();
 }
 
-StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
+StatusOr<std::string> ReadFile(const filesystem::path& filename) {
   std::unique_ptr<std::FILE, void (*)(std::FILE*)> file(
-      std::fopen(filename.get(), "rb"), [](std::FILE* f) {
+      std::fopen(filename.c_str(), "rb"), [](std::FILE* f) {
         if (f != nullptr)
           (void)std::fclose(f);
       });
 
-  if (file == nullptr)
-    return MakeStatus<FileOpenError>(StrCat({"Can't open file ", filename}));
+  if (file == nullptr) {
+    return MakeStatus<FileOpenError>(
+        StrCat({"Can't open file ", filename.native()}));
+  }
 
-  static constexpr int64_t kDefaultChunkSize = 128 * 1024 - 1;
+  static constexpr size_t kDefaultChunkSize = 128 * 1024 - 1;
   auto chunk_size = GetFileSize(filename).value_or(kDefaultChunkSize);
-  RST_DCHECK(chunk_size >= 0);
   if (chunk_size == 0)  // Some files return 0 bytes (/etc/*).
     chunk_size = kDefaultChunkSize;
   chunk_size++;  // Try to read file at once including the EOF flag.
@@ -164,19 +147,21 @@ StatusOr<std::string> ReadFile(const NotNull<const char*> filename) {
        std::feof(file.get()) == 0 && std::ferror(file.get()) == 0;
        bytes_read_so_far += bytes_read_this_pass) {
     RST_DCHECK(content.size() == bytes_read_so_far);
-    StringResizeUninitialized(
-        &content, bytes_read_so_far + static_cast<size_t>(chunk_size));
-    bytes_read_this_pass =
-        std::fread(content.data() + bytes_read_so_far, 1,
-                   static_cast<size_t>(chunk_size), file.get());
+    StringResizeUninitialized(&content, bytes_read_so_far + chunk_size);
+    bytes_read_this_pass = std::fread(content.data() + bytes_read_so_far, 1,
+                                      chunk_size, file.get());
   }
 
-  if (std::ferror(file.get()) != 0)
-    return MakeStatus<FileError>(StrCat({"Can't read file ", filename}));
+  if (std::ferror(file.get()) != 0) {
+    return MakeStatus<FileError>(
+        StrCat({"Can't read file ", filename.native()}));
+  }
 
   const auto raw_file = file.release();
-  if (std::fclose(raw_file) != 0)
-    return MakeStatus<FileError>(StrCat({"Can't close file ", filename}));
+  if (std::fclose(raw_file) != 0) {
+    return MakeStatus<FileError>(
+        StrCat({"Can't close file ", filename.native()}));
+  }
 
   content.resize(bytes_read_so_far);
   return content;

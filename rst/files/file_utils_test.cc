@@ -62,7 +62,7 @@ TEST(FileUtils, WriteRead) {
     auto status = WriteFile(file.FileName(), content);
     ASSERT_FALSE(status.err());
 
-    auto string = ReadFile(file.FileName());
+    auto string = ReadFile(file.FileName().get());
     ASSERT_FALSE(string.err());
     EXPECT_EQ(*string, content);
   }
@@ -75,7 +75,7 @@ TEST(FileUtils, WriteReadToTheSameFile) {
     auto status = WriteFile(file.FileName(), content);
     ASSERT_FALSE(status.err());
 
-    auto string = ReadFile(file.FileName());
+    auto string = ReadFile(file.FileName().get());
     ASSERT_FALSE(string.err());
     EXPECT_EQ(*string, content);
   }
@@ -85,10 +85,10 @@ TEST(FileUtils, WriteImportantRead) {
   std::string content;
   for (auto i = 0; i < 150; content += std::to_string(i), i++) {
     File file;
-    auto status = WriteImportantFile(file.FileName(), content);
+    auto status = WriteImportantFile(file.FileName().get(), content);
     ASSERT_FALSE(status.err());
 
-    auto string = ReadFile(file.FileName());
+    auto string = ReadFile(file.FileName().get());
     ASSERT_FALSE(string.err());
     EXPECT_EQ(*string, content);
   }
@@ -98,10 +98,10 @@ TEST(FileUtils, WriteImportantReadToTheSameFile) {
   File file;
   std::string content;
   for (auto i = 0; i < 150; content += std::to_string(i), i++) {
-    auto status = WriteImportantFile(file.FileName(), content);
+    auto status = WriteImportantFile(file.FileName().get(), content);
     ASSERT_FALSE(status.err());
 
-    auto string = ReadFile(file.FileName());
+    auto string = ReadFile(file.FileName().get());
     ASSERT_FALSE(string.err());
     EXPECT_EQ(*string, content);
   }
@@ -109,7 +109,7 @@ TEST(FileUtils, WriteImportantReadToTheSameFile) {
 
 TEST(FileUtils, OpenFailed) {
   File file;
-  auto string = ReadFile(file.FileName());
+  auto string = ReadFile(file.FileName().get());
   ASSERT_TRUE(string.err());
   EXPECT_NE(dyn_cast<FileOpenError>(string.status().GetError()), nullptr);
 }
