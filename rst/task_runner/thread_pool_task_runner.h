@@ -95,7 +95,7 @@ class ThreadPoolTaskRunner : public TaskRunner {
     std::condition_variable thread_cv_;
     std::mutex thread_mutex_;
 
-    std::unordered_map<std::thread::id, std::thread> threads_;
+    std::unordered_map<std::thread::id, std::thread> thread_id_to_thread_map_;
     const size_t max_threads_num_;
     const std::chrono::nanoseconds keep_alive_time_;
     size_t waiting_threads_num_ = 0;

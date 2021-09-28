@@ -36,79 +36,85 @@ Preferences::Preferences(
 Preferences::~Preferences() = default;
 
 bool Preferences::GetBool(const std::string_view path) const {
-  RST_DCHECK((defaults_.find(path) != defaults_.cend()) &&
+  RST_DCHECK((path_to_default_value_map_.find(path) !=
+              path_to_default_value_map_.cend()) &&
              "Trying to read an unregistered preference");
-  RST_DCHECK((defaults_.find(path)->second.IsBool()) &&
+  RST_DCHECK((path_to_default_value_map_.find(path)->second.IsBool()) &&
              "Trying to read a preference of different type");
 
   const auto stored_pref = preferences_store_->GetValue(path);
   if (stored_pref == nullptr)
-    return defaults_.find(path)->second.GetBool();
+    return path_to_default_value_map_.find(path)->second.GetBool();
 
   return stored_pref->GetBool();
 }
 
 int Preferences::GetInt(const std::string_view path) const {
-  RST_DCHECK((defaults_.find(path) != defaults_.cend()) &&
+  RST_DCHECK((path_to_default_value_map_.find(path) !=
+              path_to_default_value_map_.cend()) &&
              "Trying to read an unregistered preference");
-  RST_DCHECK((defaults_.find(path)->second.IsInt()) &&
+  RST_DCHECK((path_to_default_value_map_.find(path)->second.IsInt()) &&
              "Trying to read a preference of different type");
 
   const auto stored_pref = preferences_store_->GetValue(path);
   if (stored_pref == nullptr)
-    return defaults_.find(path)->second.GetInt();
+    return path_to_default_value_map_.find(path)->second.GetInt();
 
   return stored_pref->GetInt();
 }
 
 double Preferences::GetDouble(const std::string_view path) const {
-  RST_DCHECK((defaults_.find(path) != defaults_.cend()) &&
+  RST_DCHECK((path_to_default_value_map_.find(path) !=
+              path_to_default_value_map_.cend()) &&
              "Trying to read an unregistered preference");
-  RST_DCHECK((defaults_.find(path)->second.IsNumber()) &&
+  RST_DCHECK((path_to_default_value_map_.find(path)->second.IsNumber()) &&
              "Trying to read a preference of different type");
 
   const auto stored_pref = preferences_store_->GetValue(path);
   if (stored_pref == nullptr)
-    return defaults_.find(path)->second.GetDouble();
+    return path_to_default_value_map_.find(path)->second.GetDouble();
 
   return stored_pref->GetDouble();
 }
 
 const Value::String& Preferences::GetString(const std::string_view path) const {
-  RST_DCHECK((defaults_.find(path) != defaults_.cend()) &&
+  RST_DCHECK((path_to_default_value_map_.find(path) !=
+              path_to_default_value_map_.cend()) &&
              "Trying to read an unregistered preference");
-  RST_DCHECK((defaults_.find(path)->second.IsString()) &&
+  RST_DCHECK((path_to_default_value_map_.find(path)->second.IsString()) &&
              "Trying to read a preference of different type");
 
   const auto stored_pref = preferences_store_->GetValue(path);
   if (stored_pref == nullptr)
-    return defaults_.find(path)->second.GetString();
+    return path_to_default_value_map_.find(path)->second.GetString();
 
   return stored_pref->GetString();
 }
 
 const Value::Array& Preferences::GetArray(const std::string_view path) const {
-  RST_DCHECK((defaults_.find(path) != defaults_.cend()) &&
+  RST_DCHECK((path_to_default_value_map_.find(path) !=
+              path_to_default_value_map_.cend()) &&
              "Trying to read an unregistered preference");
-  RST_DCHECK((defaults_.find(path)->second.IsArray()) &&
+  RST_DCHECK((path_to_default_value_map_.find(path)->second.IsArray()) &&
              "Trying to read a preference of different type");
 
   const auto stored_pref = preferences_store_->GetValue(path);
   if (stored_pref == nullptr)
-    return defaults_.find(path)->second.GetArray();
+    return path_to_default_value_map_.find(path)->second.GetArray();
 
   return stored_pref->GetArray();
 }
 
 const Value::Object& Preferences::GetObject(const std::string_view path) const {
-  RST_DCHECK((defaults_.find(path) != defaults_.cend()) &&
+  RST_DCHECK((path_to_default_value_map_.find(path) !=
+              path_to_default_value_map_.cend()) &&
              "Trying to read an unregistered preference");
-  RST_DCHECK((defaults_.find(path)->second.IsObject()) &&
+  RST_DCHECK((path_to_default_value_map_.find(path)->second.IsObject()) &&
              "Trying to read a preference of different type");
 
   const auto stored_pref = preferences_store_->GetValue(path);
   if (stored_pref == nullptr)
-    return defaults_.find(path)->second.GetObject();
+    return path_to_default_value_map_.find(path)->second.GetObject();
 
   return stored_pref->GetObject();
 }

@@ -120,24 +120,28 @@ class Preferences {
  private:
   void RegisterPreference(std::string&& path, Value&& default_value) {
     RST_DCHECK(default_value.type() != Value::Type::kNull);
-    RST_DCHECK((defaults_.find(path) == defaults_.cend()) &&
+    RST_DCHECK((path_to_default_value_map_.find(path) ==
+                path_to_default_value_map_.cend()) &&
                "Trying to register a previously registered preference");
 
-    defaults_.emplace(std::move(path), std::move(default_value));
+    path_to_default_value_map_.emplace(std::move(path),
+                                       std::move(default_value));
   }
 
   void SetValue(std::string_view path, Value&& value) {
     RST_DCHECK(value.type() != Value::Type::kNull);
-    RST_DCHECK((defaults_.find(path) != defaults_.cend()) &&
+    RST_DCHECK((path_to_default_value_map_.find(path) !=
+                path_to_default_value_map_.cend()) &&
                "Trying to write an unregistered preference");
-    RST_DCHECK((defaults_.find(path)->second.type() == value.type()) &&
+    RST_DCHECK((path_to_default_value_map_.find(path)->second.type() ==
+                value.type()) &&
                "Trying to write a preference of different type");
 
     preferences_store_->SetValue(path, std::move(value));
   }
 
   // Default values for each path.
-  std::map<std::string, Value, std::less<>> defaults_;
+  std::map<std::string, Value, std::less<>> path_to_default_value_map_;
   const NotNull<std::unique_ptr<PreferencesStore>> preferences_store_;
 
   RST_DISALLOW_COPY_AND_ASSIGN(Preferences);

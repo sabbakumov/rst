@@ -47,7 +47,7 @@ ThreadPoolTaskRunner::DelayedTaskRunner::DelayedTaskRunner(
 ThreadPoolTaskRunner::DelayedTaskRunner::~DelayedTaskRunner() {
   std::unique_lock lock(thread_mutex_);
   should_exit_ = true;
-  while (!threads_.empty()) {
+  while (!thread_id_to_thread_map_.empty()) {
     thread_cv_.notify_one();
     thread_cv_.wait(lock);
   }
@@ -58,10 +58,10 @@ void ThreadPoolTaskRunner::DelayedTaskRunner::WaitAndRunTasks() {
   RST_DEFER([this]() {
     std::lock_guard lock(thread_mutex_);
 
-    const auto it = threads_.find(std::this_thread::get_id());
-    RST_DCHECK(it != threads_.cend());
+    const auto it = thread_id_to_thread_map_.find(std::this_thread::get_id());
+    RST_DCHECK(it != thread_id_to_thread_map_.cend());
     it->second.detach();
-    threads_.erase(it);
+    thread_id_to_thread_map_.erase(it);
 
     thread_cv_.notify_one();
   });
@@ -119,8 +119,9 @@ void ThreadPoolTaskRunner::DelayedTaskRunner::PushTasks(
       tasks_.emplace(std::move(task));
     }
 
-    RST_DCHECK(threads_.size() <= max_threads_num_);
-    const auto max_threads_num_to_create = max_threads_num_ - threads_.size();
+    RST_DCHECK(thread_id_to_thread_map_.size() <= max_threads_num_);
+    const auto max_threads_num_to_create =
+        max_threads_num_ - thread_id_to_thread_map_.size();
     auto threads_num_to_create = std::min(tasks_num, max_threads_num_to_create);
     threads_num_to_create -=
         std::min(threads_num_to_create, waiting_threads_num_);
@@ -128,7 +129,8 @@ void ThreadPoolTaskRunner::DelayedTaskRunner::PushTasks(
     for (size_t i = 0; i < threads_num_to_create; i++) {
       std::thread t(&DelayedTaskRunner::WaitAndRunTasks, this);
       const auto id = t.get_id();
-      const auto [_, success] = threads_.emplace(id, std::move(t));
+      const auto [_, success] =
+          thread_id_to_thread_map_.emplace(id, std::move(t));
       RST_DCHECK(success);
     }
   }
@@ -144,8 +146,9 @@ void ThreadPoolTaskRunner::DelayedTaskRunner::PushTask(
     const auto tasks_num = task.iterations + 1;
     tasks_.emplace(std::move(task));
 
-    RST_DCHECK(threads_.size() <= max_threads_num_);
-    const auto max_threads_num_to_create = max_threads_num_ - threads_.size();
+    RST_DCHECK(thread_id_to_thread_map_.size() <= max_threads_num_);
+    const auto max_threads_num_to_create =
+        max_threads_num_ - thread_id_to_thread_map_.size();
     auto threads_num_to_create = std::min(tasks_num, max_threads_num_to_create);
     threads_num_to_create -=
         std::min(threads_num_to_create, waiting_threads_num_);
@@ -153,7 +156,8 @@ void ThreadPoolTaskRunner::DelayedTaskRunner::PushTask(
     for (size_t i = 0; i < threads_num_to_create; i++) {
       std::thread t(&DelayedTaskRunner::WaitAndRunTasks, this);
       const auto id = t.get_id();
-      const auto [_, success] = threads_.emplace(id, std::move(t));
+      const auto [_, success] =
+          thread_id_to_thread_map_.emplace(id, std::move(t));
       RST_DCHECK(success);
     }
   }
