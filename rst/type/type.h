@@ -73,7 +73,7 @@ class Type {
   Type() = default;
 
   explicit Type(const UnderlyingType& value) : value_(value) {}
-  explicit Type(UnderlyingType&& value) : value_(std::move(value)) {}
+  explicit Type(UnderlyingType&& value) noexcept : value_(std::move(value)) {}
 
   Type(const Type&) = default;
   Type(Type&&) noexcept = default;

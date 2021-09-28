@@ -74,7 +74,7 @@ class NoDestructor {
   }
 
   explicit NoDestructor(const T& x) { new (storage_) T(x); }
-  explicit NoDestructor(T&& x) { new (storage_) T(std::move(x)); }
+  explicit NoDestructor(T&& x) noexcept { new (storage_) T(std::move(x)); }
 
   ~NoDestructor() = default;
 

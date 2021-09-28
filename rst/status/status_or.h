@@ -72,7 +72,7 @@ class [[nodiscard]] StatusOr {
     static_assert(std::is_same_v<T, U>);
     CopyConstructFromT(value);
   }
-  StatusOr(T&& value) {  // NOLINT(runtime/explicit)
+  StatusOr(T&& value) noexcept {  // NOLINT(runtime/explicit)
     MoveConstructFromT(std::move(value));
   }
 
@@ -125,7 +125,7 @@ class [[nodiscard]] StatusOr {
     return *this;
   }
 
-  StatusOr& operator=(T&& value) {
+  StatusOr& operator=(T&& value) noexcept {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     RST_DCHECK(was_checked_);
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
