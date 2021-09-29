@@ -159,7 +159,7 @@ class [[nodiscard]] StatusOr {
 
   // Sets the object to be checked and returns whether the status is error
   // object.
-  bool err() {
+  [[nodiscard]] bool err() {
 #if RST_BUILDFLAG(DCHECK_IS_ON)
     was_checked_ = true;
     if (has_error_)
