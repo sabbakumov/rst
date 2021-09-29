@@ -45,10 +45,10 @@ std::string StrCat(std::initializer_list<internal::Arg> values) {
 
   auto out = output.data();
   for (const auto& val : values) {
-    const auto src = val.view();
-    if (src.size() != 0)
+    if (const auto src = val.view(); !src.empty()) {
       std::memcpy(out, src.data(), src.size());
-    out += src.size();
+      out += src.size();
+    }
   }
 
   RST_DCHECK(out == output.data() + output.size());

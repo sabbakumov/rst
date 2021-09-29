@@ -61,10 +61,10 @@ std::string FormatAndReturnString(const NotNull<const char*> not_null_format,
       case '{': {
         if (RST_LIKELY(*(format + 1) == '}')) {
           RST_DCHECK(arg_idx < size && "Extra arguments");
-          const auto src = values[arg_idx++].view();
-          if (src.size() != 0)
+          if (const auto src = values[arg_idx++].view(); !src.empty()) {
             std::memcpy(target, src.data(), src.size());
-          target += src.size();
+            target += src.size();
+          }
         } else {
           RST_DCHECK((*(format + 1) == '{') && "Invalid format string");
           *target++ = '{';
