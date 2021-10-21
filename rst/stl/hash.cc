@@ -28,58 +28,63 @@
 #include "rst/stl/hash.h"
 
 #include <cstdint>
-#include <functional>
-#include <unordered_set>
 
-#include <gtest/gtest.h>
-
+namespace rst {
 namespace {
 
-struct Point {
-  Point(const int x, const int y) : x(x), y(y) {}
-
-  int x = 0;
-  int y = 0;
-};
-
-bool operator==(const Point lhs, const Point rhs) {
-  return (lhs.x == rhs.x) && (lhs.y == rhs.y);
+uint32_t Rotl32(const uint32_t x, const uint32_t r) {
+  return (x << r) | (x >> (32 - r));
 }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+uint32_t HashCombineSizeT(uint32_t h, uint32_t k) {
+  static constexpr uint32_t kC1 = 0xcc9e2d51;
+  static constexpr uint32_t kC2 = 0x1b873593;
+
+  k *= kC1;
+  k = Rotl32(k, 15);
+  k *= kC2;
+
+  h ^= k;
+  h = Rotl32(h, 13);
+  h = h * 5 + 0xe6546b64;
+
+  return h;
+}
+
+uint64_t HashCombineSizeT(uint64_t h, uint64_t k) {
+  static constexpr uint64_t kM = 0xc6a4a7935bd1e995ULL;
+  static constexpr int kR = 47;
+
+  k *= kM;
+  k ^= k >> kR;
+  k *= kM;
+
+  h ^= k;
+  h *= kM;
+
+  h += 0xe6546b64;
+
+  return h;
+}
+#pragma clang diagnostic pop
 
 }  // namespace
 
-namespace std {
+size_t HashCombine(const std::initializer_list<internal::Hash> hashes) {
+  auto it = hashes.begin();
+  const auto end = hashes.end();
+  if (it == end)
+    return 0;
 
-template <>
-struct hash<Point> {
-  size_t operator()(const Point point) const {
-    return rst::HashCombine({point.x, point.y});
-  }
-};
+  auto result = it->hash();
+  ++it;
 
-}  // namespace std
+  for (; it != end; ++it)
+    result = HashCombineSizeT(result, it->hash());
 
-namespace rst {
-
-TEST(Hash, size_t) {
-  static constexpr size_t kH = 1, kK = 1;
-  const size_t result = HashCombine({kH, kK});
-  (void)result;
-}
-
-TEST(Hash, Point) {
-  std::unordered_set<Point> points;
-  points.emplace(0, 0);
-}
-
-TEST(Hash, Empty) {
-  const size_t result = HashCombine({});
-  (void)result;
-}
-
-TEST(Hash, EmptyString) {
-  EXPECT_EQ(std::hash<std::string>()(std::string()),
-            HashCombine({std::string()}));
+  return result;
 }
 
 }  // namespace rst

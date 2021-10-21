@@ -66,6 +66,7 @@ add_library(rst
 
   rst/stl/algorithm.h
   rst/stl/function.h
+  rst/stl/hash.cc
   rst/stl/hash.h
   rst/stl/resize_uninitialized.h
   rst/stl/reversed.h

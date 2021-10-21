@@ -29,45 +29,25 @@
 #define RST_STL_HASH_H_
 
 #include <cstddef>
-#include <cstdint>
+#include <functional>
+#include <initializer_list>
+#include <type_traits>
 
 namespace rst {
 namespace internal {
 
-inline uint32_t Rotl32(const uint32_t x, const uint32_t r) {
-  return (x << r) | (x >> (32 - r));
-}
+class Hash {
+ public:
+  template <class T>
+  Hash(T&& value)
+      : hash_(
+            std::hash<std::remove_cv_t<std::remove_reference_t<T>>>()(value)) {}
 
-inline uint32_t HashCombineUint32(uint32_t h, uint32_t k) {
-  static constexpr uint32_t kC1 = 0xcc9e2d51;
-  static constexpr uint32_t kC2 = 0x1b873593;
+  size_t hash() const { return hash_; }
 
-  k *= kC1;
-  k = Rotl32(k, 15);
-  k *= kC2;
-
-  h ^= k;
-  h = Rotl32(h, 13);
-  h = h * 5 + 0xe6546b64;
-
-  return h;
-}
-
-inline uint64_t HashCombineUint64(uint64_t h, uint64_t k) {
-  static constexpr uint64_t kM = 0xc6a4a7935bd1e995ULL;
-  static constexpr int kR = 47;
-
-  k *= kM;
-  k ^= k >> kR;
-  k *= kM;
-
-  h ^= k;
-  h *= kM;
-
-  h += 0xe6546b64;
-
-  return h;
-}
+ private:
+  const size_t hash_ = 0;
+};
 
 }  // namespace internal
 
@@ -91,21 +71,11 @@ inline uint64_t HashCombineUint64(uint64_t h, uint64_t k) {
 //   template <>
 //   struct hash<Point> {
 //     size_t operator()(const Point point) const {
-//       std::hash<int> hasher;
-//       const auto hash_value = hasher(point.x);
-//       return rst::HashCombine(hash_value, hasher(point.y));
+//       return rst::HashCombine({point.x, point.y});
 //     }
 //   };
 //
-inline size_t HashCombine(const size_t h, const size_t k) {
-  if constexpr (sizeof h == 8)
-    return internal::HashCombineUint64(h, k);
-  else if constexpr (sizeof h == 4)
-#pragma warning(push)
-#pragma warning(disable : 4267)
-    return internal::HashCombineUint32(h, k);
-#pragma warning(pop)
-}
+size_t HashCombine(std::initializer_list<internal::Hash> hashes);
 
 }  // namespace rst
 

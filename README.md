@@ -667,9 +667,7 @@ namespace std {
 template <>
 struct hash<Point> {
   size_t operator()(const Point point) const {
-    std::hash<int> hasher;
-    const auto hash_value = hasher(point.x);
-    return rst::HashCombine(hash_value, hasher(point.y));
+    return rst::HashCombine({point.x, point.y});
   }
 };
 ```
