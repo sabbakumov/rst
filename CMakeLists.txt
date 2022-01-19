@@ -14,6 +14,8 @@ add_library(rst
 
   rst/check/check.h
 
+  rst/clone/clone.h
+
   rst/defer/defer.h
 
   rst/files/file_utils.cc
@@ -107,6 +109,8 @@ add_executable(rst_tests
 
   rst/check/check_ndebug_test.cc
   rst/check/check_test.cc
+
+  rst/clone/clone_test.cc
 
   rst/defer/defer_test.cc
 

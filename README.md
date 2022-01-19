@@ -13,6 +13,7 @@ It is licensed under the Simplified BSD License.
     * [DoNothing](#DoNothing)
     * [NullFunction](#NullFunction)
   * [Check](#Check)
+  * [Clone](#Clone)
   * [Defer](#Defer)
   * [Files](#Files)
   * [GUID](#GUID)
@@ -195,6 +196,17 @@ If you want to do more complex logic in a debug build write the following:
 #if RST_BUILDFLAG(DCHECK_IS_ON)
 Some complex logic in a debug build.
 #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
+```
+
+<a name="Clone"></a>
+## Clone
+Used to explicitly copy the value and make it visible to the reader:
+
+```cpp
+void ConsumeString(std::string&& val);
+
+std::string s = ...;
+ConsumeString(rst::Clone(s));
 ```
 
 <a name="Defer"></a>

@@ -27,6 +27,8 @@
 
 #include "rst/value/value.h"
 
+#include "rst/clone/clone.h"
+
 namespace rst {
 
 Value::Value(const Type type) : type_(type) {
@@ -75,7 +77,7 @@ Value Value::Clone() const {
     case Type::kNumber:
       return Value(get_number());
     case Type::kString:
-      return Value(String(get_string()));
+      return Value(rst::Clone(get_string()));
     case Type::kArray:
       return Value(Clone(get_array()));
     case Type::kObject:

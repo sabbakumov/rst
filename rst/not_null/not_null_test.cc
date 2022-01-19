@@ -494,13 +494,13 @@ TEST(NotNull, SharedPtr) {
   EXPECT_EQ(base_copy_ptr->GetName(), "Derived");
 
   auto b = std::make_shared<Base>();
-  NotNull<std::shared_ptr<Base>> base_ptr2((std::shared_ptr(b)));
+  NotNull<std::shared_ptr<Base>> base_ptr2(b);
   EXPECT_EQ(base_ptr2->GetName(), "Base");
 
   base_ptr2 = base_ptr;
   EXPECT_EQ(base_ptr2->GetName(), "Derived");
 
-  NotNull<std::shared_ptr<Base>> base_ptr3((std::shared_ptr(b)));
+  NotNull<std::shared_ptr<Base>> base_ptr3(b);
   EXPECT_EQ(base_ptr3->GetName(), "Base");
 
   base_ptr3 = std::move(base_ptr);
@@ -1071,7 +1071,7 @@ TEST(Nullable, SharedPtr) {
   EXPECT_EQ(base_copy_ptr->GetName(), "Derived");
 
   auto b = std::make_shared<Base>();
-  Nullable<std::shared_ptr<Base>> base_ptr2((std::shared_ptr(b)));
+  Nullable<std::shared_ptr<Base>> base_ptr2(b);
   ASSERT_NE(base_ptr2, nullptr);
   EXPECT_EQ(base_ptr2->GetName(), "Base");
 
@@ -1079,7 +1079,7 @@ TEST(Nullable, SharedPtr) {
   ASSERT_NE(base_ptr2, nullptr);
   EXPECT_EQ(base_ptr2->GetName(), "Derived");
 
-  Nullable<std::shared_ptr<Base>> base_ptr3((std::shared_ptr(b)));
+  Nullable<std::shared_ptr<Base>> base_ptr3(b);
   ASSERT_NE(base_ptr3, nullptr);
   EXPECT_EQ(base_ptr3->GetName(), "Base");
 

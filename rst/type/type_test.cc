@@ -228,8 +228,8 @@ TEST(TypeTest, CanWrapComplexStructures) {
   using PairOfStrings = std::pair<std::string, std::string>;
   using ComplexType = Type<class FooTag, PairOfStrings>;
 
-  ComplexType a1(std::make_pair("aaa", "bbb"));
-  ComplexType a2(std::make_pair("ccc", "ddd"));
+  ComplexType a1(std::pair("aaa", "bbb"));
+  ComplexType a2(std::pair("ccc", "ddd"));
   EXPECT_TRUE(a1 < a2);
 
   EXPECT_TRUE(a1.value() == PairOfStrings("aaa", "bbb"));

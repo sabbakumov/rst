@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Sergey Abbakumov
+// Copyright (c) 2022, Sergey Abbakumov
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,48 +25,23 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef RST_TASK_RUNNER_ITEM_H_
-#define RST_TASK_RUNNER_ITEM_H_
-
-#include <chrono>
-#include <cstddef>
-#include <cstdint>
-#include <functional>
-#include <utility>
-
-#include "rst/macros/macros.h"
+#ifndef RST_CLONE_CLONE_H_
+#define RST_CLONE_CLONE_H_
 
 namespace rst {
-namespace internal {
 
-// Used in implementations of TaskRunner interface to maintain an ordered queue
-// of tasks.
-struct Item {
-  Item(std::function<void()>&& task, const std::chrono::nanoseconds time_point,
-       const uint64_t task_id, const size_t iterations)
-      : task(std::move(task)),
-        time_point(time_point),
-        task_id(task_id),
-        iterations(iterations) {}
-  Item(Item&&) noexcept = default;
-  ~Item() = default;
+// Used to explicitly copy the |value| and make it visible to the reader:
+//
+//   void ConsumeString(std::string&& val);
+//
+//   std::string s = ...;
+//   ConsumeString(rst::Clone(s));
+//
+template <class T>
+T Clone(const T& value) {
+  return value;
+}
 
-  Item& operator=(Item&&) noexcept = default;
-  bool operator>(const Item& item) const {
-    return std::pair(time_point, task_id) >
-           std::pair(item.time_point, item.task_id);
-  }
-
-  std::function<void()> task;
-  std::chrono::nanoseconds time_point;
-  uint64_t task_id = 0;
-  size_t iterations = 0;
-
- private:
-  RST_DISALLOW_COPY_AND_ASSIGN(Item);
-};
-
-}  // namespace internal
 }  // namespace rst
 
-#endif  // RST_TASK_RUNNER_ITEM_H_
+#endif  // RST_CLONE_CLONE_H_

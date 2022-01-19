@@ -50,6 +50,7 @@
 #include "rst/logger/sink.h"
 #include "rst/macros/macros.h"
 #include "rst/not_null/not_null.h"
+#include "rst/strings/str_cat.h"
 
 using testing::_;
 using testing::Eq;
@@ -88,8 +89,8 @@ class SinkMock : public Sink {
 TEST(Logger, Log) {
   auto sink = std::make_unique<SinkMock>();
 
-  EXPECT_CALL(*sink, Log(Eq(std::string("[") + kLevelStr + ":" + kFilename +
-                            "(" + kLineStr + ")] " + kMessage)));
+  EXPECT_CALL(*sink, Log(Eq(StrCat({"[", kLevelStr, ":", kFilename, "(",
+                                    kLineStr, ")] ", kMessage}))));
 
   Logger logger(std::move(sink));
   Logger::SetGlobalLogger(&logger);
@@ -162,14 +163,14 @@ TEST(Logger, LogEnumToString) {
 
   testing::InSequence seq;
 
-  EXPECT_CALL(*sink, Log(Eq(std::string("[") + "DEBUG" + ":" + kFilename + "(" +
-                            kLineStr + ")] " + kMessage)));
-  EXPECT_CALL(*sink, Log(Eq(std::string("[") + "INFO" + ":" + kFilename + "(" +
-                            kLineStr + ")] " + kMessage)));
-  EXPECT_CALL(*sink, Log(Eq(std::string("[") + "WARNING" + ":" + kFilename +
-                            "(" + kLineStr + ")] " + kMessage)));
-  EXPECT_CALL(*sink, Log(Eq(std::string("[") + "ERROR" + ":" + kFilename + "(" +
-                            kLineStr + ")] " + kMessage)));
+  EXPECT_CALL(*sink, Log(Eq(StrCat({"[", "DEBUG", ":", kFilename, "(", kLineStr,
+                                    ")] ", kMessage}))));
+  EXPECT_CALL(*sink, Log(Eq(StrCat({"[", "INFO", ":", kFilename, "(", kLineStr,
+                                    ")] ", kMessage}))));
+  EXPECT_CALL(*sink, Log(Eq(StrCat({"[", "WARNING", ":", kFilename, "(",
+                                    kLineStr, ")] ", kMessage}))));
+  EXPECT_CALL(*sink, Log(Eq(StrCat({"[", "ERROR", ":", kFilename, "(", kLineStr,
+                                    ")] ", kMessage}))));
 
   Logger logger(std::move(sink));
   Logger::SetGlobalLogger(&logger);
