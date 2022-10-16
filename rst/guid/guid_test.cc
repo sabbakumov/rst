@@ -68,6 +68,13 @@ std::string ToUpperASCII(const std::string_view str) {
   return ret;
 }
 
+void CheckValid(const std::string_view guid) {
+    EXPECT_TRUE(Guid::IsValid(guid));
+    EXPECT_TRUE(Guid::IsValidOutputString(guid));
+    EXPECT_TRUE(Guid::IsValid(ToLowerASCII(guid)));
+    EXPECT_TRUE(Guid::IsValid(ToUpperASCII(guid)));
+}
+
 }  // namespace
 
 TEST(GUID, GUIDGeneratesAllZeroes) {
@@ -85,11 +92,9 @@ TEST(GUID, GUIDGeneratesCorrectly) {
 
 TEST(GUID, GUIDCorrectlyFormatted) {
   for (auto i = 0; i < 10; i++) {
-    const auto guid = Guid().AsString();
-    EXPECT_TRUE(Guid::IsValid(guid));
-    EXPECT_TRUE(Guid::IsValidOutputString(guid));
-    EXPECT_TRUE(Guid::IsValid(ToLowerASCII(guid)));
-    EXPECT_TRUE(Guid::IsValid(ToUpperASCII(guid)));
+    const Guid guid;
+    CheckValid(guid.AsString());
+    CheckValid(guid.AsStringView().value());
   }
 }
 

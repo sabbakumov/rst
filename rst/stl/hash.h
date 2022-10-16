@@ -75,6 +75,8 @@ class Hash {
 //     }
 //   };
 //
+//   }  // namespace std
+//
 size_t HashCombine(std::initializer_list<internal::Hash> hashes);
 
 }  // namespace rst
