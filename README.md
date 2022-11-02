@@ -746,7 +746,7 @@ RST_DCHECK(preferences.GetInt("int.preference") == 20);
 <a name="RandomDevice"></a>
 ## RandomDevice
 Returns a reference to a singleton in order to have only one random device per
-program.
+thread.
 ```cpp
 #include "rst/random/random_device.h"
 

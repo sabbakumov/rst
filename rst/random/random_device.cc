@@ -32,7 +32,7 @@
 namespace rst {
 
 std::random_device& GetRandomDevice() {
-  static NoDestructor<std::random_device> device;
+  thread_local NoDestructor<std::random_device> device;
   return *device;
 }
 
