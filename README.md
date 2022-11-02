@@ -111,16 +111,18 @@ cmake .. -DRST_ENABLE_UBSAN=ON
 <a name="Bind2"></a>
 ### Bind
 Like `std::bind()` but the returned function object doesn't invoke `rst::Bind`'s
-first callable object argument when `rst::Bind`'s second `rst::WeakPtr` argument
-was invalidated.
+first callable object argument when `rst::Bind`'s second argument
+(`rst::WeakPtr` or `std::weak_ptr`) was invalidated.
   
 ```cpp
 #include "rst/bind/bind.h"
 
-class Controller : public rst::SupportsWeakPtr<Controller> {
+class Controller : public rst::SupportsWeakPtr<Controller>,
+                   public std::enable_shared_from_this<Controller> {
  public:
   void SpawnWorker() {
     Worker::StartNew(rst::Bind(&Controller::WorkComplete, AsWeakPtr()));
+    Worker::StartNew(rst::Bind(&Controller::WorkComplete, weak_from_this()));
   }
   void WorkComplete(const Result& result) {}
 };

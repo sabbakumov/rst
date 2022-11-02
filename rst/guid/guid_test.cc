@@ -69,10 +69,10 @@ std::string ToUpperASCII(const std::string_view str) {
 }
 
 void CheckValid(const std::string_view guid) {
-    EXPECT_TRUE(Guid::IsValid(guid));
-    EXPECT_TRUE(Guid::IsValidOutputString(guid));
-    EXPECT_TRUE(Guid::IsValid(ToLowerASCII(guid)));
-    EXPECT_TRUE(Guid::IsValid(ToUpperASCII(guid)));
+  EXPECT_TRUE(Guid::IsValid(guid));
+  EXPECT_TRUE(Guid::IsValidOutputString(guid));
+  EXPECT_TRUE(Guid::IsValid(ToLowerASCII(guid)));
+  EXPECT_TRUE(Guid::IsValid(ToUpperASCII(guid)));
 }
 
 }  // namespace

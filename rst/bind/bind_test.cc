@@ -41,7 +41,8 @@ using namespace std::placeholders;  // NOLINT(build/namespaces)
 namespace rst {
 namespace {
 
-class Weaked : public SupportsWeakPtr<Weaked> {
+class Weaked : public SupportsWeakPtr<Weaked>,
+               public std::enable_shared_from_this<Weaked> {
  public:
   Weaked() = default;
   ~Weaked() = default;
@@ -73,12 +74,28 @@ TEST(Bind, NoArguments) {
     EXPECT_EQ(weaked.s(), "Foo");
   }
   {
+    const auto weaked = std::make_shared<Weaked>();
+    auto foo = Bind(&Weaked::Foo, weaked->weak_from_this());
+
+    EXPECT_TRUE(weaked->s().empty());
+    foo();
+    EXPECT_EQ(weaked->s(), "Foo");
+  }
+  {
     const Weaked weaked;
     auto foo = Bind(&Weaked::FooConst, weaked.AsWeakPtr());
 
     EXPECT_TRUE(weaked.s().empty());
     foo();
     EXPECT_EQ(weaked.s(), "Foo");
+  }
+  {
+    const auto weaked = std::make_shared<const Weaked>();
+    auto foo = Bind(&Weaked::FooConst, weaked->weak_from_this());
+
+    EXPECT_TRUE(weaked->s().empty());
+    foo();
+    EXPECT_EQ(weaked->s(), "Foo");
   }
 }
 
@@ -94,8 +111,24 @@ TEST(Bind, NoArgumentsOnDestruction) {
   {
     std::function<void()> foo;
     {
+      const auto weaked = std::make_shared<Weaked>();
+      foo = Bind(&Weaked::Foo, weaked->weak_from_this());
+    }
+    foo();
+  }
+  {
+    std::function<void()> foo;
+    {
       const Weaked weaked;
       foo = Bind(&Weaked::FooConst, weaked.AsWeakPtr());
+    }
+    foo();
+  }
+  {
+    std::function<void()> foo;
+    {
+      const auto weaked = std::make_shared<const Weaked>();
+      foo = Bind(&Weaked::FooConst, weaked->weak_from_this());
     }
     foo();
   }
@@ -111,12 +144,28 @@ TEST(Bind, OneArgument) {
     EXPECT_EQ(weaked.s(), "Bar");
   }
   {
+    const auto weaked = std::make_shared<Weaked>();
+    auto bar = Bind(&Weaked::Bar, weaked->weak_from_this(), _1);
+
+    EXPECT_TRUE(weaked->s().empty());
+    bar("Bar");
+    EXPECT_EQ(weaked->s(), "Bar");
+  }
+  {
     const Weaked weaked;
     auto bar = Bind(&Weaked::BarConst, weaked.AsWeakPtr(), _1);
 
     EXPECT_TRUE(weaked.s().empty());
     bar("Bar");
     EXPECT_EQ(weaked.s(), "Bar");
+  }
+  {
+    const auto weaked = std::make_shared<const Weaked>();
+    auto bar = Bind(&Weaked::BarConst, weaked->weak_from_this(), _1);
+
+    EXPECT_TRUE(weaked->s().empty());
+    bar("Bar");
+    EXPECT_EQ(weaked->s(), "Bar");
   }
 }
 
@@ -132,8 +181,24 @@ TEST(Bind, OneArgumentOnDestruction) {
   {
     std::function<void(std::string)> bar;
     {
+      const auto weaked = std::make_shared<Weaked>();
+      bar = Bind(&Weaked::Bar, weaked->weak_from_this(), _1);
+    }
+    bar("Bar");
+  }
+  {
+    std::function<void(std::string)> bar;
+    {
       const Weaked weaked;
       bar = Bind(&Weaked::BarConst, weaked.AsWeakPtr(), _1);
+    }
+    bar("Bar");
+  }
+  {
+    std::function<void(std::string)> bar;
+    {
+      const auto weaked = std::make_shared<const Weaked>();
+      bar = Bind(&Weaked::BarConst, weaked->weak_from_this(), _1);
     }
     bar("Bar");
   }
@@ -149,12 +214,28 @@ TEST(Bind, OneMoveOnlyArgument) {
     EXPECT_EQ(weaked.s(), "Baz");
   }
   {
+    const auto weaked = std::make_shared<Weaked>();
+    auto baz = Bind(&Weaked::Baz, weaked->weak_from_this(), _1);
+
+    EXPECT_TRUE(weaked->s().empty());
+    baz(std::make_unique<std::string>("Baz"));
+    EXPECT_EQ(weaked->s(), "Baz");
+  }
+  {
     const Weaked weaked;
     auto baz = Bind(&Weaked::BazConst, weaked.AsWeakPtr(), _1);
 
     EXPECT_TRUE(weaked.s().empty());
     baz(std::make_unique<std::string>("Baz"));
     EXPECT_EQ(weaked.s(), "Baz");
+  }
+  {
+    const auto weaked = std::make_shared<const Weaked>();
+    auto baz = Bind(&Weaked::BazConst, weaked->weak_from_this(), _1);
+
+    EXPECT_TRUE(weaked->s().empty());
+    baz(std::make_unique<std::string>("Baz"));
+    EXPECT_EQ(weaked->s(), "Baz");
   }
 }
 
@@ -170,8 +251,24 @@ TEST(Bind, OneMoveOnlyArgumentOnDestruction) {
   {
     std::function<void(std::unique_ptr<std::string>)> baz;
     {
+      const auto weaked = std::make_shared<Weaked>();
+      baz = Bind(&Weaked::Baz, weaked->weak_from_this(), _1);
+    }
+    baz(std::make_unique<std::string>("Baz"));
+  }
+  {
+    std::function<void(std::unique_ptr<std::string>)> baz;
+    {
       const Weaked weaked;
       baz = Bind(&Weaked::BazConst, weaked.AsWeakPtr(), _1);
+    }
+    baz(std::make_unique<std::string>("Baz"));
+  }
+  {
+    std::function<void(std::unique_ptr<std::string>)> baz;
+    {
+      const auto weaked = std::make_shared<const Weaked>();
+      baz = Bind(&Weaked::BazConst, weaked->weak_from_this(), _1);
     }
     baz(std::make_unique<std::string>("Baz"));
   }

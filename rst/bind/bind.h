@@ -29,6 +29,7 @@
 #define RST_BIND_BIND_H_
 
 #include <functional>
+#include <memory>
 #include <utility>
 
 #include "rst/memory/weak_ptr.h"
@@ -75,6 +76,16 @@ auto Bind(F&& f, WeakPtr<T>&& weak_ptr, Args&&... args) {
         const auto nullable_self = weak_ptr.GetNullable();
         if (const auto self = nullable_self.get(); self != nullptr)
           std::invoke(f, self, std::forward<decltype(args)>(args)...);
+      },
+      std::forward<F>(f), std::move(weak_ptr), std::forward<Args>(args)...);
+}
+
+template <class F, class T, class... Args>
+auto Bind(F&& f, std::weak_ptr<T>&& weak_ptr, Args&&... args) {
+  return std::bind(
+      [](const F& f, const std::weak_ptr<T>& weak_ptr, auto&&... args) {
+        if (const auto shared = weak_ptr.lock(); shared != nullptr)
+          std::invoke(f, shared, std::forward<decltype(args)>(args)...);
       },
       std::forward<F>(f), std::move(weak_ptr), std::forward<Args>(args)...);
 }
