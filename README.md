@@ -869,7 +869,7 @@ for (auto i : rst::Reversed(v)) {
 Like `std::string::resize()`, except any new characters added to a string as a
 result of resizing may be left uninitialized, rather than being filled with '\0'
 bytes. Typically used when code is then going to overwrite the backing store of
-the std::string with known data.
+the `std::string` with known data.
 ```cpp
 #include "rst/stl/resize_uninitialized.h"
 
@@ -1332,7 +1332,7 @@ copy.
 
 Reading:
 
-`GetBool()`, GetInt()`, etc. assert that the `rst::Value` has the correct
+`GetBool()`, `GetInt()`, etc. assert that the `rst::Value` has the correct
 `type()` before returning the contained value. `bool`, `int`, `double` are
 returned by value. `std::string`, `rst::Value::Object`, `rst::Value::Array` are
 returned by reference.
