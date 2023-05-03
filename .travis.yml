@@ -21,7 +21,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++ -D_LIBCPP_DEBUG=1"
+        - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++ -D_LIBCPP_ENABLE_ASSERTIONS"
 
       script: ninja && ./rst_tests
 
@@ -44,7 +44,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++ -D_LIBCPP_DEBUG=1"
+        - cmake .. -GNinja -DRST_ENABLE_CXX_EXCEPTIONS=ON -DRST_ENABLE_CXX_RTTI=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++ -D_LIBCPP_ENABLE_ASSERTIONS"
 
       script: ninja && ./rst_tests
 
@@ -67,7 +67,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++ -D_LIBCPP_DEBUG=1"
+        - cmake .. -GNinja -DRST_ENABLE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++ -D_LIBCPP_ENABLE_ASSERTIONS"
 
       script: ninja && ./rst_tests
 
@@ -90,7 +90,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_TSAN=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++ -D_LIBCPP_DEBUG=1"
+        - cmake .. -GNinja -DRST_ENABLE_TSAN=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++ -D_LIBCPP_ENABLE_ASSERTIONS"
 
       script: ninja && ./rst_tests
 
@@ -113,7 +113,7 @@ matrix:
       before_script:
         - mkdir build
         - cd build
-        - cmake .. -GNinja -DRST_ENABLE_UBSAN=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++ -D_LIBCPP_DEBUG=1"
+        - cmake .. -GNinja -DRST_ENABLE_UBSAN=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-stdlib=libc++ -D_LIBCPP_ENABLE_ASSERTIONS"
 
       script: ninja && ./rst_tests
 
