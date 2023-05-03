@@ -50,7 +50,7 @@
 #define RST_HIDDEN_STRING(var, str)                                 \
   static constexpr ::rst::internal::HiddenString<                   \
       ::rst::internal::ConstructIndexList<sizeof(str) - 1>::Result> \
-      var(str)
+  var(str)
 
 namespace rst {
 namespace internal {

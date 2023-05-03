@@ -45,7 +45,10 @@ struct ResizableString {
 
 struct ResizeDefaultInitString {
   void resize(size_t) { g_resize_call_count++; }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
   void __resize_default_init(size_t) { g_resize_default_init_call_count++; }
+#pragma clang diagnostic pop
 };
 
 class StringResizeUninitializedTest : public testing::Test {

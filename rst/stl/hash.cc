@@ -36,9 +36,7 @@ uint32_t Rotl32(const uint32_t x, const uint32_t r) {
   return (x << r) | (x >> (32 - r));
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-uint32_t HashCombineSizeT(uint32_t h, uint32_t k) {
+[[maybe_unused]] uint32_t HashCombineSizeT(uint32_t h, uint32_t k) {
   static constexpr uint32_t kC1 = 0xcc9e2d51;
   static constexpr uint32_t kC2 = 0x1b873593;
 
@@ -53,7 +51,7 @@ uint32_t HashCombineSizeT(uint32_t h, uint32_t k) {
   return h;
 }
 
-uint64_t HashCombineSizeT(uint64_t h, uint64_t k) {
+[[maybe_unused]] uint64_t HashCombineSizeT(uint64_t h, uint64_t k) {
   static constexpr uint64_t kM = 0xc6a4a7935bd1e995ULL;
   static constexpr int kR = 47;
 
@@ -68,7 +66,6 @@ uint64_t HashCombineSizeT(uint64_t h, uint64_t k) {
 
   return h;
 }
-#pragma clang diagnostic pop
 
 }  // namespace
 
