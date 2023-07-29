@@ -20,7 +20,6 @@ It is licensed under the Simplified BSD License.
     * [WriteImportantFile](#WriteImportantFile)
     * [ReadFile](#ReadFile)
   * [GUID](#GUID)
-  * [Hidden String](#HiddenString)
   * [Logger](#Logger)
   * [Macros](#Macros)
     * [Macros](#Macros2)
@@ -320,20 +319,6 @@ RST_DCHECK(rst::Guid::IsValid(guid.AsStringView().value()));
 // This also checks if the hexadecimal values "a" through "f" are in lower case
 // characters.
 RST_DCHECK(rst::Guid::IsValidOutputString(guid.AsStringView().value()));
-```
-
-<a name="HiddenString"></a>
-## Hidden String
-Compile time encrypted string modified implementation originally taken from
-https://stackoverflow.com/questions/7270473/compile-time-string-encryption.
-
-Strings encrypted with this method are not visible directly in the binary.
-
-```cpp
-#include "rst/hidden_string/hidden_string.h"
-
-RST_HIDDEN_STRING(kHidden, "Not visible");
-RST_DCHECK(kHidden.Decrypt() == "Not visible");
 ```
 
 <a name="Logger"></a>

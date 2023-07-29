@@ -24,8 +24,6 @@ add_library(rst
   rst/guid/guid.cc
   rst/guid/guid.h
 
-  rst/hidden_string/hidden_string.h
-
   rst/logger/file_name_sink.cc
   rst/logger/file_name_sink.h
   rst/logger/file_ptr_sink.cc
@@ -117,8 +115,6 @@ add_executable(rst_tests
   rst/files/file_utils_test.cc
 
   rst/guid/guid_test.cc
-
-  rst/hidden_string/hidden_string_test.cc
 
   rst/logger/logger_test.cc
 
