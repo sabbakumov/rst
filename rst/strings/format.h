@@ -35,37 +35,6 @@
 #include "rst/not_null/not_null.h"
 #include "rst/strings/arg.h"
 
-// This component is for efficiently performing string formatting.
-//
-// Unlike printf-style format specifiers, Format() functions do not need to
-// specify the type of the arguments. Supported arguments following the format
-// string, such as strings, string_views, ints, floats, and bools, are
-// automatically converted to strings during the formatting process. See below
-// for a full list of supported types.
-//
-// Format() does not allow you to specify how to format a value, beyond the
-// default conversion to string. For example, you cannot format an integer in
-// hex.
-//
-// The format string uses identifiers indicated by a {} like in Python.
-//
-// A '{{' or '}}' sequence in the format string causes a literal '{' or '}' to
-// be output.
-//
-// Example:
-//   std::string s = rst::Format("{} purchased {} {}", {"Bob", 5, "Apples"});
-//   RST_DCHECK(s == "Bob purchased 5 Apples");
-//
-// Supported types:
-//   * std::string_view, std::string, const char*
-//   * short, unsigned short, int, unsigned int, long, unsigned long, long long,
-//     unsigned long long
-//   * float, double, long double (printed as if %g is specified for printf())
-//   * bool (printed as "true" or "false")
-//   * char
-//   * enums (printed as underlying integer type)
-//
-// If an invalid format string is provided, Format() asserts in a debug build.
 namespace rst {
 namespace internal {
 
@@ -74,6 +43,42 @@ std::string FormatAndReturnString(NotNull<const char*> format,
                                   Nullable<const Arg*> values, size_t size);
 }  // namespace internal
 
+// This function is for efficiently performing string formatting.
+//
+// Unlike `printf`-style format specifiers, `rst::Format()` functions do not
+// need to specify the type of the arguments. Supported arguments following the
+// format string, such as `string`s, `string_view`s, `int`s, `float`s, and
+// `bool`s, are automatically converted to `string`s during the formatting
+// process. See below for a full list of supported types.
+//
+// `rst::Format()` does not allow you to specify how to format a value, beyond
+// the default conversion to string. For example, you cannot format an integer
+// in hex.
+//
+// The format string uses identifiers indicated by a {} like in Python.
+//
+// A '{{' or '}}' sequence in the format string causes a literal '{' or '}' to
+// be output.
+//
+// Example:
+//
+//   #include "rst/strings/format.h"
+//
+//   std::string s = rst::Format("{} purchased {} {}", {"Bob", 5, "Apples"});
+//   RST_DCHECK(s == "Bob purchased 5 Apples");
+//
+// Supported types:
+//   * `std::string_view`, `std::string`, `const char*`
+//   * `short`, `unsigned short`, `int`, `unsigned int`, `long`,
+//     `unsigned long`, `long long`, `unsigned long long`
+//   * `float`, `double`, `long double` (printed as if %g is specified for
+//     `printf()`)
+//   * `bool` (printed as "true" or "false")
+//   * `char`
+//   * `enum`s (printed as underlying integer type)
+//
+// If an invalid format string is provided, `rst::Format()` asserts in a debug
+// build.
 template <size_t N>
 std::string Format(const char (&format)[N]) {
   return internal::FormatAndReturnString(format, N - 1, nullptr, 0);

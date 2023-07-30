@@ -33,13 +33,14 @@
 // Example:
 //
 //   #include "rst/macros/macros.h"
+//   #include "rst/macros/os.h"
 //
 //   #if RST_BUILDFLAG(OS_WIN)
-//   Windows code.
+//   // Windows code.
 //   #endif  // RST_BUILDFLAG(OS_WIN)
 //
 //   #if RST_BUILDFLAG(OS_ANDROID)
-//   Android code.
+//   // Android code.
 //   #endif  // RST_BUILDFLAG(OS_ANDROID)
 //
 #if defined(_WIN32)

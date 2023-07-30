@@ -32,9 +32,12 @@
 
 namespace rst {
 
-// Creates a null function.
+// Creates a null function object that will implicitly convert into any
+// `std::function` type.
 //
 // Example:
+//
+//   #include "rst/bind/bind_helpers.h"
 //
 //   using MyCallback = std::function<void(bool arg)>;
 //   void MyFunction(const MyCallback& callback) {
@@ -52,9 +55,12 @@ class NullFunction {
   }
 };
 
-// Creates a function that does nothing when called.
+// Creates a placeholder function object that will implicitly convert into any
+// `std::function` type, and does nothing when called.
 //
 // Example:
+//
+//   #include "rst/bind/bind_helpers.h"
 //
 //   using MyCallback = std::function<void(bool arg)>;
 //   void MyFunction(const MyCallback& callback) {

@@ -30,11 +30,15 @@
 
 namespace rst {
 
-// Used to explicitly copy the |value| and make it visible to the reader:
+// Used to explicitly copy the value and make it visible to the reader.
+//
+// Example:
+//
+//   #include "rst/clone/clone.h"
 //
 //   void ConsumeString(std::string&& val);
 //
-//   std::string s = ...;
+//   const std::string s = ...;
 //   ConsumeString(rst::Clone(s));
 //
 template <class T>

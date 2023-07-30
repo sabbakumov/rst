@@ -36,48 +36,6 @@
 #include "rst/check/check.h"
 #include "rst/macros/macros.h"
 
-// NotNull is a Microsoft GSL-like class that restricts a pointer or a smart
-// pointer to only hold non-null values. It doesn't support constructing and
-// assignment from nullptr. Also it asserts that the passed pointer is not
-// nullptr.
-//
-// Example:
-//
-//   void Foo(rst::NotNul<int*>) {}
-//
-//   int i = 0;
-//   Foo(&i);  // OK.
-//   Foo(nullptr);  // Compilation error.
-//   int* ptr = nullptr;
-//   Foo(ptr);  // Asserts.
-//
-// There are specializations for std::unique_ptr and std::shared_ptr. In order
-// to take the inner smart pointer use Take() method:
-//   rst::NotNull<std::unique_ptr<T>> p = ...;
-//   std::unique_ptr<T> inner = std::move(p).Take();
-//
-// Nullable is a class that explicitly state that a pointer or a smart pointer
-// can hold non-null values. It asserts that the object is checked for nullptr
-// after construction.
-//
-// Example:
-//
-//   void Foo(rst::Nullable<int*> ptr) {
-//     if (ptr != nullptr)
-//       *ptr = 0;  // OK.
-//   }
-//
-//   void Bar(rst::Nullable<int*> ptr) {
-//     *ptr = 0;  // Assert.
-//   }
-//
-// There are specializations for std::unique_ptr and std::shared_ptr. In order
-// to take the inner smart pointer use Take() method:
-//   rst::Nullable<std::unique_ptr<T>> p = ...;
-//   std::unique_ptr<T> inner = std::move(p).Take();
-//
-// Note std::move(p) is used to call Take(). It is a sign that |p| is in valid
-// but unspecified state. No method other than destructor can be called.
 namespace rst {
 namespace internal {
 
@@ -245,6 +203,31 @@ class NullableStorage<std::shared_ptr<T>> {
 template <class T>
 class Nullable;
 
+// `NotNull` is a Microsoft GSL-like class that restricts a pointer or a smart
+// pointer to only hold non-null values. It doesn't support constructing and
+// assignment from `nullptr_t`. Also it asserts that the passed pointer is not
+// `nullptr`.
+//
+// Example:
+//
+//   #include "rst/not_null/not_null.h"
+//
+//   void Foo(rst::NotNul<int*>) {}
+//
+//   int i = 0;
+//   Foo(&i);  // OK.
+//   Foo(nullptr);  // Compilation error.
+//   int* ptr = nullptr;
+//   Foo(ptr);  // Asserts.
+//
+// There are specializations for `std::unique_ptr` and `std::shared_ptr`. In
+// order to take the inner smart pointer use `Take()` method:
+//
+//   rst::NotNull<std::unique_ptr<T>> p = ...;
+//   std::unique_ptr<T> inner = std::move(p).Take();
+//
+// Note `std::move(p)` is used to call `Take()`. It is a sign that `p` is in
+// valid but unspecified state. No method other than destructor can be called.
 template <class T>
 class NotNull : public internal::NotNullStorage<T> {
  public:
@@ -359,6 +342,31 @@ class NotNull : public internal::NotNullStorage<T> {
 template <class T>
 NotNull(T) -> NotNull<T>;
 
+// `Nullable` is a class that explicitly states that a pointer or a smart
+// pointer can hold non-null values. It asserts that the object is checked for
+// `nullptr` after construction.
+//
+// Example:
+//
+//   #include "rst/not_null/not_null.h"
+//
+//   void Foo(rst::Nullable<int*> ptr) {
+//     if (ptr != nullptr)
+//       *ptr = 0;  // OK.
+//   }
+//
+//   void Bar(rst::Nullable<int*> ptr) {
+//     *ptr = 0;  // Assert.
+//   }
+//
+// There are specializations for `std::unique_ptr` and `std::shared_ptr`. In
+// order to take the inner smart pointer use `Take()` method:
+//
+//   rst::Nullable<std::unique_ptr<T>> p = ...;
+//   std::unique_ptr<T> inner = std::move(p).Take();
+//
+// Note `std::move(p)` is used to call `Take()`. It is a sign that `p` is in
+// valid but unspecified state. No method other than destructor can be called.
 template <class T>
 class Nullable : public internal::NullableStorage<T> {
  public:

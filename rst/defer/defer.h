@@ -32,9 +32,11 @@
 
 #include "rst/macros/macros.h"
 
-// Executes |f| on scope exit.
+// Executes a function object on scope exit.
 //
 // Example:
+//
+//   #include "rst/defer/defer.h"
 //
 //   void Foo() {
 //     std::FILE* f = std::fopen(...);

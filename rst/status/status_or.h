@@ -40,21 +40,48 @@
 
 namespace rst {
 
-// A Google-like StatusOr class for error handling.
+// A Google-like `StatusOr` class for recoverable error handling. It's
+// impossible to ignore an error, since error checking is mandatory.
+// `rst::StatusOr` destructor examines if the checked flag is set. All instances
+// must be checked before destruction, even if they're moved-assigned or
+// constructed from success values that have already been checked. This enforces
+// checking through all levels of the call stack.
 //
 // Example:
 //
-//   rst::StatusOr<std::string> foo = Foo();
-//   if (foo.err())
-//     return std::move(foo).TakeStatus();
+//   #include "rst/status/status_or.h"
+//
+//   rst::Status Bar() {  // Or can be rst::StatusOr<T> Bar().
+//     rst::StatusOr<std::string> foo = Foo();
+//     if (foo.err())
+//       return std::move(foo).TakeStatus();
+//     ...
+//   }
 //
 //   // Or:
-//   RST_TRY_CREATE(auto, foo, Foo());
-//   RST_TRY_CREATE(rst::StatusOr<std::string>, foo, Foo());
-//   ...
-//   RST_TRY_ASSIGN(foo, Foo());
+//   rst::Status Bar() {  // Or can be rst::StatusOr<T> Bar().
+//     RST_TRY_CREATE(auto, foo, Foo());
+//     RST_TRY_CREATE(rst::StatusOr<std::string>, foo, Foo());
+//     RST_TRY_ASSIGN(foo, Foo());
+//     std::cout << *foo << ", " << foo->size() << std::endl;
+//     ...
+//   }
 //
-//   std::cout << *foo << ", " << foo->size() << std::endl;
+//   // Check specific error:
+//   rst::StatusOr<std::string> status = Foo();
+//   if (status.err() &&
+//       rst::dyn_cast<FileOpenError>(status.GetError()) != nullptr) {
+//     // File doesn't exist.
+//   }
+//
+//   rst::Status Bad() {  // Or can be rst::StatusOr<T> Bar().
+//     Foo();  // Doesn't compile, since the class is marked as [[nodiscard]].
+//     {
+//       rst::StatusOr<std::string> foo = Foo();
+//       // DCHECK's, since error handling is ignored.
+//     }
+//     ...
+//   }
 //
 template <class T>
 class [[nodiscard]] StatusOr {

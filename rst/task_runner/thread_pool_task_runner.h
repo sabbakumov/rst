@@ -47,9 +47,12 @@
 
 namespace rst {
 
-// Task runner that is supposed to run tasks on dedicated threads.
+// Task runner that is supposed to run tasks on dedicated threads that have
+// their keep alive time. After that time of inactivity the threads stop.
 //
 // Example:
+//
+//   #include "rst/task_runner/thread_pool_task_runner.h"
 //
 //   std::function<std::chrono::nanoseconds()> time_function = ...;
 //   size_t max_threads_num = ...;
@@ -60,7 +63,15 @@ namespace rst {
 //   ...
 //   std::function<void()> task = ...;
 //   task_runner.PostTask(std::move(task));
+//   task = ...;
+//   task_runner.PostDelayedTask(std::move(task), std::chrono::seconds(1));
 //   ...
+//
+//   // Posts a single |task| and waits for all |iterations| to complete before
+//   // returning. The current index of iteration is passed to each invocation.
+//   std::function<void(size_t)> task = ...;
+//   constexpr size_t iterations = 100;
+//   task_runner.ApplyTaskSync(std::move(task), iterations);
 //
 class ThreadPoolTaskRunner : public TaskRunner {
  public:

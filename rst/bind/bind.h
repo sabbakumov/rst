@@ -36,16 +36,24 @@
 
 namespace rst {
 
-// Like std::bind() but doesn't call |f| when |weak_ptr| is invalidated.
+// Like `std::bind()` but the returned function object doesn't invoke
+// `rst::Bind`'s first callable object argument when `rst::Bind`'s second
+// argument
+// (`rst::WeakPtr` or `std::weak_ptr`) was invalidated.
 //
 // Example:
 //
-//   class Controller : public rst::SupportsWeakPtr<Controller> {
+//   #include "rst/bind/bind.h"
+//
+//   class Controller : public rst::SupportsWeakPtr<Controller>,
+//                      public std::enable_shared_from_this<Controller> {
 //    public:
 //     void SpawnWorker() {
 //       Worker::StartNew(rst::Bind(&Controller::WorkComplete, AsWeakPtr()));
+//       Worker::StartNew(rst::Bind(&Controller::WorkComplete,
+//                        weak_from_this()));
 //     }
-//     void WorkComplete(const Result& result) { ... }
+//     void WorkComplete(const Result& result) {}
 //   };
 //
 //   class Worker {
@@ -56,11 +64,11 @@ namespace rst {
 //     }
 //
 //    private:
-//     Worker(std::function<void(const Result&)>&& callback) {
+//     Worker(std::function<void(const Result&)>&& callback)
 //         : callback_(std::move(callback)) {}
 //
 //     void DidCompleteAsynchronousProcessing(const Result& result) {
-//       callback_(result);  // Does nothing if controller has been deleted.
+//       callback_(result);  // Does nothing if the controller has been deleted.
 //       delete this;
 //     }
 //

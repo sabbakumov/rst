@@ -45,35 +45,48 @@ namespace rst {
       return status;                                           \
   } while (false)
 
-// Macro to allow exception-like handling of Status return values.
+// Macro to allow exception-like handling of `rst::Status` return values.
 //
-// If the evaluation of |statement| results in an error, returns that error
-// from the current function.
+// If the evaluation of statement results in an error, returns that error from
+// the current function.
 //
 // Example:
+//
+//   #include "rst/status/status_macros.h"
+//
 //   rst::Status Foo();
 //
-//   RST_TRY(Foo());
+//   rst::Status Bar() {  // Or can be rst::StatusOr<T> Bar().
+//     RST_TRY(Foo());
+//     ...
+//   }
 //
 #define RST_TRY(statement) \
   RST_INTERNAL_TRY(RST_CAT(RST_INTERNAL_TRY_STATUS_NAME, __LINE__), statement)
 
-// Macro to allow exception-like handling of StatusOr return values.
+// Macro to allow exception-like handling of `rst::StatusOr` return values.
 //
-// Assigns the result of evaluation of |statement| to |lhs| and if it results
-// in an error, returns that error from the current function.
+// Assigns the result of evaluation of statement to lvalue and if it results in
+// an error, returns that error from the current function.
 //
-// |lhs| should be an existing non-const variable accessible in the current
+// lvalue should be an existing non-const variable accessible in the current
 // scope.
 //
+// `RST_TRY_ASSIGN()` expands into multiple statements; it cannot be used in a
+// single statement (e.g. as the body of an if statement without {})!
+//
 // Example:
+//
+//   #include "rst/status/status_macros.h"
+//
 //   rst::StatusOr<MyType> Foo();
 //
-//   rst::StatusOr<MyType> existing_var = ...;
-//   RST_TRY_ASSIGN(existing_var, Foo());
+//   rst::Status Bar() {  // Or can be rst::StatusOr<T> Bar().
+//     rst::StatusOr<MyType> existing_var = ...;
+//     RST_TRY_ASSIGN(existing_var, Foo());
+//     ...
+//   }
 //
-// RST_TRY_ASSIGN() expands into multiple statements; it cannot be used in a
-// single statement (e.g. as the body of an if statement without {})!
 #define RST_TRY_ASSIGN(lhs, statement) \
   lhs = (statement);                   \
   if (RST_UNLIKELY(lhs.err()))         \
@@ -90,40 +103,53 @@ namespace rst {
       lhs = std::move(*status_or);                                   \
   } while (false)
 
-// Macro to allow exception-like handling of StatusOr return values.
+// Macro to allow exception-like handling of `rst::StatusOr` return values.
 //
-// Assigns the unwrapped result of evaluation of |statement| to |lhs| and if it
+// Assigns the unwrapped result of evaluation of statement to lvalue and if it
 // results in an error, returns that error from the current function.
 //
-// |lhs| should be an existing non-const variable accessible in the current
+// lvalue should be an existing non-const variable accessible in the current
 // scope.
 //
 // Example:
+//
+//   #include "rst/status/status_macros.h"
+//
 //   rst::StatusOr<MyType> Foo();
 //
-//   MyType existing_var = ...;
-//   RST_TRY_ASSIGN_UNWRAP(existing_var, Foo());
+//   rst::Status Bar() {  // Or can be rst::StatusOr<T> Bar().
+//     MyType existing_var = ...;
+//     RST_TRY_ASSIGN_UNWRAP(existing_var, Foo());
+//     ...
+//   }
 //
 #define RST_TRY_ASSIGN_UNWRAP(lhs, statement)                                \
   RST_INTERNAL_TRY_ASSIGN_UNWRAP(                                            \
       lhs, RST_CAT(RST_INTERNAL_TRY_ASSIGN_UNWRAP_STATUS_OR_NAME, __LINE__), \
       statement)
 
-// Macro to allow exception-like handling of StatusOr return values.
+// Macro to allow exception-like handling of `rst::StatusOr` return values.
 //
-// Creates |lhs| and assigns the result of evaluation of |statement| to it and
+// Creates lvalue and assigns the result of evaluation of statement to it and
 // if it results in an error, returns that error from the current function.
 //
-// |lhs| should be a new variable.
+// lvalue should be a new variable.
+//
+// `RST_TRY_CREATE()` expands into multiple statements; it cannot be used in a
+// single statement (e.g. as the body of an if statement without {})!
 //
 // Example:
+//
+//   #include "rst/status/status_macros.h"
+//
 //   rst::StatusOr<MyType> Foo();
 //
-//   RST_TRY_CREATE(rst::StatusOr<MyType>, var1, Foo());
-//   RST_TRY_CREATE(auto, var2, Foo());
+//   rst::Status Bar() {  // Or can be rst::StatusOr<T> Bar().
+//     RST_TRY_CREATE(rst::StatusOr<MyType>, var1, Foo());
+//     RST_TRY_CREATE(auto, var2, Foo());
+//     ...
+//   }
 //
-// RST_TRY_CREATE() expands into multiple statements; it cannot be used in a
-// single statement (e.g. as the body of an if statement without {})!
 #define RST_TRY_CREATE(type, lhs, statement) \
   type lhs = (statement);                    \
   if (RST_UNLIKELY(lhs.err()))               \

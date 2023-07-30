@@ -35,6 +35,8 @@
 //
 // Example:
 //
+//   #include "rst/rtti/rtti.h"
+//
 //   class FileError : public rst::ErrorInfo<FileError> {
 //    public:
 //     explicit FileError(std::string&& message);

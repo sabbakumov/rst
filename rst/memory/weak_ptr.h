@@ -37,10 +37,10 @@
 #include "rst/macros/macros.h"
 #include "rst/not_null/not_null.h"
 
-// Chromium-based WeakPtr.
+// Chromium-based `WeakPtr`.
 //
 // Weak pointers are pointers to an object that do not affect its lifetime, and
-// which may be invalidated (i.e. reset to nullptr) by the object, or its
+// which may be invalidated (i.e. reset to `nullptr`) by the object, or its
 // owner, at any time, most commonly when the object is about to be deleted.
 //
 // Weak pointers are useful when an object needs to be accessed safely by one
@@ -51,10 +51,12 @@
 //
 // Example:
 //
+//   #include "rst/memory/weak_ptr.h"
+//
 //   class Controller : public rst::SupportsWeakPtr<Controller> {
 //    public:
 //     void SpawnWorker() { Worker::StartNew(AsWeakPtr()); }
-//     void WorkComplete(const Result& result) { ... }
+//     void WorkComplete(const Result& result) {}
 //   };
 //
 //   class Worker {
@@ -72,15 +74,14 @@
 //       rst::Nullable<Controller*> controller = controller_.GetNullable();
 //       if (controller != nullptr)
 //         controller->WorkComplete(result);
-//       delete this;
 //     }
 //
 //     const rst::WeakPtr<Controller> controller_;
 //   };
 //
-// With this implementation a caller may use SpawnWorker() to dispatch multiple
-// Workers and subsequently delete the Controller, without waiting for all
-// Workers to have completed.
+// With this implementation a caller may use `SpawnWorker()` to dispatch
+// multiple Workers and subsequently delete the Controller, without waiting for
+// all Workers to have completed.
 namespace rst {
 
 template <class T>
@@ -216,6 +217,9 @@ class SupportsWeakPtr : public internal::SupportsWeakPtrBase {
 // extends SupportsWeakPtr<Base>.
 //
 // Example:
+//
+//   #include "rst/memory/weak_ptr.h"
+//
 //   class Base : public rst::SupportsWeakPtr<Base> {};
 //   class Derived : public Base {};
 //

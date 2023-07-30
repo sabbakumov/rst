@@ -44,19 +44,27 @@
 
 namespace rst {
 
-// A set of preferences stored in a PreferencesStore.
+// A set of preferences stored in a `rst:PreferencesStore`.
 //
-// Preferences need to be registered with a type and a default value before they
-// are used.
+// `rst::Preferences` need to be registered with a type, dotted path, and a
+// default value before they can be used. A type can be any of the `rst::Value`
+// types.
 //
 // Example:
-//   rst::Preferences preferences(...);
+//
+//   #include "rst/preferences/memory_preferences_store.h"
+//   #include "rst/preferences/preferences.h"
+//
+//   rst::Preferences preferences(
+//       std::make_unique<rst::MemoryPreferencesStore>());
 //
 //   preferences.RegisterIntPreference("int.preference", 10);
 //   RST_DCHECK(preferences.GetInt("int.preference") == 10);
 //
 //   preferences.SetInt("int.preference", 20);
 //   RST_DCHECK(preferences.GetInt("int.preference") == 20);
+//
+//   // etc.
 //
 class Preferences {
  public:

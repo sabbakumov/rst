@@ -58,10 +58,20 @@ struct ResizeUninitializedTraits<
 
 }  // namespace internal
 
-// Like std::string::resize(), except any new characters added to string as a
-// result of resizing may be left uninitialized, rather than being filled with
+// Like `std::string::resize()`, except any new characters added to a string as
+// a result of resizing may be left uninitialized, rather than being filled with
 // '\0' bytes. Typically used when code is then going to overwrite the backing
-// store of the std::string with known data.
+// store of the `std::string` with known data.
+//
+// Example:
+//
+//   #include "rst/stl/resize_uninitialized.h"
+//
+//   std::string s;
+//   rst::StringResizeUninitialized(&s, 10);
+//   void* ptr = ...
+//   std::memcpy(s.data(), ptr, 10);
+//
 template <class String>
 void StringResizeUninitialized(const NotNull<String*> s,
                                const size_t new_size) {

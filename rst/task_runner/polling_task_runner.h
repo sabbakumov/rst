@@ -46,13 +46,17 @@ namespace rst {
 //
 // Example:
 //
+//   #include "rst/task_runner/polling_task_runner.h"
+//
 //   std::function<std::chrono::nanoseconds()> time_function = ...;
 //   rst::PollingTaskRunner task_runner(std::move(time_function));
 //   for (;; task_runner.RunPendingTasks()) {
-//     ...
+//     // ...
 //     std::function<void()> task = ...;
 //     task_runner.PostTask(std::move(task));
-//     ...
+//     task = ...;
+//     task_runner.PostDelayedTask(std::move(task), std::chrono::seconds(1));
+//     // ...
 //   }
 //
 class PollingTaskRunner : public TaskRunner {

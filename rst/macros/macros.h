@@ -28,37 +28,43 @@
 #ifndef RST_MACROS_MACROS_H_
 #define RST_MACROS_MACROS_H_
 
-// Google like macros.
+// Put this in the declarations for a class to be uncopyable.
 //
 // Example:
 //
-//   class NonCopyAssignable {
-//    public:
-//     NonCopyAssignable() = default;
+//   #include "rst/macros/macros.h"
 //
-//     void Foo();
-//     void Bar();
-//
+//   class NonCopyable {
 //    private:
-//     RST_DISALLOW_COPY_AND_ASSIGN(NonCopyAssignable);
+//     RST_DISALLOW_COPY(NonCopyable);
 //   };
 //
-//   class NonConstructible {
-//    public:
-//     static void Foo();
-//     static void Bar();
-//
-//    private:
-//     RST_DISALLOW_IMPLICIT_CONSTRUCTORS(NonConstructible);
-//   };
-
-// Put this in the declarations for a class to be uncopyable.
 #define RST_DISALLOW_COPY(Class) Class(const Class&) = delete
 
 // Put this in the declarations for a class to be unassignable.
+//
+// Example:
+//
+//  #include "rst/macros/macros.h"
+//
+//  class NonAssignable {
+//   private:
+//    RST_DISALLOW_ASSIGN(NonAssignable);
+//  };
+//
 #define RST_DISALLOW_ASSIGN(Class) Class& operator=(const Class&) = delete
 
 // Put this in the declarations for a class to be uncopyable and unassignable.
+//
+// Example:
+//
+//  #include "rst/macros/macros.h"
+//
+//  class NonCopyAssignable {
+//   private:
+//    RST_DISALLOW_COPY_AND_ASSIGN(NonCopyAssignable);
+//  };
+//
 #define RST_DISALLOW_COPY_AND_ASSIGN(Class) \
   RST_DISALLOW_COPY(Class);                 \
   RST_DISALLOW_ASSIGN(Class)
@@ -66,6 +72,16 @@
 // A macro to disallow all the implicit constructors, namely the default
 // constructor, copy constructor and operator=() functions. This is especially
 // useful for classes containing only static methods.
+//
+// Example:
+//
+//  #include "rst/macros/macros.h"
+//
+//  class NonConstructible {
+//   private:
+//    RST_DISALLOW_IMPLICIT_CONSTRUCTORS(NonConstructible);
+//  };
+//
 #define RST_DISALLOW_IMPLICIT_CONSTRUCTORS(Class) \
   Class() = delete;                               \
   RST_DISALLOW_COPY_AND_ASSIGN(Class)
@@ -74,20 +90,34 @@
 // indirectly because using ## directly prevents macros in that parameter from
 // being expanded.
 #define RST_INTERNAL_CAT(x, y) x##y
+
+// This does a concatenation of two preprocessor arguments.
+//
+// Example:
+//
+//   #include "rst/macros/macros.h"
+//
+//   static constexpr auto kAb = "cd";
+//   const std::string s = RST_CAT(kA, b);
+//   RST_DCHECK(s == kAb);
+//
 #define RST_CAT(x, y) RST_INTERNAL_CAT(x, y)
 
-// This macro un-mangles the names of the build flags in a way that looks
-// natural, and gives errors if the flag is not defined. Normally in the
+// `RST_BUILDFLAG()` macro unmangles the names of the build flags in a way that
+// looks natural, and gives errors if the flag is not defined. Normally in the
 // preprocessor it's easy to make mistakes that interpret "you haven't done the
 // setup to know what the flag is" as "flag is off".
 //
 // Example:
 //
+//   #include "rst/macros/macros.h"
+//
 //   #define RST_BUILDFLAG_ENABLE_FOO() (true)
 //
 //   #if RST_BUILDFLAG(ENABLE_FOO)
-//     ...
+//   // ...
 //   #endif  // RST_BUILDFLAG(ENABLE_FOO)
+//
 #define RST_BUILDFLAG(flag) (RST_CAT(RST_BUILDFLAG_, flag)())
 
 #endif  // RST_MACROS_MACROS_H_

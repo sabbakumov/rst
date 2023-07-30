@@ -33,9 +33,11 @@
 
 namespace rst {
 
-// Allows in-place initialization of a vector of movable objects.
+// Allows in-place initialization of a `std::vector` of move-only objects.
 //
 // Example:
+//
+//   #include "rst/stl/vector_builder.h"
 //
 //   const std::vector<std::unique_ptr<int>> vec =
 //       rst::VectorBuilder<std::unique_ptr<int>>()

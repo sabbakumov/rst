@@ -66,16 +66,41 @@ class FileOpenError final : public ErrorInfo<FileOpenError, FileError> {
   RST_DISALLOW_COPY_AND_ASSIGN(FileOpenError);
 };
 
-// Writes |data| to |filename|. Returns FileError on error.
+// Writes data to a file. Returns `rst::FileError` on error.
+//
+// Example:
+//
+//   #include "rst/files/file_utils.h"
+//
+//   const std::string_view data = ...;
+//   rst::Status status = rst::WriteFile("filename.txt", data);
+//
 Status WriteFile(NotNull<const char*> filename, std::string_view data);
 
-// Like WriteFile() but ensures that the file won't be corrupted by application
-// crash during write.
+// Like `rst::WriteFile()` but ensures that the file won't be corrupted by
+// application crash during write. This is done by writing data to a file near
+// the destination file, and then renaming the temporary file to the destination
+// one.
+//
+// Example:
+//
+//   #include "rst/files/file_utils.h"
+//
+//   const std::string_view data = ...;
+//   rst::Status status = rst::WriteImportantFile("filename.txt", data);
+//
 Status WriteImportantFile(const std::filesystem::path& filename,
                           std::string_view data);
 
-// Reads content from |filename|. Returns FileOpenError if the file can not be
-// opened, FileError on other error.
+// Reads content from a file to a string. Returns `rst::FileOpenError` if the
+// file can not be opened, `rst::FileError` on other error.
+//
+// Example:
+//
+//   #include "rst/files/file_utils.h"
+//
+//   rst::StatusOr<std::string> content = rst::ReadFile("filename.txt");
+//
 StatusOr<std::string> ReadFile(const std::filesystem::path& filename);
 
 }  // namespace rst

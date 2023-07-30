@@ -110,23 +110,44 @@ class ErrorInfo : public Parent {
   RST_DISALLOW_COPY_AND_ASSIGN(ErrorInfo);
 };
 
-// A Google-like Status class for recoverable error handling. It's impossible to
-// ignore an error.
+// A Google-like `Status` class for recoverable error handling. It's impossible
+// to ignore an error, since error checking is mandatory. `rst::Status`
+// destructor examines if the checked flag is set. All instances must be checked
+// before destruction, even if they're moved-assigned or constructed from
+// success values that have already been checked. This enforces checking through
+// all levels of the call stack.
 //
 // Example:
 //
-//   rst::Status status = Foo();
-//   if (status.err())
-//     return status;
+//   #include "rst/status/status.h"
+//
+//   rst::Status Bar() {  // Or can be rst::StatusOr<T> Bar().
+//     rst::Status status = Foo();
+//     if (status.err())
+//       return status;
+//     ...
+//   }
 //
 //   // Or:
-//   RST_TRY(Foo());
+//   rst::Status Bar() {  // Or can be rst::StatusOr<T> Bar().
+//     RST_TRY(Foo());
+//     ...
+//   }
 //
 //   // Check specific error:
-//   rst::Status status = Bar();
+//   rst::Status status = Foo();
 //   if (status.err() &&
 //       rst::dyn_cast<FileOpenError>(status.GetError()) != nullptr) {
 //     // File doesn't exist.
+//   }
+//
+//   rst::Status Bad() {  // Or can be rst::StatusOr<T> Bar().
+//     Foo();  // Doesn't compile, since the class is marked as [[nodiscard]].
+//     {
+//       rst::Status status = Foo();
+//       // DCHECK's, since error handling is ignored.
+//     }
+//     ...
 //   }
 //
 class [[nodiscard]] Status {

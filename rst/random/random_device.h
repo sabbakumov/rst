@@ -32,7 +32,8 @@
 
 namespace rst {
 
-// Returns singleton reference in order to have only one open random file.
+// Returns a reference to a singleton in order to have only one random device
+// per thread.
 std::random_device& GetRandomDevice();
 
 }  // namespace rst

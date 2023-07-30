@@ -51,9 +51,12 @@ class Hash {
 
 }  // namespace internal
 
-// Boost-like functions to create a hash value from several variables.
+// Boost-like function to create a hash value from several variables. It can
+// take any type that `std::hash` does.
 //
 // Example:
+//
+//   #include "rst/stl/hash.h"
 //
 //   struct Point {
 //     Point(const int x, const int y) : x(x), y(y) {}

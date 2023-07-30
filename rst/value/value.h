@@ -46,19 +46,73 @@
 
 namespace rst {
 
-// A Chromium-like JSON Value class.
-
+// A Chromium-like JSON `Value` class.
+//
 // This is a recursive data storage class intended for storing settings and
 // other persistable data.
 //
-// A Value represents something that can be stored in JSON or passed to/from
-// JavaScript. As such, it is not a generalized variant type, since only the
-// types supported by JavaScript/JSON are supported.
+// A `rst::Value` represents something that can be stored in JSON or passed
+// to/from JavaScript. As such, it is not a generalized variant type, since only
+// the types supported by JavaScript/JSON are supported.
 //
-// In particular this means that there is no support for int64_t or unsigned
+// In particular this means that there is no support for `int64_t` or unsigned
 // numbers. Writing JSON with such types would violate the spec. If you need
-// something like this, either use a double or make a string value containing
-// the number you want.
+// something like this, either use a `double` or make a `string` value
+// containing the number you want.
+//
+// Construction:
+//
+// `rst::Value` is directly constructible from `bool`, `int32_t`, `int64_t`
+// (checking that the modulo of the value is <= 2^53 - 1, `double` (excluding
+// NaN and inf), `const char*`, `std::string`, `rst::Value::Array`, and
+// `rst::Value::Object`.
+//
+// Copying:
+//
+// `rst::Value` does not support C++ copy semantics to make it harder to
+// accidentally copy large values. Instead, use `Clone()` to manually create a
+// deep copy.
+//
+// Reading:
+//
+// `GetBool()`, `GetInt()`, etc. assert that the `rst::Value` has the correct
+// `type()` before returning the contained value. `bool`, `int`, `double` are
+// returned by value. `std::string`, `rst::Value::Object`, `rst::Value::Array`
+// are returned by reference.
+//
+// Assignment:
+//
+// It is not possible to directly assign `bool`, `int`, etc. to a `rst::Value`.
+// Instead, wrap the underlying type in `rst::Value` before assigning.
+//
+// Objects support:
+//
+// `FindKey()`: Finds a value by `std::string_view` key, returning `nullptr` if
+// the key is not present. `FindKeyOfType()`: Finds a value by
+// `std::string_view` key, returning `nullptr` if the key is not present or the
+// `type()` of the value is not what is needed. `FindBoolKey()`, `FindIntKey()`,
+// ...: Similar to `FindKey()`, but ensures that the `rst::Value` also has the
+// correct `type()`. `bool`, `int`, `double` are returned by `std::optional<>`.
+// `std::string`, `rst::Value::Object`, `rst::Value::Array` are returned by
+// `rst::Nullable` pointer. `SetKey()`: Associates a `rst::Value` with a
+// `std::string` key. `RemoveKey()`: Removes the key from this object, if
+// present.
+//
+// Objects also support an additional set of helper methods that operate on
+// "paths": `FindPath()`, and `SetPath()`.
+// Dotted paths are a convenience method of naming intermediate nested objects,
+// separating the components of the path using '.' characters. For example,
+// finding a path on a `rst::Value::Object` using the dotted path:
+//
+//   "aaa.bbb.ccc"
+//
+// will first look for a `rst::Value::Object` associated with the key "aaa",
+// then another `rst::Value::Object` under the "aaa" object associated with the
+// key "bbb", and then a `rst::Value` under the "bbb" object associated
+// with the key "ccc".
+//
+// If a path only has one component (i.e. has no dots), please use the regular,
+// non-path APIs.
 class Value {
  public:
   using String = std::string;

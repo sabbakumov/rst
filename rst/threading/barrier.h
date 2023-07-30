@@ -43,6 +43,8 @@ namespace rst {
 //
 // Example:
 //
+//   #include "rst/threading/barrier.h"
+//
 //   rst::Barrier barrier(5);
 //
 //   std::vector<std::thread> threads;

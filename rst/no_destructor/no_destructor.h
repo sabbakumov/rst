@@ -36,7 +36,7 @@
 
 namespace rst {
 
-// Chromium-like NoDestructor class.
+// Chromium-like `NoDestructor` class.
 //
 // A wrapper that makes it easy to create an object of type T with static
 // storage duration that:
@@ -44,26 +44,32 @@ namespace rst {
 // * never invokes the destructor
 //
 // Runtime constant example:
-// const std::string& GetLineSeparator() {
-//   static const rst::NoDestructor<std::string> s(5, '-');
-//   return *s;
-// }
+//
+//   #include "rst/no_destructor/no_destructor.h"
+//
+//   const std::string& GetLineSeparator() {
+//     static const rst::NoDestructor<std::string> s(5, '-');
+//     return *s;
+//   }
 //
 // More complex initialization with a lambda:
-// const std::string& GetSession() {
-//   static const rst::NoDestructor<std::string> session([] {
-//     std::string s(16);
-//     ...
-//     return s;
-//   }());
-//   return *session;
-// }
 //
-// NoDestructor<T> stores the object inline, so it also avoids a pointer
+//   #include "rst/no_destructor/no_destructor.h"
+//
+//   const std::string& GetSession() {
+//     static const rst::NoDestructor<std::string> session([] {
+//       std::string s(16);
+//       // ...
+//       return s;
+//     }());
+//     return *session;
+//   }
+//
+// `NoDestructor<T>` stores the object inline, so it also avoids a pointer
 // indirection and memory allocation.
 //
 // Note that since the destructor is never run, this will leak memory if used
-// as a stack or member variable. Furthermore, a NoDestructor<T> should never
+// as a stack or member variable. Furthermore, a `NoDestructor<T>` should never
 // have global scope as that may require a static initializer.
 template <class T>
 class NoDestructor {

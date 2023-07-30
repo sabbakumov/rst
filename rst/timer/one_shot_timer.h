@@ -38,15 +38,17 @@
 
 namespace rst {
 
-// OneShotTimer provides a simple timer API. As the name suggests, OneShotTimer
-// calls back once after a time delay expires.
+// `rst::OneShotTimer` provides a simple timer API. As the name suggests,
+// `rst::OneShotTimer` calls back once after a time delay expires.
 //
-// OneShotTimer cancels the timer when it goes out of scope, which makes it
-// easy to ensure that you do not get called when your object has gone out of
+// `rst::OneShotTimer` cancels the timer when it goes out of scope, which makes
+// it easy to ensure that you do not get called when your object has gone out of
 // scope. Just instantiate a timer as a member variable of the class for which
 // you wish to receive timer events.
 //
 // Example:
+//
+//   #include "rst/timer/one_shot_timer.h"
 //
 //   class MyClass {
 //    public:

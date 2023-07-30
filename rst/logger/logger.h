@@ -38,12 +38,20 @@
 #include "rst/macros/macros.h"
 #include "rst/not_null/not_null.h"
 
-// General logger component. Note that fatal logs exit the program.
+// General logger component. Note that fatal logs abort the program.
 //
 // Example:
 //
-//   // Construct logger with a custom sink.
-//   std::unique_ptr<rst::Sink> sink = ...;
+//   #include "rst/logger/file_name_sink.h"
+//   #include "rst/logger/file_ptr_sink.h"
+//   #include "rst/logger/logger.h"
+//
+//   // Constructs a logger with a custom sink.
+//   auto sink = rst::FileNameSink::Create("log.txt");
+//   RST_CHECK(!sink.err());
+//   rst::Logger logger(std::move(*sink));
+//
+//   auto sink = std::make_unique<rst::FilePtrSink>(stderr);
 //   rst::Logger logger(std::move(sink));
 //
 //   // To get logger macros working.
@@ -52,6 +60,19 @@
 //   RST_LOG_INFO("Init subsystem A");
 //   // DLOG versions log only in a debug build.
 //   RST_DLOG_WARNING("Init subsystem A.B");
+//
+//   RST_LOG_DEBUG("message");
+//   RST_LOG_INFO("message");
+//   RST_LOG_WARNING("message");
+//   RST_LOG_ERROR("message");
+//   RST_LOG_FATAL("message");
+//
+//   RST_DLOG_DEBUG("message");
+//   RST_DLOG_INFO("message");
+//   RST_DLOG_WARNING("message");
+//   RST_DLOG_ERROR("message");
+//   RST_DLOG_FATAL("message");
+//
 
 // Helper macros for logging with the specified level.
 #define RST_LOG_DEBUG(message) \

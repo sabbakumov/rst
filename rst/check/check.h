@@ -35,22 +35,24 @@
 
 // Chromium-like checking macros for better programming error handling.
 //
-// The RST_CHECK() macro will cause an immediate crash if its condition is not
-// met. RST_DCHECK() is like RST_CHECK() but is only compiled in debug build.
-// RST_NOTREACHED() is equivalent to RST_DCHECK(false). Here are some rules for
-// using these:
+// The `RST_CHECK()` macro will cause an immediate crash if its condition is not
+// met. `RST_DCHECK()` is like `RST_CHECK()` but is only compiled in debug
+// build. `RST_NOTREACHED()` is equivalent to `RST_DCHECK(false)`. Here are some
+// rules for using these:
 //
-// Use RST_DCHECK() or RST_NOTREACHED() as assertions, e.g. to document pre-
-// and post-conditions. A RST_DCHECK() means "this condition must always be
+// Use `RST_DCHECK()` or `RST_NOTREACHED()` as assertions, e.g. to document pre-
+// and post-conditions. A `RST_DCHECK()` means "this condition must always be
 // true", not "this condition is normally true, but perhaps not in exceptional
 // cases." Things like disk corruption or strange network errors are examples
 // of exceptional circumstances that nevertheless should not result in
-// RST_DCHECK() failure.
-// A consequence of this is that you should not handle RST_DCHECK() failures,
-// even if failure would result in a crash. Attempting to handle a RST_DCHECK()
-// failure is a statement that the RST_DCHECK() can fail, which contradicts the
-// point of writing the RST_DCHECK(). In particular, do not write code like the
-// following:
+// `RST_DCHECK()` failure.
+// A consequence of this is that you should not handle `RST_DCHECK()` failures,
+// even if failure would result in a crash. Attempting to handle a
+// `RST_DCHECK()` failure is a statement that the `RST_DCHECK()` can fail, which
+// contradicts the point of writing the `RST_DCHECK()`. In particular, do not
+// write code like the following:
+//
+//   #include "rst/check/check.h"
 //
 //   RST_DCHECK(foo);
 //   if (!foo)  // Eliminate this code.
@@ -61,15 +63,16 @@
 //     return;
 //   }
 //
-// Use RST_CHECK() if the consequence of a failed assertion would be a security
-// vulnerability or a contract violation, where crashing is preferable.
+// Use `RST_CHECK()` if the consequence of a failed assertion would be a
+// security vulnerability or a contract violation, where crashing is preferable.
 //
 // If you want to do more complex logic in a debug build write the following:
 //
+//   #include "rst/check/check.h"
 //   #include "rst/macros/macros.h"
 //
 //   #if RST_BUILDFLAG(DCHECK_IS_ON)
-//   Some complex logic in a debug build.
+//   // Some complex logic in a debug build.
 //   #endif  // RST_BUILDFLAG(DCHECK_IS_ON)
 //
 #if defined(NDEBUG)

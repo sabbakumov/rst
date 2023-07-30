@@ -60,6 +60,17 @@ class Guid {
   // RFC 4122, section 4.4. The format of GUID version 4 must be
   // xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx, where y is one of [8, 9, A, B]. The
   // hexadecimal values "a" through "f" are output as lower case characters.
+  //
+  // Example:
+  //
+  //   #include "rst/guid/guid.h"
+  //
+  //   const rst::Guid guid;
+  //   const std::string guid_string = guid.AsString();
+  //
+  //   void TakeGuid(std::string_view guid);
+  //   TakeGuid(guid.AsStringView().value());
+  //
   Guid();
   ~Guid() = default;
 
@@ -68,9 +79,9 @@ class Guid {
 
   // Returns true if the input string conforms to the version 4 GUID format.
   // Note that this does not check if the hexadecimal values "a" through "f" are
-  // in lower case characters, as Version 4 RFC says onput they're case
-  // insensitive. (Use IsValidGuidOutputString() for checking if the given
-  // string is valid output string)
+  // in lower case characters, as Version 4 RFC says they're case insensitive.
+  // (Use IsValidGuidOutputString() for checking if the given string is valid
+  // output string).
   static bool IsValid(std::string_view guid);
 
   // Returns true if the input string is valid version 4 GUID output string.

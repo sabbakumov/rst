@@ -33,17 +33,17 @@
 //
 // Example:
 //
-//   if (RST_LIKELY(expression)) {
-//     return result;  // Faster if more likely.
-//   } else {
-//     return 0;
-//   }
+//   #include "rst/macros/optimization.h"
 //
-//   if (RST_UNLIKELY(expression)) {
+//   if (RST_LIKELY(expression))
+//     return result;  // Faster if more likely.
+//   else
+//     return 0;
+//
+//   if (RST_UNLIKELY(expression))
 //     return result;
-//   } else {
+//   else
 //     return 0;  // Faster if more likely.
-//   }
 //
 //   switch (RST_LIKELY_EQ(x, 5)) {
 //     default:
@@ -53,7 +53,7 @@
 //   }
 //
 // Compilers can use the information that a certain branch is not likely to be
-// taken (for instance, a RST_CHECK() failure) to optimize for the common case
+// taken (for instance, a `RST_CHECK()` failure) to optimize for the common case
 // in the absence of better information.
 //
 // Recommendation: modern CPUs dynamically predict branch execution paths,

@@ -33,10 +33,12 @@
 
 namespace rst {
 
-// Like std::move() for std::function except that it also assigns nullptr to a
-// moved argument.
+// Like `std::move()` for `std::function` except that it also assigns `nullptr`
+// to a moved argument.
 //
 // Example:
+//
+//   #include "rst/stl/function.h"
 //
 //   std::function<void()> f = ...;
 //   auto moved_f = std::move(f);  // f is in a valid but unspecified state

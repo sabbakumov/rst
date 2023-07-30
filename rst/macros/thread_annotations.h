@@ -45,6 +45,8 @@
 //
 // Example:
 //
+//   #include "rst/macros/thread_annotations.h"
+//
 //   std::mutex mtx;
 //   int i RST_GUARDED_BY(mtx);
 //
@@ -56,6 +58,8 @@
 //
 // Example:
 //
+//   #include "rst/macros/thread_annotations.h"
+//
 //   std::mutex mtx;
 //   int* p RST_PT_GUARDED_BY(mtx);
 //   std::unique_ptr<int> p2 RST_PT_GUARDED_BY(mtx);
@@ -64,6 +68,8 @@
 // shared variable.
 //
 // Example:
+//
+//   #include "rst/macros/thread_annotations.h"
 //
 //   // |q|, guarded by |mtx1|, points to a shared memory location that is
 //   // guarded by |mtx2|:

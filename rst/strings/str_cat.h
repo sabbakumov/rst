@@ -33,32 +33,37 @@
 
 #include "rst/strings/arg.h"
 
-// This component is for efficiently performing merging an arbitrary number of
+namespace rst {
+
+// This function is for efficiently performing merging an arbitrary number of
 // strings or numbers into one string, and is designed to be the fastest
 // possible way to construct a string out of a mix of raw C strings,
-// string_view elements, std::string value, boolean and numeric values.
-// StrCat() is generally more efficient on string concatenations involving more
-// than one unary operator, such as a + b + c or a += b + c, since it avoids
-// the creation of temporary string objects during string construction.
+// `string_view` elements, `std::string` value, boolean and numeric values.
+// `rst::StrCat()` is generally more efficient on string concatenations
+// involving more than one unary operator, such as a + b + c or a += b + c,
+// since it avoids the creation of temporary string objects during string
+// construction.
 //
-// Supported arguments such as strings, string_views, ints, floats, and bools,
-// are automatically converted to strings during the concatenation process. See
-// below for a full list of supported types.
+// Supported arguments such as `string`s, `string_view`s, `int`s, `float`s, and
+// `bool`s, are automatically converted to `string`s during the concatenation
+// process. See below for a full list of supported types.
 //
 // Example:
-//   std::string s = rst::StrCat({"Bob", " purchased ", 5, " ", Apples"});
+//
+//   #include "rst/strings/str_cat.h"
+//
+//   std::string s = rst::StrCat({"Bob", " purchased ", 5, " ", "Apples"});
 //   RST_DCHECK(s == "Bob purchased 5 Apples");
 //
 // Supported types:
-//   * std::string_view, std::string, const char*
-//   * short, unsigned short, int, unsigned int, long, unsigned long, long long,
-//     unsigned long long
-//   * float, double, long double (printed as if %g is specified for printf())
-//   * bool (printed as "true" or "false")
-//   * char
-//   * enums (printed as underlying integer type)
-namespace rst {
-
+//   * `std::string_view`, `std::string`, `const char*`
+//   * `short`, `unsigned short`, `int`, `unsigned int`, `long`,
+//     `unsigned long`, `long long`, `unsigned long long`
+//   * `float`, `double`, `long double` (printed as if %g is specified for
+//     `printf()`)
+//   * `bool` (printed as "true" or "false")
+//   * `char`
+//   * `enum`s (printed as underlying integer type)
 std::string StrCat(std::initializer_list<internal::Arg> values);
 
 }  // namespace rst
