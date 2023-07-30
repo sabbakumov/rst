@@ -27,13 +27,15 @@
 
 #include "rst/random/random_device.h"
 
-#include "rst/no_destructor/no_destructor.h"
-
 namespace rst {
 
 std::random_device& GetRandomDevice() {
-  thread_local NoDestructor<std::random_device> device;
-  return *device;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+  // Function-scope thread_local is safe.
+  thread_local std::random_device device;
+#pragma clang diagnostic pop
+  return device;
 }
 
 }  // namespace rst
